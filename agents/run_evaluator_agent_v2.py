@@ -102,22 +102,38 @@ def compute_confidence(ind_name: str, sp_data: dict, ksp_data: dict) -> dict:
     }
 
 
+# S&P500 자체 계산 지표 — Granger 유의성이 수학적 필연 (analysis agent와 동기화)
+_SELF_REFERENTIAL = {
+    "BBAND", "MA50", "MA200", "RSI14", "RSI_SIGNAL",
+    "STOCH_RSI", "MARKET_MOMENTUM", "BETA"
+}
+
 def filter_ranking(ranking: list) -> tuple[list, list]:
     valid, filtered = [], []
     for item in ranking:
-        w  = item.get("combined_weight")
-        sp = item.get("sp500_abs_r")
-        kp = item.get("kospi_abs_r")
+        w   = item.get("combined_weight")
+        sp  = item.get("sp500_abs_r")
+        kp  = item.get("kospi_abs_r")
+        ind = item.get("indicator", "")
 
         is_nan = (w is None or (isinstance(w, float) and np.isnan(w))
                   or (sp is not None and isinstance(sp, float) and np.isnan(sp))
                   or (kp is not None and isinstance(kp, float) and np.isnan(kp)))
 
+        # 자기참조 지표: S&P500 가격에서 직접 계산 → Granger가 순환논리 → 랭킹 완전 제외
+        if ind in _SELF_REFERENTIAL:
+            item["filter_reason"] = "자기참조 지표 — S&P500 가격에서 직접 계산, Granger 순환논리, 랭킹 제외"
+            filtered.append(item)
+            continue
+
+        is_sig = (item.get("sp500_significant") or item.get("kospi_significant")
+                  or item.get("sp500_granger_sig") or item.get("kospi_granger_sig"))
+
         if is_nan:
             item["filter_reason"] = "NaN (데이터 부족 또는 상수 계열)"
             filtered.append(item)
-        elif not item.get("sp500_significant") and not item.get("kospi_significant"):
-            item["filter_reason"] = "통계적 비유의 (p >= 0.05 양 시장)"
+        elif not is_sig:
+            item["filter_reason"] = "통계적 비유의 (동시점+Granger 양 시장)"
             filtered.append(item)
         else:
             valid.append(item)

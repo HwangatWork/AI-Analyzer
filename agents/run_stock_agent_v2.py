@@ -326,7 +326,46 @@ def get_kospi_market_caps(universe: list[tuple[str, str]]) -> dict[str, float]:
 SPINOFF_RETURN_THRESHOLD = 1000.0   # % 초과 시 스핀오프/이벤트 의심
 SPINOFF_RETURN_CAP       = 300.0    # 기여도 계산용 수익률 상한 (%)
 
-def compute_contribution(stock_df: pd.DataFrame, idx: pd.Series, mc: float) -> dict | None:
+KRW_PER_USD = 1350.0  # KRW/USD 환율 (KOSPI mc 단위 변환용)
+
+# 알려진 기업 이벤트 → ⚠ 이유 텍스트 (ticker 기준)
+KNOWN_EVENTS: dict[str, str] = {
+    "SNDK":  "WD(Western Digital) 스핀오프 2024.02.21 상장 — 분리 직후 주가 기준 초과수익률 왜곡",
+    "WDC":   "SanDisk 스핀오프 2024.02.21 — 분사 후 잔여 법인 기준 수익률",
+    "LITE":  "광학부품 AI 데이터센터 수요 급증 + 기업 구조 변화 가능성 — 실제 초과수익 여부 수동 확인 권장",
+    "009150":"삼성전기 AI/반도체 PCB·MLCC 수요 급증 테마 — FDR 수익률 확인 필요",
+    "034730":"SK스퀘어 지주사 NAV 할인 해소 + 반도체 자회사 재평가 — 실제 거래 기반 수익률",
+    "000660":"SK하이닉스 HBM 메모리 AI GPU 수요 급증 — 실제 AI 인프라 수혜",
+    "005930":"삼성전자 HBM·파운드리 전환 기대 — 실제 반도체 사이클 수혜",
+}
+
+EXTREME_RETURN_THRESHOLD = 500.0   # % 초과 시 자동 ⚠ 사유 부여
+
+def annotate_warn_reasons(stock_list: list[dict], return_key: str = "excess_return_pct") -> list[dict]:
+    """
+    극단 수익률 종목에 warn_reason 필드 추가.
+    - 알려진 이벤트: KNOWN_EVENTS 딕셔너리 조회
+    - 미확인 극단 수익: 일반 경고 텍스트
+    """
+    for s in stock_list:
+        ret = abs(s.get(return_key, 0))
+        if ret < EXTREME_RETURN_THRESHOLD:
+            continue
+        ticker = s.get("ticker", "")
+        reason = KNOWN_EVENTS.get(ticker)
+        if not reason:
+            reason = f"극단 수익률 {s.get(return_key,0):+.1f}% — 기업 이벤트(분사/합병/테마) 가능성, 수동 확인 권장"
+        s["warn_reason"] = reason
+    return stock_list
+
+def compute_contribution(stock_df: pd.DataFrame, idx: pd.Series,
+                         mc: float, krw_divisor: float = 1.0) -> dict | None:
+    """
+    mc: 현재 시가총액 (SP500=USD, KOSPI=KRW)
+    krw_divisor: KOSPI는 KRW_PER_USD 전달 → mc를 USD로 변환
+    기여도 공식: |corr| × |return_capped| × (mc_start_usd / 1e12 + 0.01)
+    mc_start: 시작 시점 시가총액 추정 = (mc / 현재가) × 시작가
+    """
     sr = stock_df["close"].pct_change().dropna()
     ir = idx.pct_change().dropna()
     mg = pd.concat([sr, ir], axis=1).dropna()
@@ -352,8 +391,17 @@ def compute_contribution(stock_df: pd.DataFrame, idx: pd.Series, mc: float) -> d
             f"기여도 계산 시 보정값 {cap_sign*SPINOFF_RETURN_CAP:+.0f}% 적용."
         )
 
-    # contribution_score: 보정된 수익률 사용
-    contrib = round(abs(corr) * abs(s_capped) * (mc / 1e12 + 0.01), 4)
+    # 시작 시점 시가총액 추정: shares ≈ mc / 현재가  →  mc_start ≈ shares × 시작가
+    # (현재 mc 대신 분석 기간 시작 시점 mc를 사용해야 index 기여도가 정확)
+    mc_usd = mc / krw_divisor  # USD 환산
+    prices = stock_df["close"].dropna()
+    if len(prices) >= 2 and prices.iloc[-1] > 0 and mc_usd > 0:
+        mc_start_usd = mc_usd / prices.iloc[-1] * prices.iloc[0]
+    else:
+        mc_start_usd = mc_usd
+
+    # contribution_score: 시작 시총 기반 (M3 준수)
+    contrib = round(abs(corr) * abs(s_capped) * (mc_start_usd / 1e12 + 0.01), 4)
 
     result = {
         "beta":               round(float(slope), 4),
@@ -363,7 +411,8 @@ def compute_contribution(stock_df: pd.DataFrame, idx: pd.Series, mc: float) -> d
         "index_return_pct":   round(i_total * 100, 2),
         "period_days":        len(mg),
         "period_label":       PERIOD_LABEL,
-        "market_cap_b":       round(mc / 1e9, 1),
+        "market_cap_b":       round(mc_usd / 1e9, 1),          # USD 기준 현재 시총
+        "market_cap_start_b": round(mc_start_usd / 1e9, 1),    # USD 기준 시작 시총
         "contribution_score": contrib,
         "n_days":             len(mg),
     }
@@ -417,11 +466,11 @@ def run_kospi_analysis(universe: list[tuple[str, str]], idx_series: pd.Series) -
         df   = info["df"]
         name = info["name"]
         src  = info["source"]
-        mc   = caps.get(ticker, 0.0)  # FDR StockListing Marcap: 이미 KRW(원) 단위
+        mc   = caps.get(ticker, 0.0)  # FDR StockListing Marcap: KRW(원) 단위
 
         aligned_idx = idx_series.reindex(df["close"].index, method="ffill")
 
-        c = compute_contribution(df, aligned_idx, mc)
+        c = compute_contribution(df, aligned_idx, mc, krw_divisor=KRW_PER_USD)
         b = compute_beneficiary(df, aligned_idx)
 
         if c:
@@ -454,6 +503,9 @@ def run_kospi_analysis(universe: list[tuple[str, str]], idx_series: pd.Series) -
         print(f"  [검증경고] 소스 불일치 {len(mismatch)}개 종목:")
         for r in mismatch:
             print(f"    {r['name']}: {r['data_quality']}")
+
+    annotate_warn_reasons(contrib_list, return_key="stock_return_pct")
+    annotate_warn_reasons(benefit_list, return_key="excess_return_pct")
 
     return {
         "contribution_top5": contrib_list[:5],
@@ -547,6 +599,9 @@ def run_sp500_analysis(universe: list[tuple[str, str]], idx_series: pd.Series) -
     print(f"  [S&P500] 수혜 Top5:")
     for i, r in enumerate(benefit_list[:5]):
         print(f"    #{i+1} {r['name']:20s} | 초과:{r['excess_return_pct']:+.1f}% | 수혜:{r['beneficiary_score']:.4f}")
+
+    annotate_warn_reasons(contrib_list, return_key="stock_return_pct")
+    annotate_warn_reasons(benefit_list, return_key="excess_return_pct")
 
     return {
         "contribution_top5": contrib_list[:5],

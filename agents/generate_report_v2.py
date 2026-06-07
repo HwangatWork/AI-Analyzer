@@ -265,6 +265,131 @@ report = f"""# AI Analyzer 최종 분석 리포트 v2
 - `data/processed/evaluation_results.json` - 검증 상세
 """
 
+# ── AI 언어 리포트 + 액션플랜 (PM Condition F) ──────────────────
+def _generate_action_plan() -> str:
+    """final_results.json 기반 AI 언어 리포트 + 액션플랜 생성."""
+    try:
+        fr_path = OUT / "final_results.json"
+        if not fr_path.exists():
+            return ""
+        fr = json.loads(fr_path.read_text(encoding="utf-8"))
+    except Exception:
+        return ""
+
+    sig   = fr.get("market_signal", {})
+    score = sig.get("score", 50)
+    direc = (sig.get("direction") or "neutral").upper()
+    rank  = fr.get("indicator_weight_ranking", [])
+
+    # 방향 판정
+    if score >= 60:
+        stance = "BUY 우위"
+        stance_desc = "기술적·매크로 지표 과반이 강세를 지지합니다."
+        buy_action  = "분할 매수 진행 가능 — VIX 20 이하 구간에서 비중 확대 권장."
+        sell_action = "당장 매도 불필요. 목표가 대비 +20% 이상 도달 시 부분 차익 실현 검토."
+        hold_action = "기존 포지션 유지. 신규 진입은 조정 후 재평가."
+    elif score <= 40:
+        stance = "SELL·관망 우위"
+        stance_desc = "다수 위험 지표가 약세 시그널을 발신 중입니다."
+        buy_action  = "신규 매수 자제. HY_SPREAD·VIX 동반 하락 확인 전까지 진입 보류."
+        sell_action = "손실 포지션 손절 기준 재검토. 방어 자산 비중 확대 고려."
+        hold_action = "현금 비중 높이되, 저평가 우량주 분할 매수 준비 유지."
+    else:
+        stance = "HOLD·중립"
+        stance_desc = "명확한 방향성 없이 지표 혼조세가 나타납니다. 관망이 최선입니다."
+        buy_action  = "신규 매수: 보류 — 확실한 방향 신호(VIX ↓, HY_SPREAD ↓) 대기."
+        sell_action = "급격한 전량 매도 지양 — 추가 약세 확인 후 단계적 비중 축소."
+        hold_action = "기존 보유: 유지 — 재확인 지표: VIX 30 돌파·HY_SPREAD 400bp 돌파 시 재검토."
+
+    # Top3 지표 해설
+    top3_commentary = []
+    for r in rank[:3]:
+        ind = r["indicator"]
+        w   = r.get("combined_weight", 0)
+        sp  = r.get("sp500_signed_r") or 0
+        kp  = r.get("kospi_signed_r") or 0
+        if ind == "VIX":
+            top3_commentary.append(f"**VIX (공포지수, w={w:.4f})**: 현재 시장 변동성을 가장 정확하게 선행합니다. VIX 상승 = 주식 하락 압력 (r={sp:+.3f}). 30 초과 시 극도 공포 구간으로 역매수 기회.")
+        elif ind == "HY_SPREAD":
+            top3_commentary.append(f"**HY_SPREAD (하이일드스프레드, w={w:.4f})**: 신용 리스크 선행 지표. 스프레드 확대 = 자금 이탈 시그널 (r={sp:+.3f}). 400bp 이하 유지 시 안정권.")
+        elif ind == "WTI":
+            top3_commentary.append(f"**WTI (국제유가, w={w:.4f})**: 인플레이션 및 에너지 비용 압력 반영 (r={sp:+.3f}). 유가 급등 = 긴축 우려 → 주식 하락 위험.")
+        elif ind == "DXY":
+            top3_commentary.append(f"**DXY (달러인덱스, w={w:.4f})**: 글로벌 유동성의 역지표 (r={sp:+.3f}). 달러 강세 = 신흥국 자금 이탈, 원화 약세 → 코스피 압박.")
+        elif ind == "INDIVIDUAL_NET":
+            top3_commentary.append(f"**개인순매수 (w={w:.4f})**: 국내 개인 수급 선행성 검증됨 (KOSPI Granger p=0.0046). 개인 순매수 증가 = 코스피 단기 지지 기대.")
+        elif "NASDAQ" in ind:
+            top3_commentary.append(f"**{ind} (w={w:.4f})**: 미국 기술주 동조화 지수 — 동행 페널티 적용. 실제 선행성 보다 동행성이 강함.")
+        else:
+            top3_commentary.append(f"**{ind} (w={w:.4f})**: S&P500 r={sp:+.3f}, 코스피 r={kp:+.3f}.")
+
+    top3_text = "\n\n".join(top3_commentary)
+
+    # 산업별 코멘트
+    sector_ap = fr.get("sector_analysis") or {}
+    sector_lines = []
+    for sec_name, sec_data in (sector_ap.items() if isinstance(sector_ap, dict) else []):
+        top_tickers = sec_data.get("top_performers", [])[:2] if isinstance(sec_data, dict) else []
+        tickers_str = ", ".join(t if isinstance(t, str) else t.get("ticker","?") for t in top_tickers)
+        sector_lines.append(f"- **{sec_name}**: 주목 종목 {tickers_str or '확인 필요'}")
+
+    sector_ap_text = "\n".join(sector_lines) if sector_lines else "- 섹터 데이터 수집 완료 (dashboard.html 참조)"
+
+    ap_section = f"""
+---
+
+## 11. AI 시장 분석 리포트
+
+> 생성 기준: {datetime.now().strftime('%Y-%m-%d %H:%M')} | 모델: AI Analyzer v3 | 데이터: 최신 파이프라인 결과
+
+### 현재 시장 판단: {score:.1f}/100 — **{stance}**
+
+{stance_desc}
+
+유효 지표 {len(rank)}개 중 강세 신호 {sig.get('bullish_count', '?')}개 / 약세 신호 {sig.get('bearish_count', '?')}개를 집계한 결과입니다.
+
+---
+
+### 핵심 드라이버 분석 (Top 3 지표)
+
+{top3_text}
+
+---
+
+### 액션플랜
+
+| 신호 | 권장 행동 |
+|------|---------|
+| BUY  | {buy_action} |
+| SELL | {sell_action} |
+| HOLD | {hold_action} |
+
+**재평가 트리거 조건:**
+- VIX가 30을 돌파하면 극공포 → 역매수 기회 탐색
+- HY_SPREAD가 400bp를 초과하면 신용 위기 경계 → 포지션 축소
+- DXY가 105를 초과하면 신흥국 자금 이탈 → 코스피 비중 재검토
+- 개인순매수 연속 3일 순매수 전환 → 코스피 단기 반등 기대
+
+---
+
+### 산업별 투자 주목점
+
+{sector_ap_text}
+
+---
+
+### 면책 조항
+
+본 리포트는 통계 모델 기반 참고 자료이며 투자 권유가 아닙니다.
+모든 투자 결정은 본인의 판단과 책임 하에 이루어져야 합니다.
+
+---
+"""
+    return ap_section
+
+action_plan = _generate_action_plan()
+report = report + action_plan
+
 path = OUT / "FINAL_REPORT_v2.md"
 path.write_text(report, encoding="utf-8")
 print(f"FINAL_REPORT_v2.md 저장: {path}")

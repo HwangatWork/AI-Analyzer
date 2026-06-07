@@ -1,38 +1,55 @@
-AI Analyzer Progress — 2026-06-08 00:14
+AI Analyzer Progress — 2026-06-08 07:05
 
 === 완료 항목 ===
-[v3 고도화 - 2026-06-08]
-1. 가중치 방법론 전면 개선
-   - 시차 상관 분석 (Lag 1~5일): FED_ASSETS Lag=4일 선행 발견
-   - Granger 인과관계 검정 (statsmodels): BBAND/VIX/FED_ASSETS/MA200 유의
-   - 동행 지수 페널티: NASDAQ100(x0.40), DOW(x0.45), KOSDAQ(x0.50)
-   - 새 가중치 공식: |선행_r|*0.4 + Granger*0.4 + 독립기여*0.2
-   
-2. 수급 지표 주간 누적 + FED_ASSETS 주간 변화율
-   - FOREIGN_NET/INSTITUTION_NET/INDIVIDUAL_NET: 5거래일 롤링 누적
-   - FED_ASSETS: 주간 원시 데이터 변화율 (57주)
-   
-3. SNDK 스핀오프 이벤트 처리
-   - 극단 수익률 (+3629%) 감지 → 기여도 계산 시 300% 상한 보정
-   - Top5에서 자연스럽게 제외됨 (Micron이 상위 진입)
-   
-4. CTD 연동 3가지
-   - output/ctd_weights.json (18개 지표 가중치)
-   - output/ctd_bridge.json (시그널/랭킹/종목)
-   - CTD frontend/index.html Zone 1D 시그널 섹션 + 종목 탭 주입
-   
-5. 텔레그램 알림 시스템 (이전 세션)
-   - run_telegram_agent.py: --daily/--check/--test/--done-criteria
-   - Windows Task Scheduler: AIAnalyzer_DailyTelegram (매일 08:00)
+[v4 고도화 - 2026-06-08]
+1. 자기참조 지표 완전 제외 (BBAND/MA50/RSI14/STOCH_RSI/MARKET_MOMENTUM)
+   - Granger 순환논리 문제 탐지 → evaluator filter_ranking()에서 완전 제외
+   - 유효 지표 수: 18개 → 13개 (5개 자기참조 제거)
+   - 새 Top5: VIX(0.4320), HY_SPREAD(0.2829), WTI(0.2465), DXY(0.2430), INDIVIDUAL_NET(0.2399)
+
+2. 동행 지수 페널티 전체 가중치 적용
+   - 기존: 독립기여(0.2 가중치)에만 페널티 적용
+   - 개선: lead + granger + indep 전체에 페널티 적용
+   - NASDAQ100: #2 → #11 (weight 0.2991 → 0.1452)
+
+3. PM Agent 고도화 (pm_self_diagnosis + pm_quality_checks)
+   - pm_quality_checks: 12개 기준 (IQ-1~4, SA-1~7, SI-1) 12/12 PASS
+   - pm_self_diagnosis: SD-1~6 자동 탐지 → fix_request.md 자동 작성
+   - 루프 종료 조건 강화: C1~C6 + 자가진단 + QC 12개 동시 통과 필수
+   - pm_baseline.json: 기준선 비교 (13개 지표)
+
+4. AI 언어 리포트 + 액션플랜 (PM Condition F)
+   - generate_report_v2.py: _generate_action_plan() 함수 추가
+   - HOLD/BUY/SELL 상황별 권장 행동 텍스트
+   - 재평가 트리거 조건 (VIX 30, HY_SPREAD 400bp, DXY 105)
+   - 핵심 드라이버 Top3 AI 해설
+   - FINAL_REPORT_v2.md + FINAL_REPORT_v3.md 동시 생성
+
+5. 이전 세션
+   - Granger 인과관계 검정: statsmodels
+   - 텔레그램 알림 시스템
+   - GitHub Actions 주간 파이프라인 (매주 월요일 07:00 KST)
+   - GitHub Pages: https://hwangatwork.github.io/AI-Analyzer/ (200 OK)
+
+=== PM Conditions A~H 평가 ===
+A) KOSPI FDR+yfinance 교차검증: PASS (run_stock_agent_v2.py D1 체크)
+B) 복합 시그널 점수(0~100)+방향성: PASS (score=43.4, direction=neutral)
+C) GitHub Pages BI 시각화: PASS (https://hwangatwork.github.io/AI-Analyzer/)
+D) 주 1회 자동화 파이프라인: PASS (GH Actions cron: 0 22 * * 0)
+E) BUY/SELL/HOLD 의사결정 엔진: PASS (signal 43.4 → HOLD)
+F) AI 언어 리포트+액션플랜: PASS (FINAL_REPORT_v2.md 섹션 11)
+G) CSV→Google Sheets→Looker Studio: PARTIAL (CSV 완료, Sheets 수동 연결 가이드)
+H) 산업별 딥다이브(반도체/AI/에너지): PASS (sector_analysis.json)
 
 === 현재 상태 ===
-PM Conditions: A~H 모두 PASS
+pm_quality_checks: 12/12 PASS
+pm_self_diagnosis: PASS (이슈 0개)
 Validation: 30/30 PASS, CRITICAL 0
 Audit: 62/62 PASS
-Signal: 43.2 (neutral) — Granger 방법론 적용 후 조정됨
-New Ranking: BBAND(#1), VIX(#2), NASDAQ100(#3), HY_SPREAD(#4), DOW(#5)
-Collection: 28/29 (96.6%)
+Signal: 43.4 (neutral/HOLD) — 자기참조 제외 후 조정
+Valid Ranking: VIX(#1), HY_SPREAD(#2), WTI(#3), DXY(#4), INDIVIDUAL_NET(#5)
+Excluded (self-ref): BBAND, MA50, RSI14, STOCH_RSI, MARKET_MOMENTUM
 
 === 다음 단계 ===
-- 주간 파이프라인 실행으로 신규 데이터 축적 후 재검증
-- GitHub 배포 업데이트 (CTD + AI Analyzer)
+- G 조건 완전 자동화: GOOGLE_SA_JSON 서비스 계정 설정 후 gspread 연동
+- 주간 파이프라인으로 신규 데이터 축적 후 재검증

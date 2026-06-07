@@ -521,27 +521,35 @@ def run_validation() -> tuple[ValidationResult, dict]:
 def validate_ux(vr: ValidationResult, stock_res: dict):
     layer = "L6_UX검증"
 
-    # U6-1: 모바일 nav-tabs 스크롤 처리
+    # U6-1: 모바일 nav-tabs 스크롤 처리 (구체적 CSS 속성 확인)
     dashboard = OUT_DIR / "dashboard.html"
     if dashboard.exists():
         html = dashboard.read_text(encoding="utf-8")
-        has_nav_scroll = "overflow-x" in html and "nav-tabs" in html
+        # overflow-x: auto 와 white-space: nowrap 이 nav-tabs 관련 블록에 있는지 확인
+        has_nav_scroll = (
+            ("overflow-x: auto" in html or "overflow-x:auto" in html) and
+            "white-space: nowrap" in html and
+            "nav-tabs" in html
+        )
         vr.add(layer, "X1", "모바일 nav-tabs 스크롤",
                has_nav_scroll,
                "WARNING",
-               "nav-tabs에 overflow-x 스크롤 없음 → 모바일 탭 텍스트 수직 깨짐 발생",
+               "nav-tabs에 overflow-x:auto + white-space:nowrap 적용됨" if has_nav_scroll
+               else "nav-tabs에 overflow-x 스크롤 없음 → 모바일 탭 텍스트 수직 깨짐 발생",
                "run_ui_agent.py @media 블록에 overflow-x: auto; white-space: nowrap 추가")
 
-        # U6-2: HOLD 카드 명확성 (0% 포지션 바 대신 설명 텍스트)
+        # U6-2: HOLD 카드 명확성
         has_hold_explain = "신규 매수" in html and "기존 보유" in html
         vr.add(layer, "X2", "HOLD 카드 명확성",
                has_hold_explain,
                "WARNING",
-               "HOLD 시 0% 포지션 바만 표시 → '신규 매수 보류 / 기존 보유 유지' 텍스트 없음",
+               "HOLD 카드 '신규 매수 보류 / 기존 보유 유지' 설명 텍스트 존재" if has_hold_explain
+               else "HOLD 시 0% 포지션 바만 표시 → '신규 매수 보류 / 기존 보유 유지' 텍스트 없음",
                "run_decision_agent.py HOLD 분기에서 position_block 텍스트 설명으로 교체")
 
-        # U6-3: 데이터 품질 경고 표시
-        sp_top5 = stock_res.get("f09_sp500_contribution_top5", []) + stock_res.get("f11_sp500_beneficiary_top5", [])
+        # U6-3: 데이터 품질 경고 표시 ($0B 시총 종목)
+        sp_top5 = (stock_res.get("f09_sp500_contribution_top5", []) +
+                   stock_res.get("f11_sp500_beneficiary_top5", []))
         zero_mcap_stocks = [s for s in sp_top5 if (s.get("market_cap_b") or 0) == 0]
         if zero_mcap_stocks:
             names = [s.get("name", s.get("ticker", "?")) for s in zero_mcap_stocks]
@@ -549,7 +557,8 @@ def validate_ux(vr: ValidationResult, stock_res: dict):
             vr.add(layer, "X3", "시가총액 미집계 경고 배지",
                    has_warn_badge,
                    "WARNING",
-                   f"$0B 종목({', '.join(names)})에 ⚠ 경고 없음 — 사용자 오해 위험",
+                   f"$0B 종목({', '.join(names)}) 경고 배지 정상 표시됨" if has_warn_badge
+                   else f"$0B 종목({', '.join(names)})에 ⚠ 경고 없음 — 사용자 오해 위험",
                    "run_ux_stocks_agent.py _stock_card()에서 mcap==0일 때 warn_html 추가")
         else:
             vr.add(layer, "X3", "시가총액 미집계 경고 배지",
@@ -567,7 +576,8 @@ def validate_ux(vr: ValidationResult, stock_res: dict):
             vr.add(layer, "X4", "극단 수익률 경고 표시",
                    has_ext_warn,
                    "WARNING",
-                   f"±1000%+ 종목({', '.join(ext_names)})에 이벤트 경고 없음",
+                   f"±1000%+ 종목({', '.join(ext_names)}) 경고 표시 확인됨" if has_ext_warn
+                   else f"±1000%+ 종목({', '.join(ext_names)})에 이벤트 경고 없음",
                    "run_ux_stocks_agent.py _stock_card()에서 extreme_ret 경고 배너 추가")
         else:
             vr.add(layer, "X4", "극단 수익률 경고 표시",
@@ -578,7 +588,8 @@ def validate_ux(vr: ValidationResult, stock_res: dict):
         vr.add(layer, "X5", "신뢰도 수치 설명",
                has_conf_explain,
                "WARNING",
-               "신뢰도 % 아래 '지표 N/M개 강세' 설명 없음 — 수치 의미 불명확",
+               "신뢰도 '지표 N/M개 강세' 설명 존재" if has_conf_explain
+               else "신뢰도 % 아래 '지표 N/M개 강세' 설명 없음 — 수치 의미 불명확",
                "run_decision_agent.py action_card()에 conf 아래 bull/total_sigs 설명 추가")
     else:
         for code, name in [("X1","모바일 nav"), ("X2","HOLD 카드"), ("X3","시총 경고"), ("X4","수익률 경고"), ("X5","신뢰도 설명")]:

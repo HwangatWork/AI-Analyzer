@@ -52,6 +52,13 @@ WEEKLY_AGGREGATION = {"FOREIGN_NET", "INSTITUTION_NET", "INDIVIDUAL_NET"}
 # FED_ASSETS — 주간 원시 데이터를 주간 변화율로 변환
 FED_WEEKLY = {"FED_ASSETS"}
 
+# S&P500 자체 계산 지표 (source=CALC:...) — Granger 유의성이 수학적 필연이므로 Granger 기여 무효화
+# 이 지표들은 S&P500 가격으로부터 직접 계산되어 Granger 검정에서 자기참조 문제 발생
+SELF_REFERENTIAL = {
+    "BBAND", "MA50", "MA200", "RSI14", "RSI_SIGNAL",
+    "STOCH_RSI", "MARKET_MOMENTUM", "BETA"
+}
+
 INDICATOR_TYPES = {
     "return":   ["NASDAQ100", "DOW", "KOSDAQ", "NIKKEI225"],
     "diff":     ["T10Y2Y", "DXY", "WTI", "HY_SPREAD", "US10Y"],
@@ -169,8 +176,10 @@ def compute_granger(x: pd.Series, y: pd.Series, max_lag: int = 5) -> dict:
     merged = pd.concat([x, y], axis=1).dropna()
     merged.columns = ["x", "y"]
 
-    if len(merged) < 30:
-        return {"granger_p": 1.0, "granger_lag": 0, "method": "insufficient_data"}
+    # 60행 미만: 주간 데이터(FED_ASSETS ~56행)는 Granger 신뢰성 부족
+    if len(merged) < 60:
+        return {"granger_p": 1.0, "granger_lag": 0, "method": "insufficient_data",
+                "note": f"rows={len(merged)} < 60 minimum for reliable Granger"}
 
     if HAS_STATSMODELS:
         try:
@@ -340,15 +349,24 @@ def compute_weight_ranking(sp500: dict, kospi: dict) -> list:
             else:
                 lead_contrib = 0.0
 
-            # 2. Granger 기여
-            granger_contrib = (1.0 - g_p) * 0.4 if g_sig else 0.0
+            # 2. Granger 기여 (자기참조 지표 제외 — CALC: 소스는 Granger 기여 0)
+            if ind in SELF_REFERENTIAL:
+                granger_contrib = 0.0
+            else:
+                granger_contrib = (1.0 - g_p) * 0.4 if g_sig else 0.0
 
-            # 3. 독립 기여 (동행 페널티 적용)
-            penalty = COMOVEMENT_PENALTY.get(ind, 1.0)
+            # 3. 독립 기여 (페널티 적용 전 원시값)
             if contemp_p < 0.05:
-                indep_contrib = abs(contemp_r) * penalty * 0.2
+                indep_contrib = abs(contemp_r) * 0.2
             else:
                 indep_contrib = 0.0
+
+            # 4. 동행 지수 페널티: lead + granger + indep 전체에 적용
+            #    (허위 상관뿐 아니라 구조적 중복에서 오는 Granger 기여도 보정)
+            penalty = COMOVEMENT_PENALTY.get(ind, 1.0)
+            lead_contrib    *= penalty
+            granger_contrib *= penalty
+            indep_contrib   *= penalty
 
             total = lead_contrib + granger_contrib + indep_contrib
 
