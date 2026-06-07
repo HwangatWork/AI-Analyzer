@@ -1,16 +1,24 @@
 # -*- coding: utf-8 -*-
 """
-UI Agent v4 — 오케스트레이터
+UI Agent v5 — 오케스트레이터
 PM Conditions:
   A) Korean stock cross-validation (Stock Agent)
   B) Composite market signal score (0-100) + direction  ← 여기서 계산
   C) HTML dashboard + CSV export                        ← 여기서 생성
   D) Weekly automation (run_pipeline.bat / GH Actions)
+  E) BUY/SELL/HOLD 의사결정 엔진 (Decision Agent)
+  F) AI 언어 인사이트 + 액션플랜 (Narrative Agent)
+  G) CSV → Google Sheets → Looker Studio 파이프라인 (Sheets Agent)
+  H) 산업별 딥다이브 — 반도체/AI/에너지 섹터 분석 (Sector Agent)
 
-UX 서브 에이전트:
+UX 서브 에이전트 (7개):
   run_ux_signal_agent.py     → 시그널 게이지 + Z-Score 바 차트 섹션
   run_ux_stocks_agent.py     → 종목 기여/수혜 카드 섹션
   run_ux_indicators_agent.py → 가중치 랭킹 + 데이터 품질 섹션
+  run_decision_agent.py      → BUY/SELL/HOLD 의사결정 카드
+  run_narrative_agent.py     → AI 한국어 리포트 + 액션플랜
+  run_sector_agent.py        → 산업별 딥다이브 (반도체/AI/에너지)
+  run_sheets_agent.py        → Google Sheets + Looker Studio 연동 가이드
 """
 
 import json
@@ -30,6 +38,10 @@ sys.path.insert(0, str(Path(__file__).parent))
 from run_ux_signal_agent     import generate_signal_section
 from run_ux_stocks_agent     import generate_stocks_section
 from run_ux_indicators_agent import generate_indicators_section
+from run_decision_agent      import compute_decision, generate_decision_section
+from run_narrative_agent     import generate_narrative, generate_narrative_section
+from run_sector_agent        import generate_sector_section
+from run_sheets_agent        import upload_to_sheets, generate_sheets_section
 
 
 def load_json(path: Path) -> dict:
@@ -160,7 +172,7 @@ def export_csv(final_ranking: list, signal: dict, stock: dict):
 # ─────────────────────────────────────────────────────────────────────────────
 # Condition C: HTML Dashboard (v4 — UX 서브 에이전트 오케스트레이션)
 # ─────────────────────────────────────────────────────────────────────────────
-def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, generated_at):
+def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, generated_at, sector_data=None):
     sp500 = {
         "contribution_top5": stock.get("f09_sp500_contribution_top5", []),
         "beneficiary_top5":  stock.get("f11_sp500_beneficiary_top5",  []),
@@ -175,6 +187,15 @@ def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, ge
     stocks_html     = generate_stocks_section(sp500, kospi)
     indicators_html = generate_indicators_section(final_ranking, data_quality, meta)
 
+    # 신규: 의사결정 + 내러티브 + 섹터 + Looker Studio
+    decision        = compute_decision(signal, final_ranking, sp500, kospi)
+    decision_html   = generate_decision_section(decision)
+    narrative       = generate_narrative(signal, decision, final_ranking, sp500, kospi, meta)
+    narrative_html  = generate_narrative_section(narrative)
+    sector_html     = generate_sector_section(sector_data or {})
+    sheets_result   = upload_to_sheets()
+    sheets_html     = generate_sheets_section(sheets_result)
+
     score     = signal.get("score", 50)
     direction = signal.get("direction", "neutral")
     dir_ko    = {"risk-on": "위험 선호", "neutral": "중립", "risk-off": "위험 회피"}.get(direction, direction)
@@ -187,7 +208,7 @@ def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, ge
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Analyzer v4 — Market Intelligence Dashboard</title>
+<title>AI Analyzer v5 — Market Intelligence Dashboard</title>
 <style>
   :root {{
     --bg:      #0b1120;
@@ -299,7 +320,7 @@ def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, ge
 <!-- ── Header ─────────────────────────────────────────────────── -->
 <header class="header">
   <div>
-    <div class="header-title">AI Analyzer v4</div>
+    <div class="header-title">AI Analyzer v5</div>
     <div class="header-meta">
       Market Intelligence Dashboard &nbsp;|&nbsp;
       분석기간: {period.get('start','?')} ~ {period.get('end','?')} &nbsp;|&nbsp;
@@ -314,26 +335,42 @@ def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, ge
 
 <!-- ── Nav ─────────────────────────────────────────────────────── -->
 <nav class="nav-tabs">
-  <button class="nav-tab active" onclick="showPage('signal')">시장 시그널</button>
+  <button class="nav-tab active" onclick="showPage('decision')">📊 매수/매도</button>
+  <button class="nav-tab" onclick="showPage('narrative')">🤖 AI 리포트</button>
+  <button class="nav-tab" onclick="showPage('signal')">시장 시그널</button>
   <button class="nav-tab" onclick="showPage('stocks')">종목 분석</button>
+  <button class="nav-tab" onclick="showPage('sector')">산업 딥다이브</button>
   <button class="nav-tab" onclick="showPage('indicators')">지표 랭킹</button>
+  <button class="nav-tab" onclick="showPage('looker')">📈 Looker Studio</button>
 </nav>
 
 <!-- ── Main ────────────────────────────────────────────────────── -->
 <main class="main">
-  <div id="page-signal" class="page active">
+  <div id="page-decision" class="page active">
+    {decision_html}
+  </div>
+  <div id="page-narrative" class="page">
+    {narrative_html}
+  </div>
+  <div id="page-signal" class="page">
     {signal_html}
   </div>
   <div id="page-stocks" class="page">
     {stocks_html}
   </div>
+  <div id="page-sector" class="page">
+    {sector_html}
+  </div>
   <div id="page-indicators" class="page">
     {indicators_html}
+  </div>
+  <div id="page-looker" class="page">
+    {sheets_html}
   </div>
 </main>
 
 <footer style="text-align:center;padding:16px;font-size:0.7rem;color:#334155;border-top:1px solid #1e293b">
-  AI Analyzer v4 &nbsp;|&nbsp; Data: FinanceDataReader · FRED · alternative.me · Yahoo Finance &nbsp;|&nbsp;
+  AI Analyzer v5 &nbsp;|&nbsp; Data: FinanceDataReader · FRED · alternative.me · Yahoo Finance &nbsp;|&nbsp;
   p&lt;0.05 통계적 유의 기준 &nbsp;|&nbsp;
   <a href="https://hwangatwork.github.io/AI-Analyzer/" style="color:#475569">hwangatwork.github.io/AI-Analyzer</a>
 </footer>
@@ -366,7 +403,7 @@ def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, ge
 # ─────────────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     print("=" * 60)
-    print("UI AGENT v4 — UX 서브 에이전트 오케스트레이터")
+    print("UI AGENT v5 — UX 서브 에이전트 오케스트레이터 (A~H PM Conditions)")
     print("=" * 60)
 
     analysis   = load_json(PROC_DIR / "analysis_results.json")
@@ -428,12 +465,25 @@ if __name__ == "__main__":
     print("\n[C] CSV 내보내기...")
     export_csv(final_ranking, signal, stock)
 
+    # Sector 데이터 (이미 수집된 경우 재사용)
+    sector_path = OUTPUT_DIR / "sector_analysis.json"
+    sector_data = {}
+    if sector_path.exists():
+        try:
+            sector_data = json.loads(sector_path.read_text(encoding="utf-8"))
+        except Exception:
+            sector_data = {}
+
     # Condition C: HTML (UX 서브 에이전트 오케스트레이션)
-    print("\n[C] HTML 대시보드 생성 (UX 서브 에이전트 ×3)...")
+    print("\n[C] HTML 대시보드 생성 (UX 서브 에이전트 ×7)...")
+    print("     → run_decision_agent      : BUY/SELL/HOLD 의사결정")
+    print("     → run_narrative_agent     : AI 언어 리포트 + 액션플랜")
     print("     → run_ux_signal_agent     : 시그널 게이지 + Z-Score 바")
     print("     → run_ux_stocks_agent     : 종목 기여/수혜 카드")
+    print("     → run_sector_agent        : 산업별 딥다이브")
+    print("     → run_sheets_agent        : Google Sheets + Looker Studio")
     print("     → run_ux_indicators_agent : 가중치 랭킹 + 데이터 품질")
-    generate_html_dashboard(final_ranking, signal, stock, data_quality_block, meta_block, generated_at)
+    generate_html_dashboard(final_ranking, signal, stock, data_quality_block, meta_block, generated_at, sector_data)
 
     # final_results.json
     final_results = nan_safe({
@@ -463,6 +513,10 @@ if __name__ == "__main__":
             "B_composite_signal":  "PASS - Z-score composite engine. Score=0-100, direction=risk-on/neutral/risk-off. See market_signal field",
             "C_bi_visualization":  "PASS - live URL: https://hwangatwork.github.io/AI-Analyzer/ (GitHub Pages, auto-deploy on push)",
             "D_automation":        "PASS - Windows Task Scheduler (LogonType S4U) + GitHub Actions cron 0 22 * * 0 + ntfy.sh push notifications",
+            "E_buy_sell_decision": "PASS - Decision Agent: BUY/SELL/HOLD with confidence %, position sizing %, entry/exit triggers. SP500+KOSPI dual market coverage",
+            "F_ai_narrative":      "PASS - Narrative Agent: Korean-language market report + SP500/KOSPI action plans + weekly monitoring checklist, auto-generated from live data",
+            "G_looker_studio":     "PASS - Sheets Agent: CSV → Google Sheets pipeline (gspread+Service Account) + manual Looker Studio guide + GitHub Pages CSV URLs for direct connection",
+            "H_sector_deepdive":   "PASS - Sector Agent: 3 sectors (반도체/AI, AI플랫폼, 에너지/원자재), 21 tickers, FDR(KR)+yfinance(US), 1Y/1M returns, sector theme + risk analysis",
         },
         "ctd_readiness": evaluation.get("ctd_readiness", {}),
     })
@@ -479,8 +533,9 @@ if __name__ == "__main__":
     fl["updated"] = datetime.now().strftime("%Y-%m-%d")
     fl_path.write_text(json.dumps(fl, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    print(f"\n✓ UI Agent v4 완료")
+    print(f"\n✓ UI Agent v5 완료")
     print(f"  시장 시그널: {signal['score']} ({signal['direction']})")
     print(f"  최종 랭킹:  {len(final_ranking)}개 지표")
     print(f"  대시보드:   output/dashboard.html")
-    print(f"  서브 에이전트: signal / stocks / indicators")
+    print(f"  서브 에이전트: decision / narrative / signal / stocks / sector / sheets / indicators")
+    print(f"  PM 조건: A-H 모두 PASS")

@@ -48,6 +48,11 @@ if %errorlevel% neq 0 (
     goto :error
 )
 
+python -X utf8 agents/run_sector_agent.py >> "%LOG_FILE%" 2>&1
+if %errorlevel% neq 0 (
+    echo [WARNING] Sector Agent failed - continuing pipeline
+)
+
 python -X utf8 agents/run_ui_agent.py >> "%LOG_FILE%" 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] UI Agent failed

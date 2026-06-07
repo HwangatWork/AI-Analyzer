@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Analyzer v4 — Market Intelligence Dashboard</title>
+<title>AI Analyzer v5 — Market Intelligence Dashboard</title>
 <style>
   :root {
     --bg:      #0b1120;
@@ -115,11 +115,11 @@
 <!-- ── Header ─────────────────────────────────────────────────── -->
 <header class="header">
   <div>
-    <div class="header-title">AI Analyzer v4</div>
+    <div class="header-title">AI Analyzer v5</div>
     <div class="header-meta">
       Market Intelligence Dashboard &nbsp;|&nbsp;
       분석기간: 2025-06-07 ~ 2026-06-07 &nbsp;|&nbsp;
-      수집 25/29 (86.2%) &nbsp;|&nbsp; 생성: 2026-06-07 14:49
+      수집 25/29 (86.2%) &nbsp;|&nbsp; 생성: 2026-06-07 15:11
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
@@ -130,14 +130,159 @@
 
 <!-- ── Nav ─────────────────────────────────────────────────────── -->
 <nav class="nav-tabs">
-  <button class="nav-tab active" onclick="showPage('signal')">시장 시그널</button>
+  <button class="nav-tab active" onclick="showPage('decision')">📊 매수/매도</button>
+  <button class="nav-tab" onclick="showPage('narrative')">🤖 AI 리포트</button>
+  <button class="nav-tab" onclick="showPage('signal')">시장 시그널</button>
   <button class="nav-tab" onclick="showPage('stocks')">종목 분석</button>
+  <button class="nav-tab" onclick="showPage('sector')">산업 딥다이브</button>
   <button class="nav-tab" onclick="showPage('indicators')">지표 랭킹</button>
+  <button class="nav-tab" onclick="showPage('looker')">📈 Looker Studio</button>
 </nav>
 
 <!-- ── Main ────────────────────────────────────────────────────── -->
 <main class="main">
-  <div id="page-signal" class="page active">
+  <div id="page-decision" class="page active">
+    
+<!-- ═══ DECISION SECTION ═══ -->
+<section id="decision">
+  <h2 class="section-title">매수/매도 의사결정</h2>
+  <div style="font-size:0.72rem;color:#475569;margin-bottom:14px">
+    기준: 복합 시그널 68.3점 (risk-on) | 산출: 2026-06-07 15:11 | 투자 판단은 개인 책임입니다
+  </div>
+
+  <div class="grid-2" style="gap:16px;margin-bottom:16px">
+    
+        <div class="card" style="border-left:3px solid #f59e0b;padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+            <div>
+              <div style="font-size:0.72rem;color:#64748b;margin-bottom:2px">S&P500 </div>
+              <div style="font-size:1.6rem;font-weight:900;color:#f59e0b;letter-spacing:-0.03em">HOLD</div>
+              <div style="font-size:0.75rem;color:#f59e0b;opacity:0.8">신호 강도: 중립</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:0.7rem;color:#64748b;margin-bottom:4px">신뢰도</div>
+              <div style="font-size:1.4rem;font-weight:800;color:#f59e0b">60%</div>
+            </div>
+          </div>
+
+          <!-- 포지션 사이징 -->
+          <div style="background:#0f172a;border-radius:6px;padding:10px;margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:0.72rem;color:#64748b">권장 포지션 비중</span>
+              <span style="font-size:0.9rem;font-weight:700;color:#f59e0b">0%</span>
+            </div>
+            <div style="background:#1e293b;height:6px;border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:0%;background:#f59e0b;border-radius:3px"></div>
+            </div>
+            <div style="font-size:0.68rem;color:#475569;margin-top:4px">명확한 방향성 미확인 — 현금 비중 유지</div>
+          </div>
+
+          <!-- 트리거 -->
+          <div style="margin-bottom:8px"><div style="font-size:0.72rem;color:#86efac;padding:2px 0">▲ NASDAQ100 강세 (Z=+2.00) — 252일 평균 대비 2.0σ 이상</div><div style="font-size:0.72rem;color:#86efac;padding:2px 0">▲ NIKKEI225 강세 (Z=+2.00) — 252일 평균 대비 2.0σ 이상</div></div>
+          <div><div style="font-size:0.72rem;color:#fca5a5;padding:2px 0">▼ US10Y 약세 (Z=+1.56) — 하방 압력</div><div style="font-size:0.72rem;color:#fca5a5;padding:2px 0">▼ BBAND 약세 (Z=-1.53) — 하방 압력</div></div>
+
+          <!-- 주목 종목 -->
+          <div style="margin-top:8px;font-size:0.7rem;color:#475569">주목 종목: <span style="color:#94a3b8">Alphabet (+110%) / NVIDIA (+44%)</span></div>
+        </div>
+    
+        <div class="card" style="border-left:3px solid #f59e0b;padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+            <div>
+              <div style="font-size:0.72rem;color:#64748b;margin-bottom:2px">코스피 🇰🇷</div>
+              <div style="font-size:1.6rem;font-weight:900;color:#f59e0b;letter-spacing:-0.03em">HOLD</div>
+              <div style="font-size:0.75rem;color:#f59e0b;opacity:0.8">신호 강도: 중립</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:0.7rem;color:#64748b;margin-bottom:4px">신뢰도</div>
+              <div style="font-size:1.4rem;font-weight:800;color:#f59e0b">65%</div>
+            </div>
+          </div>
+
+          <!-- 포지션 사이징 -->
+          <div style="background:#0f172a;border-radius:6px;padding:10px;margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:0.72rem;color:#64748b">권장 포지션 비중</span>
+              <span style="font-size:0.9rem;font-weight:700;color:#f59e0b">0%</span>
+            </div>
+            <div style="background:#1e293b;height:6px;border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:0%;background:#f59e0b;border-radius:3px"></div>
+            </div>
+            <div style="font-size:0.68rem;color:#475569;margin-top:4px">명확한 방향성 미확인 — 현금 비중 유지</div>
+          </div>
+
+          <!-- 트리거 -->
+          
+          
+
+          <!-- 주목 종목 -->
+          <div style="margin-top:8px;font-size:0.7rem;color:#475569">주목 종목: <span style="color:#94a3b8">SK하이닉스 (+804%) / 삼성전자 (+450%)</span></div>
+        </div>
+  </div>
+
+  <!-- 리스크 팩터 -->
+  <div class="card">
+    <div style="font-size:0.82rem;font-weight:600;color:#94a3b8;margin-bottom:8px">리스크 팩터</div>
+    <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #1e293b;font-size:0.78rem"><span style="color:#f59e0b;flex-shrink:0">⚠</span><span style="color:#94a3b8">WTI 상승 → 인플레이션 재점화 위험</span></div><div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #1e293b;font-size:0.78rem"><span style="color:#f59e0b;flex-shrink:0">⚠</span><span style="color:#94a3b8">미국 10년물 금리 상승 (Z=+1.56) → 할인율 부담</span></div><div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #1e293b;font-size:0.78rem"><span style="color:#f59e0b;flex-shrink:0">⚠</span><span style="color:#94a3b8">달러 강세 → 신흥국 자금 유출 위험 (KOSPI 주의)</span></div><div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #1e293b;font-size:0.78rem"><span style="color:#f59e0b;flex-shrink:0">⚠</span><span style="color:#94a3b8">볼린저밴드 하단 근접 → 변동성 확대 국면</span></div>
+  </div>
+</section>
+  </div>
+  <div id="page-narrative" class="page">
+    
+<!-- ═══ NARRATIVE SECTION ═══ -->
+<section id="narrative">
+  <h2 class="section-title">AI 분석 리포트</h2>
+  <div style="font-size:0.72rem;color:#475569;margin-bottom:16px">
+    자동 생성: 2026년 06월 07일 &nbsp;|&nbsp; 분석 기간: 2025-06-07 ~ 2026-06-07
+  </div>
+
+  <div class="grid-2" style="gap:16px;margin-bottom:16px">
+
+    <!-- 시장 개요 + 강약세 -->
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <div style="font-size:0.82rem;font-weight:700;color:#60a5fa;margin-bottom:8px">시장 개요</div>
+        <div style="font-size:0.85rem;color:#cbd5e1;line-height:1.7">복합 시그널 점수 68.3점으로 <strong style="color:#e2e8f0">위험 선호</strong> 구간에 위치합니다. 15개 분석 지표 중 8개가 강세를 나타내며 시장 모멘텀이 우호적입니다.</div>
+        <div style="margin-top:8px;font-size:0.72rem;color:#ef4444">리스크 요약: WTI 상승 → 인플레이션 재점화 위험 / 미국 10년물 금리 상승 (Z=+1.56) → 할인율 부담 / 달러 강세 → 신흥국 자금 유출 위험 (KOSPI 주의)</div>
+      </div>
+
+      <div class="card" style="margin-bottom:12px">
+        <div style="font-size:0.82rem;font-weight:700;color:#22c55e;margin-bottom:6px">강세 요인</div>
+        <div style="font-size:0.8rem;color:#94a3b8;line-height:1.8"><strong style="color:#e2e8f0">NASDAQ100</strong> (매우 강한 강세, Z=+2.00): 미국 기술주 랠리가 S&P500과 +0.949 상관으로 동조화 중. <strong style="color:#e2e8f0">NIKKEI225</strong> (매우 강한 강세, Z=+2.00): 동아시아 증시 동조화 → 아시아 리스크온. <strong style="color:#e2e8f0">MA50</strong> (매우 강한 강세, Z=+1.84, 가중치 0.033).</div>
+      </div>
+
+      <div class="card">
+        <div style="font-size:0.82rem;font-weight:700;color:#ef4444;margin-bottom:6px">약세 요인 / 리스크</div>
+        <div style="font-size:0.8rem;color:#94a3b8;line-height:1.8"><strong style="color:#e2e8f0">US10Y</strong> (강한 약세, Z=+1.56): 금리 상승 → 할인율 부담, 성장주 밸류에이션 압박. <strong style="color:#e2e8f0">BBAND</strong> (강한 약세, Z=-1.53): 볼린저밴드 하단 → 가격 하방 변동성 확대 구간. <strong style="color:#e2e8f0">STOCH_RSI</strong> (강한 약세, Z=-1.39): 스토캐스틱 RSI 과매도 → 단기 조정 가능성.</div>
+      </div>
+    </div>
+
+    <!-- 액션플랜 + 모니터링 -->
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <div style="font-size:0.82rem;font-weight:700;color:#94a3b8;margin-bottom:8px">S&amp;P500 액션플랜</div>
+        <div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #1e293b;font-size:0.8rem"><span style="color:#6366f1;flex-shrink:0;font-weight:700">1.</span><span style="color:#94a3b8">S&P500 신규 매수 자제, 기존 포지션 유지</span></div><div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #1e293b;font-size:0.8rem"><span style="color:#6366f1;flex-shrink:0;font-weight:700">2.</span><span style="color:#94a3b8">시그널 점수 >68 또는 강세 지표 >60% 달성 시 매수 재검토</span></div><div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #1e293b;font-size:0.8rem"><span style="color:#6366f1;flex-shrink:0;font-weight:700">3.</span><span style="color:#94a3b8">관망하며 HY_SPREAD, VIX 추세 모니터링</span></div>
+        <div style="margin-top:8px;font-size:0.72rem;color:#475569">주목 종목: <strong style="color:#e2e8f0">Alphabet</strong> (1년 수익률 +109.8%, 시가총액 기여점수 2.69), <strong style="color:#e2e8f0">NVIDIA</strong> (1년 수익률 +44.0%, 시가총액 기여점수 1.40)</div>
+      </div>
+
+      <div class="card" style="margin-bottom:12px">
+        <div style="font-size:0.82rem;font-weight:700;color:#94a3b8;margin-bottom:8px">코스피 액션플랜</div>
+        <div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #1e293b;font-size:0.8rem"><span style="color:#6366f1;flex-shrink:0;font-weight:700">1.</span><span style="color:#94a3b8">코스피 신규 매수 자제, KOSDAQ 개별주 모니터링</span></div><div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #1e293b;font-size:0.8rem"><span style="color:#6366f1;flex-shrink:0;font-weight:700">2.</span><span style="color:#94a3b8">외국인 순매수 전환 확인 후 진입 검토</span></div>
+        <div style="margin-top:8px;font-size:0.72rem;color:#475569">주목 종목: <strong style="color:#e2e8f0">SK하이닉스</strong> (+803.9%, [FDR/검증완료]), <strong style="color:#e2e8f0">삼성전자</strong> (+450.2%, [FDR/검증완료])</div>
+      </div>
+
+      <div class="card">
+        <div style="font-size:0.82rem;font-weight:700;color:#94a3b8;margin-bottom:8px">주간 모니터링 체크리스트</div>
+        <div style="display:flex;gap:8px;padding:4px 0;font-size:0.76rem"><span style="color:#22c55e;flex-shrink:0">☐</span><span style="color:#94a3b8">복합 시그널 점수 (현재 68.3) — 주간 파이프라인 자동 업데이트</span></div><div style="display:flex;gap:8px;padding:4px 0;font-size:0.76rem"><span style="color:#22c55e;flex-shrink:0">☐</span><span style="color:#94a3b8">HY_SPREAD: 신용 리스크 선행 지표, 상승 시 즉시 경계</span></div><div style="display:flex;gap:8px;padding:4px 0;font-size:0.76rem"><span style="color:#22c55e;flex-shrink:0">☐</span><span style="color:#94a3b8">VIX: 20 돌파 시 포지션 축소 검토</span></div><div style="display:flex;gap:8px;padding:4px 0;font-size:0.76rem"><span style="color:#22c55e;flex-shrink:0">☐</span><span style="color:#94a3b8">US10Y: 5% 재돌파 시 성장주 비중 조정</span></div><div style="display:flex;gap:8px;padding:4px 0;font-size:0.76rem"><span style="color:#22c55e;flex-shrink:0">☐</span><span style="color:#94a3b8">KOSDAQ 흐름: 코스피 선행 지표로 주 2회 확인</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-size:0.68rem;color:#334155;padding:8px 12px;background:#0f172a;border-radius:6px;border-left:3px solid #334155">
+    본 리포트는 AI 분석 시스템이 자동 생성한 참고 자료입니다. 투자 결정은 개인 책임이며, 전문 투자 자문이 아닙니다.
+  </div>
+</section>
+  </div>
+  <div id="page-signal" class="page">
     
 <!-- ═══ SIGNAL SECTION ═══ -->
 <section id="signal">
@@ -920,6 +1065,386 @@
   </div>
 </section>
   </div>
+  <div id="page-sector" class="page">
+    
+<!-- ═══ SECTOR SECTION ═══ -->
+<section id="sector">
+  <h2 class="section-title">산업별 딥다이브</h2>
+  <div style="font-size:0.72rem;color:#475569;margin-bottom:14px">
+    반도체/AI · AI플랫폼 · 에너지 섹터 | 1Y=1년 수익률, 1M=최근 1개월 | FDR(KR) + yfinance(US)
+  </div>
+  
+        <div class="card" style="margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+            <div style="font-size:0.9rem;font-weight:700;color:#e2e8f0">반도체/AI</div>
+            <div style="text-align:right;font-size:0.7rem;color:#475569;max-width:200px">AI 수요 급증, HBM 메모리 사이클, 파운드리 확장</div>
+          </div>
+          <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;gap:6px;
+                      padding-bottom:5px;border-bottom:1px solid #334155;margin-bottom:4px">
+            <div style="font-size:0.68rem;color:#475569">종목</div>
+            <div style="font-size:0.68rem;color:#475569">1년 수익률 바</div>
+            <div style="font-size:0.68rem;color:#475569;text-align:right">1Y</div>
+            <div style="font-size:0.68rem;color:#475569;text-align:center">1M</div>
+            <div style="font-size:0.68rem;color:#475569;text-align:right">현재가</div>
+          </div>
+          
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">SK하이닉스</div>
+                <div style="font-size:0.65rem;color:#475569">000660.KS <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">KR</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:100.0%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +987.8%
+              </div>
+              <div style="text-align:center"><span style="color:#22c55e;font-size:0.72rem">+43.0%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">₩2,070,000</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">삼성전자</div>
+                <div style="font-size:0.65rem;color:#475569">005930.KS <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">KR</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:100.0%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +502.6%
+              </div>
+              <div style="text-align:center"><span style="color:#22c55e;font-size:0.72rem">+41.5%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">₩329,000</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">Intel</div>
+                <div style="font-size:0.65rem;color:#475569">INTC <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">US</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:74.4%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +372.2%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-12.2%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">$99</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">한미반도체</div>
+                <div style="font-size:0.65rem;color:#475569">042700.KS <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">KR</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:52.1%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +260.5%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-25.1%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">₩283,000</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">Applied Materials</div>
+                <div style="font-size:0.65rem;color:#475569">AMAT <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">US</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:38.7%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +193.3%
+              </div>
+              <div style="text-align:center"><span style="color:#22c55e;font-size:0.72rem">+5.8%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">$453</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">TSMC</div>
+                <div style="font-size:0.65rem;color:#475569">TSM <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">US</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:28.0%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +139.9%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-1.0%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">$415</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">Broadcom</div>
+                <div style="font-size:0.65rem;color:#475569">AVGO <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">US</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:17.4%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +87.2%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-9.3%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">$386</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">NVIDIA</div>
+                <div style="font-size:0.65rem;color:#475569">NVDA <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">US</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:15.0%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +75.0%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-1.2%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">$205</div>
+            </div>
+          <div style="font-size:0.68rem;color:#ef4444;margin-top:8px;opacity:0.8">
+            ⚠ 리스크: 재고 조정, 중국 제재 리스크, 설비투자 과잉
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+            <div style="font-size:0.9rem;font-weight:700;color:#e2e8f0">AI/플랫폼</div>
+            <div style="text-align:right;font-size:0.7rem;color:#475569;max-width:200px">클라우드 AI 서비스 수요, LLM 상용화, 광고 회복</div>
+          </div>
+          <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;gap:6px;
+                      padding-bottom:5px;border-bottom:1px solid #334155;margin-bottom:4px">
+            <div style="font-size:0.68rem;color:#475569">종목</div>
+            <div style="font-size:0.68rem;color:#475569">1년 수익률 바</div>
+            <div style="font-size:0.68rem;color:#475569;text-align:right">1Y</div>
+            <div style="font-size:0.68rem;color:#475569;text-align:center">1M</div>
+            <div style="font-size:0.68rem;color:#475569;text-align:right">현재가</div>
+          </div>
+          
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">Alphabet</div>
+                <div style="font-size:0.65rem;color:#475569">GOOGL <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">US</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:27.9%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +139.7%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-7.4%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">$369</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">NAVER</div>
+                <div style="font-size:0.65rem;color:#475569">035420.KS <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">KR</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:7.1%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +35.4%
+              </div>
+              <div style="text-align:center"><span style="color:#22c55e;font-size:0.72rem">+22.2%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">₩255,500</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">Amazon</div>
+                <div style="font-size:0.65rem;color:#475569">AMZN <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">US</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:5.6%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +28.1%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-10.5%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">$246</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">카카오</div>
+                <div style="font-size:0.65rem;color:#475569">035720.KS <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">KR</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:1.8%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +8.8%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-14.5%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">₩40,250</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">Meta</div>
+                <div style="font-size:0.65rem;color:#475569">META <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">US</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:0.1%;background:#ef4444;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#ef4444;text-align:right">
+                -0.5%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-3.2%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">$593</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">Microsoft</div>
+                <div style="font-size:0.65rem;color:#475569">MSFT <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">US</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:0.8%;background:#ef4444;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#ef4444;text-align:right">
+                -4.0%
+              </div>
+              <div style="text-align:center"><span style="color:#22c55e;font-size:0.72rem">+0.9%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">$417</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">크래프톤</div>
+                <div style="font-size:0.65rem;color:#475569">259960.KS <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">KR</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:6.4%;background:#ef4444;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#ef4444;text-align:right">
+                -32.1%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-10.8%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">₩257,500</div>
+            </div>
+          <div style="font-size:0.68rem;color:#ef4444;margin-top:8px;opacity:0.8">
+            ⚠ 리스크: 규제 리스크, AI 투자 수익성 불확실, 경쟁 심화
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+            <div style="font-size:0.9rem;font-weight:700;color:#e2e8f0">에너지/원자재</div>
+            <div style="text-align:right;font-size:0.7rem;color:#475569;max-width:200px">에너지 전환, 원자력 르네상스, AI 데이터센터 전력 수요</div>
+          </div>
+          <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;gap:6px;
+                      padding-bottom:5px;border-bottom:1px solid #334155;margin-bottom:4px">
+            <div style="font-size:0.68rem;color:#475569">종목</div>
+            <div style="font-size:0.68rem;color:#475569">1년 수익률 바</div>
+            <div style="font-size:0.68rem;color:#475569;text-align:right">1Y</div>
+            <div style="font-size:0.68rem;color:#475569;text-align:center">1M</div>
+            <div style="font-size:0.68rem;color:#475569;text-align:right">현재가</div>
+          </div>
+          
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">두산에너빌리티</div>
+                <div style="font-size:0.65rem;color:#475569">034020.KS <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">KR</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:48.9%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +244.5%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-24.8%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">₩95,600</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">S-Oil</div>
+                <div style="font-size:0.65rem;color:#475569">010950.KS <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">KR</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:23.3%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +116.5%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-11.9%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">₩112,800</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">ExxonMobil</div>
+                <div style="font-size:0.65rem;color:#475569">XOM <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">US</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:9.4%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +47.2%
+              </div>
+              <div style="text-align:center"><span style="color:#22c55e;font-size:0.72rem">+1.5%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">$150</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">한국전력</div>
+                <div style="font-size:0.65rem;color:#475569">015760.KS <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">KR</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:8.9%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +44.3%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-14.4%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">₩38,100</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">Chevron</div>
+                <div style="font-size:0.65rem;color:#475569">CVX <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">US</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:8.8%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +44.1%
+              </div>
+              <div style="text-align:center"><span style="color:#22c55e;font-size:0.72rem">+2.1%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">$187</div>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;
+                        gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b">
+              <div>
+                <div style="font-size:0.78rem;font-weight:600;color:#e2e8f0">NextEra Energy</div>
+                <div style="font-size:0.65rem;color:#475569">NEE <span style="font-size:0.62rem;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#60a5fa">US</span></div>
+              </div>
+              <div style="background:#0f172a;height:6px;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:6.1%;background:#22c55e;border-radius:3px;opacity:0.85"></div>
+              </div>
+              <div style="font-size:0.82rem;font-weight:700;color:#22c55e;text-align:right">
+                +30.3%
+              </div>
+              <div style="text-align:center"><span style="color:#ef4444;font-size:0.72rem">-9.3%</span></div>
+              <div style="font-size:0.7rem;color:#475569;text-align:right">$86</div>
+            </div>
+          <div style="font-size:0.68rem;color:#ef4444;margin-top:8px;opacity:0.8">
+            ⚠ 리스크: 유가 변동성, 정책 리스크, 금리 민감도
+          </div>
+        </div>
+</section>
+  </div>
   <div id="page-indicators" class="page">
     
 <!-- ═══ INDICATORS SECTION ═══ -->
@@ -1363,10 +1888,92 @@
   </div>
 </section>
   </div>
+  <div id="page-looker" class="page">
+    
+<!-- ═══ LOOKER STUDIO SECTION ═══ -->
+<section id="looker">
+  <h2 class="section-title">Looker Studio 연동</h2>
+  <div style="font-size:0.72rem;margin-bottom:14px"><span style="color:#f59e0b">● 라이브러리 미설치</span></div>
+
+  <div class="grid-2" style="gap:16px">
+    <!-- 연결 가이드 -->
+    <div class="card">
+      <div style="font-size:0.82rem;font-weight:700;color:#94a3b8;margin-bottom:10px">연결 가이드</div>
+      
+    <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #1e293b;align-items:flex-start">
+      <div style="background:#6366f1;color:#fff;border-radius:50%;width:22px;height:22px;
+                  display:flex;align-items:center;justify-content:center;font-size:0.7rem;
+                  font-weight:700;flex-shrink:0;margin-top:1px">1</div>
+      <div>
+        <div style="font-size:0.8rem;color:#e2e8f0;font-weight:600">Google Drive에 CSV 업로드</div>
+        <div style="font-size:0.72rem;color:#64748b;margin-top:2px">Google Drive → 새로 만들기 → 파일 업로드 → indicator_ranking.csv</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #1e293b;align-items:flex-start">
+      <div style="background:#6366f1;color:#fff;border-radius:50%;width:22px;height:22px;
+                  display:flex;align-items:center;justify-content:center;font-size:0.7rem;
+                  font-weight:700;flex-shrink:0;margin-top:1px">2</div>
+      <div>
+        <div style="font-size:0.8rem;color:#e2e8f0;font-weight:600">Looker Studio에서 데이터 소스 연결</div>
+        <div style="font-size:0.72rem;color:#64748b;margin-top:2px">Looker Studio(lookerstudio.google.com) → 보고서 만들기 → 데이터 추가</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #1e293b;align-items:flex-start">
+      <div style="background:#6366f1;color:#fff;border-radius:50%;width:22px;height:22px;
+                  display:flex;align-items:center;justify-content:center;font-size:0.7rem;
+                  font-weight:700;flex-shrink:0;margin-top:1px">3</div>
+      <div>
+        <div style="font-size:0.8rem;color:#e2e8f0;font-weight:600">Google Sheets 커넥터 선택</div>
+        <div style="font-size:0.72rem;color:#64748b;margin-top:2px">Google Sheets 커넥터 선택 → 업로드한 파일 선택</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #1e293b;align-items:flex-start">
+      <div style="background:#6366f1;color:#fff;border-radius:50%;width:22px;height:22px;
+                  display:flex;align-items:center;justify-content:center;font-size:0.7rem;
+                  font-weight:700;flex-shrink:0;margin-top:1px">4</div>
+      <div>
+        <div style="font-size:0.8rem;color:#e2e8f0;font-weight:600">차트 구성 (막대/표/스코어카드)</div>
+        <div style="font-size:0.72rem;color:#64748b;margin-top:2px">차트 추가: 막대 차트(가중치), 표(시그널), 스코어카드(시장 방향)</div>
+      </div>
+    </div>
+      <div style="margin-top:12px;font-size:0.78rem;font-weight:600;color:#64748b">CSV 다운로드</div>
+      <div style="margin-top:4px">
+        <a href="https://hwangatwork.github.io/AI-Analyzer/indicator_ranking.csv" target="_blank" style="font-size:0.75rem;color:#60a5fa;text-decoration:none">
+          ↓ indicator_ranking.csv (GitHub Pages)
+        </a><br>
+        <a href="https://hwangatwork.github.io/AI-Analyzer/market_signals.csv" target="_blank"
+           style="font-size:0.75rem;color:#60a5fa;text-decoration:none">
+          ↓ market_signals.csv
+        </a><br>
+        <a href="https://hwangatwork.github.io/AI-Analyzer/stock_analysis.csv" target="_blank"
+           style="font-size:0.75rem;color:#60a5fa;text-decoration:none">
+          ↓ stock_analysis.csv
+        </a>
+      </div>
+      
+    </div>
+
+    <!-- 서비스 계정 설정 -->
+    <div class="card">
+      <div style="font-size:0.82rem;font-weight:700;color:#94a3b8;margin-bottom:10px">자동화 설정 (선택)</div>
+      <div style="font-size:0.78rem;color:#64748b;line-height:1.8">
+        <div style="color:#94a3b8;margin-bottom:6px">Google Service Account 설정 시 매주 자동 업로드</div>
+        <code style="background:#0f172a;padding:4px 8px;border-radius:4px;font-size:0.72rem;color:#22c55e;display:block;margin-bottom:6px">
+          .env에 추가:<br>GOOGLE_SA_JSON=/path/to/service-account.json<br>GOOGLE_SHARE_EMAIL=your@email.com
+        </code>
+        <div style="color:#64748b;font-size:0.72rem">
+          또는 Looker Studio에서 직접 GitHub Pages CSV URL을 데이터 소스로 연결 가능<br>
+          URL: <code style="color:#60a5fa">https://hwangatwork.github.io/AI-Analyzer/indicator_ranking.csv</code>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+  </div>
 </main>
 
 <footer style="text-align:center;padding:16px;font-size:0.7rem;color:#334155;border-top:1px solid #1e293b">
-  AI Analyzer v4 &nbsp;|&nbsp; Data: FinanceDataReader · FRED · alternative.me · Yahoo Finance &nbsp;|&nbsp;
+  AI Analyzer v5 &nbsp;|&nbsp; Data: FinanceDataReader · FRED · alternative.me · Yahoo Finance &nbsp;|&nbsp;
   p&lt;0.05 통계적 유의 기준 &nbsp;|&nbsp;
   <a href="https://hwangatwork.github.io/AI-Analyzer/" style="color:#475569">hwangatwork.github.io/AI-Analyzer</a>
 </footer>
