@@ -299,47 +299,62 @@ def collect_f04():
         fail("STOCH_RSI", str(e))
 
 
-# ── F05: 수급 (pykrx 대안: FDR) ───────────────────────────────────────────
+# ── F05: 수급 (pykrx KRX 로그인) ──────────────────────────────────────────
 
 def collect_f05():
-    print("\n[F05] 수급 3개 수집")
+    print("\n[F05] 수급 3개 수집 (pykrx KRX 로그인)")
 
-    # 방법 1: pykrx (로그인 없는 함수 재시도)
+    KRX_ID = os.getenv("KRX_ID", "")
+    KRX_PW = os.getenv("KRX_PW", "")
+
+    if not KRX_ID or not KRX_PW:
+        for name in ["FOREIGN_NET", "INSTITUTION_NET", "INDIVIDUAL_NET"]:
+            fail(name, "KRX_ID/KRX_PW 환경변수 미등록 - .env에 추가 필요")
+        return
+
     try:
         from pykrx import stock as pykrx_stock
         start_str = START.replace("-", "")
         end_str   = END.replace("-", "")
+
         df = pykrx_stock.get_market_trading_value_by_date(start_str, end_str, "KOSPI")
-        if df is not None and not df.empty:
-            df.index = pd.to_datetime(df.index).tz_localize(None)
-            df.index.name = "date"
-            kw_map = {
-                "FOREIGN_NET":     ["외국인", "foreign"],
-                "INSTITUTION_NET": ["기관", "institution"],
-                "INDIVIDUAL_NET":  ["개인", "individual", "retail"],
-            }
-            for target, kws in kw_map.items():
-                matched = next((c for c in df.columns if any(k in str(c).lower() for k in kws)), None)
-                if matched:
-                    out = df[[matched]].rename(columns={matched: "value"}).reset_index()
-                    save_parquet(out, target, "pykrx:KOSPI")
-                else:
-                    fail(target, f"pykrx 컬럼 매핑 실패: {list(df.columns)[:5]}")
+
+        if df is None or df.empty:
+            for name in ["FOREIGN_NET", "INSTITUTION_NET", "INDIVIDUAL_NET"]:
+                fail(name, "pykrx 응답 비어있음")
             return
-    except Exception as e:
-        print(f"  pykrx 실패: {str(e)[:80]}")
 
-    # 방법 2: FDR 수급 (KRX 데이터)
-    try:
-        import FinanceDataReader as fdr
-        # FDR에는 직접 수급 데이터가 없음 -> FAILED 처리
-        raise ValueError("FDR 수급 데이터 미지원")
-    except Exception as e:
-        pass
+        # 인덱스 정리
+        if df.index.name in ("날짜", "date", None):
+            df.index = pd.to_datetime(df.index).tz_localize(None)
+        df.index.name = "date"
+        print(f"  수신 컬럼: {df.columns.tolist()}")
 
-    # 최종: FAILED (KRX 자격증명 필요 명시)
-    for name in ["FOREIGN_NET", "INSTITUTION_NET", "INDIVIDUAL_NET"]:
-        fail(name, "KRX_ID/KRX_PW 환경변수 미등록 - .env에 추가 필요")
+        # 컬럼 매핑 (KRX 반환 컬럼: 기관합계, 개인, 외국인합계)
+        col_map = {
+            "FOREIGN_NET":     ["외국인합계", "외국인", "foreign"],
+            "INSTITUTION_NET": ["기관합계",   "기관",   "institution"],
+            "INDIVIDUAL_NET":  ["개인",        "individual", "retail"],
+        }
+
+        for target, keywords in col_map.items():
+            matched = next(
+                (c for c in df.columns if any(kw in str(c) for kw in keywords)),
+                None
+            )
+            if matched:
+                out = df[[matched]].rename(columns={matched: "value"}).reset_index()
+                # 단위: 원 → 억원 (가독성)
+                out["value"] = out["value"] / 1e8
+                save_parquet(out, target, "pykrx:KOSPI")
+                print(f"  {target}: {matched} → 저장 완료 ({len(out)}행, 단위:억원)")
+            else:
+                fail(target, f"컬럼 매핑 실패. 수신 컬럼: {list(df.columns)}")
+
+    except Exception as e:
+        print(f"  pykrx 오류: {e}")
+        for name in ["FOREIGN_NET", "INSTITUTION_NET", "INDIVIDUAL_NET"]:
+            fail(name, f"pykrx 예외: {str(e)[:60]}")
 
 
 # ── 메인 ──────────────────────────────────────────────────────────────────

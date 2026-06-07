@@ -1,39 +1,39 @@
 {
   "meta": {
-    "generated_at": "2026-06-07T20:59:07.125539",
+    "generated_at": "2026-06-07T22:18:47.946775",
     "version": "4.0",
     "period": {
       "start": "2025-06-07",
       "end": "2026-06-07"
     },
-    "total_indicators_collected": 25,
+    "total_indicators_collected": 28,
     "total_indicators_possible": 29,
-    "collection_rate": "25/29 (86.2%)",
+    "collection_rate": "28/29 (96.6%)",
     "total_indicators_analyzed": 16,
     "total_indicators_in_final": 15,
     "excluded_low_confidence": [
-      "PUT_CALL",
-      "RSI_SIGNAL",
-      "MA_SIGNAL",
-      "INSTITUTION_NET",
-      "INDIVIDUAL_NET",
       "SKEW",
-      "FED_ASSETS",
-      "MA200",
       "BETA",
       "FOREIGN_NET",
+      "INSTITUTION_NET",
+      "PUT_CALL",
+      "T10Y2Y",
       "CNN_FG",
-      "T10Y2Y"
+      "MA200",
+      "FED_ASSETS",
+      "RSI_SIGNAL",
+      "MA_SIGNAL",
+      "INDIVIDUAL_NET"
     ],
     "data_reference_date": "2026-06-07"
   },
   "market_signal": {
-    "score": 68.3,
+    "score": 67.6,
     "direction": "risk-on",
     "bullish_count": 8,
     "bearish_count": 7,
     "total_signals": 15,
-    "computed_at": "2026-06-07T20:59:07.125539",
+    "computed_at": "2026-06-07T22:18:47.946775",
     "methodology": "Z-score based composite: each indicator's latest value vs 252-day rolling mean/std, sign-adjusted by its SP500 Pearson correlation, weighted by combined_weight. Score = 50 + weighted_sum * 50. Risk-on>65, risk-off<35.",
     "indicator_signals": [
       {
@@ -91,6 +91,15 @@
         "sp500_r": 0.3737
       },
       {
+        "indicator": "WTI",
+        "weight": 0.1508,
+        "last_value": 95.96,
+        "z_score": 1.489,
+        "signal": -0.744,
+        "bullish": false,
+        "sp500_r": -0.3393
+      },
+      {
         "indicator": "STOCH_RSI",
         "weight": 0.1262,
         "last_value": 0.0,
@@ -98,15 +107,6 @@
         "signal": -0.696,
         "bullish": false,
         "sp500_r": 0.2847
-      },
-      {
-        "indicator": "WTI",
-        "weight": 0.1332,
-        "last_value": 90.54,
-        "z_score": 1.22,
-        "signal": -0.61,
-        "bullish": false,
-        "sp500_r": -0.3105
       },
       {
         "indicator": "HY_SPREAD",
@@ -238,11 +238,11 @@
       "rank": 7,
       "indicator": "WTI",
       "ind_type": "diff",
-      "sp500_signed_r": -0.3105,
+      "sp500_signed_r": -0.3393,
       "sp500_significant": true,
-      "kospi_signed_r": -0.113,
+      "kospi_signed_r": -0.1316,
       "kospi_significant": true,
-      "combined_weight": 0.1332
+      "combined_weight": 0.1508
     },
     {
       "rank": 8,
@@ -638,18 +638,12 @@
     ]
   },
   "data_quality": {
-    "collection_success_rate": "25/29 (86.2%)",
+    "collection_success_rate": "28/29 (96.6%)",
     "failed_indicators": [
-      "PUT_CALL",
-      "FOREIGN_NET",
-      "INSTITUTION_NET",
-      "INDIVIDUAL_NET"
+      "PUT_CALL"
     ],
     "failure_reasons": {
-      "PUT_CALL": "공개 API 없음 - CBOE 직접 접근 필요 (데이터 없음 처리)",
-      "FOREIGN_NET": "KRX_ID/KRX_PW 환경변수 미등록 - .env에 추가 필요",
-      "INSTITUTION_NET": "KRX_ID/KRX_PW 환경변수 미등록 - .env에 추가 필요",
-      "INDIVIDUAL_NET": "KRX_ID/KRX_PW 환경변수 미등록 - .env에 추가 필요"
+      "PUT_CALL": "공개 API 없음 - CBOE 직접 접근 필요 (데이터 없음 처리)"
     },
     "low_confidence_excluded": [
       "BETA",
@@ -690,9 +684,21 @@
         "end_date": "2026-06-03",
         "rows": 57
       },
+      "FOREIGN_NET": {
+        "end_date": "2026-06-05",
+        "rows": 264
+      },
       "HY_SPREAD": {
         "end_date": "2026-06-04",
         "rows": 288
+      },
+      "INDIVIDUAL_NET": {
+        "end_date": "2026-06-05",
+        "rows": 264
+      },
+      "INSTITUTION_NET": {
+        "end_date": "2026-06-05",
+        "rows": 264
       },
       "KOSDAQ": {
         "end_date": "2026-06-05",
@@ -755,8 +761,8 @@
         "rows": 276
       },
       "WTI": {
-        "end_date": "2026-06-05",
-        "rows": 275
+        "end_date": "2026-06-01",
+        "rows": 268
       }
     }
   },
