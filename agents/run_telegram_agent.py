@@ -9,9 +9,12 @@ Done Criteria (TG-1~TG-5):
   TG-5: final_results.json 파싱 성공 (score, direction 필수)
 
 실행 모드:
-  --daily   : 오전 8시 정기 리포트
-  --check   : 시그널 변화 감지 (30분 루프에서 호출)
-  --test    : 테스트 메시지 1회 전송
+  --daily        : 오전 8시 정기 리포트
+  --check        : 시그널 변화 감지 (30분 루프에서 호출)
+  --test         : 테스트 메시지 1회 전송
+  --step <N> <이름> <상세>  : 파이프라인 단계 완료 보고
+  --summary      : 파이프라인 전체 완료 요약
+  --done-criteria: 자체 검증
 """
 
 import json
@@ -400,6 +403,153 @@ def run_test():
 
 
 # ══════════════════════════════════════════════════════════════
+# 기능 4 — 파이프라인 단계 완료 보고 (--step)
+# ══════════════════════════════════════════════════════════════
+
+# 전체 파이프라인 단계 정의 (순서/총 단계 수 표시용)
+PIPELINE_STEPS = [
+    ("1", "Data Agent",       "📥"),
+    ("2", "Refresh",          "🔄"),
+    ("3", "Analysis Agent",   "📊"),
+    ("4", "Stock Agent",      "🏢"),
+    ("5", "Evaluator Agent",  "🔬"),
+    ("6", "Sector Agent",     "🏭"),
+    ("7", "Validation Agent", "✅"),
+    ("8", "UI Agent",         "🖥"),
+    ("9", "Report",           "📄"),
+    ("10", "Audit Agent",     "🔍"),
+    ("11", "Telegram Check",  "📱"),
+]
+TOTAL_STEPS = len(PIPELINE_STEPS)
+
+
+def run_step(step_num: str, step_name: str, detail: str = "") -> None:
+    """파이프라인 단계 완료 보고."""
+    now = datetime.now().strftime("%H:%M:%S")
+    total = TOTAL_STEPS
+
+    # 진행 바 (단순 텍스트)
+    try:
+        n = int(step_num)
+        filled = "█" * n + "░" * (total - n)
+        pct    = round(n / total * 100)
+    except ValueError:
+        filled = "─" * total
+        pct    = 0
+
+    # 단계 이모지 찾기
+    emoji = next((e for s, nm, e in PIPELINE_STEPS if s == str(step_num)), "⚙")
+
+    lines = [
+        f"{emoji} <b>[{step_num}/{total}] {step_name} 완료</b>",
+        f"<code>{filled}</code>  {pct}%",
+        f"<i>{now}</i>",
+    ]
+    if detail:
+        lines.append("")
+        lines.append(detail)
+
+    msg = "\n".join(lines)
+    result = send_message(msg)
+    mid = result.get("result", {}).get("message_id")
+    print(f"[Telegram] 단계 보고 전송 — {step_num}/{total} {step_name} | message_id={mid}")
+    _append_log("step_report", f"step={step_num} {step_name}", mid)
+
+
+# ══════════════════════════════════════════════════════════════
+# 기능 5 — 파이프라인 전체 완료 요약 (--summary)
+# ══════════════════════════════════════════════════════════════
+
+def run_summary() -> None:
+    """파이프라인 전체 완료 요약."""
+    print("[Telegram] 파이프라인 완료 요약 전송")
+
+    # final_results.json
+    try:
+        data  = _load_results()
+        sig   = data.get("market_signal", {})
+        score = sig.get("score", 0)
+        direc = sig.get("direction", "N/A")
+        bull  = sig.get("bullish_count", 0)
+        total_sigs = sig.get("total_signals", 0)
+        rank  = data.get("indicator_weight_ranking", [])
+        sp5   = data.get("sp500_analysis", {}).get("contribution_top5", [])
+        ksp5  = data.get("kospi_analysis", {}).get("contribution_top5", [])
+        meta  = data.get("meta", {})
+        col_rate = meta.get("collection_rate", "N/A")
+    except Exception as e:
+        data = {}
+        score, direc, bull, total_sigs = 0, "N/A", 0, 0
+        rank, sp5, ksp5, col_rate = [], [], [], "N/A"
+
+    # 방향 이모지
+    if score >= 75:
+        dir_emoji, action = "🟢", "매수 관점"
+    elif score < 40:
+        dir_emoji, action = "🔴", "매도/축소 검토"
+    else:
+        dir_emoji, action = "🟡", "관망 (HOLD)"
+
+    dir_kr = {"risk-on": "리스크 온", "risk-off": "리스크 오프", "neutral": "중립"}.get(
+        direc, direc
+    )
+
+    # validation 결과 로드
+    try:
+        import json as _json
+        from pathlib import Path as _Path
+        vr  = _json.loads((_Path(__file__).parent.parent / "data/processed/validation_report.json").read_text(encoding="utf-8"))
+        vs  = vr.get("summary", {})
+        val_pass = vs.get("passed", 0)
+        val_total = vs.get("total", 0)
+        val_crit = vs.get("failed_critical", 0)
+    except Exception:
+        val_pass, val_total, val_crit = "?", "?", "?"
+
+    # Top3 가중치 지표
+    top3_lines = []
+    for r in rank[:3]:
+        nm   = INDICATOR_KR.get(r["indicator"], r["indicator"])
+        w    = r.get("combined_weight", 0)
+        g    = " G✓" if r.get("sp500_granger_sig") else ""
+        top3_lines.append(f"  {r['rank']}. {nm}{g} ({w:.4f})")
+
+    # Top1 종목
+    sp_top  = sp5[0] if sp5  else {}
+    ksp_top = ksp5[0] if ksp5 else {}
+
+    now = datetime.now().strftime("%Y/%m/%d %H:%M")
+
+    lines = [
+        "🏁 <b>AI Analyzer 파이프라인 전체 완료</b>",
+        f"<i>{now}</i>",
+        "",
+        f"<b>{dir_emoji} 시장 시그널</b>",
+        f"  점수: <b>{score:.1f} / 100</b>  ({dir_kr})",
+        f"  강세 지표: {bull}/{total_sigs}개 → {action}",
+        "",
+        "<b>📌 가중치 Top3 (Granger 인과 기반)</b>",
+        *top3_lines,
+        "",
+        "<b>🏆 기여 Top1</b>",
+        f"  S&P500: {sp_top.get('name','N/A')}  {sp_top.get('stock_return_pct',0):+.1f}%",
+        f"  코스피:  {ksp_top.get('name','N/A')}  {ksp_top.get('stock_return_pct',0):+.1f}%",
+        "",
+        "<b>🔍 검증 결과</b>",
+        f"  Validation: {val_pass}/{val_total} PASS, CRITICAL={val_crit}",
+        f"  수집률: {col_rate}",
+        "",
+        "<i>AI Analyzer v4 | 파이프라인 완료</i>",
+    ]
+
+    msg = "\n".join(lines)
+    result = send_message(msg)
+    mid = result.get("result", {}).get("message_id")
+    print(f"[Telegram] 완료 요약 전송 — message_id={mid}")
+    _append_log("pipeline_summary", f"score={score} {direc}", mid)
+
+
+# ══════════════════════════════════════════════════════════════
 # Done Criteria 자체 검증
 # ══════════════════════════════════════════════════════════════
 
@@ -500,11 +650,20 @@ if __name__ == "__main__":
             run_check()
         elif mode == "--test":
             run_test()
+        elif mode == "--step":
+            # 사용법: --step <번호> <이름> [상세]
+            # 예: --step 1 "Data Agent" "28/29 지표 수집 완료"
+            step_num  = sys.argv[2] if len(sys.argv) > 2 else "?"
+            step_name = sys.argv[3] if len(sys.argv) > 3 else "단계"
+            detail    = sys.argv[4] if len(sys.argv) > 4 else ""
+            run_step(step_num, step_name, detail)
+        elif mode == "--summary":
+            run_summary()
         elif mode == "--done-criteria":
             _run_done_criteria()
         else:
             print(f"[ERROR] 알 수 없는 모드: {mode}")
-            print("사용법: python run_telegram_agent.py [--daily|--check|--test|--done-criteria]")
+            print("사용법: python run_telegram_agent.py [--daily|--check|--test|--step|--summary|--done-criteria]")
             sys.exit(1)
     except FileNotFoundError as e:
         print(f"[ERROR] {e}")
