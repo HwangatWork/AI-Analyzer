@@ -312,6 +312,9 @@ def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, ge
     .grid-2, .grid-3 {{ grid-template-columns: 1fr; }}
     .main {{ padding: 12px 14px; }}
     .header {{ padding: 10px 14px; }}
+    .nav-tabs {{ overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0 12px; }}
+    .nav-tab {{ white-space: nowrap; flex-shrink: 0; padding: 10px 12px; font-size:0.78rem; }}
+    .header-meta {{ display: none; }}
   }}
 </style>
 </head>

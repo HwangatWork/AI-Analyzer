@@ -21,18 +21,26 @@ def _stock_card(s: dict, rank: int, market: str) -> str:
     dq_color   = {"검증완료": "#22c55e", "검증불필요": "#60a5fa", "불일치": "#f59e0b"}.get(dq, "#64748b")
     src_color  = "#818cf8" if src == "FDR" else "#94a3b8"
 
-    # 수익률 바: max 기준 상대 비율로 표시 (최대 200%를 100%로 정규화)
-    bar_pct = min(abs(ret) / 10, 100)  # 1000%를 100%로 normalize
+    # 데이터 품질 경고 플래그
+    warnings = []
+    no_mcap = market == "SP500" and mcap == 0
+    extreme_ret = abs(ret) > 1000
+    if no_mcap:
+        warnings.append("시가총액 미집계 (최근 분사/상장)")
+    if extreme_ret:
+        warnings.append(f"수익률 {ret:+.0f}% — 분사·합병 등 이벤트 영향 가능")
+
+    # 수익률 바: 1000%를 100%로 normalize
+    bar_pct = min(abs(ret) / 10, 100)
 
     # 시가총액 단위
     if market == "KOSPI":
-        # 억원 단위 (market_cap_b가 억원)
         if mcap >= 10000:
             mcap_str = f"{mcap/10000:.1f}조원"
         else:
             mcap_str = f"{mcap:.0f}억원"
     else:
-        mcap_str = f"${mcap:.0f}B"
+        mcap_str = f"${mcap:.0f}B" if mcap > 0 else "미집계 ⚠"
 
     # 추가 지표
     extra_rows = ""
@@ -50,18 +58,28 @@ def _stock_card(s: dict, rank: int, market: str) -> str:
     if pval is not None:
         sig_str = " *" if pval < 0.05 else ""
 
+    # 경고 배너
+    warn_html = ""
+    if warnings:
+        warn_items = "".join(f'<div>⚠ {w}</div>' for w in warnings)
+        warn_html = f'<div style="background:#1c1208;border:1px solid #78350f;border-radius:4px;padding:6px 8px;margin-bottom:8px;font-size:0.68rem;color:#fbbf24;line-height:1.5">{warn_items}</div>'
+
+    # 이름 옆 경고 아이콘
+    warn_icon = " ⚠" if warnings else ""
+
     return f"""
     <div class="stock-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div>
           <span style="font-size:0.7rem;color:#475569;font-weight:700">#{rank}</span>
-          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">{name}{sig_str}</span>
+          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">{name}{sig_str}{warn_icon}</span>
         </div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1e3a5f;color:{src_color}">{src}</span>
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:{dq_color}">{dq}</span>
         </div>
       </div>
+      {warn_html}
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">

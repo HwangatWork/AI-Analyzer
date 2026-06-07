@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-06-07T19:39:42.587607",
+    "generated_at": "2026-06-07T20:18:29.328893",
     "version": "4.0",
     "period": {
       "start": "2025-06-07",
@@ -13,17 +13,17 @@
     "total_indicators_in_final": 15,
     "excluded_low_confidence": [
       "SKEW",
-      "INSTITUTION_NET",
-      "FED_ASSETS",
-      "BETA",
+      "CNN_FG",
       "MA200",
+      "FOREIGN_NET",
+      "BETA",
       "T10Y2Y",
       "MA_SIGNAL",
-      "RSI_SIGNAL",
+      "INDIVIDUAL_NET",
+      "FED_ASSETS",
       "PUT_CALL",
-      "FOREIGN_NET",
-      "CNN_FG",
-      "INDIVIDUAL_NET"
+      "INSTITUTION_NET",
+      "RSI_SIGNAL"
     ],
     "data_reference_date": "2026-06-07"
   },
@@ -33,7 +33,7 @@
     "bullish_count": 8,
     "bearish_count": 7,
     "total_signals": 15,
-    "computed_at": "2026-06-07T19:39:42.587607",
+    "computed_at": "2026-06-07T20:18:29.328893",
     "methodology": "Z-score based composite: each indicator's latest value vs 252-day rolling mean/std, sign-adjusted by its SP500 Pearson correlation, weighted by combined_weight. Score = 50 + weighted_sum * 50. Risk-on>65, risk-off<35.",
     "indicator_signals": [
       {

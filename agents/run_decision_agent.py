@@ -178,6 +178,9 @@ def generate_decision_section(decision: dict) -> str:
         "HOLD": "#f59e0b", "SELL/AVOID": "#ef4444",
     }
 
+    bull  = decision.get("signal_summary", {}).get("bullish", 0)
+    total_sigs = decision.get("signal_summary", {}).get("total", 1) or 1
+
     def action_card(market_name, data, flag=""):
         action   = data.get("action", "HOLD")
         strength = data.get("strength", "중립")
@@ -186,6 +189,7 @@ def generate_decision_section(decision: dict) -> str:
         note     = data.get("position_note", "")
         hint     = data.get("top_stocks_hint", "")
         cl       = action_colors.get(action, "#64748b")
+        is_hold  = action == "HOLD"
 
         # 신뢰도 바
         conf_cl = "#22c55e" if conf >= 70 else ("#f59e0b" if conf >= 50 else "#ef4444")
@@ -196,21 +200,20 @@ def generate_decision_section(decision: dict) -> str:
         entry_html = "".join(f'<div style="font-size:0.72rem;color:#86efac;padding:2px 0">▲ {e}</div>' for e in entries[:2])
         exit_html  = "".join(f'<div style="font-size:0.72rem;color:#fca5a5;padding:2px 0">▼ {x}</div>' for x in exits[:2])
 
-        return f"""
-        <div class="card" style="border-left:3px solid {cl};padding:16px">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-            <div>
-              <div style="font-size:0.72rem;color:#64748b;margin-bottom:2px">{market_name} {flag}</div>
-              <div style="font-size:1.6rem;font-weight:900;color:{cl};letter-spacing:-0.03em">{action}</div>
-              <div style="font-size:0.75rem;color:{cl};opacity:0.8">신호 강도: {strength}</div>
+        # 포지션 블록: HOLD와 BUY/SELL은 다르게 표시
+        if is_hold:
+            position_block = f"""
+          <div style="background:#0f172a;border-radius:6px;padding:10px;margin-bottom:10px">
+            <div style="font-size:0.72rem;color:#f59e0b;font-weight:600;margin-bottom:4px">📌 HOLD 의미</div>
+            <div style="font-size:0.75rem;color:#94a3b8;line-height:1.5">
+              · 신규 매수: 시장 방향성 불명확 — 진입 보류<br>
+              · 기존 보유: 포지션 유지 (매도 신호 없음)<br>
+              · 추천 행동: 다음 주 시그널 재확인
             </div>
-            <div style="text-align:right">
-              <div style="font-size:0.7rem;color:#64748b;margin-bottom:4px">신뢰도</div>
-              <div style="font-size:1.4rem;font-weight:800;color:{conf_cl}">{conf:.0f}%</div>
-            </div>
-          </div>
-
-          <!-- 포지션 사이징 -->
+            <div style="font-size:0.68rem;color:#475569;margin-top:6px">{note}</div>
+          </div>"""
+        else:
+            position_block = f"""
           <div style="background:#0f172a;border-radius:6px;padding:10px;margin-bottom:10px">
             <div style="display:flex;justify-content:space-between;margin-bottom:4px">
               <span style="font-size:0.72rem;color:#64748b">권장 포지션 비중</span>
@@ -220,7 +223,25 @@ def generate_decision_section(decision: dict) -> str:
               <div style="height:100%;width:{pos}%;background:{cl};border-radius:3px"></div>
             </div>
             <div style="font-size:0.68rem;color:#475569;margin-top:4px">{note}</div>
+          </div>"""
+
+        return f"""
+        <div class="card" style="border-left:3px solid {cl};padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+            <div>
+              <div style="font-size:0.72rem;color:#64748b;margin-bottom:2px">{market_name} {flag}</div>
+              <div style="font-size:1.6rem;font-weight:900;color:{cl};letter-spacing:-0.03em">{action}</div>
+              <div style="font-size:0.75rem;color:{cl};opacity:0.8">신호 강도: {strength}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:0.7rem;color:#64748b;margin-bottom:2px">신뢰도</div>
+              <div style="font-size:1.4rem;font-weight:800;color:{conf_cl}">{conf:.0f}%</div>
+              <div style="font-size:0.65rem;color:#475569">지표 {bull}/{total_sigs}개 강세</div>
+            </div>
           </div>
+
+          <!-- 포지션 사이징 -->
+          {position_block}
 
           <!-- 트리거 -->
           {f'<div style="margin-bottom:8px">{entry_html}</div>' if entry_html else ""}

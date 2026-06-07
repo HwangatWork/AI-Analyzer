@@ -107,6 +107,9 @@
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
     .main { padding: 12px 14px; }
     .header { padding: 10px 14px; }
+    .nav-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0 12px; }
+    .nav-tab { white-space: nowrap; flex-shrink: 0; padding: 10px 12px; font-size:0.78rem; }
+    .header-meta { display: none; }
   }
 </style>
 </head>
@@ -119,7 +122,7 @@
     <div class="header-meta">
       Market Intelligence Dashboard &nbsp;|&nbsp;
       분석기간: 2025-06-07 ~ 2026-06-07 &nbsp;|&nbsp;
-      수집 25/29 (86.2%) &nbsp;|&nbsp; 생성: 2026-06-07 19:39
+      수집 25/29 (86.2%) &nbsp;|&nbsp; 생성: 2026-06-07 20:18
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
@@ -147,7 +150,7 @@
 <section id="decision">
   <h2 class="section-title">매수/매도 의사결정</h2>
   <div style="font-size:0.72rem;color:#475569;margin-bottom:14px">
-    기준: 복합 시그널 68.3점 (risk-on) | 산출: 2026-06-07 19:39 | 투자 판단은 개인 책임입니다
+    기준: 복합 시그널 68.3점 (risk-on) | 산출: 2026-06-07 20:18 | 투자 판단은 개인 책임입니다
   </div>
 
   <div class="grid-2" style="gap:16px;margin-bottom:16px">
@@ -160,21 +163,22 @@
               <div style="font-size:0.75rem;color:#f59e0b;opacity:0.8">신호 강도: 중립</div>
             </div>
             <div style="text-align:right">
-              <div style="font-size:0.7rem;color:#64748b;margin-bottom:4px">신뢰도</div>
+              <div style="font-size:0.7rem;color:#64748b;margin-bottom:2px">신뢰도</div>
               <div style="font-size:1.4rem;font-weight:800;color:#f59e0b">60%</div>
+              <div style="font-size:0.65rem;color:#475569">지표 8/15개 강세</div>
             </div>
           </div>
 
           <!-- 포지션 사이징 -->
+          
           <div style="background:#0f172a;border-radius:6px;padding:10px;margin-bottom:10px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-              <span style="font-size:0.72rem;color:#64748b">권장 포지션 비중</span>
-              <span style="font-size:0.9rem;font-weight:700;color:#f59e0b">0%</span>
+            <div style="font-size:0.72rem;color:#f59e0b;font-weight:600;margin-bottom:4px">📌 HOLD 의미</div>
+            <div style="font-size:0.75rem;color:#94a3b8;line-height:1.5">
+              · 신규 매수: 시장 방향성 불명확 — 진입 보류<br>
+              · 기존 보유: 포지션 유지 (매도 신호 없음)<br>
+              · 추천 행동: 다음 주 시그널 재확인
             </div>
-            <div style="background:#1e293b;height:6px;border-radius:3px;overflow:hidden">
-              <div style="height:100%;width:0%;background:#f59e0b;border-radius:3px"></div>
-            </div>
-            <div style="font-size:0.68rem;color:#475569;margin-top:4px">명확한 방향성 미확인 — 현금 비중 유지</div>
+            <div style="font-size:0.68rem;color:#475569;margin-top:6px">명확한 방향성 미확인 — 현금 비중 유지</div>
           </div>
 
           <!-- 트리거 -->
@@ -193,21 +197,22 @@
               <div style="font-size:0.75rem;color:#f59e0b;opacity:0.8">신호 강도: 중립</div>
             </div>
             <div style="text-align:right">
-              <div style="font-size:0.7rem;color:#64748b;margin-bottom:4px">신뢰도</div>
+              <div style="font-size:0.7rem;color:#64748b;margin-bottom:2px">신뢰도</div>
               <div style="font-size:1.4rem;font-weight:800;color:#f59e0b">65%</div>
+              <div style="font-size:0.65rem;color:#475569">지표 8/15개 강세</div>
             </div>
           </div>
 
           <!-- 포지션 사이징 -->
+          
           <div style="background:#0f172a;border-radius:6px;padding:10px;margin-bottom:10px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-              <span style="font-size:0.72rem;color:#64748b">권장 포지션 비중</span>
-              <span style="font-size:0.9rem;font-weight:700;color:#f59e0b">0%</span>
+            <div style="font-size:0.72rem;color:#f59e0b;font-weight:600;margin-bottom:4px">📌 HOLD 의미</div>
+            <div style="font-size:0.75rem;color:#94a3b8;line-height:1.5">
+              · 신규 매수: 시장 방향성 불명확 — 진입 보류<br>
+              · 기존 보유: 포지션 유지 (매도 신호 없음)<br>
+              · 추천 행동: 다음 주 시그널 재확인
             </div>
-            <div style="background:#1e293b;height:6px;border-radius:3px;overflow:hidden">
-              <div style="height:100%;width:0%;background:#f59e0b;border-radius:3px"></div>
-            </div>
-            <div style="font-size:0.68rem;color:#475569;margin-top:4px">명확한 방향성 미확인 — 현금 비중 유지</div>
+            <div style="font-size:0.68rem;color:#475569;margin-top:6px">명확한 방향성 미확인 — 현금 비중 유지</div>
           </div>
 
           <!-- 트리거 -->
@@ -494,13 +499,14 @@
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div>
           <span style="font-size:0.7rem;color:#475569;font-weight:700">#1</span>
-          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">Sandisk *</span>
+          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">Sandisk * ⚠</span>
         </div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1e3a5f;color:#94a3b8">yfinance</span>
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#60a5fa">검증불필요</span>
         </div>
       </div>
+      <div style="background:#1c1208;border:1px solid #78350f;border-radius:4px;padding:6px 8px;margin-bottom:8px;font-size:0.68rem;color:#fbbf24;line-height:1.5"><div>⚠ 수익률 +3629% — 분사·합병 등 이벤트 영향 가능</div></div>
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -528,6 +534,7 @@
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#60a5fa">검증불필요</span>
         </div>
       </div>
+      
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -555,6 +562,7 @@
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#60a5fa">검증불필요</span>
         </div>
       </div>
+      
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -582,6 +590,7 @@
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#60a5fa">검증불필요</span>
         </div>
       </div>
+      
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -609,6 +618,7 @@
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#60a5fa">검증불필요</span>
         </div>
       </div>
+      
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -642,6 +652,7 @@
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#22c55e">검증완료</span>
         </div>
       </div>
+      
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -669,6 +680,7 @@
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#22c55e">검증완료</span>
         </div>
       </div>
+      
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -696,6 +708,7 @@
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#22c55e">검증완료</span>
         </div>
       </div>
+      
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -716,13 +729,14 @@
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div>
           <span style="font-size:0.7rem;color:#475569;font-weight:700">#4</span>
-          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">삼성전기 *</span>
+          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">삼성전기 * ⚠</span>
         </div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1e3a5f;color:#818cf8">FDR</span>
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#22c55e">검증완료</span>
         </div>
       </div>
+      <div style="background:#1c1208;border:1px solid #78350f;border-radius:4px;padding:6px 8px;margin-bottom:8px;font-size:0.68rem;color:#fbbf24;line-height:1.5"><div>⚠ 수익률 +1252% — 분사·합병 등 이벤트 영향 가능</div></div>
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -750,6 +764,7 @@
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#22c55e">검증완료</span>
         </div>
       </div>
+      
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -782,13 +797,14 @@
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div>
           <span style="font-size:0.7rem;color:#475569;font-weight:700">#1</span>
-          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">Sandisk *</span>
+          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">Sandisk * ⚠</span>
         </div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1e3a5f;color:#94a3b8">yfinance</span>
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#64748b"></span>
         </div>
       </div>
+      <div style="background:#1c1208;border:1px solid #78350f;border-radius:4px;padding:6px 8px;margin-bottom:8px;font-size:0.68rem;color:#fbbf24;line-height:1.5"><div>⚠ 시가총액 미집계 (최근 분사/상장)</div><div>⚠ 수익률 +3629% — 분사·합병 등 이벤트 영향 가능</div></div>
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -801,7 +817,7 @@
       </div>
       <!-- 메타 -->
       <div style="font-size:0.72rem;color:#475569">
-        <div class="kv"><span>시가총액</span><span>$0B</span></div>
+        <div class="kv"><span>시가총액</span><span>미집계 ⚠</span></div>
         <div class="kv"><span>상관계수</span><span>+0.449</span></div><div class="kv"><span>초과수익률</span><span style="color:#22c55e">+3605.7%</span></div><div class="kv"><span>기여점수</span><span>16.20</span></div>
       </div>
     </div>
@@ -809,13 +825,14 @@
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div>
           <span style="font-size:0.7rem;color:#475569;font-weight:700">#2</span>
-          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">Western Digital *</span>
+          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">Western Digital * ⚠</span>
         </div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1e3a5f;color:#94a3b8">yfinance</span>
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#64748b"></span>
         </div>
       </div>
+      <div style="background:#1c1208;border:1px solid #78350f;border-radius:4px;padding:6px 8px;margin-bottom:8px;font-size:0.68rem;color:#fbbf24;line-height:1.5"><div>⚠ 시가총액 미집계 (최근 분사/상장)</div></div>
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -828,7 +845,7 @@
       </div>
       <!-- 메타 -->
       <div style="font-size:0.72rem;color:#475569">
-        <div class="kv"><span>시가총액</span><span>$0B</span></div>
+        <div class="kv"><span>시가총액</span><span>미집계 ⚠</span></div>
         <div class="kv"><span>상관계수</span><span>+0.477</span></div><div class="kv"><span>초과수익률</span><span style="color:#22c55e">+776.9%</span></div><div class="kv"><span>기여점수</span><span>3.70</span></div>
       </div>
     </div>
@@ -836,13 +853,14 @@
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div>
           <span style="font-size:0.7rem;color:#475569;font-weight:700">#3</span>
-          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">Lumentum *</span>
+          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">Lumentum * ⚠</span>
         </div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1e3a5f;color:#94a3b8">yfinance</span>
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#64748b"></span>
         </div>
       </div>
+      <div style="background:#1c1208;border:1px solid #78350f;border-radius:4px;padding:6px 8px;margin-bottom:8px;font-size:0.68rem;color:#fbbf24;line-height:1.5"><div>⚠ 시가총액 미집계 (최근 분사/상장)</div></div>
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -855,7 +873,7 @@
       </div>
       <!-- 메타 -->
       <div style="font-size:0.72rem;color:#475569">
-        <div class="kv"><span>시가총액</span><span>$0B</span></div>
+        <div class="kv"><span>시가총액</span><span>미집계 ⚠</span></div>
         <div class="kv"><span>상관계수</span><span>+0.384</span></div><div class="kv"><span>초과수익률</span><span style="color:#22c55e">+928.9%</span></div><div class="kv"><span>기여점수</span><span>3.57</span></div>
       </div>
     </div>
@@ -863,13 +881,14 @@
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div>
           <span style="font-size:0.7rem;color:#475569;font-weight:700">#4</span>
-          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">Micron Technology *</span>
+          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">Micron Technology * ⚠</span>
         </div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1e3a5f;color:#94a3b8">yfinance</span>
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#64748b"></span>
         </div>
       </div>
+      <div style="background:#1c1208;border:1px solid #78350f;border-radius:4px;padding:6px 8px;margin-bottom:8px;font-size:0.68rem;color:#fbbf24;line-height:1.5"><div>⚠ 시가총액 미집계 (최근 분사/상장)</div></div>
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -882,7 +901,7 @@
       </div>
       <!-- 메타 -->
       <div style="font-size:0.72rem;color:#475569">
-        <div class="kv"><span>시가총액</span><span>$0B</span></div>
+        <div class="kv"><span>시가총액</span><span>미집계 ⚠</span></div>
         <div class="kv"><span>상관계수</span><span>+0.511</span></div><div class="kv"><span>초과수익률</span><span style="color:#22c55e">+657.7%</span></div><div class="kv"><span>기여점수</span><span>3.36</span></div>
       </div>
     </div>
@@ -890,13 +909,14 @@
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div>
           <span style="font-size:0.7rem;color:#475569;font-weight:700">#5</span>
-          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">Ciena *</span>
+          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">Ciena * ⚠</span>
         </div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1e3a5f;color:#94a3b8">yfinance</span>
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#64748b"></span>
         </div>
       </div>
+      <div style="background:#1c1208;border:1px solid #78350f;border-radius:4px;padding:6px 8px;margin-bottom:8px;font-size:0.68rem;color:#fbbf24;line-height:1.5"><div>⚠ 시가총액 미집계 (최근 분사/상장)</div></div>
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -909,7 +929,7 @@
       </div>
       <!-- 메타 -->
       <div style="font-size:0.72rem;color:#475569">
-        <div class="kv"><span>시가총액</span><span>$0B</span></div>
+        <div class="kv"><span>시가총액</span><span>미집계 ⚠</span></div>
         <div class="kv"><span>상관계수</span><span>+0.489</span></div><div class="kv"><span>초과수익률</span><span style="color:#22c55e">+550.8%</span></div><div class="kv"><span>기여점수</span><span>2.70</span></div>
       </div>
     </div>
@@ -923,13 +943,14 @@
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div>
           <span style="font-size:0.7rem;color:#475569;font-weight:700">#1</span>
-          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">삼성전기 *</span>
+          <span style="font-size:0.9rem;font-weight:700;color:#f1f5f9;margin-left:4px">삼성전기 * ⚠</span>
         </div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1e3a5f;color:#818cf8">FDR</span>
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#64748b"></span>
         </div>
       </div>
+      <div style="background:#1c1208;border:1px solid #78350f;border-radius:4px;padding:6px 8px;margin-bottom:8px;font-size:0.68rem;color:#fbbf24;line-height:1.5"><div>⚠ 수익률 +1252% — 분사·합병 등 이벤트 영향 가능</div></div>
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -957,6 +978,7 @@
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#64748b"></span>
         </div>
       </div>
+      
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -984,6 +1006,7 @@
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#64748b"></span>
         </div>
       </div>
+      
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -1011,6 +1034,7 @@
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#64748b"></span>
         </div>
       </div>
+      
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -1038,6 +1062,7 @@
           <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;background:#1a2e1a;color:#64748b"></span>
         </div>
       </div>
+      
       <!-- 수익률 바 -->
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;margin-bottom:3px">

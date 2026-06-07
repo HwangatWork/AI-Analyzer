@@ -491,6 +491,9 @@ def run_validation() -> tuple[ValidationResult, dict]:
     print("  [L5] 파이프라인 일관성 검증...")
     validate_pipeline_consistency(vr, stock_res)
 
+    print("  [L6] UX 검증...")
+    validate_ux(vr, stock_res)
+
     # 리포트 저장
     report = {
         "generated_at":    datetime.now().isoformat(),
@@ -504,11 +507,82 @@ def run_validation() -> tuple[ValidationResult, dict]:
     return vr, report
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Layer 6: UX 검증
+# ─────────────────────────────────────────────────────────────────────────────
+
+def validate_ux(vr: ValidationResult, stock_res: dict):
+    layer = "L6_UX검증"
+
+    # U6-1: 모바일 nav-tabs 스크롤 처리
+    dashboard = OUT_DIR / "dashboard.html"
+    if dashboard.exists():
+        html = dashboard.read_text(encoding="utf-8")
+        has_nav_scroll = "overflow-x" in html and "nav-tabs" in html
+        vr.add(layer, "X1", "모바일 nav-tabs 스크롤",
+               has_nav_scroll,
+               "WARNING",
+               "nav-tabs에 overflow-x 스크롤 없음 → 모바일 탭 텍스트 수직 깨짐 발생",
+               "run_ui_agent.py @media 블록에 overflow-x: auto; white-space: nowrap 추가")
+
+        # U6-2: HOLD 카드 명확성 (0% 포지션 바 대신 설명 텍스트)
+        has_hold_explain = "신규 매수" in html and "기존 보유" in html
+        vr.add(layer, "X2", "HOLD 카드 명확성",
+               has_hold_explain,
+               "WARNING",
+               "HOLD 시 0% 포지션 바만 표시 → '신규 매수 보류 / 기존 보유 유지' 텍스트 없음",
+               "run_decision_agent.py HOLD 분기에서 position_block 텍스트 설명으로 교체")
+
+        # U6-3: 데이터 품질 경고 표시
+        sp_top5 = stock_res.get("f09_sp500_contribution_top5", []) + stock_res.get("f11_sp500_beneficiary_top5", [])
+        zero_mcap_stocks = [s for s in sp_top5 if (s.get("market_cap_b") or 0) == 0]
+        if zero_mcap_stocks:
+            names = [s.get("name", s.get("ticker", "?")) for s in zero_mcap_stocks]
+            has_warn_badge = any(n in html and "미집계" in html for n in names)
+            vr.add(layer, "X3", "시가총액 미집계 경고 배지",
+                   has_warn_badge,
+                   "WARNING",
+                   f"$0B 종목({', '.join(names)})에 ⚠ 경고 없음 — 사용자 오해 위험",
+                   "run_ux_stocks_agent.py _stock_card()에서 mcap==0일 때 warn_html 추가")
+        else:
+            vr.add(layer, "X3", "시가총액 미집계 경고 배지",
+                   True, "INFO", "$0B 종목 없음 — 경고 배지 불필요")
+
+        # U6-4: 극단 수익률 경고
+        all_stocks = (stock_res.get("f09_sp500_contribution_top5", []) +
+                      stock_res.get("f11_sp500_beneficiary_top5", []) +
+                      stock_res.get("f10_kospi_contribution_top5", []) +
+                      stock_res.get("f12_kospi_beneficiary_top5", []))
+        extreme = [s for s in all_stocks if abs(s.get("stock_return_pct") or 0) > 1000]
+        if extreme:
+            ext_names = [s.get("name", s.get("ticker", "?")) for s in extreme]
+            has_ext_warn = "분사" in html or "이벤트 영향" in html
+            vr.add(layer, "X4", "극단 수익률 경고 표시",
+                   has_ext_warn,
+                   "WARNING",
+                   f"±1000%+ 종목({', '.join(ext_names)})에 이벤트 경고 없음",
+                   "run_ux_stocks_agent.py _stock_card()에서 extreme_ret 경고 배너 추가")
+        else:
+            vr.add(layer, "X4", "극단 수익률 경고 표시",
+                   True, "INFO", "±1000% 종목 없음 — 경고 불필요")
+
+        # U6-5: 신뢰도 설명 텍스트 (형식: "지표 N/M개 강세")
+        has_conf_explain = "지표" in html and "개 강세" in html
+        vr.add(layer, "X5", "신뢰도 수치 설명",
+               has_conf_explain,
+               "WARNING",
+               "신뢰도 % 아래 '지표 N/M개 강세' 설명 없음 — 수치 의미 불명확",
+               "run_decision_agent.py action_card()에 conf 아래 bull/total_sigs 설명 추가")
+    else:
+        for code, name in [("X1","모바일 nav"), ("X2","HOLD 카드"), ("X3","시총 경고"), ("X4","수익률 경고"), ("X5","신뢰도 설명")]:
+            vr.add(layer, code, name, False, "INFO", "dashboard.html 미생성 — UI Agent 실행 전 검증 불가")
+
+
 if __name__ == "__main__":
     print("=" * 65)
-    print("VALIDATION AGENT — 5-Layer 독립 검증 시스템")
+    print("VALIDATION AGENT — 6-Layer 독립 검증 시스템")
     print("  L1: 유니버스  L2: 데이터품질  L3: 결과타당성")
-    print("  L4: 방법론    L5: 파이프라인일관성")
+    print("  L4: 방법론    L5: 파이프라인일관성  L6: UX검증")
     print("=" * 65)
 
     vr, report = run_validation()
