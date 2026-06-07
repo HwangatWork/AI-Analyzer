@@ -481,6 +481,31 @@ def run_sp500_analysis(universe: list[tuple[str, str]], idx_series: pd.Series) -
         if sym not in price_data:
             skipped.append(sym)
 
+    # 동일 기업 복수 클래스 중복 제거 (GOOGL/GOOG, BRK-A/BRK-B 등)
+    # 더 높은 점수를 가진 클래스만 남김
+    DEDUP_GROUPS = [
+        {"GOOGL", "GOOG"},       # Alphabet A/C
+        {"BRK-A", "BRK-B"},      # Berkshire A/B
+        {"BRKB",  "BRKA"},
+    ]
+    def dedup(lst: list, score_key: str) -> list:
+        kept_tickers = set()
+        removed      = set()
+        for group in DEDUP_GROUPS:
+            group_items = [x for x in lst if x.get("ticker","") in group]
+            if len(group_items) <= 1:
+                continue
+            group_items.sort(key=lambda x: x[score_key], reverse=True)
+            kept_tickers.add(group_items[0]["ticker"])
+            for item in group_items[1:]:
+                removed.add(item["ticker"])
+        result = [x for x in lst if x.get("ticker","") not in removed]
+        if removed:
+            print(f"    [중복제거] 동일기업 복수 클래스 제거: {removed}")
+        return result
+
+    contrib_list = dedup(contrib_list, "contribution_score")
+    benefit_list = dedup(benefit_list, "beneficiary_score")
     contrib_list.sort(key=lambda x: x["contribution_score"], reverse=True)
     benefit_list.sort(key=lambda x: x["beneficiary_score"],  reverse=True)
 

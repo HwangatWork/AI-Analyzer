@@ -53,6 +53,13 @@ if %errorlevel% neq 0 (
     echo [WARNING] Sector Agent failed - continuing pipeline
 )
 
+python -X utf8 agents/run_validation_agent.py >> "%LOG_FILE%" 2>&1
+if %errorlevel% neq 0 (
+    echo [ERROR] Validation Agent BLOCKED pipeline — CRITICAL 검증 실패
+    curl -s -H "Title: AI Analyzer 검증 실패" -H "Tags: x,warning" -d "Validation Agent가 파이프라인을 차단했습니다. 로그 확인: %LOG_FILE%" https://ntfy.sh/%NTFY_TOPIC% > nul 2>&1
+    goto :error
+)
+
 python -X utf8 agents/run_ui_agent.py >> "%LOG_FILE%" 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] UI Agent failed
