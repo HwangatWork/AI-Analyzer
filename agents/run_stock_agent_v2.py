@@ -323,6 +323,9 @@ def get_kospi_market_caps(universe: list[tuple[str, str]]) -> dict[str, float]:
 # 점수 계산
 # ─────────────────────────────────────────────────────────────────────────────
 
+SPINOFF_RETURN_THRESHOLD = 1000.0   # % 초과 시 스핀오프/이벤트 의심
+SPINOFF_RETURN_CAP       = 300.0    # 기여도 계산용 수익률 상한 (%)
+
 def compute_contribution(stock_df: pd.DataFrame, idx: pd.Series, mc: float) -> dict | None:
     sr = stock_df["close"].pct_change().dropna()
     ir = idx.pct_change().dropna()
@@ -334,18 +337,42 @@ def compute_contribution(stock_df: pd.DataFrame, idx: pd.Series, mc: float) -> d
     s_total = float((1 + mg["s"]).prod() - 1)
     i_total = float((1 + mg["i"]).prod() - 1)
     corr, _ = stats.pearsonr(mg["s"].values, mg["i"].values)
-    return {
+    s_return_pct = s_total * 100
+
+    # 스핀오프/분사 이벤트 감지 — 극단 수익률 보정
+    is_spinoff_event = abs(s_return_pct) > SPINOFF_RETURN_THRESHOLD
+    spinoff_note = ""
+    s_capped = s_total
+    if is_spinoff_event:
+        cap_sign = 1.0 if s_return_pct > 0 else -1.0
+        s_capped = cap_sign * SPINOFF_RETURN_CAP / 100.0
+        spinoff_note = (
+            f"분사/스핀오프 이벤트로 인한 극단 수익률 "
+            f"({s_return_pct:+.0f}%). "
+            f"기여도 계산 시 보정값 {cap_sign*SPINOFF_RETURN_CAP:+.0f}% 적용."
+        )
+
+    # contribution_score: 보정된 수익률 사용
+    contrib = round(abs(corr) * abs(s_capped) * (mc / 1e12 + 0.01), 4)
+
+    result = {
         "beta":               round(float(slope), 4),
         "correlation":        round(float(corr), 4),
         "p_value":            round(float(p_val), 6),
-        "stock_return_pct":   round(s_total * 100, 2),
+        "stock_return_pct":   round(s_return_pct, 2),
         "index_return_pct":   round(i_total * 100, 2),
         "period_days":        len(mg),
         "period_label":       PERIOD_LABEL,
         "market_cap_b":       round(mc / 1e9, 1),
-        "contribution_score": round(abs(corr) * abs(s_total) * (mc / 1e12 + 0.01), 4),
+        "contribution_score": contrib,
         "n_days":             len(mg),
     }
+    if is_spinoff_event:
+        result["spinoff_event"]    = True
+        result["spinoff_note"]     = spinoff_note
+        result["return_capped_at"] = SPINOFF_RETURN_CAP
+        result["data_quality"]     = "주의: 스핀오프 이벤트"
+    return result
 
 
 def compute_beneficiary(stock_df: pd.DataFrame, idx: pd.Series) -> dict | None:

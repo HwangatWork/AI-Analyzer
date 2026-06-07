@@ -1,85 +1,38 @@
-# AI Analyzer 진행 상황
+AI Analyzer Progress — 2026-06-08 00:14
 
-## 프로젝트 시작일: 2026-06-07
-## 현재 단계: 전체 완료 (Phase 2~6)
+=== 완료 항목 ===
+[v3 고도화 - 2026-06-08]
+1. 가중치 방법론 전면 개선
+   - 시차 상관 분석 (Lag 1~5일): FED_ASSETS Lag=4일 선행 발견
+   - Granger 인과관계 검정 (statsmodels): BBAND/VIX/FED_ASSETS/MA200 유의
+   - 동행 지수 페널티: NASDAQ100(x0.40), DOW(x0.45), KOSDAQ(x0.50)
+   - 새 가중치 공식: |선행_r|*0.4 + Granger*0.4 + 독립기여*0.2
+   
+2. 수급 지표 주간 누적 + FED_ASSETS 주간 변화율
+   - FOREIGN_NET/INSTITUTION_NET/INDIVIDUAL_NET: 5거래일 롤링 누적
+   - FED_ASSETS: 주간 원시 데이터 변화율 (57주)
+   
+3. SNDK 스핀오프 이벤트 처리
+   - 극단 수익률 (+3629%) 감지 → 기여도 계산 시 300% 상한 보정
+   - Top5에서 자연스럽게 제외됨 (Micron이 상위 진입)
+   
+4. CTD 연동 3가지
+   - output/ctd_weights.json (18개 지표 가중치)
+   - output/ctd_bridge.json (시그널/랭킹/종목)
+   - CTD frontend/index.html Zone 1D 시그널 섹션 + 종목 탭 주입
+   
+5. 텔레그램 알림 시스템 (이전 세션)
+   - run_telegram_agent.py: --daily/--check/--test/--done-criteria
+   - Windows Task Scheduler: AIAnalyzer_DailyTelegram (매일 08:00)
 
-## 완료된 작업
-- [x] 프로젝트 구조 생성
-- [x] CLAUDE.md 작성
-- [x] feature_list.json 작성
-- [x] Agent Teams 활성화
-- [x] F01 시장 지수 6개 수집 (SP500, NASDAQ100, DOW, KOSPI, KOSDAQ, NIKKEI225)
-- [x] F02 매크로 지표 6개 수집 (US10Y, DXY, WTI, FED_ASSETS, T10Y2Y, HY_SPREAD)
-- [x] F03 시장 심리 지표 수집 (VIX, SKEW, MARKET_MOMENTUM, MARKET_STRENGTH)
-- [x] F04 기술적 지표 8개 산출
-- [x] F05 수급 시도 — KRX 로그인 필요로 FAILED 처리
-- [x] F06 S&P500 상관관계 분석
-- [x] F07 코스피 상관관계 분석
-- [x] F08 가중치 랭킹 생성 (유효 13개)
-- [x] F09~F12 종목 분석 (기여/수혜 Top5)
-- [x] F13 통계적 유의성 확인
-- [x] F14 신뢰도 점수 산출 + 미달 14개 제외
-- [x] F15 final_results.json 저장
-- [x] output/FINAL_REPORT.md 최종 리포트 완성
+=== 현재 상태 ===
+PM Conditions: A~H 모두 PASS
+Validation: 30/30 PASS, CRITICAL 0
+Audit: 62/62 PASS
+Signal: 43.2 (neutral) — Granger 방법론 적용 후 조정됨
+New Ranking: BBAND(#1), VIX(#2), NASDAQ100(#3), HY_SPREAD(#4), DOW(#5)
+Collection: 28/29 (96.6%)
 
-## 수집 결과
-- 성공: 24/29개
-- 실패: PUT_CALL(티커 없음), CNN_FG(API 차단), FOREIGN/INSTITUTION/INDIVIDUAL_NET(pykrx 로그인)
-
-## 핵심 발견
-- S&P500 1위 영향 지표: NASDAQ100 (r=0.963)
-- 코스피 1위 영향 지표: KOSDAQ (r=0.777)
-- S&P500 기여 기업 #1: Alphabet | 수혜 기업 #1: Broadcom
-- 코스피 기여 기업 #1: SK하이닉스 | 수혜 기업 #1: SK하이닉스
-
-## 최종 결과물
-- output/final_results.json
-- output/FINAL_REPORT.md
-
-## 데이터 수집 기간
-시작: 2024-06-01
-종료: 2026-06-07
-
-## 주요 이슈 (모두 처리 완료)
-- pykrx 로그인 필요 (KRX_ID/PW 미등록) → FAILED 처리
-- CNN Fear&Greed API 접근 차단 → FAILED 처리
-- 신뢰도 미달 14개 → Option A 자율 제외
-
-================================================================
-PM CONDITION LOOP - ITERATION 1  [2026-06-07 10:04]
-================================================================
-
-[COMPLETED] PM Condition A: Korean stock hard filter
-  - MAX_SANE_RETURN changed 5.0 -> 2.0 (500% -> ±200% threshold)
-  - Hard exclusion in run_analysis(): skip stock if |return| > 200%
-  - Excluded: 삼성전자(460%), SK하이닉스(808%), 현대차(264%),
-              삼성SDI(233%), LG전자(322%)
-  - KOSPI Top5 now: 현대모비스(+154%), 신한지주(+84%), KB금융(+60%),
-                   LG화학(+74%), SK텔레콤(+105%) - all |r| <= 200%
-
-[COMPLETED] PM Condition B: Composite market signal score
-  - compute_composite_signal() added to run_ui_agent.py
-  - Method: z-score of each indicator vs 252-day rolling mean/std,
-    sign-adjusted by SP500 Pearson r, weighted by combined_weight
-  - Score: 50 + (weighted_sum / total_weight) * 50 -> clamped 0-100
-  - Current result: 66.4 / risk-on
-  - Bullish: 7 indicators, Bearish: 8 indicators
-  - Saved to final_results.json as market_signal field
-
-[COMPLETED] PM Condition C: BI Visualization outputs
-  - output/dashboard.html: self-contained dark-theme HTML dashboard
-    (signal gauge, indicator ranking table, stock analysis, signal table)
-  - output/indicator_ranking.csv: Looker Studio / Google Sheets compatible
-  - output/market_signals.csv: per-indicator signal data
-  - output/stock_analysis.csv: SP500/KOSPI top5 stocks
-  - Note: Actual cloud Looker Studio URL requires manual Google account setup
-
-[COMPLETED] PM Condition D: Weekly automation
-  - run_pipeline.bat: one-click full pipeline execution (Data->Analysis->
-    Stock->Evaluator->UI->Report)
-  - schedule_weekly.ps1: Windows Task Scheduler registration (every Monday 07:00)
-  - Error handling: exit on any agent failure
-  - Email notification stub included
-
-[STATUS] Pipeline execution chain corrected:
-  run_ui_agent.py -> generate_report_v2.py (market_signal preserved)
+=== 다음 단계 ===
+- 주간 파이프라인 실행으로 신규 데이터 축적 후 재검증
+- GitHub 배포 업데이트 (CTD + AI Analyzer)
