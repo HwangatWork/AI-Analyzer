@@ -1,7 +1,7 @@
 {
   "meta": {
-    "generated_at": "2026-06-07T13:57:38.250816",
-    "version": "3.0",
+    "generated_at": "2026-06-07T14:49:15.339878",
+    "version": "4.0",
     "period": {
       "start": "2025-06-07",
       "end": "2026-06-07"
@@ -12,18 +12,18 @@
     "total_indicators_analyzed": 16,
     "total_indicators_in_final": 15,
     "excluded_low_confidence": [
-      "PUT_CALL",
-      "RSI_SIGNAL",
-      "FOREIGN_NET",
-      "SKEW",
-      "MA_SIGNAL",
-      "INDIVIDUAL_NET",
       "CNN_FG",
+      "INDIVIDUAL_NET",
       "INSTITUTION_NET",
-      "MA200",
       "FED_ASSETS",
+      "MA_SIGNAL",
+      "SKEW",
+      "RSI_SIGNAL",
+      "T10Y2Y",
+      "MA200",
+      "PUT_CALL",
       "BETA",
-      "T10Y2Y"
+      "FOREIGN_NET"
     ],
     "data_reference_date": "2026-06-07"
   },
@@ -33,7 +33,7 @@
     "bullish_count": 8,
     "bearish_count": 7,
     "total_signals": 15,
-    "computed_at": "2026-06-07T13:57:38.250816",
+    "computed_at": "2026-06-07T14:49:15.339878",
     "methodology": "Z-score based composite: each indicator's latest value vs 252-day rolling mean/std, sign-adjusted by its SP500 Pearson correlation, weighted by combined_weight. Score = 50 + weighted_sum * 50. Risk-on>65, risk-off<35.",
     "indicator_signals": [
       {
@@ -651,6 +651,20 @@
       "INSTITUTION_NET": "KRX_ID/KRX_PW 환경변수 미등록 - .env에 추가 필요",
       "INDIVIDUAL_NET": "KRX_ID/KRX_PW 환경변수 미등록 - .env에 추가 필요"
     },
+    "low_confidence_excluded": [
+      "BETA",
+      "CNN_FG",
+      "FED_ASSETS",
+      "FOREIGN_NET",
+      "INDIVIDUAL_NET",
+      "INSTITUTION_NET",
+      "MA200",
+      "MA_SIGNAL",
+      "PUT_CALL",
+      "RSI_SIGNAL",
+      "SKEW",
+      "T10Y2Y"
+    ],
     "freshness": {
       "BBAND": {
         "end_date": "2026-06-05",
@@ -744,21 +758,7 @@
         "end_date": "2026-06-05",
         "rows": 275
       }
-    },
-    "low_confidence_excluded": [
-      "BETA",
-      "CNN_FG",
-      "FED_ASSETS",
-      "FOREIGN_NET",
-      "INDIVIDUAL_NET",
-      "INSTITUTION_NET",
-      "MA200",
-      "MA_SIGNAL",
-      "PUT_CALL",
-      "RSI_SIGNAL",
-      "SKEW",
-      "T10Y2Y"
-    ]
+    }
   },
   "pm_conditions": {
     "A_kospi_hard_filter": "PASS - hard filter removed; FDR(KRX)+yfinance cross-validation applied. Returns >200% retained if both sources agree within 100%p (AI/semiconductor boom confirmed real)",
