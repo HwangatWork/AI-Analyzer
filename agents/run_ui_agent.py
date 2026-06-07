@@ -488,6 +488,37 @@ if __name__ == "__main__":
     print("     → run_ux_indicators_agent : 가중치 랭킹 + 데이터 품질")
     generate_html_dashboard(final_ranking, signal, stock, data_quality_block, meta_block, generated_at, sector_data)
 
+    # ── UI Agent 자체 완료 기준 검증 (Done Criteria) ───────────────────────
+    print("\n[자체검증] UI Agent Done Criteria 점검...")
+    _html_text = (OUTPUT_DIR / "dashboard.html").read_text(encoding="utf-8")
+    _all_stocks = (stock.get("f09_sp500_contribution_top5", []) +
+                   stock.get("f11_sp500_beneficiary_top5", []) +
+                   stock.get("f10_kospi_contribution_top5", []) +
+                   stock.get("f12_kospi_beneficiary_top5", []))
+    _zero_mcap = [s for s in _all_stocks if (s.get("market_cap_b") or 0) == 0 and s.get("ticker","").endswith((".T",".KS","")) is False]
+
+    _done_criteria = {
+        "UX-1 모바일 nav 스크롤":      "overflow-x" in _html_text,
+        "UX-2 HOLD 카드 설명":         "신규 매수" in _html_text and "기존 보유" in _html_text,
+        "UX-3 $0B 경고 배지":          (not _zero_mcap) or "미집계" in _html_text,
+        "UX-4 극단 수익률 경고":        not any(abs(s.get("stock_return_pct") or 0) > 1000 for s in _all_stocks) or "이벤트 영향" in _html_text,
+        "UX-5 신뢰도 설명":            "개 강세" in _html_text,
+        "UX-6 7개 탭 모두 존재":        all(f"page-{t}" in _html_text for t in ["decision","narrative","signal","stocks","sector","indicators","looker"]),
+        "UX-7 footer 면책 문구":        "투자 판단은 개인 책임" in _html_text or "개인 책임" in _html_text,
+    }
+
+    _ux_pass = [k for k, v in _done_criteria.items() if v]
+    _ux_fail = [k for k, v in _done_criteria.items() if not v]
+    for k, v in _done_criteria.items():
+        print(f"  [{'PASS' if v else 'FAIL'}] {k}")
+
+    if _ux_fail:
+        print(f"\n  [경고] UX Done Criteria 미충족 항목: {_ux_fail}")
+        print("  → UI Agent가 자체 기준을 통과하지 못했습니다. 해당 기준을 에이전트에 추가하세요.")
+        # WARNING but not blocking (UX degraded, not broken)
+    else:
+        print(f"  → 전 항목 통과 ({len(_ux_pass)}/{len(_done_criteria)})")
+
     # final_results.json
     final_results = nan_safe({
         "meta":                    meta_block,

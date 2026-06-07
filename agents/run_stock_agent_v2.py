@@ -589,4 +589,40 @@ if __name__ == "__main__":
     out = PROC_DIR / "stock_results.json"
     out.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n종목 결과 저장: {out}")
+
+    # ── Stock Agent 자체 완료 기준 검증 (Done Criteria) ──────────────────────
+    print("\n[자체검증] Stock Agent Done Criteria 점검...")
+    all_top5 = (results["f09_sp500_contribution_top5"] + results["f11_sp500_beneficiary_top5"] +
+                results["f10_kospi_contribution_top5"] + results["f12_kospi_beneficiary_top5"])
+    sp_names = [s.get("name","?") for s in results["f09_sp500_contribution_top5"]]
+    ksp_names = [s.get("name","?") for s in results["f10_kospi_contribution_top5"]]
+
+    # 중복 기업 체크 (같은 리스트 내)
+    def has_company_dup(lst):
+        tickers = [s.get("ticker","") for s in lst]
+        return len(tickers) != len(set(tickers))
+
+    done_criteria = {
+        "SA-1 유니버스 동적 수집":         "FDR(KRX" in results["universe"]["source"],
+        "SA-2 KOSPI ≥50개 분석":          ksp_res["analyzed_count"] >= 50,
+        "SA-3 S&P500 ≥100개 분석":        sp_res["analyzed_count"] >= 100,
+        "SA-4 KOSPI Top5 시총 존재":       any((s.get("market_cap_b") or 0) > 0 for s in results["f10_kospi_contribution_top5"]),
+        "SA-5 SP500 극단수익률 플래그":     not any(abs(s.get("stock_return_pct") or 0) > 5000 for s in all_top5),
+        "SA-6 동일기업 중복 없음 (SP500)":  not has_company_dup(results["f09_sp500_contribution_top5"]),
+        "SA-7 기여/수혜 결과 비어있지 않음": len(results["f09_sp500_contribution_top5"]) >= 3 and len(results["f10_kospi_contribution_top5"]) >= 3,
+    }
+
+    crit_fail = []
+    for k, v in done_criteria.items():
+        print(f"  [{'PASS' if v else 'FAIL'}] {k}")
+        if not v:
+            crit_fail.append(k)
+
+    if crit_fail:
+        print(f"\n  [CRITICAL] Done Criteria 실패: {crit_fail}")
+        print("  → Stock Agent 산출물 품질 기준 미달. 데이터 재수집 또는 분석 로직 점검 필요.")
+        exit(1)
+    else:
+        print(f"  → 전 항목 통과 ({len(done_criteria)}/{len(done_criteria)})")
+
     print(f"Stock Agent v3 완료 (KOSPI {ksp_res['analyzed_count']}개 / S&P500 {sp_res['analyzed_count']}개 분석)")
