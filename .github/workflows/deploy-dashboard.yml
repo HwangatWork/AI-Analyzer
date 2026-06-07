@@ -27,7 +27,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install FinanceDataReader yfinance pandas numpy scipy httpx pyarrow
+          pip install --upgrade pip
+          pip install FinanceDataReader yfinance pandas numpy scipy httpx pyarrow requests
 
       - name: Run pipeline
         env:
