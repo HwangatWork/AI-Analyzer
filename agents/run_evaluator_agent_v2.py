@@ -303,4 +303,38 @@ if __name__ == "__main__":
             feat["status"] = "done"
     fl["updated"] = datetime.now().strftime("%Y-%m-%d")
     fl_path.write_text(json.dumps(fl, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # ── Evaluator Done Criteria 자체검증 ──────────────────────────────────────
+    # 방법론 검증: contribution_score / beneficiary_score 공식 적용 여부
+    print("\n[자체검증] Evaluator Done Criteria 점검...")
+    done_criteria = {
+        "EV-1 유효 지표 ≥5개":          len(final_ranking) >= 5,
+        "EV-2 통계 유의 SP500 ≥1개":    sp_sig_cnt >= 1,
+        "EV-3 통계 유의 KOSPI ≥1개":    ksp_sig_cnt >= 1,
+        "EV-4 신뢰도 점수 산출 완료":    len(conf_results) > 0,
+        "EV-5 방법론 체크리스트 실행됨": bool(methodology_check),
+    }
+    # contribution_score / beneficiary_score 명세 준수 여부 (방법론 커버리지)
+    stock_res_for_eval = PROC_DIR / "stock_results.json"
+    if stock_res_for_eval.exists():
+        sr_check = json.loads(stock_res_for_eval.read_text(encoding="utf-8"))
+        # contribution_score가 모든 SP500 Top5에 존재하는가
+        sp5 = sr_check.get("f09_sp500_contribution_top5", [])
+        ev6 = all("contribution_score" in s for s in sp5) if sp5 else False
+        # beneficiary_score가 모든 SP500 수혜 Top5에 존재하는가
+        sp5b = sr_check.get("f11_sp500_beneficiary_top5", [])
+        ev7  = all("beneficiary_score" in s for s in sp5b) if sp5b else False
+        done_criteria["EV-6 contribution_score 필드 존재"] = ev6
+        done_criteria["EV-7 beneficiary_score 필드 존재"]  = ev7
+
+    crit_fail = []
+    for k, v in done_criteria.items():
+        print(f"  [{'PASS' if v else 'FAIL'}] {k}")
+        if not v:
+            crit_fail.append(k)
+    if crit_fail:
+        print(f"\n  [FAIL] Evaluator Done Criteria 미충족: {crit_fail}")
+        exit(1)
+    else:
+        print(f"  → 전 항목 통과 ({len(done_criteria)}/{len(done_criteria)})")
     print("Evaluator Agent v2 완료")

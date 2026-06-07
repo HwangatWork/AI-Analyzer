@@ -74,6 +74,12 @@ if %errorlevel% neq 0 (
     goto :error
 )
 
+python -X utf8 agents/run_audit_agent.py >> "%LOG_FILE%" 2>&1
+if %errorlevel% neq 0 (
+    echo [WARNING] Audit Agent 경고 — Agent 자체검증 체계 이상 감지. 로그 확인: %LOG_FILE%
+    curl -s -H "Title: AI Analyzer 감사 경고" -H "Tags: warning" -d "Audit Agent: Done Criteria 검증 체계에 이상이 감지되었습니다. 로그: %LOG_FILE%" https://ntfy.sh/%NTFY_TOPIC% > nul 2>&1
+)
+
 echo ============================================================
 echo Pipeline completed: %date% %time%
 echo Output: output\dashboard.html

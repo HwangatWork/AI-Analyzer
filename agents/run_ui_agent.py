@@ -508,14 +508,14 @@ if __name__ == "__main__":
     }
 
     _ux_pass = [k for k, v in _done_criteria.items() if v]
-    _ux_fail = [k for k, v in _done_criteria.items() if not v]
+    crit_fail = [k for k, v in _done_criteria.items() if not v]
     for k, v in _done_criteria.items():
         print(f"  [{'PASS' if v else 'FAIL'}] {k}")
 
-    if _ux_fail:
-        print(f"\n  [경고] UX Done Criteria 미충족 항목: {_ux_fail}")
-        print("  → UI Agent가 자체 기준을 통과하지 못했습니다. 해당 기준을 에이전트에 추가하세요.")
-        # WARNING but not blocking (UX degraded, not broken)
+    if crit_fail:
+        print(f"\n  [FAIL] UX Done Criteria 미충족: {crit_fail}")
+        print("  → UI Agent 자체 기준 미달. run_decision_agent / run_ux_stocks_agent 수정 후 재실행.")
+        exit(1)
     else:
         print(f"  → 전 항목 통과 ({len(_ux_pass)}/{len(_done_criteria)})")
 
