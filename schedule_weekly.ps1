@@ -2,10 +2,13 @@
 # 실행: PowerShell을 관리자 권한으로 열고 .\schedule_weekly.ps1
 # 알림: ntfy.sh 앱(무료)에서 채널 'ai-analyzer-hwangatwork' 구독
 
-$TaskName    = "AIAnalyzer_WeeklyPipeline"
-$ScriptDir   = $PSScriptRoot
-$PipelineBat = Join-Path $ScriptDir "run_pipeline.bat"
-$LogDir      = Join-Path $ScriptDir "logs"
+$TaskName        = "AIAnalyzer_WeeklyPipeline"
+$TaskNameDaily   = "AIAnalyzer_DailyTelegram"
+$ScriptDir       = $PSScriptRoot
+$PipelineBat     = Join-Path $ScriptDir "run_pipeline.bat"
+$PythonExe       = "python"
+$TelegramAgent   = Join-Path $ScriptDir "agents\run_telegram_agent.py"
+$LogDir          = Join-Path $ScriptDir "logs"
 
 if (-not (Test-Path $LogDir)) { New-Item -ItemType Directory -Path $LogDir | Out-Null }
 
@@ -72,6 +75,57 @@ try {
     Write-Host "태스크 등록 완료 (Interactive 모드)"
 }
 
+# ── Daily Telegram 리포트 태스크 (매일 오전 8시) ──────────────
+Write-Host ""
+Write-Host "Telegram Daily 리포트 태스크 등록 중..."
+
+if (Get-ScheduledTask -TaskName $TaskNameDaily -ErrorAction SilentlyContinue) {
+    Unregister-ScheduledTask -TaskName $TaskNameDaily -Confirm:$false
+    Write-Host "기존 Daily 태스크 제거됨"
+}
+
+$TriggerDaily = New-ScheduledTaskTrigger -Daily -At "08:00AM"
+
+$ActionDaily = New-ScheduledTaskAction `
+    -Execute       "python" `
+    -Argument      "-X utf8 `"$TelegramAgent`" --daily" `
+    -WorkingDirectory $ScriptDir
+
+$SettingsDaily = New-ScheduledTaskSettingsSet `
+    -ExecutionTimeLimit (New-TimeSpan -Minutes 5) `
+    -MultipleInstances  IgnoreNew `
+    -StartWhenAvailable $true
+
+try {
+    Register-ScheduledTask `
+        -TaskName   $TaskNameDaily `
+        -Trigger    $TriggerDaily `
+        -Action     $ActionDaily `
+        -Settings   $SettingsDaily `
+        -Principal  $Principal `
+        -Description "AI Analyzer 텔레그램 데일리 리포트 (매일 08:00)"
+
+    Write-Host "======================================================"
+    Write-Host "태스크 등록 완료: $TaskNameDaily"
+    Write-Host "실행 주기: 매일 오전 8:00"
+    Write-Host "스크립트: $TelegramAgent --daily"
+    Write-Host "======================================================"
+} catch {
+    Write-Host "[경고] Daily 태스크 S4U 실패, Interactive로 폴백: $_"
+    $Principal2Daily = New-ScheduledTaskPrincipal `
+        -UserId    $env:USERNAME `
+        -LogonType Interactive `
+        -RunLevel  Highest
+    Register-ScheduledTask `
+        -TaskName   $TaskNameDaily `
+        -Trigger    $TriggerDaily `
+        -Action     $ActionDaily `
+        -Settings   $SettingsDaily `
+        -Principal  $Principal2Daily `
+        -Description "AI Analyzer 텔레그램 데일리 리포트 (매일 08:00)"
+    Write-Host "Daily 태스크 등록 완료 (Interactive 모드)"
+}
+
 Write-Host ""
 Write-Host "ntfy.sh 알림 구독 방법:"
 Write-Host "  1. https://ntfy.sh 또는 앱 스토어에서 'ntfy' 앱 설치"
@@ -80,6 +134,8 @@ Write-Host "  3. 파이프라인 완료/실패 시 자동 푸시 알림 수신"
 Write-Host ""
 Write-Host "수동 실행 테스트:"
 Write-Host "  Start-ScheduledTask -TaskName '$TaskName'"
+Write-Host "  python `"$TelegramAgent`" --test"
 Write-Host ""
 Write-Host "태스크 제거:"
 Write-Host "  Unregister-ScheduledTask -TaskName '$TaskName' -Confirm:`$false"
+Write-Host "  Unregister-ScheduledTask -TaskName '$TaskNameDaily' -Confirm:`$false"

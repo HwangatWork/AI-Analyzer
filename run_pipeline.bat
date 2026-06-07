@@ -80,6 +80,11 @@ if %errorlevel% neq 0 (
     curl -s -H "Title: AI Analyzer 감사 경고" -H "Tags: warning" -d "Audit Agent: Done Criteria 검증 체계에 이상이 감지되었습니다. 로그: %LOG_FILE%" https://ntfy.sh/%NTFY_TOPIC% > nul 2>&1
 )
 
+python -X utf8 agents/run_telegram_agent.py --check >> "%LOG_FILE%" 2>&1
+if %errorlevel% neq 0 (
+    echo [WARNING] Telegram Agent 경고 — 시그널 알림 전송 실패 (파이프라인 계속 진행)
+)
+
 echo ============================================================
 echo Pipeline completed: %date% %time%
 echo Output: output\dashboard.html
