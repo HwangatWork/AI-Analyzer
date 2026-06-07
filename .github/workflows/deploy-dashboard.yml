@@ -8,10 +8,15 @@ on:
       - 'output/final_results.json'
       - 'output/indicator_ranking.csv'
       - 'output/market_signals.csv'
+      - 'index.html'
       - '.github/workflows/deploy-dashboard.yml'
-  workflow_dispatch:   # 수동 실행 허용
+  workflow_dispatch:
   schedule:
-    - cron: '0 22 * * 0'  # 매주 월요일 07:00 KST (UTC 22:00 일요일)
+    - cron: '0 22 * * 0'  # 매주 월요일 07:00 KST
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   run-pipeline:
@@ -52,16 +57,16 @@ jobs:
       - name: Notify via ntfy
         if: always()
         run: |
-          STATUS="${{ job.status }}"
           curl -s \
-            -H "Title: AI Analyzer Pipeline $STATUS" \
+            -H "Title: AI Analyzer Pipeline ${{ job.status }}" \
             -H "Tags: chart_with_upwards_trend" \
-            -d "Weekly pipeline $STATUS at $(date +'%Y-%m-%d %H:%M UTC'). Check dashboard: https://${{ github.repository_owner }}.github.io/AI-Analyzer/dashboard.html" \
+            -d "Weekly pipeline ${{ job.status }} at $(date +'%Y-%m-%d %H:%M UTC'). Dashboard: https://${{ github.repository_owner }}.github.io/AI-Analyzer/" \
             https://ntfy.sh/ai-analyzer-${{ github.repository_owner }}
 
-  deploy-pages:
+  deploy:
     runs-on: ubuntu-latest
     needs: run-pipeline
+    # run-pipeline is skipped on push → this job still runs (if: always())
     if: always()
     permissions:
       contents: read
@@ -79,37 +84,7 @@ jobs:
         run: |
           mkdir -p _site
           cp output/dashboard.html _site/index.html
-          cp output/indicator_ranking.csv _site/ 2>/dev/null || true
-          cp output/market_signals.csv    _site/ 2>/dev/null || true
-          cp output/stock_analysis.csv    _site/ 2>/dev/null || true
-          cp output/final_results.json    _site/ 2>/dev/null || true
-
-      - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '_site'
-
-      - id: deployment
-        name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
-
-  deploy-on-push:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Prepare pages content
-        run: |
-          mkdir -p _site
-          cp output/dashboard.html _site/index.html
+          cp index.html _site/redirect.html 2>/dev/null || true
           cp output/indicator_ranking.csv _site/ 2>/dev/null || true
           cp output/market_signals.csv    _site/ 2>/dev/null || true
           cp output/stock_analysis.csv    _site/ 2>/dev/null || true
