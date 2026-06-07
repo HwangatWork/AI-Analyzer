@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Analyzer - Market Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          background: #0f172a; color: #e2e8f0; padding: 20px; }
+  h1   { font-size: 1.6rem; margin-bottom: 4px; color: #f8fafc; }
+  h2   { font-size: 1.1rem; color: #94a3b8; margin: 20px 0 10px; border-bottom: 1px solid #1e293b; padding-bottom: 6px; }
+  .meta { font-size: 0.8rem; color: #64748b; margin-bottom: 20px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .card { background: #1e293b; border-radius: 8px; padding: 16px; }
+  .signal-score { font-size: 3.5rem; font-weight: 800; color: #22c55e; text-align: center; line-height: 1; }
+  .signal-dir   { font-size: 1rem; text-align: center; color: #22c55e; margin-top: 4px; }
+  .kv  { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0;
+           border-bottom: 1px solid #0f172a; }
+  .kv:last-child { border-bottom: none; }
+  .kv .val { font-weight: 600; }
+  .green { color: #22c55e; } .red { color: #ef4444; }
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  table.data-table th { background: #0f172a; color: #94a3b8; padding: 6px 8px; text-align: left; }
+  table.data-table td { padding: 5px 8px; border-bottom: 1px solid #0f172a; }
+  table.data-table tr:hover td { background: #263248; }
+  .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.72rem;
+             background: #334155; color: #94a3b8; }
+  .method-note { font-size: 0.72rem; color: #475569; margin-top: 8px; line-height: 1.5; }
+  @media (max-width: 700px) { .grid-2, .grid-4 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<h1>AI Analyzer - Market Intelligence Dashboard</h1>
+<p class="meta">Generated: 2026-06-07T10:29:53.758510 &nbsp;|&nbsp; Indicators analyzed: 15 &nbsp;|&nbsp; <a href="indicator_ranking.csv" style="color:#60a5fa">Download CSV</a></p>
+
+<h2>종합 시장 시그널</h2>
+<div class="grid-2">
+  <div class="card">
+    <div class="signal-score">68.3</div>
+    <div class="signal-dir">위험 선호 (Risk-On)</div>
+    <p class="method-note">Z-score based composite: each indicator's latest value vs 252-day rolling mean/std, sign-adjusted by its SP500 Pearson correlation, weighted by combined_weight. Score = 50 + weighted_sum * 50. Risk-on</p>
+  </div>
+  <div class="card">
+    <div class="kv"><span>강세 신호</span><span class="val green">8개</span></div>
+    <div class="kv"><span>약세 신호</span><span class="val red">7개</span></div>
+    <div class="kv"><span>분석 지표</span><span class="val">15개</span></div>
+    <div class="kv"><span>기준</span><span class="val">Risk-On &gt;65 / Risk-Off &lt;35</span></div>
+  </div>
+</div>
+
+<h2>지표별 시그널 (상위 10개)</h2>
+<div class="card">
+<table class="data-table">
+<thead><tr><th>지표</th><th>최근값</th><th>Z-Score</th><th>시그널</th><th>가중치</th></tr></thead>
+<tbody>
+        <tr>
+          <td>NASDAQ100</td>
+          <td>705.1</td>
+          <td class="green">+2.00</td>
+          <td class="green">▲ 강세</td>
+          <td>0.4937</td>
+        </tr>
+        <tr>
+          <td>NIKKEI225</td>
+          <td>6.659e+04</td>
+          <td class="green">+2.00</td>
+          <td class="green">▲ 강세</td>
+          <td>0.2891</td>
+        </tr>
+        <tr>
+          <td>MA50</td>
+          <td>7156</td>
+          <td class="green">+1.84</td>
+          <td class="green">▲ 강세</td>
+          <td>0.0328</td>
+        </tr>
+        <tr>
+          <td>DOW</td>
+          <td>5.087e+04</td>
+          <td class="green">+1.74</td>
+          <td class="green">▲ 강세</td>
+          <td>0.3988</td>
+        </tr>
+        <tr>
+          <td>US10Y</td>
+          <td>4.47</td>
+          <td class="red">+1.56</td>
+          <td class="red">▼ 약세</td>
+          <td>0.0416</td>
+        </tr>
+        <tr>
+          <td>BBAND</td>
+          <td>0.2065</td>
+          <td class="red">-1.53</td>
+          <td class="red">▼ 약세</td>
+          <td>0.1700</td>
+        </tr>
+        <tr>
+          <td>STOCH_RSI</td>
+          <td>0</td>
+          <td class="red">-1.39</td>
+          <td class="red">▼ 약세</td>
+          <td>0.1262</td>
+        </tr>
+        <tr>
+          <td>WTI</td>
+          <td>90.54</td>
+          <td class="red">+1.22</td>
+          <td class="red">▼ 약세</td>
+          <td>0.1332</td>
+        </tr>
+        <tr>
+          <td>HY_SPREAD</td>
+          <td>2.74</td>
+          <td class="green">-1.14</td>
+          <td class="green">▲ 강세</td>
+          <td>0.3309</td>
+        </tr>
+        <tr>
+          <td>MARKET_MOMENTUM</td>
+          <td>0.9703</td>
+          <td class="red">-1.14</td>
+          <td class="red">▼ 약세</td>
+          <td>0.1099</td>
+        </tr></tbody>
+</table>
+</div>
+
+<h2>지표 가중치 랭킹 (Top 15, * = p&lt;0.05 유의)</h2>
+<div class="card">
+<table class="data-table">
+<thead><tr><th>순위</th><th>지표</th><th>유형</th><th>SP500 r</th><th>KOSPI r</th><th>가중치</th></tr></thead>
+<tbody>
+        <tr>
+          <td>1</td>
+          <td><strong>NASDAQ100</strong></td>
+          <td>return</td>
+          <td class="green">+0.949*</td>
+          <td class="green">+0.113*</td>
+          <td>0.4937</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><strong>DOW</strong></td>
+          <td>return</td>
+          <td class="green">+0.858*</td>
+          <td class="green">+0.002</td>
+          <td>0.3988</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><strong>HY_SPREAD</strong></td>
+          <td>diff</td>
+          <td class="red">-0.683*</td>
+          <td class="red">-0.151*</td>
+          <td>0.3309</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><strong>KOSDAQ</strong></td>
+          <td>return</td>
+          <td class="green">+0.010</td>
+          <td class="green">+0.753*</td>
+          <td>0.3297</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><strong>NIKKEI225</strong></td>
+          <td>return</td>
+          <td class="green">+0.116*</td>
+          <td class="green">+0.630*</td>
+          <td>0.2891</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><strong>BBAND</strong></td>
+          <td>level</td>
+          <td class="green">+0.374*</td>
+          <td class="green">+0.145*</td>
+          <td>0.1700</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td><strong>WTI</strong></td>
+          <td>diff</td>
+          <td class="red">-0.310*</td>
+          <td class="red">-0.113*</td>
+          <td>0.1332</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td><strong>DXY</strong></td>
+          <td>diff</td>
+          <td class="red">-0.252*</td>
+          <td class="red">-0.178*</td>
+          <td>0.1316</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td><strong>STOCH_RSI</strong></td>
+          <td>level</td>
+          <td class="green">+0.285*</td>
+          <td class="green">+0.124*</td>
+          <td>0.1262</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td><strong>MARKET_MOMENTUM</strong></td>
+          <td>level</td>
+          <td class="green">+0.234*</td>
+          <td class="green">+0.134*</td>
+          <td>0.1099</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td><strong>RSI14</strong></td>
+          <td>level</td>
+          <td class="green">+0.215*</td>
+          <td class="green">+0.116*</td>
+          <td>0.0975</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td><strong>VIX</strong></td>
+          <td>level</td>
+          <td class="red">-0.209*</td>
+          <td class="red">-0.090</td>
+          <td>0.0634</td>
+        </tr>
+        <tr>
+          <td>14</td>
+          <td><strong>US10Y</strong></td>
+          <td>diff</td>
+          <td class="red">-0.145*</td>
+          <td class="green">+0.030</td>
+          <td>0.0416</td>
+        </tr>
+        <tr>
+          <td>15</td>
+          <td><strong>MARKET_STRENGTH</strong></td>
+          <td>level</td>
+          <td class="green">+0.127*</td>
+          <td class="green">+0.103</td>
+          <td>0.0358</td>
+        </tr>
+        <tr>
+          <td>16</td>
+          <td><strong>MA50</strong></td>
+          <td>return</td>
+          <td class="green">+0.117*</td>
+          <td class="green">+0.079</td>
+          <td>0.0328</td>
+        </tr></tbody>
+</table>
+</div>
+
+<div class="grid-2">
+  <div>
+    <h2>S&P500 기여 Top5</h2>
+    <div class="card"><table class="data-table"><thead><tr><th>#</th><th>종목</th><th>수익률(1Y)</th><th>시가총액</th></tr></thead><tbody>
+            <tr>
+              <td>#1</td>
+              <td><strong>Alphabet</strong></td>
+              <td class="green">+109.8%</td>
+              <td>4494.2B</td>
+            </tr>
+            <tr>
+              <td>#2</td>
+              <td><strong>NVIDIA</strong></td>
+              <td class="green">+44.0%</td>
+              <td>4967.7B</td>
+            </tr>
+            <tr>
+              <td>#3</td>
+              <td><strong>Apple</strong></td>
+              <td class="green">+53.2%</td>
+              <td>4514.0B</td>
+            </tr>
+            <tr>
+              <td>#4</td>
+              <td><strong>Broadcom</strong></td>
+              <td class="green">+59.2%</td>
+              <td>1826.3B</td>
+            </tr>
+            <tr>
+              <td>#5</td>
+              <td><strong>Tesla</strong></td>
+              <td class="green">+26.7%</td>
+              <td>1468.5B</td>
+            </tr></tbody></table></div>
+  </div>
+  <div>
+    <h2>코스피 기여 Top5</h2>
+    <div class="card"><table class="data-table"><thead><tr><th>#</th><th>종목</th><th>수익률(1Y)</th><th>시가총액</th></tr></thead><tbody>
+            <tr>
+              <td>#1</td>
+              <td><strong>SK하이닉스</strong></td>
+              <td class="green">+803.9%</td>
+              <td>1469399.6B</td>
+            </tr>
+            <tr>
+              <td>#2</td>
+              <td><strong>삼성전자</strong></td>
+              <td class="green">+450.2%</td>
+              <td>2160399.3B</td>
+            </tr>
+            <tr>
+              <td>#3</td>
+              <td><strong>현대차</strong></td>
+              <td class="green">+253.9%</td>
+              <td>183283.9B</td>
+            </tr>
+            <tr>
+              <td>#4</td>
+              <td><strong>LG전자</strong></td>
+              <td class="green">+315.6%</td>
+              <td>54418.6B</td>
+            </tr>
+            <tr>
+              <td>#5</td>
+              <td><strong>삼성SDI</strong></td>
+              <td class="green">+232.6%</td>
+              <td>44698.0B</td>
+            </tr></tbody></table></div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div>
+    <h2>S&P500 수혜 Top5</h2>
+    <div class="card"><table class="data-table"><thead><tr><th>#</th><th>종목</th><th>수익률(1Y)</th><th>시가총액</th></tr></thead><tbody>
+            <tr>
+              <td>#1</td>
+              <td><strong>Alphabet</strong></td>
+              <td class="green">+109.8%</td>
+              <td>N/AB</td>
+            </tr>
+            <tr>
+              <td>#2</td>
+              <td><strong>Broadcom</strong></td>
+              <td class="green">+59.2%</td>
+              <td>N/AB</td>
+            </tr>
+            <tr>
+              <td>#3</td>
+              <td><strong>Apple</strong></td>
+              <td class="green">+53.2%</td>
+              <td>N/AB</td>
+            </tr>
+            <tr>
+              <td>#4</td>
+              <td><strong>NVIDIA</strong></td>
+              <td class="green">+44.0%</td>
+              <td>N/AB</td>
+            </tr>
+            <tr>
+              <td>#5</td>
+              <td><strong>ExxonMobil</strong></td>
+              <td class="green">+47.4%</td>
+              <td>N/AB</td>
+            </tr></tbody></table></div>
+  </div>
+  <div>
+    <h2>코스피 수혜 Top5</h2>
+    <div class="card"><table class="data-table"><thead><tr><th>#</th><th>종목</th><th>수익률(1Y)</th><th>시가총액</th></tr></thead><tbody>
+            <tr>
+              <td>#1</td>
+              <td><strong>SK하이닉스</strong></td>
+              <td class="green">+803.9%</td>
+              <td>N/AB</td>
+            </tr>
+            <tr>
+              <td>#2</td>
+              <td><strong>삼성전자</strong></td>
+              <td class="green">+450.2%</td>
+              <td>N/AB</td>
+            </tr>
+            <tr>
+              <td>#3</td>
+              <td><strong>LG전자</strong></td>
+              <td class="green">+315.6%</td>
+              <td>N/AB</td>
+            </tr>
+            <tr>
+              <td>#4</td>
+              <td><strong>현대차</strong></td>
+              <td class="green">+253.9%</td>
+              <td>N/AB</td>
+            </tr>
+            <tr>
+              <td>#5</td>
+              <td><strong>삼성SDI</strong></td>
+              <td class="green">+232.6%</td>
+              <td>N/AB</td>
+            </tr></tbody></table></div>
+  </div>
+</div>
+
+<p class="method-note" style="margin-top:24px; text-align:center;">
+  AI Analyzer v3 | Data: FinanceDataReader, FRED, alternative.me, Yahoo Finance |
+  분석 기간: 1년 | 유의성 기준: p &lt; 0.05
+</p>
+</body>
+</html>

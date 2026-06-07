@@ -1,0 +1,124 @@
+name: Deploy AI Analyzer Dashboard
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'output/dashboard.html'
+      - 'output/final_results.json'
+      - 'output/indicator_ranking.csv'
+      - 'output/market_signals.csv'
+      - '.github/workflows/deploy-dashboard.yml'
+  workflow_dispatch:   # 수동 실행 허용
+  schedule:
+    - cron: '0 22 * * 0'  # 매주 월요일 07:00 KST (UTC 22:00 일요일)
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install FinanceDataReader yfinance pandas numpy scipy httpx pyarrow
+
+      - name: Run pipeline
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          python -X utf8 agents/run_data_agent_v2.py
+          python -X utf8 agents/run_analysis_agent_v2.py
+          python -X utf8 agents/run_stock_agent_v2.py
+          python -X utf8 agents/run_evaluator_agent_v2.py
+          python -X utf8 agents/run_ui_agent.py
+          python -X utf8 agents/generate_report_v2.py
+
+      - name: Commit updated outputs
+        run: |
+          git config user.name "AI Analyzer Bot"
+          git config user.email "bot@ai-analyzer"
+          git add output/ data/processed/ feature_list.json claude-progress.txt
+          git diff --staged --quiet || git commit -m "chore: weekly pipeline run $(date +'%Y-%m-%d')"
+          git push
+
+      - name: Notify via ntfy
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          curl -s \
+            -H "Title: AI Analyzer Pipeline $STATUS" \
+            -H "Tags: chart_with_upwards_trend" \
+            -d "Weekly pipeline $STATUS at $(date +'%Y-%m-%d %H:%M UTC'). Check dashboard: https://${{ github.repository_owner }}.github.io/AI-Analyzer/dashboard.html" \
+            https://ntfy.sh/ai-analyzer-${{ github.repository_owner }}
+
+  deploy-pages:
+    runs-on: ubuntu-latest
+    needs: run-pipeline
+    if: always()
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Prepare pages content
+        run: |
+          mkdir -p _site
+          cp output/dashboard.html _site/index.html
+          cp output/indicator_ranking.csv _site/ 2>/dev/null || true
+          cp output/market_signals.csv    _site/ 2>/dev/null || true
+          cp output/stock_analysis.csv    _site/ 2>/dev/null || true
+          cp output/final_results.json    _site/ 2>/dev/null || true
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      - id: deployment
+        name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+
+  deploy-on-push:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare pages content
+        run: |
+          mkdir -p _site
+          cp output/dashboard.html _site/index.html
+          cp output/indicator_ranking.csv _site/ 2>/dev/null || true
+          cp output/market_signals.csv    _site/ 2>/dev/null || true
+          cp output/stock_analysis.csv    _site/ 2>/dev/null || true
+          cp output/final_results.json    _site/ 2>/dev/null || true
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      - id: deployment
+        name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

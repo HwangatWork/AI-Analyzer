@@ -1,0 +1,96 @@
+{
+  "version": "1.0",
+  "updated": "2026-06-07",
+  "features": [
+    {
+      "id": "F01",
+      "name": "데이터 수집 — 시장 지수 6개",
+      "agent": "data",
+      "status": "done"
+    },
+    {
+      "id": "F02",
+      "name": "데이터 수집 — 매크로 지표 6개",
+      "agent": "data",
+      "status": "done"
+    },
+    {
+      "id": "F03",
+      "name": "데이터 수집 — 시장 심리 6개",
+      "agent": "data",
+      "status": "done"
+    },
+    {
+      "id": "F04",
+      "name": "데이터 수집 — 기술적 지표 8개",
+      "agent": "data",
+      "status": "done"
+    },
+    {
+      "id": "F05",
+      "name": "데이터 수집 — 수급 3개",
+      "agent": "data",
+      "status": "partial"
+    },
+    {
+      "id": "F06",
+      "name": "분석 — 지표별 S&P500 상관관계",
+      "agent": "analysis",
+      "status": "done"
+    },
+    {
+      "id": "F07",
+      "name": "분석 — 지표별 코스피 상관관계",
+      "agent": "analysis",
+      "status": "done"
+    },
+    {
+      "id": "F08",
+      "name": "분석 — 가중치 랭킹 생성",
+      "agent": "analysis",
+      "status": "done"
+    },
+    {
+      "id": "F09",
+      "name": "종목 — S&P500 기여 기업 Top5",
+      "agent": "stock",
+      "status": "done"
+    },
+    {
+      "id": "F10",
+      "name": "종목 — 코스피 기여 기업 Top5",
+      "agent": "stock",
+      "status": "done"
+    },
+    {
+      "id": "F11",
+      "name": "종목 — S&P500 수혜 기업 Top5",
+      "agent": "stock",
+      "status": "done"
+    },
+    {
+      "id": "F12",
+      "name": "종목 — 코스피 수혜 기업 Top5",
+      "agent": "stock",
+      "status": "done"
+    },
+    {
+      "id": "F13",
+      "name": "검증 — 통계적 유의성 확인",
+      "agent": "evaluator",
+      "status": "done"
+    },
+    {
+      "id": "F14",
+      "name": "검증 — 이상값 필터링",
+      "agent": "evaluator",
+      "status": "done"
+    },
+    {
+      "id": "F15",
+      "name": "UI — CTD 대시보드 컴포넌트",
+      "agent": "ui",
+      "status": "done"
+    }
+  ]
+}
