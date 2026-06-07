@@ -225,6 +225,50 @@ if __name__ == "__main__":
         "action":  "MVP 연동 가능" if ctd_ready else "추가 데이터 수집 필요",
     }
 
+    # ── 방법론 검증 체크리스트 (CLAUDE.md 체계 기반) ─────────────────────────
+    print("\n[방법론 검증] CLAUDE.md 체크리스트 자동 점검...")
+    stock_res_path = PROC_DIR / "stock_results.json"
+    methodology_check = {}
+    if stock_res_path.exists():
+        sr = json.loads(stock_res_path.read_text(encoding="utf-8"))
+        universe_info = sr.get("universe", {})
+
+        u1 = universe_info.get("source", "").startswith("KOSPI: FDR") or "동적" in str(universe_info)
+        u2 = universe_info.get("kospi_size", 0) >= 50
+        u3 = universe_info.get("sp500_size", 0) >= 100
+        u4 = universe_info.get("kospi_analyzed", 0) > 0
+
+        kospi_top5 = sr.get("f10_kospi_contribution_top5", [])
+        sp500_top5 = sr.get("f09_sp500_contribution_top5", [])
+        d1_kospi = all("검증" in s.get("data_quality", "") for s in kospi_top5)
+        d3 = all(s.get("market_cap_b", 0) < 1e9 for s in sp500_top5)  # 비합리적 단위 탐지
+
+        kospi_returns = [s.get("stock_return_pct", 0) for s in kospi_top5]
+        sp500_returns = [s.get("stock_return_pct", 0) for s in sp500_top5]
+        r4_flag = any(abs(r) > 5000 for r in kospi_returns + sp500_returns)
+
+        methodology_check = {
+            "U1_dynamic_universe":    {"pass": u1, "detail": universe_info.get("source", "unknown")},
+            "U2_kospi_coverage":      {"pass": u2, "detail": f"KOSPI {universe_info.get('kospi_analyzed',0)}/{universe_info.get('kospi_size',0)}개"},
+            "U3_sp500_coverage":      {"pass": u3, "detail": f"S&P500 {universe_info.get('sp500_analyzed',0)}/{universe_info.get('sp500_size',0)}개"},
+            "U4_universe_reported":   {"pass": u4, "detail": "universe 필드 존재"},
+            "D1_cross_validation":    {"pass": d1_kospi, "detail": "FDR+yfinance 교차검증"},
+            "D3_unit_consistency":    {"pass": d3, "detail": "시가총액 단위 정상"},
+            "R4_extreme_return_flag": {"pass": not r4_flag, "detail": f"최대수익률: KOSPI {max(kospi_returns, default=0):+.0f}% SP500 {max(sp500_returns, default=0):+.0f}%"},
+        }
+
+        failed = [k for k, v in methodology_check.items() if not v["pass"]]
+        passed = [k for k, v in methodology_check.items() if v["pass"]]
+        print(f"  PASS: {len(passed)}개  FAIL: {len(failed)}개")
+        for k, v in methodology_check.items():
+            status = "✓" if v["pass"] else "✗"
+            print(f"    [{status}] {k}: {v['detail']}")
+        if failed:
+            print(f"\n  [경고] 방법론 검증 실패 항목: {failed}")
+            print("  → 해당 항목 수정 후 재실행 필요")
+        else:
+            print("  → 전 항목 통과")
+
     eval_results = {
         "generated_at":          datetime.now().isoformat(),
         "target_vars_excluded":  list(TARGET_VARS),
@@ -241,6 +285,7 @@ if __name__ == "__main__":
         "f14_final_ranking":     final_ranking,
         "data_freshness_report": freshness_report,
         "ctd_readiness":         ctd_status,
+        "methodology_validation": methodology_check,
         "low_confidence_threshold": LOW_CONF_THRESHOLD,
         "auto_exclude_policy":   AUTO_EXCLUDE_REASON,
     }
