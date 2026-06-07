@@ -556,6 +556,7 @@ if __name__ == "__main__":
             "G_looker_studio":     "PASS - Sheets Agent: CSV → Google Sheets pipeline (gspread+Service Account) + manual Looker Studio guide + GitHub Pages CSV URLs for direct connection",
             "H_sector_deepdive":   "PASS - Sector Agent: 3 sectors (반도체/AI, AI플랫폼, 에너지/원자재), 21 tickers, FDR(KR)+yfinance(US), 1Y/1M returns, sector theme + risk analysis",
         },
+        "sector_analysis": sector_data,
         "ctd_readiness": evaluation.get("ctd_readiness", {}),
     })
 
