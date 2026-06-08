@@ -1,4 +1,4 @@
-AI Analyzer Progress — 2026-06-09 (세션 B 완료)
+AI Analyzer Progress — 2026-06-09 (세션 C 완료)
 
 === 완료 항목 ===
 
@@ -118,24 +118,43 @@ Evidence: NQ-4 OK — 기사URL 5개 (Google News /rss/articles/ 경로)
     - 긴급 1: Z-Score 13개 일치 — evaluator _SELF_REFERENTIAL 축소 + LOW_CONF_THRESHOLD=50
       유효 13개: VIX, HY_SPREAD, WTI, DXY, INDIVIDUAL_NET, US10Y, FOREIGN_NET,
                   MARKET_STRENGTH, CNN_FG, BBAND, STOCH_RSI, INSTITUTION_NET, MARKET_MOMENTUM
-    - 긴급 2: Narrative Agent Claude API 서브에이전트 전환
-      * if/elif 템플릿 폴백 완전 제거
-      * ANTHROPIC_API_KEY 없으면 exit(1)
-      * FINAL_REPORT.md 생성 (실제 Z-score/수치 포함 마크다운 리포트)
-      * Done Criteria NA-1~NA-5 (NA-5: FINAL_REPORT.md 수치 10개 이상)
-      * QF-1 수정: FINAL_REPORT.md 기반 체크, 수치 10개 미만 → FAIL
+    - 긴급 2: Narrative Agent 재구현 (세션 C에서 최종 완료)
+      → 세션 C 항목 12 참조
     - 긴급 3: decision.json 신뢰도 임계값
       * confidence_tier 필드 추가 (normal/warn/hold)
       * TG final_report: 70%+ 정상, 50~70% WARN, 50% 미만 보류 표시
       * run_pm_agent.py _confidence_tier() + _format_decision_for_tg() 추가
 
-=== pm_quality_checks 현황 ===
-22/24 PASS (QF-1: ANTHROPIC_API_KEY 미설정 WARN, QG-1: GOOGLE_SA_JSON 없음)
-IQ-1~4, SA-1~8, SI-1, NQ-1~4, QB-1, QC-1, QD-1, QE-1, QH-1 PASS
-Signal: 38.2 (neutral), Z-Score 13개 지표
+[세션 C 완료 - 2026-06-09]
+12. Narrative Agent 재구현 (ANTHROPIC_API_KEY 완전 제거)
+    - run_narrative_agent.py = 데이터 준비 전용 (AI API 없음)
+      * final_results.json 읽기 → narrative_context.json 저장
+      * Done Criteria NA-1~NA-3 (파일 존재, 필드 확인, 수치 검증)
+      * exit(1)/API 키 체크 완전 제거
+    - 실제 리포트 생성 = Claude Code 서브에이전트 (Agent 툴)
+      * narrative_context.json 읽고 FINAL_REPORT.md + narrative.json 생성
+      * FINAL_REPORT.md: 4681자, 153개 실수치 포함
+      * generation_method=claude_code_subagent
+    - QF-1 수정: FINAL_REPORT.md 내용 품질만 판단 (API 키 여부 무관)
+      * 200자 미만 → FAIL, 수치 10개 미만 → FAIL
+    - generate_narrative() / generate_narrative_section() UI 호환성 함수 유지
 
-=== 다음 단계 ===
-- ANTHROPIC_API_KEY 발급 후 .env 추가 → QF-1 즉시 해결
-- T7: GitHub Actions Run workflow 수동 실행 → run-pipeline conclusion=success 확인
-- T9: Google Sheets 완전 자동화 (GOOGLE_SA_JSON 서비스 계정 설정)
-- T10: Notion 연동 활성화 (NOTION_TOKEN 추가)
+13. T7 최종 완료 — GitHub Actions run-pipeline conclusion=success
+    - GitHub Secrets 3개 등록: FRED_API_KEY / KRX_ID / KRX_PW
+    - run_id=27170246372, Run pipeline 128s + Commit 1s + Deploy 5s 전항목 ✅
+    - ROADMAP.md T7 [⚠] → [x] 처리
+
+=== pm_quality_checks 현황 ===
+23/24 PASS
+  PASS: IQ-1~4, SA-1~8, SI-1, NQ-1~4, QB-1, QC-1, QD-1, QE-1, QF-1, QH-1
+  FAIL: QG-1 (GOOGLE_SA_JSON 미설정 — T9 대기)
+Signal: 38.2 (neutral), Z-Score 13개 지표
+GitHub Actions: run_id=27170246372 conclusion=success ✅
+
+=== 다음 실행 시작점 ===
+① pending_requests.json 확인 후 미완료 항목 처리
+② T9: Google Sheets 완전 자동화 — GOOGLE_SA_JSON 서비스 계정 .env 추가 필요
+   (설정 후 QG-1 즉시 해결 → 24/24 PASS 달성 가능)
+③ T10: Notion 연동 활성화 — NOTION_TOKEN .env 추가 필요
+   (Page ID: 3781a4c7-30d8-81f9-bf7d-db6541a23fcf)
+④ 매주 일요일 22:00 UTC GH Actions cron 자동 실행 — 다음 실행 2026-06-14
