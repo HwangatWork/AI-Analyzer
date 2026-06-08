@@ -66,19 +66,19 @@ for r in ranking:
 def contrib_row(r, i):
     flag = " [주의]" if r.get("data_quality","") != "정상" else ""
     return (f"| #{i+1} | {r.get('name',r.get('ticker','?')):12s} |"
-            f" {r.get('stock_return_pct',0):+.1f}%{flag} |"
-            f" {r.get('period_days',0):>5}일 |"
-            f" {r.get('contribution_score',0):.4f} |"
-            f" {r.get('p_value',0):.4f} |"
-            f" {r.get('beta',0):.2f} |")
+            f" {(r.get('stock_return_pct') or 0):+.1f}%{flag} |"
+            f" {(r.get('period_days') or 0):>5}일 |"
+            f" {(r.get('contribution_score') or 0):.4f} |"
+            f" {(r.get('p_value') or 0):.4f} |"
+            f" {(r.get('beta') or 0):.2f} |")
 
 def benefit_row(r, i):
     flag = " [주의]" if r.get("data_quality","") != "정상" else ""
     return (f"| #{i+1} | {r.get('name',r.get('ticker','?')):12s} |"
-            f" {r.get('excess_return_pct',0):+.1f}%{flag} |"
-            f" {r.get('period_days',0):>5}일 |"
-            f" {r.get('beneficiary_score',0):.4f} |"
-            f" {r.get('p_value',0):.4f} |")
+            f" {(r.get('excess_return_pct') or 0):+.1f}%{flag} |"
+            f" {(r.get('period_days') or 0):>5}일 |"
+            f" {(r.get('beneficiary_score') or 0):.4f} |"
+            f" {(r.get('p_value') or 0):.4f} |")
 
 # 개선사항 요약
 improvements = """
