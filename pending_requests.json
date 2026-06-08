@@ -52,9 +52,10 @@
     },
     {
       "id": "REQ-008",
-      "request": "T7 GitHub Actions run-pipeline CI 검증",
-      "status": "waiting_ci_run",
-      "details": "requirements.txt + env vars 적용 완료. workflow_dispatch 또는 다음 cron 실행 후 run-pipeline job conclusion=success 확인 필요. ROADMAP T11 참조"
+      "request": "T7/T11 GitHub Actions run-pipeline CI 검증",
+      "status": "done",
+      "completed_at": "2026-06-08T19:55:00",
+      "details": "run_id=27132848442 conclusion=success. 수정 3단계: finance-datareader 패키지명, pykrx KOSPI 유니버스, contents:write 권한+data/processed 제거"
     },
     {
       "id": "REQ-009",

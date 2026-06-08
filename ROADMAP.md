@@ -81,13 +81,13 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 - [x] T4: 시그널 점수 43.2→43.4 — co-movement 지표 제거 후 가중치 재정규화, 의도된 변화 확인
 - [x] T5: NASDAQ100 combined_weight=0.1452 < HY_SPREAD=0.2829 역설 해소 (Z-Score signal level ≠ importance)
 - [x] T6: News Agent URL — Google 리다이렉트→실제 도메인 해소 (_resolve_redirect), NQ-4 강화 (news.google.com 제외 기준)
-- [⚠] T7: GitHub Actions run-pipeline 실패 수정 — requirements.txt 생성 + env vars 추가 완료, CI 실행 성공 검증 대기 중
+- [x] T7: GitHub Actions run-pipeline 실패 수정 — requirements.txt(finance-datareader), pykrx 유니버스, contents:write 권한, run_id=27132848442 conclusion=success 확인
 - [x] T8: F05 수급 3개 수집 0/3→3/3 완료 (ROADMAP.md 업데이트)
 
 ## Phase 8 - 외부 연동 (자격증명 대기 중)
 - [?] T9: Google Sheets 완전 자동화 — GOOGLE_SA_JSON 서비스 계정 경로 .env 추가 필요
 - [?] T10: Notion 연동 활성화 — NOTION_TOKEN .env 추가 필요 (Page ID: 3781a4c7-30d8-81f9-bf7d-db6541a23fcf)
-- [?] T11: GitHub Actions run-pipeline CI 실행 검증 — 실제 conclusion=success 로그 필수 (T7 후속)
+- [x] T11: GitHub Actions run-pipeline CI 실행 검증 — run_id=27132848442 conclusion=success (2026-06-08)
 - [?] T12: pm_self_diagnosis SD-7 활성화 — GITHUB_TOKEN .env 추가 시 Actions 상태 자동 진단
 
 ---
