@@ -310,12 +310,25 @@ def pm_quality_checks() -> list[dict]:
 
     # ── Condition C: GitHub Pages 대시보드 배포 링크 ─────────────
     dashboard_file = OUT_DIR / "dashboard.html"
-    qc1_ok = dashboard_file.exists() and dashboard_file.stat().st_size > 10000
+    _local_ok = dashboard_file.exists() and dashboard_file.stat().st_size > 10000
+    _pages_ok  = False
+    _pages_detail = ""
+    try:
+        import urllib.request as _urlreq
+        _pages_url = "https://hwangatwork.github.io/AI-Analyzer/"
+        _req = _urlreq.Request(_pages_url, method="HEAD")
+        with _urlreq.urlopen(_req, timeout=10) as _resp:
+            _pages_ok = (_resp.status == 200)
+            _pages_detail = f" | Pages={_resp.status}"
+    except Exception as _pe:
+        _pages_detail = f" | Pages=ERR({str(_pe)[:40]})"
+    qc1_ok = _local_ok and _pages_ok
+    _size_str = f"{dashboard_file.stat().st_size:,}bytes" if _local_ok else "없음"
     results.append({
-        "check": "QC-1 dashboard.html 빌드 완료",
+        "check": "QC-1 dashboard.html 빌드 + Pages 200 OK",
         "pass":  qc1_ok,
-        "detail": (f"OK — {dashboard_file.stat().st_size:,}bytes" if qc1_ok
-                   else "FAIL — dashboard.html 없음 또는 10KB 미만"),
+        "detail": (f"OK — local={_size_str}{_pages_detail}" if qc1_ok
+                   else f"FAIL — local={_size_str}{_pages_detail}"),
         "fix_stages": ["run_ui_agent.py", "generate_report_v2.py"],
     })
 
@@ -373,18 +386,27 @@ def pm_quality_checks() -> list[dict]:
     })
 
     # ── Condition F: AI 언어 리포트 + 액션플랜 ───────────────────
+    import os as _osF
+    _anthropic_key = _osF.getenv("ANTHROPIC_API_KEY", "")
     narrative_file = OUT_DIR / "narrative.json"
     qf1_ok = False
     qf1_detail = "FAIL — output/narrative.json 없음"
-    if narrative_file.exists():
+    if not _anthropic_key:
+        # Key absent → WARN regardless of narrative.json content
+        qf1_ok = False
+        qf1_detail = "WARN — ANTHROPIC_API_KEY 미설정 (템플릿 사용 중)"
+    elif narrative_file.exists():
         try:
             narr = json.loads(narrative_file.read_text(encoding="utf-8"))
             has_overview = bool(narr.get("market_overview", "").strip())
             has_plan     = bool(narr.get("sp500_action_plan") or narr.get("kospi_action_plan"))
-            if has_overview and has_plan:
-                method_tag = narr.get("generation_method", "template")
+            method_tag   = narr.get("generation_method", "template")
+            if has_overview and has_plan and method_tag != "template":
                 qf1_ok = True
                 qf1_detail = f"OK — overview + plan 존재 (method={method_tag})"
+            elif has_overview and has_plan and method_tag == "template":
+                qf1_ok = False
+                qf1_detail = "WARN — 템플릿 생성 (API 호출 실패 폴백)"
             else:
                 qf1_detail = f"FAIL — overview={has_overview}, plan={has_plan}"
         except Exception as e:
@@ -588,6 +610,12 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
     # ── 문제 발견 시 자동 수정 + 재검증 루프 ────────────────────
     if issues:
         _write_fix_request(issues)
+
+        # P2-3: before/after pass-count 비교
+        _qc_before = pm_quality_checks()
+        _pass_before = sum(1 for c in _qc_before if c["pass"])
+        print(f"  [PM] 수정 전 QC: {_pass_before}/{len(_qc_before)} PASS")
+
         _auto_fix_from_diagnosis(issues)
 
         # 수정 후 quality check 재실행 (최대 2회)
@@ -610,11 +638,16 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
                 print(f"  [PM] 재검증 round {fix_round}: 추가 실패 없음 — 루프 종료")
                 break
 
-        # 최종 QC 결과 요약
+        # 최종 QC 결과 요약 + before/after 비교
         final_qc = pm_quality_checks()
         final_pass = [c for c in final_qc if c["pass"]]
         final_fail = [c for c in final_qc if not c["pass"]]
-        print(f"  [PM] 최종 QC: {len(final_pass)}/{len(final_qc)} PASS")
+        _pass_after = len(final_pass)
+        _delta = _pass_after - _pass_before
+        _delta_str = f"+{_delta}" if _delta >= 0 else str(_delta)
+        print(f"  [PM] 최종 QC: {_pass_after}/{len(final_qc)} PASS (수정 전 {_pass_before} → 수정 후 {_pass_after}, Δ{_delta_str})")
+        if _delta == 0:
+            print("  [PM] ⚠ 자동 수정 효과 없음 — 수동 개입 필요")
         if final_fail:
             print(f"  [PM] 미해결 QC: {[c['check'] for c in final_fail[:5]]}")
 
@@ -731,8 +764,19 @@ def _tg_check_approve() -> bool:
 
 # ── Telegram 전송 (run_telegram_agent 없이 직접 호출) ────────────
 
+# SD-9: 중복 전송 방지 — 동일 메시지 해시 60초 내 재전송 차단
+_tg_last_sent: dict[str, float] = {}
+
 def _tg_send(text: str) -> None:
     """텔레그램 메시지 전송 (run_telegram_agent 임포트 없이 직접)."""
+    import hashlib, time
+    # SD-9: 동일 메시지를 60초 내 재전송 방지
+    msg_hash = hashlib.md5(text.encode("utf-8")).hexdigest()
+    now = time.time()
+    if now - _tg_last_sent.get(msg_hash, 0.0) < 60.0:
+        print(f"  [TG] 중복 메시지 차단 (60s 이내 동일 해시)")
+        return
+    _tg_last_sent[msg_hash] = now
     try:
         import os, urllib.request
         token = os.getenv("TELEGRAM_BOT_TOKEN", "")

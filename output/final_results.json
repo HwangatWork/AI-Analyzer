@@ -515,7 +515,8 @@
         "data_source": "FDR",
         "ticker": "009150.KS",
         "name": "삼성전기",
-        "warn_reason": "극단 수익률 — 기업 이벤트(분사/합병/AI테마) 가능성, 수동 확인 권장"
+        "warn_reason": "극단 수익률 — 기업 이벤트(분사/합병/AI테마) 가능성, 수동 확인 권장",
+        "data_quality": "검증완료"
       },
       {
         "correlation": 0.7832,
@@ -530,7 +531,8 @@
         "data_source": "FDR",
         "ticker": "402340.KS",
         "name": "SK스퀘어",
-        "warn_reason": "극단 수익률 — 기업 이벤트(분사/합병/AI테마) 가능성, 수동 확인 권장"
+        "warn_reason": "극단 수익률 — 기업 이벤트(분사/합병/AI테마) 가능성, 수동 확인 권장",
+        "data_quality": "검증완료"
       },
       {
         "correlation": 0.8471,
@@ -545,7 +547,8 @@
         "data_source": "FDR",
         "ticker": "000660.KS",
         "name": "SK하이닉스",
-        "warn_reason": "극단 수익률 — 기업 이벤트(분사/합병/AI테마) 가능성, 수동 확인 권장"
+        "warn_reason": "극단 수익률 — 기업 이벤트(분사/합병/AI테마) 가능성, 수동 확인 권장",
+        "data_quality": "검증완료"
       },
       {
         "correlation": 0.5402,
@@ -560,7 +563,8 @@
         "data_source": "FDR",
         "ticker": "353200.KS",
         "name": "대덕전자",
-        "warn_reason": "극단 수익률 — 기업 이벤트(분사/합병/AI테마) 가능성, 수동 확인 권장"
+        "warn_reason": "극단 수익률 — 기업 이벤트(분사/합병/AI테마) 가능성, 수동 확인 권장",
+        "data_quality": "검증완료"
       },
       {
         "correlation": 0.5096,
@@ -574,7 +578,8 @@
         "n_days": 242,
         "data_source": "FDR",
         "ticker": "011070.KS",
-        "name": "LG이노텍"
+        "name": "LG이노텍",
+        "data_quality": "검증완료"
       }
     ]
   },

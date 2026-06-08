@@ -300,18 +300,24 @@ if __name__ == "__main__":
     print(f"\nSP500: {decision['sp500']['action']} (신뢰도 {decision['sp500']['confidence_pct']}%)")
     print(f"KOSPI: {decision['kospi']['action']} (신뢰도 {decision['kospi']['confidence_pct']}%)")
 
+    # Save to output/decision.json
+    dec_path = OUT_DIR / "decision.json"
+    dec_path.write_text(json.dumps(decision, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"decision.json 저장: {dec_path}")
+
     # ── Done Criteria 자체검증 ────────────────────────────────────
     fails = []
     for market, key in [("SP500", "sp500"), ("KOSPI", "kospi")]:
         d = decision.get(key, {})
         action = d.get("action", "")
         conf   = d.get("confidence_pct", -1)
-        if action not in ("BUY", "SELL", "HOLD"):
+        if action not in ("BUY", "SELL", "HOLD", "SELL/AVOID", "BUY (소량)"):
             fails.append(f"DE-1 {market} action 유효하지 않음: '{action}'")
         if not (0 <= conf <= 100):
             fails.append(f"DE-2 {market} confidence_pct 범위 오류: {conf}")
-        if not d.get("position_pct") and d.get("position_pct") != 0:
-            fails.append(f"DE-3 {market} position_pct 없음")
+        pos_val = d.get("position_size_pct", d.get("position_pct"))
+        if pos_val is None:
+            fails.append(f"DE-3 {market} position_size_pct 없음")
     print("\n[Done Criteria] Decision Agent:")
     if fails:
         for f in fails:

@@ -61,6 +61,7 @@ jobs:
           git config user.email "bot@ai-analyzer"
           git add output/ feature_list.json claude-progress.txt
           git diff --staged --quiet || git commit -m "chore: weekly pipeline run $(date +'%Y-%m-%d')"
+          git pull --rebase origin HEAD || true
           git push origin HEAD
 
       - name: Notify via ntfy

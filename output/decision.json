@@ -1,0 +1,41 @@
+{
+  "computed_at": "2026-06-09T00:45:20.148089",
+  "composite_score": 34.0,
+  "direction": "risk-off",
+  "sp500": {
+    "action": "SELL/AVOID",
+    "strength": "중",
+    "confidence_pct": 32.9,
+    "position_size_pct": 15,
+    "position_note": "신뢰도 낮음 — 소량 또는 관망",
+    "entry_triggers": [
+      "HY_SPREAD 축소 → 신용 리스크 감소, 위험자산 선호"
+    ],
+    "exit_triggers": [
+      "INDIVIDUAL_NET 약세 (Z=+2.00) — 하방 압력",
+      "INSTITUTION_NET 약세 (Z=-1.67) — 하방 압력",
+      "US10Y 약세 (Z=+1.56) — 하방 압력",
+      "VIX 상승 → 시장 공포 증가, 포지션 축소 고려"
+    ],
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+110%) / Nvidia (+44%)"
+  },
+  "kospi": {
+    "action": "SELL/AVOID",
+    "strength": "중",
+    "confidence_pct": 37.9,
+    "position_size_pct": 5,
+    "position_note": "신뢰도 낮음 — 소량 또는 관망",
+    "top_stocks_hint": "삼성전자 (+450%) / SK하이닉스 (+804%)"
+  },
+  "risk_factors": [
+    "WTI 상승 → 인플레이션 재점화 위험",
+    "미국 10년물 금리 상승 (Z=+1.56) → 할인율 부담",
+    "달러 강세 → 신흥국 자금 유출 위험 (KOSPI 주의)"
+  ],
+  "signal_summary": {
+    "bullish": 3,
+    "bearish": 6,
+    "total": 9,
+    "consensus_ratio": 0.333
+  }
+}
