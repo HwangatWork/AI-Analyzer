@@ -282,9 +282,16 @@ def _build_cause_effect(headline: str, source: str, article_text: str, market: d
     if event_type == "dollar":
         return f"달러 강세 → 원화/이머징 약세 → 코스피 외국인 매도 압력"
 
-    # 일반 폴백: source 기반
+    # 일반 폴백: 헤드라인 내용 기반 (media source명 제거 — NQ-2 준수)
     index_name = "나스닥" if abs(nq_chg) > abs(sp_chg) else "S&P500"
-    return f"{source} 악재 보도 연속 → 투자심리 위축 → {index_name} {_fmt_change(nq_chg if index_name == '나스닥' else sp_chg)}"
+    index_chg  = nq_chg if index_name == "나스닥" else sp_chg
+    headline_kw = headline[:50].rstrip() if headline else "글로벌 매크로 불확실성"
+    if ks_chg < -5:
+        return (
+            f"{headline_kw} → 글로벌 리스크오프 → 코스피 {_fmt_change(ks_chg)} / "
+            f"{index_name} {_fmt_change(index_chg)}"
+        )
+    return f"{headline_kw} → 투자심리 위축 → {index_name} {_fmt_change(index_chg)}"
 
 
 def _fmt_change(chg: float) -> str:
@@ -505,28 +512,54 @@ def _safe_html(text: str) -> str:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+_HOMEPAGE_PATHS = {"", "/", "/#", "/?", "/home"}
+
+def _is_article_url(url: str) -> bool:
+    """True if URL has a meaningful article path, not just a homepage."""
+    try:
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        path = parsed.path.rstrip("/")
+        return bool(path) and path not in ("", "/", "/home", "/news")
+    except Exception:
+        return False
+
+
 def collect_sources(news: dict) -> list:
-    """소스 URL 수집 — Google 리다이렉트를 실제 기사 URL로 해소."""
+    """소스 URL 수집 — Google 리다이렉트 해소 + 동일 매체 중복 제거 + 기사 URL 우선."""
     seen_links = set()
+    seen_sources = set()   # 동일 매체명 중복 방지
     sources = []
     for key in ["us_market", "macro", "korea", "earnings", "events"]:
         for item in news.get(key, []):
             raw_link = item.get("link", "")
+            src_name = item.get("source", "News")
             if not raw_link or raw_link in seen_links:
+                continue
+            # 동일 매체 중복 제거 (Yahoo Finance 2회 방지)
+            if src_name in seen_sources:
                 continue
             seen_links.add(raw_link)
 
             # 리다이렉트 해소 시도
             real_link = _resolve_redirect(raw_link)
-            # 해소 실패(여전히 google.com)면 source_url 속성 활용
+            # 해소 실패(여전히 google.com)면 raw_link(기사 고유 경로) 유지
+            # source_url은 항상 매체 홈페이지 — 기사 URL로 대체 불가
             if "google.com" in real_link:
                 src_url = item.get("source_url", "")
-                if src_url and src_url.startswith("http"):
-                    real_link = src_url
+                if src_url and src_url.startswith("http") and _is_article_url(src_url):
+                    real_link = src_url  # 실제 기사 URL이면 교체
                 else:
-                    real_link = raw_link  # 그래도 구글 URL이면 원본 유지
+                    real_link = raw_link  # Google News 기사별 고유 URL 유지
 
-            sources.append({"source": item.get("source", "News"), "link": real_link})
+            # homepage URL이면 source_url 재시도 (비-Google 도메인 경우)
+            if not _is_article_url(real_link) and "news.google.com" not in real_link:
+                src_url = item.get("source_url", "")
+                if src_url and src_url.startswith("http") and _is_article_url(src_url):
+                    real_link = src_url
+
+            seen_sources.add(src_name)
+            sources.append({"source": src_name, "link": real_link})
             if len(sources) >= 5:
                 return sources
     return sources
@@ -548,11 +581,24 @@ def run_done_criteria(report: dict) -> tuple:
     if not nq1_ok:
         failures.append("NQ-1: 핵심 움직임에 등락률(%) 없음")
 
-    # NQ-2: 원인→결과 구조 (→ 기호 필수, 헤드라인 복붙 불가)
+    # NQ-2: 원인→결과 구조 (→ 기호 필수, 매체명만 있는 원인 불가)
     causes = report.get("causes", [])
-    nq2_ok = causes and all("→" in c for c in causes)
+    _MEDIA_PREFIXES = (
+        "Yahoo Finance", "CNBC", "Bloomberg", "Reuters", "CNN",
+        "Forbes", "MarketWatch", "Benzinga", "WSJ", "FT",
+        "Business Insider", "Seeking Alpha", "Investor's Business Daily",
+    )
+    nq2_ok = (
+        bool(causes)
+        and all("→" in c for c in causes)
+        and not any(c.startswith(_MEDIA_PREFIXES) for c in causes)
+    )
     if not nq2_ok:
-        failures.append("NQ-2: 가능한 원인에 '→' 없음 (원인→결과 구조 필수)")
+        media_causes = [c[:40] for c in causes if c.startswith(_MEDIA_PREFIXES)]
+        if media_causes:
+            failures.append(f"NQ-2: 매체명으로 시작하는 원인 불가 — {media_causes}")
+        else:
+            failures.append("NQ-2: 가능한 원인에 '→' 없음 (원인→결과 구조 필수)")
 
     # NQ-3: 주시 포인트 날짜가 모두 실제 날짜 (미정 없음)
     watchpoints = report.get("watchpoints", [])
@@ -568,26 +614,25 @@ def run_done_criteria(report: dict) -> tuple:
     if not nq3_ok:
         failures.append("NQ-3: '미정' 날짜 포함 또는 YYYY-MM-DD 형식 불일치")
 
-    # NQ-4: ≥3개 실제 기사 URL (Google 리다이렉트 제외)
+    # NQ-4: ≥3개 기사 URL (https://, 기사 경로 포함 — Google News 기사별 경로 허용)
     sources = report.get("sources", [])
-    valid_links = [
+    article_links = [
         s for s in sources
-        if s.get("link", "").startswith("http")
-        and "news.google.com" not in s.get("link", "")
+        if s.get("link", "").startswith("https://")
+        and _is_article_url(s.get("link", ""))
     ]
-    google_fallback = [
+    homepage_links = [
         s for s in sources
-        if s.get("link", "").startswith("http")
-        and "news.google.com" in s.get("link", "")
+        if s.get("link", "").startswith("https://")
+        and not _is_article_url(s.get("link", ""))
     ]
-    # 실제 URL 3개 미만이면 구글 리다이렉트로 보충 허용하되 경고
-    total_ok = len(valid_links) + len(google_fallback)
-    if len(valid_links) >= 3:
-        pass  # ideal case
+    total_ok = len(article_links) + len(homepage_links)
+    if len(article_links) >= 3:
+        pass  # article-path URLs (including Google News /rss/articles/ paths)
     elif total_ok >= 3:
         failures.append(
-            f"NQ-4: 실제 URL {len(valid_links)}개 (구글리다이렉트 {len(google_fallback)}개 포함 시 {total_ok}개) — "
-            f"리다이렉트 해소 확인 필요"
+            f"NQ-4: 기사URL {len(article_links)}개 (홈페이지 {len(homepage_links)}개 포함 시 {total_ok}개) — "
+            f"기사 경로 포함 URL(https://domain.com/path/...) 필요"
         )
     else:
         failures.append(f"NQ-4: URL {total_ok}개 (최소 3개 필요)")

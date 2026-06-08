@@ -89,7 +89,7 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 - [?] T9: Google Sheets 완전 자동화 — GOOGLE_SA_JSON 서비스 계정 경로 .env 추가 필요
 - [?] T10: Notion 연동 활성화 — NOTION_TOKEN .env 추가 필요 (Page ID: 3781a4c7-30d8-81f9-bf7d-db6541a23fcf)
 - [x] T11: GitHub Actions run-pipeline CI 실행 검증 — run_id=27132848442 conclusion=success (2026-06-08)
-- [?] T12: pm_self_diagnosis SD-7 활성화 — GITHUB_TOKEN .env 추가 시 Actions 상태 자동 진단
+- [x] T12: pm_self_diagnosis SD-7 활성화 — 공개 repo 토큰 불필요, 인증 없이 GitHub API 호출로 변경
 
 ---
 

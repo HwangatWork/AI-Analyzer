@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-08T19:12:14.249240",
+  "generated_at": "2026-06-08T20:58:30.818365",
   "date": "2026-06-08",
   "movements": [
     "S&P500 7,383.74 (▼2.64%)",
@@ -8,9 +8,9 @@
     "코스피 7,484.41 (▼8.29%)"
   ],
   "causes": [
+    "Stock market today: Dow, S&P 500, Nasdaq futures m → 글로벌 리스크오프 → 코스피 ▼8.29% / 나스닥 ▼4.18%",
     "AI칩 섹터 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▼4.18%",
-    "Yahoo Finance 악재 보도 연속 → 투자심리 위축 → 나스닥 ▼4.18%",
-    "Fed 금리 인상 우려 부각 → 채권 수익률 상승 → 밸류에이션 압박"
+    "미국 10년물 금리 4% 상승 → 할인율 압박 → 성장주 밸류에이션 하락"
   ],
   "watchpoints": [
     {
@@ -36,24 +36,24 @@
   ],
   "sources": [
     {
+      "source": "Yahoo Finance",
+      "link": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxQd3FBUDJXUzFoamlwR2lwRWo3UXd1TVNqUkQwWE5pcXpuaU16X3NWR0llbU9rNUtiQzRVa3RCNDZURmJTZjB1VG5GLWM5dzB5OHU3NHloeTZaQnBIb0wzTmtxNVVKVU05ZU9keXdTcVNjTzRPMHhaUDZJQVZ0M0pRdVR6cFRwNndlVThGNzhWeVhuc1g1bU1veFZrTkxhaVpZX3ZNTEdNUGd2RlZhbTJZaVQwbHVYSUdzUDU1a2VGTW9zUzRhcE92MHJDRENwZXVaOGxqN1hFRlZvVGFTNUFmcXFuaXdzLUMwbWRaaQ?oc=5"
+    },
+    {
       "source": "CNN",
-      "link": "https://www.cnn.com"
+      "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE1qZ1JvYUtaNTZFYjUyTEVzZzlJMzBUTmFGOHVCYzNrS2o3ZHYyR2RPOFp3c1oybEJTNS1tQXJmZGhENGtJR3V3YV90YnRmM0R3SnZMRHozLV82am42ZGo1dmY0djRSLWJ1TzhGZ0JSeGNpQQ?oc=5"
     },
     {
-      "source": "Yahoo Finance",
-      "link": "https://finance.yahoo.com"
+      "source": "Investopedia",
+      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNcVFsd0lzQWNjVFdUcGVZeUtXUlFSeHh0bVB2R0FUbmJ0d2tKTEhpcDlDVDdMMEd1aFMtcjdORFhXeTdqUlo0OVhFakpzRVRQdnZKdWxGU1hLNE9aLVlIMmJmV1UtdjR5Uk9MR1pKZkNfcnhEQ0NqSVkxb2NRTXpGRzk5OUhLM1FrUWRpVHNMMU4?oc=5"
     },
     {
-      "source": "Yahoo Finance",
-      "link": "https://finance.yahoo.com"
+      "source": "MarketWatch",
+      "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxOcFFCd2s3eWh0N3FKT1kxT1Vlblphc1JIZk5JTXNMMlFsb1IwSTMwRDlpLS1KUXhTb0ZweHBIZ2tSZ2FmMGhjRWV6YjNTN19rNDh2M0M3Q21ibTZsV2Uza3Zuc1ZzUE5EUkpQNlNqYmM1Q1lKTzdieDdGMnM5VndVdTd2ekUtTXVCLWE2b0ZINWRsUTFxcFd4c01WTGxaYU1OU0dPX1ZlbGd1cGtSbTIzRkp5cEJsc01QanRib2ZrSHltWkFkV000c01fY1hNM2VnV3E4ZHEyNA?oc=5"
     },
     {
-      "source": "Investor's Business Daily",
-      "link": "https://www.investors.com"
-    },
-    {
-      "source": "Benzinga",
-      "link": "https://www.benzinga.com"
+      "source": "The Economic Times",
+      "link": "https://news.google.com/rss/articles/CBMijwNBVV95cUxORGhtNmZXaVRPbXRBWUEwZ3lSa1pxMEllSmtpbkVreXMwaGxDZmx0WmNWbTk2NnhXTzViMjZ5MWFzczUwS0docnM0TFhaVjBSbnFCbUdFOUttYWRteHI0RmhsdE44d2Nha0JjazdhS1VUM1dqekxtcU93LW9HNEhadTZQczZYRFNxZHRuNFNwN1R3VHFoTy1kd2ZvYm03bGZCLVEwNV9SUE5qcFNpOFBFNXFmeXpOUF9Ea3lMSHFsX0pFQkt1blhZOEtCZXR6NnFFcm5ScGhoZUk4RFFYeDhESm5sNDRPSURTRXRza2NVU3pkUGNNUjJ4WnZvX3JIbmJ2VE5qUjRiaFBYbFB3ZHItd09pcWppMFNtMzM3UTJzX3ZBYWRKM0RPRlE2cS0wOVZVbEY3dXdwUVlzYndjX1ktOG8tY2prQ2xmcmdTQktORTBuMzBZMUpjUlR5SVd6eW1LNFNJZlF6SWlOZHpyWkRmTGtIa3dmQUZOdEdlQmRIcmlSaWNTVXo0aFUtS1Q4MDjSAZQDQVVfeXFMUHhZX0xrLWhJOFNYXzVYZDdzV3M2dThXak53MzRHUjhDa1JLWllLUmVBVHpEUC1pTW1Db2JRZ1RZbkQ5YWJlQ2lmcG5yUkxVb2sxRFNQMnRsQVZHMXFjQ2dlNkRVdDVvWm5HYzktd3JrNm1aVDE4ZTdBVnUzOFJWdDIxV2RIOUZxWjhaMEVlTEJhRTdFWC0tUkctbnZmZ3VlNG5SUExjdTFvOHdja3k5dnZDbWRrQjRpMWxkVFpxcGE3bTJWZ2R1WGRsWk9JZEt4VXRhOW40M2RKaVdDRnFjOUZZdk9GeHRiaXB3UTZCdXZzM0ZuSEkxT0FTQWh5cGx6djUwYmN0cFE2UkFwQWcxZ2Joc250WUQtS3RfeHhfcnltZm1RVFd3WWtQS3VkUnNYSW1qLXpYNnBhUjZwd3RtOU1sZHhOcHc4MG11T08xd2RhdHhWenpFbGVBR2RRYm1Sa3U0Z2NLUU5qN2tyekgzVDFNbEdTMmx1dlBUQVhCb21BMTdhbEswNjNTN0xYQ1dSR0dZdVQ?oc=5"
     }
   ],
   "market_raw": {

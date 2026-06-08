@@ -237,12 +237,22 @@ def fetch_kospi_stock(ticker_name: tuple) -> tuple[str, str, pd.DataFrame | None
     return ticker, name, None, "none"
 
 
+def _download_batch_worker(batch, start, end):
+    """단일 배치 다운로드 (thread 내부 실행용)."""
+    return yf.download(
+        batch, start=start, end=end,
+        auto_adjust=True, progress=False,
+        group_by="ticker", threads=True,
+    )
+
+
 def batch_download_sp500(universe: list[tuple[str, str]]) -> dict[str, pd.DataFrame]:
-    """yfinance 배치 다운로드로 S&P 500 전체 수집."""
+    """yfinance 배치 다운로드로 S&P 500 전체 수집 (배치당 60s 타임아웃)."""
+    from concurrent.futures import ThreadPoolExecutor
     tickers = [sym for sym, _ in universe]
     result  = {}
 
-    print(f"  배치 다운로드: {len(tickers)}개 종목 (배치 크기={SP500_BATCH})")
+    print(f"  배치 다운로드: {len(tickers)}개 종목 (배치 크기={SP500_BATCH}, 타임아웃=60s/배치)")
     for i in range(0, len(tickers), SP500_BATCH):
         batch = tickers[i:i + SP500_BATCH]
         batch_n = i // SP500_BATCH + 1
@@ -250,15 +260,10 @@ def batch_download_sp500(universe: list[tuple[str, str]]) -> dict[str, pd.DataFr
         print(f"    배치 {batch_n}/{total_batches} ({len(batch)}개)...", end=" ", flush=True)
 
         try:
-            raw = yf.download(
-                batch,
-                start=START,
-                end=END,
-                auto_adjust=True,
-                progress=False,
-                group_by="ticker",
-                threads=True,
-            )
+            with ThreadPoolExecutor(max_workers=1) as ex:
+                fut = ex.submit(_download_batch_worker, batch, START, END)
+                raw = fut.result(timeout=60)
+
             ok_count = 0
             for sym in batch:
                 try:
@@ -278,11 +283,42 @@ def batch_download_sp500(universe: list[tuple[str, str]]) -> dict[str, pd.DataFr
                     pass
             print(f"✓ {ok_count}/{len(batch)}")
         except Exception as e:
-            print(f"✗ 실패: {str(e)[:40]}")
+            print(f"✗ 타임아웃/실패 (배치 건너뜀): {str(e)[:50]}")
 
         time.sleep(0.3)
 
     return result
+
+
+def _fetch_cap_single(sym: str) -> tuple[str, float]:
+    """단일 종목 시가총액 조회."""
+    try:
+        info = yf.Ticker(sym).fast_info
+        return sym, float(getattr(info, "market_cap", 0) or 0)
+    except Exception:
+        return sym, 0.0
+
+
+def fetch_sp500_market_caps_parallel(valid_tickers: list[str], max_workers: int = 20) -> dict[str, float]:
+    """병렬 시가총액 조회 (5s/콜 타임아웃, 20 workers). 순차 400콜 대비 ~20× 빠름."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    caps = {sym: 0.0 for sym in valid_tickers}
+
+    print(f"  시가총액 병렬 조회 ({len(valid_tickers)}개, workers={max_workers})...")
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_sym = {executor.submit(_fetch_cap_single, sym): sym for sym in valid_tickers}
+        done = 0
+        for future in as_completed(future_to_sym):
+            sym = future_to_sym[future]
+            try:
+                _, cap = future.result(timeout=5.0)
+                caps[sym] = cap
+            except Exception:
+                caps[sym] = 0.0
+            done += 1
+            if done % 100 == 0:
+                print(f"    시총 {done}/{len(valid_tickers)}개 처리...")
+    return caps
 
 
 def fetch_kospi_universe_parallel(universe: list[tuple[str, str]], max_workers: int = 8) -> dict:
@@ -308,20 +344,31 @@ def fetch_kospi_universe_parallel(universe: list[tuple[str, str]], max_workers: 
 # 크로스 검증
 # ─────────────────────────────────────────────────────────────────────────────
 
-def cross_validate_return(ticker: str, primary_ret: float) -> str:
+def cross_validate_return(ticker: str, primary_ret: float, timeout_sec: float = 10.0) -> str:
+    """FDR vs yfinance 교차검증 (10s 타임아웃)."""
     if not ticker.endswith(".KS"):
         return "검증불필요"
-    try:
-        df_yf = yf.Ticker(ticker).history(start=START, end=END, auto_adjust=True)
-        if df_yf.empty or len(df_yf) < 50:
+    from concurrent.futures import ThreadPoolExecutor
+
+    def _validate():
+        try:
+            df_yf = yf.Ticker(ticker).history(start=START, end=END, auto_adjust=True)
+            if df_yf.empty or len(df_yf) < 50:
+                return "검증불가"
+            yf_ret = (df_yf["Close"].iloc[-1] / df_yf["Close"].iloc[0] - 1) * 100
+            diff = abs(primary_ret - yf_ret)
+            if diff > MAX_SOURCE_DIFF_PCT:
+                return f"불일치(FDR:{primary_ret:+.0f}% yf:{yf_ret:+.0f}%)"
+            return "검증완료"
+        except Exception:
             return "검증불가"
-        yf_ret = (df_yf["Close"].iloc[-1] / df_yf["Close"].iloc[0] - 1) * 100
-        diff = abs(primary_ret - yf_ret)
-        if diff > MAX_SOURCE_DIFF_PCT:
-            return f"불일치(FDR:{primary_ret:+.0f}% yf:{yf_ret:+.0f}%)"
-        return "검증완료"
-    except Exception:
-        return "검증불가"
+
+    with ThreadPoolExecutor(max_workers=1) as ex:
+        fut = ex.submit(_validate)
+        try:
+            return fut.result(timeout=timeout_sec)
+        except Exception:
+            return "검증불가"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -617,17 +664,7 @@ def run_sp500_analysis(universe: list[tuple[str, str]], idx_series: pd.Series) -
     contrib_list, benefit_list = [], []
     skipped = []
 
-    print(f"  시가총액 조회 중 ({len(price_data)}개)...")
-    caps = {}
-    valid_tickers = list(price_data.keys())
-    for i in range(0, len(valid_tickers), 50):
-        batch = valid_tickers[i:i+50]
-        for sym in batch:
-            try:
-                info = yf.Ticker(sym).fast_info
-                caps[sym] = float(getattr(info, "market_cap", 0) or 0)
-            except Exception:
-                caps[sym] = 0.0
+    caps = fetch_sp500_market_caps_parallel(list(price_data.keys()))
 
     for sym, df in price_data.items():
         name = name_map.get(sym, sym)

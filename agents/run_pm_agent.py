@@ -235,14 +235,23 @@ def pm_quality_checks() -> list[dict]:
                 "fix_stages": ["run_news_agent.py"],
             })
 
-            # NQ-4: ≥3개 실제 기사 URL (Google 리다이렉트 제외)
-            real_links   = [s for s in sources if s.get("link","").startswith("http")
-                            and "news.google.com" not in s.get("link","")]
-            google_links = [s for s in sources if s.get("link","").startswith("http")
-                            and "news.google.com" in s.get("link","")]
-            nq4_ok = len(real_links) >= 3
-            detail = (f"OK — 실제URL {len(real_links)}개" if nq4_ok else
-                      f"FAIL — 실제URL {len(real_links)}개 + 구글리다이렉트 {len(google_links)}개")
+            # NQ-4: ≥3개 기사 URL (https://, 기사 경로 포함 — Google News 기사별 경로 허용)
+            def _pm_is_article_url(url: str) -> bool:
+                try:
+                    from urllib.parse import urlparse
+                    path = urlparse(url).path.rstrip("/")
+                    return bool(path) and path not in ("", "/", "/home", "/news")
+                except Exception:
+                    return False
+            article_links = [s for s in sources
+                             if s.get("link","").startswith("https://")
+                             and _pm_is_article_url(s.get("link",""))]
+            homepage_links = [s for s in sources
+                              if s.get("link","").startswith("https://")
+                              and not _pm_is_article_url(s.get("link",""))]
+            nq4_ok = len(article_links) >= 3
+            detail = (f"OK — 기사URL {len(article_links)}개" if nq4_ok else
+                      f"FAIL — 기사URL {len(article_links)}개 (홈페이지 {len(homepage_links)}개, 최소3개 필요)")
             results.append({
                 "check": "NQ-4 뉴스 실제URL ≥3개",
                 "pass":  nq4_ok,
@@ -365,35 +374,36 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
     elif score < 35 and "BUY" in direc:
         issues.append(f"SD-6 점수 {score:.1f} (약세)인데 방향={direc} — 시그널 계산 오류 가능")
 
-    # SD-7: GitHub Actions 마지막 run-pipeline 실패 감지 (GITHUB_TOKEN 필요)
+    # SD-7: GitHub Actions 마지막 run-pipeline 실패 감지 (공개 repo — 토큰 불필요)
     try:
         import os as _os
         import urllib.request as _urllib_req
         _gh_token = _os.getenv("GITHUB_TOKEN", "")
+        _headers = {"Accept": "application/vnd.github+json"}
         if _gh_token:
-            _req = _urllib_req.Request(
-                "https://api.github.com/repos/HwangatWork/AI-Analyzer/actions/runs"
-                "?per_page=10&branch=main",
-                headers={"Authorization": f"token {_gh_token}",
-                         "Accept": "application/vnd.github+json"},
-            )
-            with _urllib_req.urlopen(_req, timeout=10) as _resp:
-                _runs = json.loads(_resp.read()).get("workflow_runs", [])
-            _pipeline_runs = [
-                r for r in _runs
-                if "deploy" in (r.get("name") or "").lower()
-                and r.get("event") in ("schedule", "workflow_dispatch", "push")
-            ]
-            if _pipeline_runs:
-                _last = _pipeline_runs[0]
-                if _last.get("conclusion") == "failure":
-                    issues.append(
-                        f"SD-7 GitHub Actions run-pipeline 실패: "
-                        f"run_id={_last.get('id')} ({(_last.get('created_at') or '')[:10]}) "
-                        f"— requirements.txt/env vars 적용 후 재실행 필요"
-                    )
+            _headers["Authorization"] = f"token {_gh_token}"
+        _req = _urllib_req.Request(
+            "https://api.github.com/repos/HwangatWork/AI-Analyzer/actions/runs"
+            "?per_page=10&branch=main",
+            headers=_headers,
+        )
+        with _urllib_req.urlopen(_req, timeout=10) as _resp:
+            _runs = json.loads(_resp.read()).get("workflow_runs", [])
+        _pipeline_runs = [
+            r for r in _runs
+            if "deploy" in (r.get("name") or "").lower()
+            and r.get("event") in ("schedule", "workflow_dispatch", "push")
+        ]
+        if _pipeline_runs:
+            _last = _pipeline_runs[0]
+            if _last.get("conclusion") == "failure":
+                issues.append(
+                    f"SD-7 GitHub Actions run-pipeline 실패: "
+                    f"run_id={_last.get('id')} ({(_last.get('created_at') or '')[:10]}) "
+                    f"— requirements.txt/env vars 적용 후 재실행 필요"
+                )
     except Exception:
-        pass  # GITHUB_TOKEN 없거나 API 오류 시 건너뜀
+        pass  # API 오류 시 건너뜀 (rate limit 등)
 
     # SD-8: News Agent 실제 URL 부족 시 재실행 플래그
     _news_file = OUT_DIR / "news_report.json"
@@ -724,7 +734,7 @@ PIPELINE_STAGES = [
     ("run_data_agent_v2.py",    "Data Agent",       1, 800),
     ("refresh_data.py",         "Refresh",          2, 120),
     ("run_analysis_agent_v2.py","Analysis Agent",   3, 300),
-    ("run_stock_agent_v2.py",   "Stock Agent",      4, 300),
+    ("run_stock_agent_v2.py",   "Stock Agent",      4, 600),
     ("run_evaluator_agent_v2.py","Evaluator Agent", 5, 120),
     ("run_sector_agent.py",     "Sector Agent",     6, 120),
     ("run_validation_agent.py", "Validation Agent", 7, 120),

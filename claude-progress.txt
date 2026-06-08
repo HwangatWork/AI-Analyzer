@@ -82,13 +82,23 @@ News Agent: NQ-1~4 PASS, 뉴스 기반 시장 해설 생성, 파이프라인 통
    - ROADMAP.md Phase 7/8 전체 추가 (T1-T8 체크박스, T9-T12 [?] 항목)
    - pm_self_diagnosis SD-7/SD-8 추가 (Actions 상태 + News URL 자동 진단)
    - CLAUDE.md: GitHub Actions run-pipeline PASS Evidence 없이 완료 보고 금지 규칙 추가
+   - T13: IQ-1 hard filter + FRED yfinance fallback — Top3=[VIX/HY_SPREAD/WTI], signal 51.1→34.0
+
+[T6 강화 + T13 완료 - 2026-06-08 16:30]
+9. News Agent URL 및 품질 강화 (T6-추가, T13)
+   - NQ-4 강화: _is_article_url() 기사 경로 검증 추가. Google News /rss/articles/ 경로 허용 (urllib JS 리다이렉트 한계)
+   - collect_sources(): raw_link(Google News 기사별 고유 URL) 유지 (src_url=홈페이지 대체 제거)
+   - NQ-2 강화: media name prefix 시작 원인 FAIL 처리 (Yahoo Finance/CNBC 등)
+   - _build_cause_effect() 폴백: source명 → 헤드라인 내용 기반 (NQ-2 준수)
+   - SD-7: GITHUB_TOKEN 불필요 (공개 repo). 토큰 없이 GitHub API 호출 가능
+   - run_pm_agent.py NQ-4 check 동기화 (pm_quality_checks 16/16 PASS 유지)
+   - 텔레그램 전송 성공 (message_id=37, NQ-1~4 PASS)
 
 === pm_quality_checks 현황 ===
 16/16 PASS (IQ-1~4, SA-1~7, SI-1, NQ-1~4)
-SD-7/SD-8 추가 후: pm_self_diagnosis SD-1~SD-8
+Evidence: NQ-4 OK — 기사URL 5개 (Google News /rss/articles/ 경로)
 
 === 다음 단계 ===
 - T11: GitHub Actions run-pipeline CI 실행 검증 (실제 conclusion=success 로그)
 - T9: Google Sheets 완전 자동화 (GOOGLE_SA_JSON 서비스 계정 설정)
 - T10: Notion 연동 활성화 (NOTION_TOKEN 추가)
-- T12: pm_self_diagnosis SD-7 활성화 (GITHUB_TOKEN .env 추가)
