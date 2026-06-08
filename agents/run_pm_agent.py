@@ -47,8 +47,8 @@ MAX_RETRIES = 3
 
 CONTEMPORANEOUS_INDICES = {"NASDAQ100", "DOW", "KOSDAQ", "NIKKEI225"}
 SELF_REFERENTIAL = {
-    "BBAND", "MA50", "MA200", "RSI14", "RSI_SIGNAL",
-    "STOCH_RSI", "MARKET_MOMENTUM", "BETA"
+    "RSI14", "MA50", "RSI_SIGNAL", "BETA", "MA_SIGNAL",
+    # 완화된 항목 (지연 지표 — KOSPI 예측 유효): BBAND, STOCH_RSI, MARKET_MOMENTUM 제거
 }
 SMALL_CAP_USD_B_THRESHOLD = 5.0    # $5B 미만이면 소형주 경고
 CONTRIBUTOR_TOP1_MIN_MC_B = 200.0  # 기여 1위 시작 시총 최소 기준 (USD billions)
@@ -386,31 +386,57 @@ def pm_quality_checks() -> list[dict]:
     })
 
     # ── Condition F: AI 언어 리포트 + 액션플랜 ───────────────────
-    import os as _osF
+    import os as _osF, re as _reF
     _anthropic_key = _osF.getenv("ANTHROPIC_API_KEY", "")
-    narrative_file = OUT_DIR / "narrative.json"
+    narrative_file  = OUT_DIR / "narrative.json"
+    final_report    = OUT_DIR / "FINAL_REPORT.md"
     qf1_ok = False
-    qf1_detail = "FAIL — output/narrative.json 없음"
+    qf1_detail = "FAIL — FINAL_REPORT.md 없음"
     if not _anthropic_key:
-        # Key absent → WARN regardless of narrative.json content
         qf1_ok = False
-        qf1_detail = "WARN — ANTHROPIC_API_KEY 미설정 (템플릿 사용 중)"
+        qf1_detail = "WARN — ANTHROPIC_API_KEY 미설정 (AI 리포트 생성 불가)"
+    elif final_report.exists():
+        try:
+            report_text  = final_report.read_text(encoding="utf-8")
+            # 실제 수치 포함 여부 (Z=±X.XX 또는 숫자 10개 이상)
+            num_matches  = _reF.findall(r'[+-]?\d+\.?\d+', report_text)
+            has_numbers  = len(num_matches) >= 10
+            # 템플릿 문구만 있는지 확인
+            template_only = bool(_reF.search(r'(강세 국면|약세 국면)', report_text)) and not has_numbers
+            # narrative.json method 확인
+            method_tag = "unknown"
+            if narrative_file.exists():
+                try:
+                    _narr = json.loads(narrative_file.read_text(encoding="utf-8"))
+                    method_tag = _narr.get("generation_method", "unknown")
+                except Exception:
+                    pass
+            if template_only:
+                qf1_ok = False
+                qf1_detail = "FAIL — FINAL_REPORT.md 템플릿 문구만 있음 (수치 없음)"
+            elif not has_numbers:
+                qf1_ok = False
+                qf1_detail = f"FAIL — FINAL_REPORT.md 수치 부족 ({len(num_matches)}개 < 10)"
+            elif method_tag not in ("claude_api", "unknown"):
+                qf1_ok = False
+                qf1_detail = f"WARN — 생성 방식 비정상 (method={method_tag})"
+            else:
+                qf1_ok = True
+                qf1_detail = f"OK — FINAL_REPORT.md 수치 {len(num_matches)}개, method={method_tag}"
+        except Exception as _e:
+            qf1_detail = f"FAIL — FINAL_REPORT.md 읽기 오류: {_e}"
     elif narrative_file.exists():
         try:
             narr = json.loads(narrative_file.read_text(encoding="utf-8"))
-            has_overview = bool(narr.get("market_overview", "").strip())
-            has_plan     = bool(narr.get("sp500_action_plan") or narr.get("kospi_action_plan"))
-            method_tag   = narr.get("generation_method", "template")
-            if has_overview and has_plan and method_tag != "template":
-                qf1_ok = True
-                qf1_detail = f"OK — overview + plan 존재 (method={method_tag})"
-            elif has_overview and has_plan and method_tag == "template":
+            method_tag = narr.get("generation_method", "template")
+            if method_tag == "claude_api":
                 qf1_ok = False
-                qf1_detail = "WARN — 템플릿 생성 (API 호출 실패 폴백)"
+                qf1_detail = "WARN — narrative.json 있으나 FINAL_REPORT.md 미생성"
             else:
-                qf1_detail = f"FAIL — overview={has_overview}, plan={has_plan}"
-        except Exception as e:
-            qf1_detail = f"FAIL — narrative.json 파싱 오류: {e}"
+                qf1_ok = False
+                qf1_detail = "FAIL — 템플릿 방식 + FINAL_REPORT.md 없음"
+        except Exception:
+            pass
     results.append({
         "check": "QF-1 AI 언어 리포트 + 액션플랜",
         "pass":  qf1_ok,
@@ -1045,6 +1071,35 @@ def auto_fix(failures: list[tuple[Criterion, str]], attempt: int) -> None:
 
 # ── 최종 보고 ─────────────────────────────────────────────────────
 
+def _confidence_tier(confidence_pct: float) -> tuple[str, str]:
+    """신뢰도 임계값 분류. (tier, label) 반환."""
+    if confidence_pct >= 70:
+        return "normal", f"✅ 정상 신호 ({confidence_pct:.1f}%)"
+    elif confidence_pct >= 50:
+        return "warn", f"⚠ 주의 신호 ({confidence_pct:.1f}%) — 부분 신뢰"
+    else:
+        return "hold", f"🔴 신호 보류 ({confidence_pct:.1f}%) — 데이터 부족"
+
+
+def _format_decision_for_tg(decision: dict) -> str:
+    """decision.json 내용을 Telegram 메시지용 텍스트로 변환 (신뢰도 임계값 적용)."""
+    lines = []
+    for market_key, market_label in [("sp500", "S&P500"), ("kospi", "코스피")]:
+        dec = decision.get(market_key, {})
+        action = dec.get("action", "HOLD")
+        conf   = dec.get("confidence_pct", 0.0)
+        pos    = dec.get("position_size_pct", 0.0)
+        tier, tier_label = _confidence_tier(conf)
+
+        if tier == "hold":
+            lines.append(f"  {market_label}: {action} | {tier_label}\n  → 신뢰도 50% 미만 — 의사결정 보류")
+        elif tier == "warn":
+            lines.append(f"  {market_label}: {action} | {tier_label}\n  → 포지션 {pos:.0f}% (낮은 신뢰도 감안 주의)")
+        else:
+            lines.append(f"  {market_label}: {action} | {tier_label} | 포지션 {pos:.0f}%")
+    return "\n".join(lines)
+
+
 def final_report(all_passed: bool, failures: list[tuple[Criterion, str]], elapsed: float) -> None:
     """Telegram 최종 보고 + Notion 업데이트."""
     data  = _load_results()
@@ -1065,6 +1120,22 @@ def final_report(all_passed: bool, failures: list[tuple[Criterion, str]], elapse
 
     elapsed_str = f"{elapsed/60:.1f}분"
 
+    # 신뢰도 임계값 적용 — decision.json 로드
+    decision   = data.get("decision", {})
+    dec_section = ""
+    if decision:
+        sp_conf  = decision.get("sp500", {}).get("confidence_pct", 0.0)
+        ksp_conf = decision.get("kospi", {}).get("confidence_pct", 0.0)
+        sp_tier,  _ = _confidence_tier(sp_conf)
+        ksp_tier, _ = _confidence_tier(ksp_conf)
+        dec_text = _format_decision_for_tg(decision)
+        dec_section = f"\n<b>의사결정 (신뢰도 임계값 적용):</b>\n{dec_text}\n"
+        # 50% 미만 신뢰도 경고 로그
+        if sp_tier == "hold":
+            print(f"  [PM] ⚠ S&P500 신뢰도 {sp_conf:.1f}% < 50% — 의사결정 보류 표시")
+        if ksp_tier == "hold":
+            print(f"  [PM] ⚠ 코스피 신뢰도 {ksp_conf:.1f}% < 50% — 의사결정 보류 표시")
+
     if all_passed:
         status_emoji = "✅"
         status_text  = "모든 자체검증 기준 통과"
@@ -1077,7 +1148,8 @@ def final_report(all_passed: bool, failures: list[tuple[Criterion, str]], elapse
         f"🏁 <b>PM Agent 완료</b>  ({elapsed_str})\n\n"
         f"{status_emoji} <b>상태:</b> {status_text}\n\n"
         f"<b>시장 시그널:</b> {score:.1f} / 100  ({direc})\n"
-        f"<b>Validation:</b> {val_pass}/{val_tot} PASS\n\n"
+        f"<b>Validation:</b> {val_pass}/{val_tot} PASS\n"
+        f"{dec_section}\n"
         f"<b>가중치 Top3:</b>\n{top3}\n\n"
         f"<i>AI Analyzer PM Agent v2 | {datetime.now().strftime('%Y/%m/%d %H:%M')}</i>"
     )

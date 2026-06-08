@@ -100,7 +100,10 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 - [x] T4: 시그널 43.4→34.0 근인 분석 — 실제 시장 데이터 악화(INDIVIDUAL_NET z=+2.0, US10Y z=+1.56, WTI z=+1.49), IQ-1 패널티 무관
 - [x] P2-3: pm_self_diagnosis 수정 전/후 비교 — pass_before→pass_after Δ로깅, Δ=0 시 경고 출력
 - [x] SD-9: TG 중복 전송 방지 — MD5 해시 + 60초 윈도우 차단 (_tg_last_sent 캐시)
-- [⚠] T7 (재발): workflow Commit 스텝 race condition 수정 — git pull --rebase 추가, master 푸시 완료 (run_id=27149561371 success), run-pipeline Evidence 보류 (다음 일요일 cron 또는 workflow_dispatch 필요)
+- [⚠] T7 (재발): workflow Commit 스텝 race condition 수정 — git pull --rebase 추가, master 푸시 완료 (run_id=27149561371 success), run-pipeline Evidence 보류 (workflow_dispatch 필요)
+- [x] 긴급 1: Z-Score 13개 일치 — evaluator _SELF_REFERENTIAL={RSI14/MA50/RSI_SIGNAL/BETA/MA_SIGNAL}, LOW_CONF_THRESHOLD=50. Top13: VIX/HY_SPREAD/WTI/DXY/INDIVIDUAL_NET/US10Y/FOREIGN_NET/MARKET_STRENGTH/CNN_FG/BBAND/STOCH_RSI/INSTITUTION_NET/MARKET_MOMENTUM
+- [x] 긴급 2: Narrative Agent Claude API 서브에이전트 전환 — 템플릿 폴백 완전 제거, FINAL_REPORT.md 생성 (실제 Z-score 포함), Done Criteria NA-1~NA-5, QF-1 수정 (FINAL_REPORT.md 수치 10개 이상)
+- [x] 긴급 3: decision.json 신뢰도 임계값 — confidence_tier(normal/warn/hold) 필드 추가, TG 알림 70%+ 정상 / 50~70% WARN / 50% 미만 보류 표시
 
 ## Phase 8 - 외부 연동 (자격증명 대기 중)
 - [?] T9: Google Sheets 완전 자동화 — GOOGLE_SA_JSON 서비스 계정 경로 .env 추가 필요

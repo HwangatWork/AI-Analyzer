@@ -133,27 +133,37 @@ def compute_decision(signal: dict, ranking: list, stock_sp500: dict, stock_kospi
     sp_hint  = " / ".join(f"{s.get('name','?')} ({s.get('stock_return_pct',0):+.0f}%)" for s in top_sp)
     ksp_hint = " / ".join(f"{s.get('name','?')} ({s.get('stock_return_pct',0):+.0f}%)" for s in top_ksp)
 
+    def _conf_tier(c: float) -> str:
+        if c >= 70: return "normal"
+        if c >= 50: return "warn"
+        return "hold"
+
+    sp_conf  = confidence
+    ksp_conf = min(confidence + 5, 95)
+
     return {
         "computed_at": datetime.now().isoformat(),
         "composite_score": score,
         "direction": direction,
         "sp500": {
-            "action":         sp500_action,
-            "strength":       sp500_strength,
-            "confidence_pct": confidence,
+            "action":           sp500_action,
+            "strength":         sp500_strength,
+            "confidence_pct":   sp_conf,
+            "confidence_tier":  _conf_tier(sp_conf),
             "position_size_pct": position_pct if sp500_action != "HOLD" else 0,
-            "position_note":  position_note,
-            "entry_triggers": entry_triggers,
-            "exit_triggers":  exit_triggers,
-            "top_stocks_hint": sp_hint,
+            "position_note":    position_note,
+            "entry_triggers":   entry_triggers,
+            "exit_triggers":    exit_triggers,
+            "top_stocks_hint":  sp_hint,
         },
         "kospi": {
-            "action":         kospi_action,
-            "strength":       kospi_strength,
-            "confidence_pct": min(confidence + 5, 95),
+            "action":           kospi_action,
+            "strength":         kospi_strength,
+            "confidence_pct":   ksp_conf,
+            "confidence_tier":  _conf_tier(ksp_conf),
             "position_size_pct": (position_pct - 10) if kospi_action != "HOLD" else 0,
-            "position_note":  position_note,
-            "top_stocks_hint": ksp_hint,
+            "position_note":    position_note,
+            "top_stocks_hint":  ksp_hint,
         },
         "risk_factors":   risk_factors,
         "signal_summary": {

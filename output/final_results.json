@@ -25,29 +25,20 @@
     "data_reference_date": "2026-06-08"
   },
   "market_signal": {
-    "score": 34.0,
-    "direction": "risk-off",
-    "bullish_count": 3,
-    "bearish_count": 6,
-    "total_signals": 9,
-    "computed_at": "2026-06-08T20:10:57.827077",
+    "score": 38.2,
+    "direction": "neutral",
+    "bullish_count": 4,
+    "bearish_count": 9,
+    "total_signals": 13,
+    "computed_at": "2026-06-09T01:18:28.872795",
     "methodology": "Z-score based composite: each indicator's latest value vs 252-day rolling mean/std, sign-adjusted by its SP500 Pearson correlation, weighted by combined_weight. Score = 50 + weighted_sum * 50. Risk-on>65, risk-off<35.",
     "indicator_signals": [
       {
-        "indicator": "INDIVIDUAL_NET",
-        "weight": 0.2399,
-        "last_value": 42239.9737,
-        "z_score": 2.0,
-        "signal": -1.0,
-        "bullish": false,
-        "sp500_r": -0.0718
-      },
-      {
         "indicator": "INSTITUTION_NET",
         "weight": 0.0381,
-        "last_value": -13808.592,
-        "z_score": -1.668,
-        "signal": -0.834,
+        "last_value": -17164.2112,
+        "z_score": -2.0,
+        "signal": -1.0,
         "bullish": false,
         "sp500_r": 0.0829
       },
@@ -61,6 +52,15 @@
         "sp500_r": -0.1454
       },
       {
+        "indicator": "BBAND",
+        "weight": 0.052,
+        "last_value": 0.2065,
+        "z_score": -1.531,
+        "signal": -0.765,
+        "bullish": false,
+        "sp500_r": 0.3738
+      },
+      {
         "indicator": "WTI",
         "weight": 0.2465,
         "last_value": 95.96,
@@ -70,13 +70,22 @@
         "sp500_r": -0.3393
       },
       {
-        "indicator": "FOREIGN_NET",
-        "weight": 0.2281,
-        "last_value": -27637.9353,
-        "z_score": -1.44,
-        "signal": -0.72,
+        "indicator": "STOCH_RSI",
+        "weight": 0.041,
+        "last_value": 0.0,
+        "z_score": -1.388,
+        "signal": -0.694,
         "bullish": false,
-        "sp500_r": 0.0348
+        "sp500_r": 0.2868
+      },
+      {
+        "indicator": "CNN_FG",
+        "weight": 0.1988,
+        "last_value": 8.0,
+        "z_score": -1.202,
+        "signal": -0.601,
+        "bullish": false,
+        "sp500_r": 0.0609
       },
       {
         "indicator": "HY_SPREAD",
@@ -88,13 +97,22 @@
         "sp500_r": -0.6832
       },
       {
+        "indicator": "MARKET_MOMENTUM",
+        "weight": 0.0367,
+        "last_value": 0.9703,
+        "z_score": -1.135,
+        "signal": -0.567,
+        "bullish": false,
+        "sp500_r": 0.2337
+      },
+      {
         "indicator": "VIX",
-        "weight": 0.432,
+        "weight": 0.4344,
         "last_value": 21.51,
         "z_score": 1.032,
         "signal": -0.516,
         "bullish": false,
-        "sp500_r": -0.2095
+        "sp500_r": -0.2064
       },
       {
         "indicator": "DXY",
@@ -106,142 +124,463 @@
         "sp500_r": -0.2524
       },
       {
+        "indicator": "INDIVIDUAL_NET",
+        "weight": 0.2399,
+        "last_value": 17627.6326,
+        "z_score": 0.825,
+        "signal": -0.413,
+        "bullish": false,
+        "sp500_r": -0.0718
+      },
+      {
         "indicator": "MARKET_STRENGTH",
-        "weight": 0.2127,
+        "weight": 0.2128,
         "last_value": 57.662,
-        "z_score": 0.558,
-        "signal": 0.279,
+        "z_score": 0.575,
+        "signal": 0.288,
         "bullish": true,
-        "sp500_r": 0.1269
+        "sp500_r": 0.1282
+      },
+      {
+        "indicator": "FOREIGN_NET",
+        "weight": 0.2281,
+        "last_value": -2644.3469,
+        "z_score": 0.104,
+        "signal": 0.052,
+        "bullish": true,
+        "sp500_r": 0.0348
       }
     ]
   },
   "indicator_weight_ranking": [
     {
-      "rank": 1,
       "indicator": "VIX",
       "ind_type": "level",
-      "sp500_signed_r": -0.2095,
-      "sp500_significant": true,
+      "sp500_signed_r": -0.2064,
+      "sp500_lead_r": -0.2064,
+      "sp500_lead_lag": 0,
+      "sp500_granger_p": 0.032698,
       "sp500_granger_sig": true,
-      "sp500_granger_p": 0.046262,
+      "sp500_r2": 0.0426,
+      "sp500_weight": 0.4282,
+      "sp500_significant": true,
+      "sp500_breakdown": {
+        "leading": 0.0,
+        "granger": 0.3869,
+        "independent": 0.0413
+      },
       "kospi_signed_r": -0.0899,
-      "kospi_significant": false,
-      "kospi_granger_sig": true,
+      "kospi_lead_r": -0.1015,
+      "kospi_lead_lag": 1,
       "kospi_granger_p": 2e-06,
-      "combined_weight": 0.432
+      "kospi_granger_sig": true,
+      "kospi_r2": 0.0081,
+      "kospi_weight": 0.4406,
+      "kospi_significant": false,
+      "kospi_breakdown": {
+        "leading": 0.0406,
+        "granger": 0.4,
+        "independent": 0.0
+      },
+      "combined_weight": 0.4344,
+      "comovement_penalty": 1.0,
+      "rank": 1
     },
     {
-      "rank": 2,
       "indicator": "HY_SPREAD",
       "ind_type": "diff",
       "sp500_signed_r": -0.6832,
-      "sp500_significant": true,
-      "sp500_granger_sig": false,
+      "sp500_lead_r": -0.6832,
+      "sp500_lead_lag": 0,
       "sp500_granger_p": 0.632953,
+      "sp500_granger_sig": false,
+      "sp500_r2": 0.4668,
+      "sp500_weight": 0.1366,
+      "sp500_significant": true,
+      "sp500_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.1366
+      },
       "kospi_signed_r": -0.151,
-      "kospi_significant": true,
-      "kospi_granger_sig": true,
+      "kospi_lead_r": -0.151,
+      "kospi_lead_lag": 0,
       "kospi_granger_p": 0.002484,
-      "combined_weight": 0.2829
+      "kospi_granger_sig": true,
+      "kospi_r2": 0.0228,
+      "kospi_weight": 0.4292,
+      "kospi_significant": true,
+      "kospi_breakdown": {
+        "leading": 0.0,
+        "granger": 0.399,
+        "independent": 0.0302
+      },
+      "combined_weight": 0.2829,
+      "comovement_penalty": 1.0,
+      "rank": 2
     },
     {
-      "rank": 3,
       "indicator": "WTI",
       "ind_type": "diff",
       "sp500_signed_r": -0.3393,
-      "sp500_significant": true,
-      "sp500_granger_sig": false,
+      "sp500_lead_r": -0.3393,
+      "sp500_lead_lag": 0,
       "sp500_granger_p": 0.286046,
+      "sp500_granger_sig": false,
+      "sp500_r2": 0.1151,
+      "sp500_weight": 0.0679,
+      "sp500_significant": true,
+      "sp500_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0679
+      },
       "kospi_signed_r": -0.1316,
-      "kospi_significant": true,
-      "kospi_granger_sig": true,
+      "kospi_lead_r": -0.1316,
+      "kospi_lead_lag": 0,
       "kospi_granger_p": 0.002995,
-      "combined_weight": 0.2465
+      "kospi_granger_sig": true,
+      "kospi_r2": 0.0173,
+      "kospi_weight": 0.4251,
+      "kospi_significant": true,
+      "kospi_breakdown": {
+        "leading": 0.0,
+        "granger": 0.3988,
+        "independent": 0.0263
+      },
+      "combined_weight": 0.2465,
+      "comovement_penalty": 1.0,
+      "rank": 3
     },
     {
-      "rank": 4,
       "indicator": "DXY",
       "ind_type": "diff",
       "sp500_signed_r": -0.2524,
-      "sp500_significant": true,
-      "sp500_granger_sig": false,
+      "sp500_lead_r": -0.2524,
+      "sp500_lead_lag": 0,
       "sp500_granger_p": 0.460529,
+      "sp500_granger_sig": false,
+      "sp500_r2": 0.0637,
+      "sp500_weight": 0.0505,
+      "sp500_significant": true,
+      "sp500_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0505
+      },
       "kospi_signed_r": -0.1783,
-      "kospi_significant": true,
-      "kospi_granger_sig": true,
+      "kospi_lead_r": -0.1783,
+      "kospi_lead_lag": 0,
       "kospi_granger_p": 0.000247,
-      "combined_weight": 0.243
+      "kospi_granger_sig": true,
+      "kospi_r2": 0.0318,
+      "kospi_weight": 0.4356,
+      "kospi_significant": true,
+      "kospi_breakdown": {
+        "leading": 0.0,
+        "granger": 0.3999,
+        "independent": 0.0357
+      },
+      "combined_weight": 0.243,
+      "comovement_penalty": 1.0,
+      "rank": 4
     },
     {
-      "rank": 5,
       "indicator": "INDIVIDUAL_NET",
       "ind_type": "weekly_flow",
       "sp500_signed_r": -0.0718,
-      "sp500_significant": false,
-      "sp500_granger_sig": false,
+      "sp500_lead_r": -0.0758,
+      "sp500_lead_lag": 3,
       "sp500_granger_p": 0.360797,
+      "sp500_granger_sig": false,
+      "sp500_r2": 0.0052,
+      "sp500_weight": 0.0,
+      "sp500_significant": false,
+      "sp500_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0
+      },
       "kospi_signed_r": -0.4088,
-      "kospi_significant": true,
-      "kospi_granger_sig": true,
+      "kospi_lead_r": -0.4088,
+      "kospi_lead_lag": 0,
       "kospi_granger_p": 0.004608,
-      "combined_weight": 0.2399
+      "kospi_granger_sig": true,
+      "kospi_r2": 0.1671,
+      "kospi_weight": 0.4799,
+      "kospi_significant": true,
+      "kospi_breakdown": {
+        "leading": 0.0,
+        "granger": 0.3982,
+        "independent": 0.0818
+      },
+      "combined_weight": 0.2399,
+      "comovement_penalty": 1.0,
+      "rank": 5
     },
     {
-      "rank": 6,
       "indicator": "US10Y",
       "ind_type": "diff",
       "sp500_signed_r": -0.1454,
-      "sp500_significant": true,
-      "sp500_granger_sig": false,
+      "sp500_lead_r": -0.1454,
+      "sp500_lead_lag": 0,
       "sp500_granger_p": 0.103859,
+      "sp500_granger_sig": false,
+      "sp500_r2": 0.0212,
+      "sp500_weight": 0.0291,
+      "sp500_significant": true,
+      "sp500_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0291
+      },
       "kospi_signed_r": 0.0301,
-      "kospi_significant": false,
-      "kospi_granger_sig": true,
+      "kospi_lead_r": -0.1085,
+      "kospi_lead_lag": 1,
       "kospi_granger_p": 0.018751,
-      "combined_weight": 0.2325
+      "kospi_granger_sig": true,
+      "kospi_r2": 0.0009,
+      "kospi_weight": 0.4359,
+      "kospi_significant": false,
+      "kospi_breakdown": {
+        "leading": 0.0434,
+        "granger": 0.3925,
+        "independent": 0.0
+      },
+      "combined_weight": 0.2325,
+      "comovement_penalty": 1.0,
+      "rank": 6
     },
     {
-      "rank": 7,
       "indicator": "FOREIGN_NET",
       "ind_type": "weekly_flow",
       "sp500_signed_r": 0.0348,
-      "sp500_significant": false,
-      "sp500_granger_sig": false,
+      "sp500_lead_r": 0.0418,
+      "sp500_lead_lag": 3,
       "sp500_granger_p": 0.775622,
+      "sp500_granger_sig": false,
+      "sp500_r2": 0.0012,
+      "sp500_weight": 0.0,
+      "sp500_significant": false,
+      "sp500_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0
+      },
       "kospi_signed_r": 0.2877,
-      "kospi_significant": true,
-      "kospi_granger_sig": true,
+      "kospi_lead_r": 0.2877,
+      "kospi_lead_lag": 0,
       "kospi_granger_p": 0.003381,
-      "combined_weight": 0.2281
+      "kospi_granger_sig": true,
+      "kospi_r2": 0.0828,
+      "kospi_weight": 0.4562,
+      "kospi_significant": true,
+      "kospi_breakdown": {
+        "leading": 0.0,
+        "granger": 0.3986,
+        "independent": 0.0575
+      },
+      "combined_weight": 0.2281,
+      "comovement_penalty": 1.0,
+      "rank": 7
     },
     {
-      "rank": 8,
       "indicator": "MARKET_STRENGTH",
       "ind_type": "level",
-      "sp500_signed_r": 0.1269,
-      "sp500_significant": true,
+      "sp500_signed_r": 0.1282,
+      "sp500_lead_r": 0.1282,
+      "sp500_lead_lag": 0,
+      "sp500_granger_p": 0.079108,
       "sp500_granger_sig": false,
-      "sp500_granger_p": 0.076167,
-      "kospi_signed_r": 0.1026,
-      "kospi_significant": false,
-      "kospi_granger_sig": true,
+      "sp500_r2": 0.0164,
+      "sp500_weight": 0.0256,
+      "sp500_significant": true,
+      "sp500_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0256
+      },
+      "kospi_signed_r": 0.1036,
+      "kospi_lead_r": 0.1036,
+      "kospi_lead_lag": 0,
       "kospi_granger_p": 1e-06,
-      "combined_weight": 0.2127
+      "kospi_granger_sig": true,
+      "kospi_r2": 0.0107,
+      "kospi_weight": 0.4,
+      "kospi_significant": false,
+      "kospi_breakdown": {
+        "leading": 0.0,
+        "granger": 0.4,
+        "independent": 0.0
+      },
+      "combined_weight": 0.2128,
+      "comovement_penalty": 1.0,
+      "rank": 8
     },
     {
-      "rank": 18,
+      "indicator": "CNN_FG",
+      "ind_type": "level",
+      "sp500_signed_r": 0.0609,
+      "sp500_lead_r": 0.0609,
+      "sp500_lead_lag": 0,
+      "sp500_granger_p": 0.635551,
+      "sp500_granger_sig": false,
+      "sp500_r2": 0.0037,
+      "sp500_weight": 0.0,
+      "sp500_significant": false,
+      "sp500_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0
+      },
+      "kospi_signed_r": 0.0414,
+      "kospi_lead_r": -0.055,
+      "kospi_lead_lag": 4,
+      "kospi_granger_p": 0.006355,
+      "kospi_granger_sig": true,
+      "kospi_r2": 0.0017,
+      "kospi_weight": 0.3975,
+      "kospi_significant": false,
+      "kospi_breakdown": {
+        "leading": 0.0,
+        "granger": 0.3975,
+        "independent": 0.0
+      },
+      "combined_weight": 0.1988,
+      "comovement_penalty": 1.0,
+      "rank": 9
+    },
+    {
+      "indicator": "BBAND",
+      "ind_type": "level",
+      "sp500_signed_r": 0.3738,
+      "sp500_lead_r": 0.3738,
+      "sp500_lead_lag": 0,
+      "sp500_granger_p": 0.023821,
+      "sp500_granger_sig": true,
+      "sp500_r2": 0.1397,
+      "sp500_weight": 0.0748,
+      "sp500_significant": true,
+      "sp500_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0748
+      },
+      "kospi_signed_r": 0.1458,
+      "kospi_lead_r": 0.1458,
+      "kospi_lead_lag": 0,
+      "kospi_granger_p": 0.0,
+      "kospi_granger_sig": true,
+      "kospi_r2": 0.0213,
+      "kospi_weight": 0.0292,
+      "kospi_significant": true,
+      "kospi_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0292
+      },
+      "combined_weight": 0.052,
+      "comovement_penalty": 1.0,
+      "rank": 15
+    },
+    {
+      "indicator": "STOCH_RSI",
+      "ind_type": "level",
+      "sp500_signed_r": 0.2868,
+      "sp500_lead_r": 0.2868,
+      "sp500_lead_lag": 0,
+      "sp500_granger_p": 0.46988,
+      "sp500_granger_sig": false,
+      "sp500_r2": 0.0823,
+      "sp500_weight": 0.0574,
+      "sp500_significant": true,
+      "sp500_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0574
+      },
+      "kospi_signed_r": 0.1226,
+      "kospi_lead_r": 0.1226,
+      "kospi_lead_lag": 0,
+      "kospi_granger_p": 5.5e-05,
+      "kospi_granger_sig": true,
+      "kospi_r2": 0.015,
+      "kospi_weight": 0.0245,
+      "kospi_significant": true,
+      "kospi_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0245
+      },
+      "combined_weight": 0.041,
+      "comovement_penalty": 1.0,
+      "rank": 17
+    },
+    {
       "indicator": "INSTITUTION_NET",
       "ind_type": "weekly_flow",
       "sp500_signed_r": 0.0829,
-      "sp500_significant": false,
-      "sp500_granger_sig": false,
+      "sp500_lead_r": 0.0931,
+      "sp500_lead_lag": 3,
       "sp500_granger_p": 0.103927,
+      "sp500_granger_sig": false,
+      "sp500_r2": 0.0069,
+      "sp500_weight": 0.0,
+      "sp500_significant": false,
+      "sp500_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0
+      },
       "kospi_signed_r": 0.3806,
-      "kospi_significant": true,
-      "kospi_granger_sig": false,
+      "kospi_lead_r": 0.3806,
+      "kospi_lead_lag": 0,
       "kospi_granger_p": 0.394927,
-      "combined_weight": 0.0381
+      "kospi_granger_sig": false,
+      "kospi_r2": 0.1449,
+      "kospi_weight": 0.0761,
+      "kospi_significant": true,
+      "kospi_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0761
+      },
+      "combined_weight": 0.0381,
+      "comovement_penalty": 1.0,
+      "rank": 18
+    },
+    {
+      "indicator": "MARKET_MOMENTUM",
+      "ind_type": "level",
+      "sp500_signed_r": 0.2337,
+      "sp500_lead_r": 0.2337,
+      "sp500_lead_lag": 0,
+      "sp500_granger_p": 0.073505,
+      "sp500_granger_sig": false,
+      "sp500_r2": 0.0546,
+      "sp500_weight": 0.0467,
+      "sp500_significant": true,
+      "sp500_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0467
+      },
+      "kospi_signed_r": 0.1341,
+      "kospi_lead_r": 0.1341,
+      "kospi_lead_lag": 0,
+      "kospi_granger_p": 0.0,
+      "kospi_granger_sig": true,
+      "kospi_r2": 0.018,
+      "kospi_weight": 0.0268,
+      "kospi_significant": true,
+      "kospi_breakdown": {
+        "leading": 0.0,
+        "granger": 0.0,
+        "independent": 0.0268
+      },
+      "combined_weight": 0.0367,
+      "comovement_penalty": 1.0,
+      "rank": 19
     }
   ],
   "sp500_analysis": {
