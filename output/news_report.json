@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-06-08T20:58:30.818365",
+  "generated_at": "2026-06-08T22:13:53.490416",
   "date": "2026-06-08",
   "movements": [
-    "S&P500 7,383.74 (▼2.64%)",
-    "나스닥 25,709.43 (▼4.18%)",
-    "다우 50,866.78 (▼1.35%)",
-    "코스피 7,484.41 (▼8.29%)"
+    "S&P500 7,405.73 (▲0.30%)",
+    "나스닥 25,929.66 (▲0.86%)",
+    "다우 50,786.01 (▼0.16%)",
+    "코스피 8,160.59 (▼5.54%)"
   ],
   "causes": [
-    "Stock market today: Dow, S&P 500, Nasdaq futures m → 글로벌 리스크오프 → 코스피 ▼8.29% / 나스닥 ▼4.18%",
-    "AI칩 섹터 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▼4.18%",
-    "미국 10년물 금리 4% 상승 → 할인율 압박 → 성장주 밸류에이션 하락"
+    "AI칩 섹터 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▲0.86%",
+    "U.S. Stock Market prediction for Monday: Nasdaq, S → 글로벌 리스크오프 → 코스피 ▼5.54% / 나스닥 ▲0.86%",
+    "Stock market returns for 2026: How are the S&P 500 → 글로벌 리스크오프 → 코스피 ▼5.54% / 나스닥 ▲0.86%"
   ],
   "watchpoints": [
     {
@@ -37,45 +37,45 @@
   "sources": [
     {
       "source": "Yahoo Finance",
-      "link": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxQd3FBUDJXUzFoamlwR2lwRWo3UXd1TVNqUkQwWE5pcXpuaU16X3NWR0llbU9rNUtiQzRVa3RCNDZURmJTZjB1VG5GLWM5dzB5OHU3NHloeTZaQnBIb0wzTmtxNVVKVU05ZU9keXdTcVNjTzRPMHhaUDZJQVZ0M0pRdVR6cFRwNndlVThGNzhWeVhuc1g1bU1veFZrTkxhaVpZX3ZNTEdNUGd2RlZhbTJZaVQwbHVYSUdzUDU1a2VGTW9zUzRhcE92MHJDRENwZXVaOGxqN1hFRlZvVGFTNUFmcXFuaXdzLUMwbWRaaQ?oc=5"
+      "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxPOU9adzRULTh4UFlYNi1EM3pyamI4ZFpzaWFtdXZtSWNKcDg4bnp2dDV2Z0tBbTVsdmhsdFZZQUdYcUZLbUtPZTRJWWphbzd4WjBBeDMtZEVwZDJ4XzVaVklqNWdhTFQ5TEZTSEM2SWpHVEQ0Wmc5S2tFd2VySWV0Y01JWHp4UVFfRmh0R2xVNFp3WmYxWHNCYjliTDZtYVlPX19Hel9MV3F1SU5NRnc?oc=5"
+    },
+    {
+      "source": "The Economic Times",
+      "link": "https://news.google.com/rss/articles/CBMipwJBVV95cUxQUzRIUTRaWllxMl9PZ2VtYk9tVDJNTWRXUUZmY25LV3RScUVKM0h2RTBOZW56RUdoQXFfdEtOS1FPd0NHcEhFVWFIQm5kYV9lNXhRYXU1MmVKU3BaOGJnWnlObTZiLXNiYmVZWEJzMlFsbUNWYUk5LXh3NHp5Y0Y1VXdKSUZGcXFiamRmVFMwNklxdUs0cUlGZkt0VUczaWVvU2J2V1BkbTVYdjZrLXFnU0RPWVN6cEhSaFBXV05RVWJUdEhvSmkzdnp1VzdLbnFpWGJzczRyQ0FXVE9tTUFJSDgtZGd1T1pOb1JSOE5CQWpxWWVxWUF6eU5wSFNTNEVTVXRsRm02Nlg3em5XWDYyLUJlSjItZS15WWdEeTdfNXU3YXNWWDJV0gGsAkFVX3lxTE9nOWVLWkxEYWFJcERkYTFPN29HZFZjTEZRNkNGRTRVUzJwMVM0NFJuUmlTMXVJN0RKeGhrZTRlUUlDMUhLTDBfenJJWldSaEN0dVJsRDh5LVBsZnZOdmRSSEZuY1pQdW82ZG41OW1BSF9HMmJYeXc5NW91QjFrbFBoUVYzWjVwMDVDc01wZU5zMFFHMExBUm5JRTdEQ1pJU2R6QzhGTkwtUEJaOFBPYVdDUWxRNjV4WWY1Ml8yb3Q4RjMyWEZPTHlXOGF4dWhiSTYyelFsd0FKV1paY3pJNUZNeXA3RTJ2MG1JY0FWRENjSC1BUENaS251dkRZWE83MFAwZXpwcl9ieGNFMDUtcjVtYTZWSE55NWtmR05MemFxQzgwYUQwRmhudm91SQ?oc=5"
+    },
+    {
+      "source": "Reuters",
+      "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxQR0VnRHRMNWZyQUpuZEVLYmR5cUxDczIwd1k5Z3RMaGtvekU2VDV1cDVVRlpWSWlJb2tCN1F3Z0R5VDVnLTc3djFoZkNLa3NYTUxJUUhacGU2aTZsV3JwY2VjVVNfNkM2MWpxc0laQXh1Mk9sUUstRTdGalh5WDNVd0RGZW1nZVZvSGduY3dGTFBsWkFhSzhzOTVR?oc=5"
+    },
+    {
+      "source": "Chase Bank",
+      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQeWRtd0pvM3pzSTNtZVo4UWVZbk5mYWIzRTBPaTljUlU0ekhSSUJLR1gtZENUSmxRWURrREpQSXNZekFmMjRMV3JHc21nTjhlcDVYT0lWQVhubVZEWnd2ekM1QjlCN3h3NlJJMnlfVkVyMTdtcnV2MDJaUXVIWVR1bjN1RGljd3NGdmlRd1hKdWhvUU8yWEk5VGJXSnJONF9ZcVdGWg?oc=5"
     },
     {
       "source": "CNN",
       "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE1qZ1JvYUtaNTZFYjUyTEVzZzlJMzBUTmFGOHVCYzNrS2o3ZHYyR2RPOFp3c1oybEJTNS1tQXJmZGhENGtJR3V3YV90YnRmM0R3SnZMRHozLV82am42ZGo1dmY0djRSLWJ1TzhGZ0JSeGNpQQ?oc=5"
-    },
-    {
-      "source": "Investopedia",
-      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNcVFsd0lzQWNjVFdUcGVZeUtXUlFSeHh0bVB2R0FUbmJ0d2tKTEhpcDlDVDdMMEd1aFMtcjdORFhXeTdqUlo0OVhFakpzRVRQdnZKdWxGU1hLNE9aLVlIMmJmV1UtdjR5Uk9MR1pKZkNfcnhEQ0NqSVkxb2NRTXpGRzk5OUhLM1FrUWRpVHNMMU4?oc=5"
-    },
-    {
-      "source": "MarketWatch",
-      "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxOcFFCd2s3eWh0N3FKT1kxT1Vlblphc1JIZk5JTXNMMlFsb1IwSTMwRDlpLS1KUXhTb0ZweHBIZ2tSZ2FmMGhjRWV6YjNTN19rNDh2M0M3Q21ibTZsV2Uza3Zuc1ZzUE5EUkpQNlNqYmM1Q1lKTzdieDdGMnM5VndVdTd2ekUtTXVCLWE2b0ZINWRsUTFxcFd4c01WTGxaYU1OU0dPX1ZlbGd1cGtSbTIzRkp5cEJsc01QanRib2ZrSHltWkFkV000c01fY1hNM2VnV3E4ZHEyNA?oc=5"
-    },
-    {
-      "source": "The Economic Times",
-      "link": "https://news.google.com/rss/articles/CBMijwNBVV95cUxORGhtNmZXaVRPbXRBWUEwZ3lSa1pxMEllSmtpbkVreXMwaGxDZmx0WmNWbTk2NnhXTzViMjZ5MWFzczUwS0docnM0TFhaVjBSbnFCbUdFOUttYWRteHI0RmhsdE44d2Nha0JjazdhS1VUM1dqekxtcU93LW9HNEhadTZQczZYRFNxZHRuNFNwN1R3VHFoTy1kd2ZvYm03bGZCLVEwNV9SUE5qcFNpOFBFNXFmeXpOUF9Ea3lMSHFsX0pFQkt1blhZOEtCZXR6NnFFcm5ScGhoZUk4RFFYeDhESm5sNDRPSURTRXRza2NVU3pkUGNNUjJ4WnZvX3JIbmJ2VE5qUjRiaFBYbFB3ZHItd09pcWppMFNtMzM3UTJzX3ZBYWRKM0RPRlE2cS0wOVZVbEY3dXdwUVlzYndjX1ktOG8tY2prQ2xmcmdTQktORTBuMzBZMUpjUlR5SVd6eW1LNFNJZlF6SWlOZHpyWkRmTGtIa3dmQUZOdEdlQmRIcmlSaWNTVXo0aFUtS1Q4MDjSAZQDQVVfeXFMUHhZX0xrLWhJOFNYXzVYZDdzV3M2dThXak53MzRHUjhDa1JLWllLUmVBVHpEUC1pTW1Db2JRZ1RZbkQ5YWJlQ2lmcG5yUkxVb2sxRFNQMnRsQVZHMXFjQ2dlNkRVdDVvWm5HYzktd3JrNm1aVDE4ZTdBVnUzOFJWdDIxV2RIOUZxWjhaMEVlTEJhRTdFWC0tUkctbnZmZ3VlNG5SUExjdTFvOHdja3k5dnZDbWRrQjRpMWxkVFpxcGE3bTJWZ2R1WGRsWk9JZEt4VXRhOW40M2RKaVdDRnFjOUZZdk9GeHRiaXB3UTZCdXZzM0ZuSEkxT0FTQWh5cGx6djUwYmN0cFE2UkFwQWcxZ2Joc250WUQtS3RfeHhfcnltZm1RVFd3WWtQS3VkUnNYSW1qLXpYNnBhUjZwd3RtOU1sZHhOcHc4MG11T08xd2RhdHhWenpFbGVBR2RRYm1Sa3U0Z2NLUU5qN2tyekgzVDFNbEdTMmx1dlBUQVhCb21BMTdhbEswNjNTN0xYQ1dSR0dZdVQ?oc=5"
     }
   ],
   "market_raw": {
     "SP500": {
-      "close": 7383.74,
-      "change": -2.64,
-      "date": "2026-06-05"
+      "close": 7405.73,
+      "change": 0.3,
+      "date": "2026-06-08"
     },
     "NASDAQ": {
-      "close": 25709.43,
-      "change": -4.18,
-      "date": "2026-06-05"
+      "close": 25929.66,
+      "change": 0.86,
+      "date": "2026-06-08"
     },
     "DOW": {
-      "close": 50866.78,
-      "change": -1.35,
-      "date": "2026-06-05"
+      "close": 50786.01,
+      "change": -0.16,
+      "date": "2026-06-08"
     },
     "KOSPI": {
-      "close": 7484.41,
-      "change": -8.29,
-      "date": "2026-06-08"
+      "close": 8160.59,
+      "change": -5.54,
+      "date": "2026-06-05"
     }
   },
   "done_criteria": {
