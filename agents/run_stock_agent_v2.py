@@ -47,41 +47,95 @@ MAX_SOURCE_DIFF_PCT = 100.0  # 두 소스 수익률 차이 허용 한도
 # 유니버스 동적 수집
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _get_kospi_universe_pykrx() -> list[tuple[str, str]] | None:
+    """pykrx로 KOSPI 시총 상위 종목 수집 (KRX_ID/KRX_PW 필요)."""
+    import os
+    if not (os.getenv("KRX_ID") and os.getenv("KRX_PW")):
+        return None
+    try:
+        from pykrx import stock as pykrx_stock
+        date_str = (datetime.now() - timedelta(days=3)).strftime('%Y%m%d')
+        caps_df = pykrx_stock.get_market_cap(date_str, market='KOSPI')
+        if caps_df is None or caps_df.empty:
+            return None
+        # 시가총액 컬럼 = 두 번째 컬럼 (인코딩 무관)
+        marcap_col = caps_df.columns[1]
+        caps_df[marcap_col] = pd.to_numeric(caps_df[marcap_col], errors='coerce')
+        caps_df = caps_df.dropna(subset=[marcap_col]).sort_values(marcap_col, ascending=False)
+        top_codes = caps_df.index[:KOSPI_TOP_N].tolist()
+        result = []
+        for code in top_codes:
+            try:
+                name = pykrx_stock.get_market_ticker_name(str(code))
+            except Exception:
+                name = str(code)
+            result.append((str(code).zfill(6) + ".KS", name or str(code)))
+        print(f"  → pykrx KOSPI {len(result)}개 종목 수집 완료 (1위:{result[0][1]})")
+        return result
+    except Exception as e:
+        print(f"  [경고] pykrx KOSPI 유니버스 수집 실패: {e}")
+        return None
+
+
 def get_kospi_universe() -> list[tuple[str, str]]:
-    """KRX에서 KOSPI 전체 종목을 시총순 정렬 → 상위 KOSPI_TOP_N개 반환."""
+    """KRX에서 KOSPI 전체 종목을 시총순 정렬 → 상위 KOSPI_TOP_N개 반환.
+    수집 순서: pykrx(KRX auth) → fdr.StockListing → 비상 폴백(80개)
+    """
     print(f"  [유니버스] KOSPI 구성종목 수집 중 (시총 상위 {KOSPI_TOP_N}개)...")
+
+    # 방법 1: pykrx (KRX 자격증명 사용, CI secrets 포함)
+    result = _get_kospi_universe_pykrx()
+    if result and len(result) >= 50:
+        return result
+
+    # 방법 2: FDR StockListing (환경에 따라 동작)
     try:
         listing = fdr.StockListing('KOSPI')
         marcap_col = next((c for c in listing.columns if 'Marcap' in c or 'marcap' in c or '시총' in c), None)
         name_col   = next((c for c in listing.columns if 'Name' in c or 'name' in c or '종목명' in c), None)
         code_col   = next((c for c in listing.columns if 'Code' in c or 'code' in c or '코드' in c), None)
-
-        if not all([marcap_col, name_col, code_col]):
-            raise ValueError(f"컬럼 미발견: {listing.columns.tolist()}")
-
-        listing[marcap_col] = pd.to_numeric(listing[marcap_col], errors='coerce')
-        listing = listing.dropna(subset=[marcap_col])
-        listing = listing.sort_values(marcap_col, ascending=False)
-        top = listing.head(KOSPI_TOP_N)
-
-        result = []
-        for _, row in top.iterrows():
-            code = str(row[code_col]).zfill(6)
-            name = str(row[name_col])
-            result.append((code + ".KS", name))
-
-        print(f"  → KOSPI {len(result)}개 종목 수집 완료 (1위:{result[0][1]}, {KOSPI_TOP_N}위:{result[-1][1]})")
-        return result
-
+        if all([marcap_col, name_col, code_col]):
+            listing[marcap_col] = pd.to_numeric(listing[marcap_col], errors='coerce')
+            listing = listing.dropna(subset=[marcap_col]).sort_values(marcap_col, ascending=False)
+            top = listing.head(KOSPI_TOP_N)
+            fdr_result = [(str(row[code_col]).zfill(6) + ".KS", str(row[name_col])) for _, row in top.iterrows()]
+            if len(fdr_result) >= 50:
+                print(f"  → FDR KOSPI {len(fdr_result)}개 종목 수집 완료")
+                return fdr_result
     except Exception as e:
-        print(f"  [경고] KOSPI 유니버스 수집 실패: {e}")
-        print("  → 폴백: 하드코딩 기본 종목으로 대체")
-        return [
-            ("005930.KS","삼성전자"),("000660.KS","SK하이닉스"),("005380.KS","현대차"),
-            ("009150.KS","삼성전기"),("066570.KS","LG전자"),("005490.KS","POSCO홀딩스"),
-            ("035420.KS","NAVER"),("051910.KS","LG화학"),("006400.KS","삼성SDI"),
-            ("000270.KS","기아"),("042700.KS","한미반도체"),("012330.KS","현대모비스"),
-        ]
+        print(f"  [경고] FDR StockListing 실패: {e}")
+
+    # 방법 3: 비상 폴백 — 주요 KOSPI 상장 80개 (동적 수집 불가 시)
+    print("  → 폴백: 비상 종목 리스트 사용 (pykrx/FDR 모두 실패)")
+    return [
+        ("005930.KS","삼성전자"),("000660.KS","SK하이닉스"),("005380.KS","현대차"),
+        ("009150.KS","삼성전기"),("066570.KS","LG전자"),("005490.KS","POSCO홀딩스"),
+        ("035420.KS","NAVER"),("051910.KS","LG화학"),("006400.KS","삼성SDI"),
+        ("000270.KS","기아"),("042700.KS","한미반도체"),("012330.KS","현대모비스"),
+        ("003550.KS","LG"),("096770.KS","SK이노베이션"),("034730.KS","SK스퀘어"),
+        ("028260.KS","삼성물산"),("017670.KS","SK텔레콤"),("030200.KS","KT"),
+        ("086790.KS","하나금융지주"),("105560.KS","KB금융"),("055550.KS","신한지주"),
+        ("032830.KS","삼성생명"),("000810.KS","삼성화재"),("010130.KS","고려아연"),
+        ("003490.KS","대한항공"),("011200.KS","HMM"),("006360.KS","GS건설"),
+        ("047050.KS","포스코인터내셔널"),("004020.KS","현대제철"),("011170.KS","롯데케미칼"),
+        ("002790.KS","아모레퍼시픽"),("090430.KS","아모레G"),("000080.KS","하이트진로"),
+        ("033780.KS","KT&G"),("097950.KS","CJ제일제당"),("034220.KS","LG디스플레이"),
+        ("018260.KS","삼성에스디에스"),("009830.KS","한화솔루션"),("010950.KS","S-Oil"),
+        ("000720.KS","현대건설"),("028050.KS","삼성엔지니어링"),("010140.KS","삼성중공업"),
+        ("009540.KS","한국조선해양"),("042660.KS","한화오션"),("267250.KS","HD현대"),
+        ("329180.KS","HD현대중공업"),("078930.KS","GS"),("082740.KS","한화에어로스페이스"),
+        ("011790.KS","SKC"),("006650.KS","대한유화"),("003670.KS","포스코퓨처엠"),
+        ("373220.KS","LG에너지솔루션"),("247540.KS","에코프로비엠"),("086520.KS","에코프로"),
+        ("011790.KS","SKC"),("035000.KS","한화"),("139480.KS","이마트"),
+        ("004170.KS","신세계"),("069960.KS","현대백화점"),("071050.KS","한국금융지주"),
+        ("316140.KS","우리금융지주"),("138040.KS","메리츠금융지주"),("000100.KS","유한양행"),
+        ("068270.KS","셀트리온"),("207940.KS","삼성바이오로직스"),("005935.KS","삼성전자우"),
+        ("000157.KS","두산"),("034020.KS","두산에너빌리티"),("064350.KS","현대로템"),
+        ("010620.KS","현대미포조선"),("023530.KS","롯데쇼핑"),("004990.KS","롯데지주"),
+        ("036570.KS","NCsoft"),("251270.KS","넷마블"),("263750.KS","펄어비스"),
+        ("018880.KS","한온시스템"),("241560.KS","두산밥캣"),("009070.KS","코오롱인더"),
+        ("011780.KS","금호석유화학"),("010060.KS","OCI홀딩스"),("298040.KS","효성중공업"),
+    ]
 
 
 def get_sp500_universe() -> list[tuple[str, str]]:
@@ -299,10 +353,31 @@ def get_market_cap_batch(tickers: list[str]) -> dict[str, float]:
 
 
 def get_kospi_market_caps(universe: list[tuple[str, str]]) -> dict[str, float]:
-    """KOSPI 전체 시가총액 한번에 수집 (StockListing 재활용).
-    반환값 단위: KRW (원) — FDR StockListing Marcap 컬럼 그대로 사용.
+    """KOSPI 전체 시가총액 한번에 수집.
+    반환값 단위: KRW (원)
+    수집 순서: pykrx(KRX auth) → fdr.StockListing → yfinance 폴백
     """
     caps = {}
+
+    # 방법 1: pykrx (KRX 자격증명 필요)
+    import os
+    if os.getenv("KRX_ID") and os.getenv("KRX_PW"):
+        try:
+            from pykrx import stock as pykrx_stock
+            date_str = (datetime.now() - timedelta(days=3)).strftime('%Y%m%d')
+            caps_df = pykrx_stock.get_market_cap(date_str, market='KOSPI')
+            if caps_df is not None and not caps_df.empty:
+                marcap_col = caps_df.columns[1]  # 시가총액
+                caps_df[marcap_col] = pd.to_numeric(caps_df[marcap_col], errors='coerce')
+                for code in caps_df.index:
+                    ticker = str(code).zfill(6) + ".KS"
+                    caps[ticker] = float(caps_df.loc[code, marcap_col] or 0.0)
+                if any(v > 0 for v in caps.values()):
+                    return caps
+        except Exception as e:
+            print(f"  [경고] pykrx 시총 수집 실패: {e}")
+
+    # 방법 2: FDR StockListing
     try:
         listing = fdr.StockListing('KOSPI')
         code_col   = next((c for c in listing.columns if 'Code' in c), None)
@@ -314,8 +389,21 @@ def get_kospi_market_caps(universe: list[tuple[str, str]]) -> dict[str, float]:
                     caps[ticker] = float(marcap_val) if marcap_val else 0.0
                 except Exception:
                     caps[ticker] = 0.0
+            if any(v > 0 for v in caps.values()):
+                return caps
     except Exception:
         pass
+
+    # 방법 3: yfinance 폴백 (상위 10개만, rate limit 방지)
+    for ticker, _ in universe[:10]:
+        try:
+            info = yf.Ticker(ticker).fast_info
+            usd_mc = float(getattr(info, 'market_cap', 0) or 0)
+            if usd_mc > 0:
+                caps[ticker] = usd_mc * 1350.0  # USD → KRW 근사 환산
+        except Exception:
+            pass
+
     return caps
 
 
