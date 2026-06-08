@@ -85,6 +85,23 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 - [x] T8: F05 수급 3개 수집 0/3→3/3 완료 (ROADMAP.md 업데이트)
 - [x] T13: IQ-1 hard filter + FRED yfinance fallback — 동행지수(DOW/NASDAQ100/KOSDAQ/NIKKEI225) evaluator에서 완전 제외, WTI/DXY/US10Y yfinance fallback 추가. Top3=[VIX/HY_SPREAD/WTI], pm_quality_checks 13/13 PASS
 
+## Phase 7b - PM Agent 품질 강화 (2026-06-09, 22/24 PASS 달성)
+
+### pm_quality_checks: 22/24 PASS (QF-1 WARN API키 미설정, QG-1 Google 자격증명 없음)
+
+- [x] P0-3: Stock Agent 단독 실행 exit(0) 확인 — SA-1~7 7/7 PASS, 500 S&P500+80 KOSPI 분석 (~80s)
+- [x] P1-2: QF-1 WARN 수정 — ANTHROPIC_API_KEY 미설정 시 pass=False+WARN (이전: 템플릿도 PASS 처리)
+- [x] P1-2: Decision Agent 수정 — decision.json 저장 추가, DE-1/3 Done Criteria 필드명 수정 (position_size_pct, SELL/AVOID)
+- [x] P1-1C: QC-1 강화 — 로컬 파일 + GitHub Pages HTTP 200 라이브 체크 추가 (Pages=200 OK)
+- [x] SA-8: KOSPI 극단종목 교차검증 — final_results.json 5개 beneficiary data_quality 패치 (3개 직접 cross-validate 확인)
+- [x] T1: LITE warn_reason 갱신 — "R4 데이터 이상 의심 — 기업이벤트 없음, 시작가 날짜 불일치 가능성, 실제 +45%"
+- [x] T2: 009150 warn_reason 갱신 — "R4 데이터 오류 확정 — 실제 Jun24-Jun25 -10~+20%, FDR 날짜 불일치"
+- [x] T3: Z-Score 지표 9개 목록 확인 — INDIVIDUAL_NET/US10Y/WTI/FOREIGN_NET/HY_SPREAD/VIX/DXY/INSTITUTION_NET/MARKET_STRENGTH, 자기참조 없음
+- [x] T4: 시그널 43.4→34.0 근인 분석 — 실제 시장 데이터 악화(INDIVIDUAL_NET z=+2.0, US10Y z=+1.56, WTI z=+1.49), IQ-1 패널티 무관
+- [x] P2-3: pm_self_diagnosis 수정 전/후 비교 — pass_before→pass_after Δ로깅, Δ=0 시 경고 출력
+- [x] SD-9: TG 중복 전송 방지 — MD5 해시 + 60초 윈도우 차단 (_tg_last_sent 캐시)
+- [⚠] T7 (재발): workflow Commit 스텝 race condition 수정 — git pull --rebase 추가, master 푸시 완료 (run_id=27149561371 success), run-pipeline Evidence 보류 (다음 일요일 cron 또는 workflow_dispatch 필요)
+
 ## Phase 8 - 외부 연동 (자격증명 대기 중)
 - [?] T9: Google Sheets 완전 자동화 — GOOGLE_SA_JSON 서비스 계정 경로 .env 추가 필요
 - [?] T10: Notion 연동 활성화 — NOTION_TOKEN .env 추가 필요 (Page ID: 3781a4c7-30d8-81f9-bf7d-db6541a23fcf)
