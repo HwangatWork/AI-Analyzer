@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-08T15:30:00",
+  "updated": "2026-06-09T07:45:00",
   "completed": [
     {
       "id": "REQ-001",
@@ -63,6 +63,36 @@
       "status": "done",
       "completed_at": "2026-06-09T00:00:00",
       "details": "공개 repo이므로 GITHUB_TOKEN 불필요. 인증 없이 GitHub API 호출로 변경 완료. pm_self_diagnosis SD-7 활성화됨"
+    },
+    {
+      "id": "REQ-010",
+      "request": "재시도 정책 수정 — 실패 단계부터만 재실행",
+      "status": "pending",
+      "details": "현재 run_pm_agent.py 자동 수정 루프는 fix_stages 전체를 재실행함. 실패한 단계 이후 단계만 재실행하도록 run_partial_pipeline() 로직 수정 필요"
+    },
+    {
+      "id": "REQ-011",
+      "request": "SD-8 vs NQ-4 URL 불일치 수정",
+      "status": "pending",
+      "details": "SD-8은 '실제 기사 URL ≥3개' 기준, NQ-4는 news.google.com 제외 기준 — 두 체크가 서로 다른 조건으로 판단해 SD-8 FAIL + NQ-4 PASS 불일치 발생. 기준 통일 또는 SD-8 판단 로직 수정 필요"
+    },
+    {
+      "id": "REQ-012",
+      "request": "pm_self_diagnosis QG-1 중복 표시 수정",
+      "status": "pending",
+      "details": "pm_self_diagnosis 자가진단 결과에 QG-1(Google Sheets 미설정) 이슈가 중복 표시됨. fix_request.md와 최종 보고 양쪽에서 중복 카운트되는 원인 확인 및 제거 필요"
+    },
+    {
+      "id": "REQ-013",
+      "request": "매도 알림 신뢰도 32.9% 발송 문제 수정",
+      "status": "pending",
+      "details": "confidence_tier hold(<50%) 기준임에도 SELL 신호 TG 알림이 발송됨. decision.json confidence_tier=hold 시 TG 전송을 차단하거나 '신호 보류' 명시 필요. _format_decision_for_tg() 로직 재확인"
+    },
+    {
+      "id": "REQ-014",
+      "request": "Validation 29/30 원인 확인",
+      "status": "pending",
+      "details": "run_validation_agent.py 결과가 29/30 PASS (이전 30/30에서 1개 하락). 어느 체크가 FAIL인지 validation 로그 확인 후 원인 분석 필요"
     }
   ]
 }

@@ -1,188 +1,268 @@
 {
   "반도체/AI": {
     "tickers": {
-      "NVDA": {
-        "name": "NVIDIA",
+      "ACN": {
+        "name": "Accenture",
         "market": "US",
-        "return_1y": 74.99,
-        "return_1m": -1.2,
-        "last_price": 205.1,
+        "return_1y": -45.11,
+        "return_1m": -3.2,
+        "last_price": 174.43,
         "source": "yfinance"
       },
-      "TSM": {
-        "name": "TSMC",
+      "ADBE": {
+        "name": "Adobe Inc.",
         "market": "US",
-        "return_1y": 139.88,
-        "return_1m": -1.03,
-        "last_price": 415.17,
+        "return_1y": -38.12,
+        "return_1m": -4.49,
+        "last_price": 244.99,
         "source": "yfinance"
       },
-      "AVGO": {
-        "name": "Broadcom",
+      "AMD": {
+        "name": "Advanced Micro Devices",
         "market": "US",
-        "return_1y": 87.16,
-        "return_1m": -9.33,
-        "last_price": 385.73,
+        "return_1y": 353.51,
+        "return_1m": 20.04,
+        "last_price": 490.33,
         "source": "yfinance"
       },
-      "AMAT": {
-        "name": "Applied Materials",
+      "AKAM": {
+        "name": "Akamai Technologies",
         "market": "US",
-        "return_1y": 193.35,
-        "return_1m": 5.82,
-        "last_price": 453.01,
+        "return_1y": 80.06,
+        "return_1m": 21.58,
+        "last_price": 141.87,
         "source": "yfinance"
       },
-      "INTC": {
-        "name": "Intel",
+      "APH": {
+        "name": "Amphenol",
         "market": "US",
-        "return_1y": 372.24,
-        "return_1m": -12.25,
-        "last_price": 99.17,
+        "return_1y": 71.22,
+        "return_1m": 5.11,
+        "last_price": 143.6,
+        "source": "yfinance"
+      },
+      "ADI": {
+        "name": "Analog Devices",
+        "market": "US",
+        "return_1y": 84.26,
+        "return_1m": -0.86,
+        "last_price": 403.89,
+        "source": "yfinance"
+      },
+      "AAPL": {
+        "name": "Apple Inc.",
+        "market": "US",
+        "return_1y": 43.62,
+        "return_1m": 5.0,
+        "last_price": 301.54,
         "source": "yfinance"
       },
       "000660.KS": {
         "name": "SK하이닉스",
         "market": "KR",
-        "return_1y": 987.76,
-        "return_1m": 43.05,
-        "last_price": 2070000.0,
+        "return_1y": 880.0,
+        "return_1m": 19.36,
+        "last_price": 1911000.0,
         "source": "FDR"
       },
       "005930.KS": {
         "name": "삼성전자",
         "market": "KR",
-        "return_1y": 502.56,
-        "return_1m": 41.51,
-        "last_price": 329000.0,
+        "return_1y": 413.02,
+        "return_1m": 11.09,
+        "last_price": 295500.0,
         "source": "FDR"
       },
       "042700.KS": {
         "name": "한미반도체",
         "market": "KR",
-        "return_1y": 260.51,
-        "return_1m": -25.13,
-        "last_price": 283000.0,
+        "return_1y": 205.42,
+        "return_1m": -35.74,
+        "last_price": 253500.0,
         "source": "FDR"
       }
     },
     "theme": "AI 수요 급증, HBM 메모리 사이클, 파운드리 확장",
-    "key_risk": "재고 조정, 중국 제재 리스크, 설비투자 과잉"
+    "key_risk": "재고 조정, 중국 제재 리스크, 설비투자 과잉",
+    "universe_src": "dynamic"
   },
   "AI/플랫폼": {
     "tickers": {
+      "ACN": {
+        "name": "Accenture",
+        "market": "US",
+        "return_1y": -45.11,
+        "return_1m": -3.2,
+        "last_price": 174.43,
+        "source": "yfinance"
+      },
+      "ADBE": {
+        "name": "Adobe Inc.",
+        "market": "US",
+        "return_1y": -38.12,
+        "return_1m": -4.49,
+        "last_price": 244.99,
+        "source": "yfinance"
+      },
+      "AMD": {
+        "name": "Advanced Micro Devices",
+        "market": "US",
+        "return_1y": 353.51,
+        "return_1m": 20.04,
+        "last_price": 490.33,
+        "source": "yfinance"
+      },
+      "AKAM": {
+        "name": "Akamai Technologies",
+        "market": "US",
+        "return_1y": 80.06,
+        "return_1m": 21.58,
+        "last_price": 141.87,
+        "source": "yfinance"
+      },
       "GOOGL": {
-        "name": "Alphabet",
+        "name": "Alphabet Inc. (Class A)",
         "market": "US",
-        "return_1y": 139.7,
-        "return_1m": -7.41,
-        "last_price": 368.53,
+        "return_1y": 130.07,
+        "return_1m": -8.71,
+        "last_price": 363.31,
         "source": "yfinance"
       },
-      "MSFT": {
-        "name": "Microsoft",
+      "GOOG": {
+        "name": "Alphabet Inc. (Class C)",
         "market": "US",
-        "return_1y": -3.97,
-        "return_1m": 0.87,
-        "last_price": 416.67,
+        "return_1y": 127.11,
+        "return_1m": -8.63,
+        "last_price": 361.17,
         "source": "yfinance"
       },
-      "META": {
-        "name": "Meta",
+      "APH": {
+        "name": "Amphenol",
         "market": "US",
-        "return_1y": -0.53,
-        "return_1m": -3.24,
-        "last_price": 593.0,
-        "source": "yfinance"
-      },
-      "AMZN": {
-        "name": "Amazon",
-        "market": "US",
-        "return_1y": 28.09,
-        "return_1m": -10.53,
-        "last_price": 246.03,
+        "return_1y": 71.22,
+        "return_1m": 5.11,
+        "last_price": 143.6,
         "source": "yfinance"
       },
       "035720.KS": {
         "name": "카카오",
         "market": "KR",
-        "return_1y": 8.78,
-        "return_1m": -14.54,
-        "last_price": 40250.0,
+        "return_1y": 1.31,
+        "return_1m": -16.63,
+        "last_price": 38600.0,
         "source": "FDR"
       },
       "035420.KS": {
         "name": "NAVER",
         "market": "KR",
-        "return_1y": 35.4,
-        "return_1m": 22.25,
-        "last_price": 255500.0,
+        "return_1y": 46.69,
+        "return_1m": 34.13,
+        "last_price": 279000.0,
         "source": "FDR"
       },
       "259960.KS": {
         "name": "크래프톤",
         "market": "KR",
-        "return_1y": -32.06,
-        "return_1m": -10.75,
-        "last_price": 257500.0,
+        "return_1y": -35.06,
+        "return_1m": -13.91,
+        "last_price": 244500.0,
         "source": "FDR"
       }
     },
     "theme": "클라우드 AI 서비스 수요, LLM 상용화, 광고 회복",
-    "key_risk": "규제 리스크, AI 투자 수익성 불확실, 경쟁 심화"
+    "key_risk": "규제 리스크, AI 투자 수익성 불확실, 경쟁 심화",
+    "universe_src": "dynamic"
   },
   "에너지/원자재": {
     "tickers": {
-      "XOM": {
-        "name": "ExxonMobil",
+      "AES": {
+        "name": "AES Corporation",
         "market": "US",
-        "return_1y": 47.19,
-        "return_1m": 1.51,
-        "last_price": 149.92,
+        "return_1y": 30.3,
+        "return_1m": 2.94,
+        "last_price": 14.71,
         "source": "yfinance"
       },
-      "CVX": {
-        "name": "Chevron",
+      "APD": {
+        "name": "Air Products",
         "market": "US",
-        "return_1y": 44.14,
-        "return_1m": 2.09,
-        "last_price": 187.31,
+        "return_1y": 2.89,
+        "return_1m": -6.18,
+        "last_price": 276.77,
         "source": "yfinance"
       },
-      "NEE": {
-        "name": "NextEra Energy",
+      "LNT": {
+        "name": "Alliant Energy",
         "market": "US",
-        "return_1y": 30.33,
-        "return_1m": -9.35,
-        "last_price": 85.84,
+        "return_1y": 24.26,
+        "return_1m": 0.03,
+        "last_price": 71.71,
+        "source": "yfinance"
+      },
+      "AEE": {
+        "name": "Ameren",
+        "market": "US",
+        "return_1y": 15.54,
+        "return_1m": -1.49,
+        "last_price": 107.15,
+        "source": "yfinance"
+      },
+      "AEP": {
+        "name": "American Electric Power",
+        "market": "US",
+        "return_1y": 29.5,
+        "return_1m": -3.09,
+        "last_price": 126.77,
+        "source": "yfinance"
+      },
+      "AWK": {
+        "name": "American Water Works",
+        "market": "US",
+        "return_1y": -8.78,
+        "return_1m": -2.25,
+        "last_price": 122.49,
+        "source": "yfinance"
+      },
+      "APA": {
+        "name": "APA Corporation",
+        "market": "US",
+        "return_1y": 121.5,
+        "return_1m": 3.92,
+        "last_price": 37.66,
         "source": "yfinance"
       },
       "015760.KS": {
         "name": "한국전력",
         "market": "KR",
-        "return_1y": 44.32,
-        "return_1m": -14.38,
-        "last_price": 38100.0,
+        "return_1y": 33.83,
+        "return_1m": -20.09,
+        "last_price": 36000.0,
         "source": "FDR"
       },
       "034020.KS": {
         "name": "두산에너빌리티",
         "market": "KR",
-        "return_1y": 244.5,
-        "return_1m": -24.84,
-        "last_price": 95600.0,
+        "return_1y": 197.92,
+        "return_1m": -32.44,
+        "last_price": 85800.0,
         "source": "FDR"
       },
       "010950.KS": {
         "name": "S-Oil",
         "market": "KR",
-        "return_1y": 116.51,
-        "return_1m": -11.88,
-        "last_price": 112800.0,
+        "return_1y": 107.06,
+        "return_1m": -11.07,
+        "last_price": 108500.0,
         "source": "FDR"
       }
     },
     "theme": "에너지 전환, 원자력 르네상스, AI 데이터센터 전력 수요",
-    "key_risk": "유가 변동성, 정책 리스크, 금리 민감도"
+    "key_risk": "유가 변동성, 정책 리스크, 금리 민감도",
+    "universe_src": "dynamic"
+  },
+  "_meta": {
+    "generated_at": "2026-06-09T07:35:34.371377",
+    "dynamic_sectors": 3,
+    "total_sectors": 3
   }
 }
