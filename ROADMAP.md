@@ -83,6 +83,7 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 - [x] T6: News Agent URL — Google 리다이렉트→실제 도메인 해소 (_resolve_redirect), NQ-4 강화 (news.google.com 제외 기준)
 - [x] T7: GitHub Actions run-pipeline 실패 수정 — requirements.txt(finance-datareader), pykrx 유니버스, contents:write 권한, run_id=27132848442 conclusion=success 확인
 - [x] T8: F05 수급 3개 수집 0/3→3/3 완료 (ROADMAP.md 업데이트)
+- [x] T13: IQ-1 hard filter + FRED yfinance fallback — 동행지수(DOW/NASDAQ100/KOSDAQ/NIKKEI225) evaluator에서 완전 제외, WTI/DXY/US10Y yfinance fallback 추가. Top3=[VIX/HY_SPREAD/WTI], pm_quality_checks 13/13 PASS
 
 ## Phase 8 - 외부 연동 (자격증명 대기 중)
 - [?] T9: Google Sheets 완전 자동화 — GOOGLE_SA_JSON 서비스 계정 경로 .env 추가 필요
