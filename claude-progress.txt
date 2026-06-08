@@ -1,4 +1,4 @@
-AI Analyzer Progress — 2026-06-08 13:30
+AI Analyzer Progress — 2026-06-08 15:30
 
 === 완료 항목 ===
 
@@ -48,8 +48,18 @@ F) AI 언어 리포트+액션플랜: PASS (FINAL_REPORT_v2.md 섹션 11)
 G) CSV→GitHub Pages→Looker Studio: PASS (CSV 공개 + Looker 직접 연결)
 H) 산업별 딥다이브(반도체/AI/에너지): PASS (sector_analysis.json)
 
+[News Agent 신규 - 2026-06-08 14:00]
+7. run_news_agent.py 신규 생성
+   - Google News RSS: 20개 헤드라인 수집 (us_market/macro/korea/events)
+   - yfinance: S&P500(▼2.64%) / 나스닥(▼4.18%) / 다우(▼1.35%) / 코스피(▼5.19%)
+   - 3단 구조: 핵심 움직임 + 가능한 원인(뉴스 기반) + 주시 포인트(날짜 명시)
+   - Done Criteria NQ-1~NQ-4 전항목 PASS
+   - 텔레그램 전송 성공 (message_id=26)
+   - run_pipeline.bat: Data → News(step2, WARNING) → Refresh → Analysis... (12단계)
+   - pm_quality_checks: NQ-1~4 추가 → 12/12 → 16/16 PASS
+
 === 현재 상태 ===
-pm_quality_checks: 12/12 PASS
+pm_quality_checks: 16/16 PASS (NQ-1~4 추가)
 pm_self_diagnosis: PASS (이슈 0개)
 Validation: 30/30 PASS, CRITICAL 0
 Audit: 62/62 PASS
@@ -57,8 +67,28 @@ Signal: 43.4 (neutral/HOLD)
 Valid Ranking: VIX(#1), HY_SPREAD(#2), WTI(#3), DXY(#4), INDIVIDUAL_NET(#5)
 Excluded (self-ref): BBAND, MA50, RSI14, STOCH_RSI, MARKET_MOMENTUM
 KRX 수급: 3/3 수집 완료 (264행, 최신 2026-06-05)
+News Agent: NQ-1~4 PASS, 뉴스 기반 시장 해설 생성, 파이프라인 통합 완료
+
+[T1~T8 품질 검증 + ROADMAP Phase 7/8 - 2026-06-08 15:30]
+8. T1~T8 품질 검증 태스크 완료 (T7 CI 검증 대기 제외)
+   - T1: Lumentum(LITE) +928.9% — 실제 AI 광통신 수혜 확인 (데이터센터 coherent transceiver + Nvidia $20억). warn_reason 업데이트
+   - T2: 삼성전기(009150.KS) +1065.8% — 실제 AI MLCC/FC-BGA 수혜 확인 (목표주가 145% 상향, CEO 장내매수 3회). warn_reason 업데이트
+   - T3: Z-Score 유효 지표 13개 확인: INDIVIDUAL_NET, NASDAQ100, NIKKEI225, DOW, INSTITUTION_NET, US10Y, WTI, FOREIGN_NET, HY_SPREAD, VIX, DXY, MARKET_STRENGTH, KOSDAQ
+   - T4: 시그널 43.2→43.4 의도된 변화 (co-movement 지표 2개 제거 → 나머지 가중치 재정규화)
+   - T5: NASDAQ100 combined_weight=0.1452 < HY_SPREAD=0.2829. Z-Score signal(현재 레벨)과 선행성(importance)은 다른 개념
+   - T6: News Agent _resolve_redirect() 구현. NQ-4: news.google.com 제외 기준으로 강화. pm_quality_checks 업데이트
+   - T7: requirements.txt 생성 + workflow env vars 추가. CI 실행 성공 검증 대기 중 (ROADMAP [⚠] 유지)
+   - T8: ROADMAP.md F05 0/3→3/3 완료 표시
+   - ROADMAP.md Phase 7/8 전체 추가 (T1-T8 체크박스, T9-T12 [?] 항목)
+   - pm_self_diagnosis SD-7/SD-8 추가 (Actions 상태 + News URL 자동 진단)
+   - CLAUDE.md: GitHub Actions run-pipeline PASS Evidence 없이 완료 보고 금지 규칙 추가
+
+=== pm_quality_checks 현황 ===
+16/16 PASS (IQ-1~4, SA-1~7, SI-1, NQ-1~4)
+SD-7/SD-8 추가 후: pm_self_diagnosis SD-1~SD-8
 
 === 다음 단계 ===
-- Google Sheets 완전 자동화: GOOGLE_SA_JSON 서비스 계정 설정
-- Notion 연동 활성화: NOTION_TOKEN 추가
-- 주간 파이프라인 첫 자동 실행 확인 (다음 주 월요일 07:00 KST)
+- T11: GitHub Actions run-pipeline CI 실행 검증 (실제 conclusion=success 로그)
+- T9: Google Sheets 완전 자동화 (GOOGLE_SA_JSON 서비스 계정 설정)
+- T10: Notion 연동 활성화 (NOTION_TOKEN 추가)
+- T12: pm_self_diagnosis SD-7 활성화 (GITHUB_TOKEN .env 추가)

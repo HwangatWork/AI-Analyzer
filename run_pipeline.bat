@@ -55,122 +55,134 @@ if %errorlevel% neq 0 (
 call :tg_step "1" "Data Agent" "지표 데이터 수집 완료 — data/raw/ 저장"
 
 :: ────────────────────────────────────────────────────────────
-:: 2. Refresh Data
+:: 2. News Agent (WARNING 수준 — 실패해도 파이프라인 계속)
 :: ────────────────────────────────────────────────────────────
-echo [2/11] Refresh Data 실행 중...
-python -X utf8 agents/refresh_data.py >> "%LOG_FILE%" 2>&1
-call :tg_step "2" "Refresh" "최신 지표값 갱신 완료"
+echo [2/12] News Agent 실행 중...
+python -X utf8 agents/run_news_agent.py >> "%LOG_FILE%" 2>&1
+if %errorlevel% neq 0 (
+    echo [WARNING] News Agent failed - continuing
+    call :tg_step "2" "News Agent" "⚠ 뉴스 수집 실패 — 파이프라인 계속 진행"
+) else (
+    call :tg_step "2" "News Agent" "시장 해설 생성 완료 — NQ-1~NQ-4 PASS"
+)
 
 :: ────────────────────────────────────────────────────────────
-:: 3. Analysis Agent
+:: 3. Refresh Data
 :: ────────────────────────────────────────────────────────────
-echo [3/11] Analysis Agent 실행 중...
+echo [3/12] Refresh Data 실행 중...
+python -X utf8 agents/refresh_data.py >> "%LOG_FILE%" 2>&1
+call :tg_step "3" "Refresh" "최신 지표값 갱신 완료"
+
+:: ────────────────────────────────────────────────────────────
+:: 4. Analysis Agent
+:: ────────────────────────────────────────────────────────────
+echo [4/12] Analysis Agent 실행 중...
 python -X utf8 agents/run_analysis_agent_v2.py >> "%LOG_FILE%" 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] Analysis Agent failed
-    call :tg_fail "3/11 Analysis Agent"
+    call :tg_fail "4/12 Analysis Agent"
     curl -s -H "Title: AI Analyzer FAILED" -H "Tags: x" -d "Analysis Agent failed" https://ntfy.sh/%NTFY_TOPIC% > nul 2>&1
     goto :error
 )
-call :tg_step "3" "Analysis Agent" "Granger 인과관계 + 시차 상관 + 동행 페널티 분석 완료"
+call :tg_step "4" "Analysis Agent" "Granger 인과관계 + 시차 상관 + 동행 페널티 분석 완료"
 
 :: ────────────────────────────────────────────────────────────
-:: 4. Stock Agent
+:: 5. Stock Agent
 :: ────────────────────────────────────────────────────────────
-echo [4/11] Stock Agent 실행 중...
+echo [5/12] Stock Agent 실행 중...
 python -X utf8 agents/run_stock_agent_v2.py >> "%LOG_FILE%" 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] Stock Agent failed
-    call :tg_fail "4/11 Stock Agent"
+    call :tg_fail "5/12 Stock Agent"
     curl -s -H "Title: AI Analyzer FAILED" -H "Tags: x" -d "Stock Agent failed" https://ntfy.sh/%NTFY_TOPIC% > nul 2>&1
     goto :error
 )
-call :tg_step "4" "Stock Agent" "KOSPI/S&P500 기여·수혜 종목 Top5 분석 완료"
+call :tg_step "5" "Stock Agent" "KOSPI/S&P500 기여·수혜 종목 Top5 분석 완료"
 
 :: ────────────────────────────────────────────────────────────
-:: 5. Evaluator Agent
+:: 6. Evaluator Agent
 :: ────────────────────────────────────────────────────────────
-echo [5/11] Evaluator Agent 실행 중...
+echo [6/12] Evaluator Agent 실행 중...
 python -X utf8 agents/run_evaluator_agent_v2.py >> "%LOG_FILE%" 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] Evaluator Agent failed
-    call :tg_fail "5/11 Evaluator Agent"
+    call :tg_fail "6/12 Evaluator Agent"
     curl -s -H "Title: AI Analyzer FAILED" -H "Tags: x" -d "Evaluator failed" https://ntfy.sh/%NTFY_TOPIC% > nul 2>&1
     goto :error
 )
-call :tg_step "5" "Evaluator Agent" "통계 유의성 검증 + 신뢰도 점수 산출 완료"
+call :tg_step "6" "Evaluator Agent" "통계 유의성 검증 + 신뢰도 점수 산출 완료"
 
 :: ────────────────────────────────────────────────────────────
-:: 6. Sector Agent (WARNING 수준 — 파이프라인 계속)
+:: 7. Sector Agent (WARNING 수준 — 파이프라인 계속)
 :: ────────────────────────────────────────────────────────────
-echo [6/11] Sector Agent 실행 중...
+echo [7/12] Sector Agent 실행 중...
 python -X utf8 agents/run_sector_agent.py >> "%LOG_FILE%" 2>&1
 if %errorlevel% neq 0 (
     echo [WARNING] Sector Agent failed - continuing
-    call :tg_step "6" "Sector Agent" "⚠ 일부 실패 — 파이프라인 계속 진행"
+    call :tg_step "7" "Sector Agent" "⚠ 일부 실패 — 파이프라인 계속 진행"
 ) else (
-    call :tg_step "6" "Sector Agent" "반도체/AI/에너지 섹터 딥다이브 완료"
+    call :tg_step "7" "Sector Agent" "반도체/AI/에너지 섹터 딥다이브 완료"
 )
 
 :: ────────────────────────────────────────────────────────────
-:: 7. Validation Agent
+:: 8. Validation Agent
 :: ────────────────────────────────────────────────────────────
-echo [7/11] Validation Agent 실행 중...
+echo [8/12] Validation Agent 실행 중...
 python -X utf8 agents/run_validation_agent.py >> "%LOG_FILE%" 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] Validation BLOCKED — CRITICAL 검증 실패
-    call :tg_fail "7/11 Validation Agent — CRITICAL 검증 실패"
+    call :tg_fail "8/12 Validation Agent — CRITICAL 검증 실패"
     curl -s -H "Title: AI Analyzer 검증 실패" -H "Tags: x,warning" -d "Validation CRITICAL 실패" https://ntfy.sh/%NTFY_TOPIC% > nul 2>&1
     goto :error
 )
-call :tg_step "7" "Validation Agent" "30개 체크 전항목 PASS — CRITICAL 0개"
+call :tg_step "8" "Validation Agent" "30개 체크 전항목 PASS — CRITICAL 0개"
 
 :: ────────────────────────────────────────────────────────────
-:: 8. UI Agent
+:: 9. UI Agent
 :: ────────────────────────────────────────────────────────────
-echo [8/11] UI Agent 실행 중...
+echo [9/12] UI Agent 실행 중...
 python -X utf8 agents/run_ui_agent.py >> "%LOG_FILE%" 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] UI Agent failed
-    call :tg_fail "8/11 UI Agent"
+    call :tg_fail "9/12 UI Agent"
     curl -s -H "Title: AI Analyzer FAILED" -H "Tags: x" -d "UI Agent failed" https://ntfy.sh/%NTFY_TOPIC% > nul 2>&1
     goto :error
 )
-call :tg_step "8" "UI Agent" "대시보드 생성 완료 — UX-1~UX-7 PASS"
+call :tg_step "9" "UI Agent" "대시보드 생성 완료 — UX-1~UX-7 PASS"
 
 :: ────────────────────────────────────────────────────────────
-:: 9. Report
+:: 10. Report
 :: ────────────────────────────────────────────────────────────
-echo [9/11] Report 생성 중...
+echo [10/12] Report 생성 중...
 python -X utf8 agents/generate_report_v2.py >> "%LOG_FILE%" 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] Report generation failed
-    call :tg_fail "9/11 Report"
+    call :tg_fail "10/12 Report"
     curl -s -H "Title: AI Analyzer FAILED" -H "Tags: x" -d "Report failed" https://ntfy.sh/%NTFY_TOPIC% > nul 2>&1
     goto :error
 )
-call :tg_step "9" "Report" "FINAL_REPORT_v2.md 생성 완료"
+call :tg_step "10" "Report" "FINAL_REPORT_v2.md 생성 완료"
 
 :: ────────────────────────────────────────────────────────────
-:: 10. Audit Agent (WARNING 수준)
+:: 11. Audit Agent (WARNING 수준)
 :: ────────────────────────────────────────────────────────────
-echo [10/11] Audit Agent 실행 중...
+echo [11/12] Audit Agent 실행 중...
 python -X utf8 agents/run_audit_agent.py >> "%LOG_FILE%" 2>&1
 if %errorlevel% neq 0 (
     echo [WARNING] Audit Agent 경고
     curl -s -H "Title: AI Analyzer 감사 경고" -H "Tags: warning" -d "Audit Agent 이상 감지" https://ntfy.sh/%NTFY_TOPIC% > nul 2>&1
-    call :tg_step "10" "Audit Agent" "⚠ 자체검증 체계 일부 이상 — 로그 확인 필요"
+    call :tg_step "11" "Audit Agent" "⚠ 자체검증 체계 일부 이상 — 로그 확인 필요"
 ) else (
-    call :tg_step "10" "Audit Agent" "62/62 PASS — Agent 자체검증 체계 정상"
+    call :tg_step "11" "Audit Agent" "62/62 PASS — Agent 자체검증 체계 정상"
 )
 
 :: ────────────────────────────────────────────────────────────
-:: 11. Telegram 시그널 체크 + CTD 연동
+:: 12. Telegram 시그널 체크 + CTD 연동
 :: ────────────────────────────────────────────────────────────
-echo [11/11] Telegram 시그널 체크 + CTD 연동 중...
+echo [12/12] Telegram 시그널 체크 + CTD 연동 중...
 python -X utf8 agents/run_telegram_agent.py --check >> "%LOG_FILE%" 2>&1
 python -X utf8 agents/run_ctd_integration_agent.py >> "%LOG_FILE%" 2>&1
-call :tg_step "11" "완료 처리" "시그널 체크 + CTD 연동 완료"
+call :tg_step "12" "완료 처리" "시그널 체크 + CTD 연동 완료"
 
 :: ────────────────────────────────────────────────────────────
 :: 최종 완료 요약 (텔레그램 + ntfy.sh)

@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-06-08T19:12:14.249240",
+  "date": "2026-06-08",
+  "movements": [
+    "S&P500 7,383.74 (▼2.64%)",
+    "나스닥 25,709.43 (▼4.18%)",
+    "다우 50,866.78 (▼1.35%)",
+    "코스피 7,484.41 (▼8.29%)"
+  ],
+  "causes": [
+    "AI칩 섹터 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▼4.18%",
+    "Yahoo Finance 악재 보도 연속 → 투자심리 위축 → 나스닥 ▼4.18%",
+    "Fed 금리 인상 우려 부각 → 채권 수익률 상승 → 밸류에이션 압박"
+  ],
+  "watchpoints": [
+    {
+      "date": "2026-06-10",
+      "event": "CPI (2026년 5월 데이터) 발표",
+      "significance": "인플레 둔화 확인 시 금리 우려 완화, 상회 시 매도 압력"
+    },
+    {
+      "date": "2026-06-17",
+      "event": "FOMC 금리 결정 발표",
+      "significance": "금리 동결 여부, 성장주·반도체 방향성 분수령"
+    },
+    {
+      "date": "2026-06-26",
+      "event": "PCE 물가 (2026년 5월 데이터) 발표",
+      "significance": "Fed 선호 물가 지표, 인플레 방향성 가늠"
+    },
+    {
+      "date": "2026-07-03",
+      "event": "비농업 고용(NFP) (2026년 6월 데이터) 발표",
+      "significance": "강한 고용은 금리 인하 기대 후퇴, 약한 고용은 경기 우려"
+    }
+  ],
+  "sources": [
+    {
+      "source": "CNN",
+      "link": "https://www.cnn.com"
+    },
+    {
+      "source": "Yahoo Finance",
+      "link": "https://finance.yahoo.com"
+    },
+    {
+      "source": "Yahoo Finance",
+      "link": "https://finance.yahoo.com"
+    },
+    {
+      "source": "Investor's Business Daily",
+      "link": "https://www.investors.com"
+    },
+    {
+      "source": "Benzinga",
+      "link": "https://www.benzinga.com"
+    }
+  ],
+  "market_raw": {
+    "SP500": {
+      "close": 7383.74,
+      "change": -2.64,
+      "date": "2026-06-05"
+    },
+    "NASDAQ": {
+      "close": 25709.43,
+      "change": -4.18,
+      "date": "2026-06-05"
+    },
+    "DOW": {
+      "close": 50866.78,
+      "change": -1.35,
+      "date": "2026-06-05"
+    },
+    "KOSPI": {
+      "close": 7484.41,
+      "change": -8.29,
+      "date": "2026-06-08"
+    }
+  },
+  "done_criteria": {
+    "passed": true,
+    "failures": []
+  }
+}

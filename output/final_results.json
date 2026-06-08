@@ -469,7 +469,7 @@
         "data_source": "yfinance",
         "ticker": "LITE",
         "name": "Lumentum",
-        "warn_reason": "광학부품 AI 데이터센터 수요 급증 + 기업 구조 변화 가능성 — 수동 확인 권장"
+        "warn_reason": "AI 광통신 인프라 수요 폭증 (데이터센터 coherent transceiver) + Nvidia $20억 투자 확정 — 매출 +90.1% YoY 실적 확인, 분사/합병 이벤트 없음. 실제 사업 성장 수혜."
       },
       {
         "correlation": 0.511,
@@ -607,7 +607,7 @@
         "data_source": "FDR",
         "ticker": "009150.KS",
         "name": "삼성전기",
-        "warn_reason": "극단 수익률 — 기업 이벤트(분사/합병/AI테마) 가능성, 수동 확인 권장"
+        "warn_reason": "AI 서버용 MLCC·FC-BGA 수요 폭증 — 목표주가 145% 상향(Mirae Asset), CEO 장내매수 3회 확인. 분사/합병 이벤트 없음. 실제 AI 인프라 공급망 수혜 (실수익률 yfinance +1191% 교차검증)."
       },
       {
         "correlation": 0.7832,

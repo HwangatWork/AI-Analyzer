@@ -33,11 +33,15 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install FinanceDataReader yfinance pandas numpy scipy httpx pyarrow requests
+          pip install -r requirements.txt
 
       - name: Run pipeline
         env:
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          FRED_API_KEY:          ${{ secrets.FRED_API_KEY }}
+          TELEGRAM_BOT_TOKEN:    ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:      ${{ secrets.TELEGRAM_CHAT_ID }}
+          KRX_ID:                ${{ secrets.KRX_ID }}
+          KRX_PW:                ${{ secrets.KRX_PW }}
         run: |
           python -X utf8 agents/run_data_agent_v2.py
           python -X utf8 agents/run_analysis_agent_v2.py

@@ -36,7 +36,7 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 - [x] F02 매크로 지표 6개 수집 (FRED API) — 6/6 성공
 - [x] F03 시장 심리 지표 수집 — 4/6 (CNN/PutCall API 차단)
 - [x] F04 기술적 지표 8개 산출 — 8/8 성공
-- [x] F05 수급 3개 수집 (pykrx) — 0/3 (KRX 로그인 미등록)
+- [x] F05 수급 3개 수집 (pykrx) — 3/3 완료 (KRX_ID/PW 등록, 264행, 최신 2026-06-05)
 
 ## Phase 3 - 분석 (Analysis Agent + Stock Agent 병렬)
 - [x] F06 지표별 S&P500 상관관계 분석
@@ -67,10 +67,28 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 - [x] ntfy.sh 알림 — 완료/실패 push notification
 - [x] CLAUDE.md 영구 권한 — PM Agent 자율 실행 (확인 불필요)
 
-## Phase 7 - 완료
+## Phase 7 - 완료 및 품질 검증 (T1~T8)
+
+### 산출물
 - [x] output/final_results.json — PM Conditions A~H 전항목 PASS
 - [x] output/dashboard.html — 7탭 대시보드 (v5)
 - [x] https://hwangatwork.github.io/AI-Analyzer/ — GitHub Pages 라이브
+
+### T1~T8 품질 검증 태스크 (2026-06-08)
+- [x] T1: Lumentum(LITE) +928.9% — AI 광통신 실제 수혜 검증 + warn_reason 업데이트 (데이터센터 coherent transceiver, Nvidia $20억)
+- [x] T2: 삼성전기(009150.KS) +1065.8% — AI MLCC/FC-BGA 실제 수혜 검증 + warn_reason 업데이트 (목표주가 145% 상향, CEO 장내매수 3회)
+- [x] T3: Z-Score 대시보드 유효 지표 13개 목록 확인 (자기참조 5개 제외 검증 완료)
+- [x] T4: 시그널 점수 43.2→43.4 — co-movement 지표 제거 후 가중치 재정규화, 의도된 변화 확인
+- [x] T5: NASDAQ100 combined_weight=0.1452 < HY_SPREAD=0.2829 역설 해소 (Z-Score signal level ≠ importance)
+- [x] T6: News Agent URL — Google 리다이렉트→실제 도메인 해소 (_resolve_redirect), NQ-4 강화 (news.google.com 제외 기준)
+- [⚠] T7: GitHub Actions run-pipeline 실패 수정 — requirements.txt 생성 + env vars 추가 완료, CI 실행 성공 검증 대기 중
+- [x] T8: F05 수급 3개 수집 0/3→3/3 완료 (ROADMAP.md 업데이트)
+
+## Phase 8 - 외부 연동 (자격증명 대기 중)
+- [?] T9: Google Sheets 완전 자동화 — GOOGLE_SA_JSON 서비스 계정 경로 .env 추가 필요
+- [?] T10: Notion 연동 활성화 — NOTION_TOKEN .env 추가 필요 (Page ID: 3781a4c7-30d8-81f9-bf7d-db6541a23fcf)
+- [?] T11: GitHub Actions run-pipeline CI 실행 검증 — 실제 conclusion=success 로그 필수 (T7 후속)
+- [?] T12: pm_self_diagnosis SD-7 활성화 — GITHUB_TOKEN .env 추가 시 Actions 상태 자동 진단
 
 ---
 

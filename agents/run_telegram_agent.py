@@ -473,14 +473,16 @@ def run_summary() -> None:
         bull  = sig.get("bullish_count", 0)
         total_sigs = sig.get("total_signals", 0)
         rank  = data.get("indicator_weight_ranking", [])
-        sp5   = data.get("sp500_analysis", {}).get("contribution_top5", [])
-        ksp5  = data.get("kospi_analysis", {}).get("contribution_top5", [])
+        sp_cont  = data.get("sp500_analysis", {}).get("contribution_top5", [])
+        sp_bene  = data.get("sp500_analysis", {}).get("beneficiary_top5", [])
+        ksp_cont = data.get("kospi_analysis", {}).get("contribution_top5", [])
+        ksp_bene = data.get("kospi_analysis", {}).get("beneficiary_top5", [])
         meta  = data.get("meta", {})
         col_rate = meta.get("collection_rate", "N/A")
     except Exception as e:
         data = {}
         score, direc, bull, total_sigs = 0, "N/A", 0, 0
-        rank, sp5, ksp5, col_rate = [], [], [], "N/A"
+        rank, sp_cont, sp_bene, ksp_cont, ksp_bene, col_rate = [], [], [], [], [], "N/A"
 
     # 방향 이모지
     if score >= 75:
@@ -514,9 +516,26 @@ def run_summary() -> None:
         g    = " G✓" if r.get("sp500_granger_sig") else ""
         top3_lines.append(f"  {r['rank']}. {nm}{g} ({w:.4f})")
 
-    # Top1 종목
-    sp_top  = sp5[0] if sp5  else {}
-    ksp_top = ksp5[0] if ksp5 else {}
+    def _cont_line(s: dict, idx: int) -> str:
+        name = s.get("name", "N/A")
+        ret  = s.get("stock_return_pct", 0)
+        mc   = s.get("market_cap_start_b") or s.get("market_cap_b")  # 시작 시총 우선
+        sc   = s.get("contribution_score", 0)
+        mc_str = f" ${mc:.0f}B(시작) |" if mc else ""
+        spinoff = " ⚠분사" if s.get("spinoff_event") else ""
+        return f"  {idx}.{mc_str} {name} | {ret:+.1f}%{spinoff} | 기여={sc:.3f}"
+
+    def _bene_line(s: dict, idx: int) -> str:
+        name   = s.get("name", "N/A")
+        excess = s.get("excess_return_pct", 0)
+        sc     = s.get("beneficiary_score", 0)
+        warn   = " ⚠" if abs(excess) > 1000 else ""
+        return f"  {idx}. {name} | 초과 {excess:+.1f}%{warn} | 점수={sc:.3f}"
+
+    sp_cont_lines  = [_cont_line(s, i) for i, s in enumerate(sp_cont[:3],  1)]
+    sp_bene_lines  = [_bene_line(s, i) for i, s in enumerate(sp_bene[:3],  1)]
+    ksp_cont_lines = [_cont_line(s, i) for i, s in enumerate(ksp_cont[:3], 1)]
+    ksp_bene_lines = [_bene_line(s, i) for i, s in enumerate(ksp_bene[:3], 1)]
 
     now = datetime.now().strftime("%Y/%m/%d %H:%M")
 
@@ -531,9 +550,17 @@ def run_summary() -> None:
         "<b>📌 가중치 Top3 (Granger 인과 기반)</b>",
         *top3_lines,
         "",
-        "<b>🏆 기여 Top1</b>",
-        f"  S&P500: {sp_top.get('name','N/A')}  {sp_top.get('stock_return_pct',0):+.1f}%",
-        f"  코스피:  {ksp_top.get('name','N/A')}  {ksp_top.get('stock_return_pct',0):+.1f}%",
+        "<b>🏆 S&amp;P500 지수 기여 Top3</b>",
+        *sp_cont_lines,
+        "",
+        "<b>🚀 S&amp;P500 수혜 종목 Top3</b>",
+        *sp_bene_lines,
+        "",
+        "<b>🇰🇷 코스피 지수 기여 Top3</b>",
+        *ksp_cont_lines,
+        "",
+        "<b>🇰🇷 코스피 수혜 종목 Top3</b>",
+        *ksp_bene_lines,
         "",
         "<b>🔍 검증 결과</b>",
         f"  Validation: {val_pass}/{val_total} PASS, CRITICAL={val_crit}",

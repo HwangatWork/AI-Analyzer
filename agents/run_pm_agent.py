@@ -191,6 +191,81 @@ def pm_quality_checks() -> list[dict]:
         "fix_stages": ["run_ui_agent.py", "generate_report_v2.py"],
     })
 
+    # ── News Quality ───────────────────────────────────────────
+
+    news_file = OUT_DIR / "news_report.json"
+    if news_file.exists():
+        try:
+            news_data = json.loads(news_file.read_text(encoding="utf-8"))
+            movements = news_data.get("movements", [])
+            causes    = news_data.get("causes", [])
+            watchpts  = news_data.get("watchpoints", [])
+            sources   = news_data.get("sources", [])
+
+            # NQ-1: 등락률(%) + 방향 기호
+            nq1_ok = any(
+                ("%" in m) and any(c in m for c in ("▲", "▼")) and any(c.isdigit() for c in m)
+                for m in movements
+            )
+            results.append({
+                "check": "NQ-1 핵심 움직임 등락률(%)",
+                "pass":  nq1_ok,
+                "detail": "OK — 등락률 포함" if nq1_ok else "FAIL — 등락률(%) 없음",
+                "fix_stages": ["run_news_agent.py"],
+            })
+
+            # NQ-2: 원인→결과 구조 (→ 기호 필수, 헤드라인 복붙 불가)
+            nq2_ok = bool(causes) and all("→" in c for c in causes)
+            results.append({
+                "check": "NQ-2 가능한 원인 원인→결과 구조",
+                "pass":  nq2_ok,
+                "detail": "OK — 모든 원인에 → 포함" if nq2_ok else "FAIL — → 없는 원인 존재",
+                "fix_stages": ["run_news_agent.py"],
+            })
+
+            # NQ-3: 날짜 명시
+            nq3_ok = bool(watchpts) and any(
+                wp.get("date", "미정") not in ("미정", "", None) and len(wp.get("date", "")) >= 7
+                for wp in watchpts
+            )
+            results.append({
+                "check": "NQ-3 주시 포인트 날짜 명시",
+                "pass":  nq3_ok,
+                "detail": "OK — 날짜 포함" if nq3_ok else "FAIL — 날짜 없음",
+                "fix_stages": ["run_news_agent.py"],
+            })
+
+            # NQ-4: ≥3개 실제 기사 URL (Google 리다이렉트 제외)
+            real_links   = [s for s in sources if s.get("link","").startswith("http")
+                            and "news.google.com" not in s.get("link","")]
+            google_links = [s for s in sources if s.get("link","").startswith("http")
+                            and "news.google.com" in s.get("link","")]
+            nq4_ok = len(real_links) >= 3
+            detail = (f"OK — 실제URL {len(real_links)}개" if nq4_ok else
+                      f"FAIL — 실제URL {len(real_links)}개 + 구글리다이렉트 {len(google_links)}개")
+            results.append({
+                "check": "NQ-4 뉴스 실제URL ≥3개",
+                "pass":  nq4_ok,
+                "detail": detail,
+                "fix_stages": ["run_news_agent.py"],
+            })
+        except Exception as e:
+            for nq in ["NQ-1", "NQ-2", "NQ-3", "NQ-4"]:
+                results.append({
+                    "check": f"{nq} (파싱 오류)",
+                    "pass":  False,
+                    "detail": f"FAIL — news_report.json 파싱 실패: {e}",
+                    "fix_stages": ["run_news_agent.py"],
+                })
+    else:
+        for nq in ["NQ-1", "NQ-2", "NQ-3", "NQ-4"]:
+            results.append({
+                "check": f"{nq} (파일 없음)",
+                "pass":  False,
+                "detail": "FAIL — output/news_report.json 없음",
+                "fix_stages": ["run_news_agent.py"],
+            })
+
     return results
 
 
@@ -207,6 +282,8 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
       SD-4  ⚠ 종목 warn_reason 누락
       SD-5  주식 리스트 5개 미만
       SD-6  시그널 점수 ↔ 방향 불일치
+      SD-7  GitHub Actions 마지막 run-pipeline 실패 감지 (GITHUB_TOKEN 필요)
+      SD-8  News Agent 실제 URL 부족 (< 3개) → run_news_agent.py 재실행
 
     문제 발견 시:
       → fix_request.md 작성
@@ -288,6 +365,54 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
     elif score < 35 and "BUY" in direc:
         issues.append(f"SD-6 점수 {score:.1f} (약세)인데 방향={direc} — 시그널 계산 오류 가능")
 
+    # SD-7: GitHub Actions 마지막 run-pipeline 실패 감지 (GITHUB_TOKEN 필요)
+    try:
+        import os as _os
+        import urllib.request as _urllib_req
+        _gh_token = _os.getenv("GITHUB_TOKEN", "")
+        if _gh_token:
+            _req = _urllib_req.Request(
+                "https://api.github.com/repos/HwangatWork/AI-Analyzer/actions/runs"
+                "?per_page=10&branch=main",
+                headers={"Authorization": f"token {_gh_token}",
+                         "Accept": "application/vnd.github+json"},
+            )
+            with _urllib_req.urlopen(_req, timeout=10) as _resp:
+                _runs = json.loads(_resp.read()).get("workflow_runs", [])
+            _pipeline_runs = [
+                r for r in _runs
+                if "deploy" in (r.get("name") or "").lower()
+                and r.get("event") in ("schedule", "workflow_dispatch", "push")
+            ]
+            if _pipeline_runs:
+                _last = _pipeline_runs[0]
+                if _last.get("conclusion") == "failure":
+                    issues.append(
+                        f"SD-7 GitHub Actions run-pipeline 실패: "
+                        f"run_id={_last.get('id')} ({(_last.get('created_at') or '')[:10]}) "
+                        f"— requirements.txt/env vars 적용 후 재실행 필요"
+                    )
+    except Exception:
+        pass  # GITHUB_TOKEN 없거나 API 오류 시 건너뜀
+
+    # SD-8: News Agent 실제 URL 부족 시 재실행 플래그
+    _news_file = OUT_DIR / "news_report.json"
+    if _news_file.exists():
+        try:
+            _news_data = json.loads(_news_file.read_text(encoding="utf-8"))
+            _real_links = [
+                s for s in _news_data.get("sources", [])
+                if s.get("link", "").startswith("http")
+                and "news.google.com" not in s.get("link", "")
+            ]
+            if len(_real_links) < 3:
+                issues.append(
+                    f"SD-8 News Agent 실제URL {len(_real_links)}개 (최소 3개 필요) "
+                    f"— run_news_agent.py 재실행 필요"
+                )
+        except Exception:
+            pass
+
     print(f"[PM] 자가진단 완료 — 이슈 {len(issues)}개")
     for iss in issues:
         print(f"  ⚠ {iss}")
@@ -341,6 +466,9 @@ def _auto_fix_from_diagnosis(issues: list[str]) -> None:
             scripts_needed |= {"run_evaluator_agent_v2.py", "run_validation_agent.py"}
         if "SD-4" in iss or "SD-5" in iss:
             scripts_needed |= {"run_stock_agent_v2.py"}
+        if "SD-8" in iss:
+            scripts_needed |= {"run_news_agent.py"}
+        # SD-7 (GitHub Actions 실패)는 원격 CI 문제 — 로컬 재실행 불필요
 
     if not scripts_needed:
         return
@@ -896,7 +1024,7 @@ if __name__ == "__main__":
     if all_passed:
         _tg_send(
             f"🎉 <b>PM Agent 모든 조건 통과</b>\n"
-            f"C1~C6: ✅  자가진단: ✅  QC 12/12: ✅\n"
+            f"C1~C6: ✅  자가진단: ✅  QC {len(qc_results)}/{len(qc_results)}: ✅\n"
             f"<b>APPROVE 요청 전송 완료</b>\n"
             f"<i>{datetime.now().strftime('%Y/%m/%d %H:%M')}</i>"
         )
