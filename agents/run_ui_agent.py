@@ -499,7 +499,7 @@ if __name__ == "__main__":
 
     _done_criteria = {
         "UX-1 모바일 nav 스크롤":      "overflow-x" in _html_text,
-        "UX-2 HOLD 카드 설명":         "신규 매수" in _html_text and "기존 보유" in _html_text,
+        "UX-2 HOLD 카드 설명":         signal.get("direction") != "neutral" or ("신규 매수" in _html_text and "기존 보유" in _html_text),
         "UX-3 $0B 경고 배지":          (not _zero_mcap) or "미집계" in _html_text,
         "UX-4 극단 수익률 경고":        not any(abs(s.get("stock_return_pct") or 0) > 1000 for s in _all_stocks) or "이벤트 영향" in _html_text,
         "UX-5 신뢰도 설명":            "개 강세" in _html_text,

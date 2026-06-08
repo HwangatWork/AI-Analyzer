@@ -112,12 +112,46 @@ def collect_f01():
             fail(name, str(e))
 
 
-# ── F02: 매크로 지표 6개 (FRED) ────────────────────────────────────────────
+# ── F02: 매크로 지표 6개 (FRED + yfinance fallback) ────────────────────────
+
+def _yf_macro_fallback(name: str) -> bool:
+    """FRED 실패 시 yfinance로 매크로 지표 수집. 성공 시 True 반환."""
+    import yfinance as yf
+    yf_map = {
+        "WTI":   ("CL=F",      1.0),    # 원유 선물 ($/barrel)
+        "DXY":   ("DX-Y.NYB",  1.0),    # 달러인덱스
+        "US10Y": ("^TNX",      1.0),    # 10년물 금리 (%, FRED와 단위 동일)
+        "T10Y2Y": None,                  # ^TNX - ^IRX 계산
+    }
+    if name not in yf_map:
+        return False
+    try:
+        entry = yf_map[name]
+        if name == "T10Y2Y":
+            t10 = yf.Ticker("^TNX").history(start=START, end=END)[["Close"]]
+            t2  = yf.Ticker("^IRX").history(start=START, end=END)[["Close"]]
+            merged = t10.join(t2, how="inner", lsuffix="_10", rsuffix="_2")
+            out = merged.reset_index().rename(columns={"Date": "date"})
+            out["value"] = out["Close_10"] - out["Close_2"]
+            out = out[["date", "value"]].dropna()
+        else:
+            ticker, scale = entry
+            hist = yf.Ticker(ticker).history(start=START, end=END)[["Close"]]
+            out = hist.reset_index().rename(columns={"Date": "date", "Close": "value"})
+            out["value"] = out["value"] * scale
+            out = out[["date", "value"]].dropna()
+        if out.empty:
+            return False
+        save_parquet(out, name, f"yfinance:{yf_map[name][0] if entry else 'computed'}")
+        return True
+    except Exception:
+        return False
+
 
 def collect_f02():
-    print("\n[F02] 매크로 지표 6개 (FRED API)")
+    print("\n[F02] 매크로 지표 6개 (FRED API + yfinance fallback)")
     series_map = {
-        "US10Y":      "DGS10",          # Fix: GS10(월별) -> DGS10(일별)
+        "US10Y":      "DGS10",
         "DXY":        "DTWEXBGS",
         "WTI":        "DCOILWTICO",
         "FED_ASSETS": "WALCL",
@@ -129,7 +163,10 @@ def collect_f02():
             df = fred_series(sid)
             save_parquet(df, name, f"FRED:{sid}")
         except Exception as e:
-            fail(name, f"FRED {sid}: {e}")
+            if _yf_macro_fallback(name):
+                print(f"  [{name}] FRED 실패 → yfinance fallback 성공")
+            else:
+                fail(name, f"FRED {sid}: {e}")
 
 
 # ── F03: 시장 심리 지표 ────────────────────────────────────────────────────

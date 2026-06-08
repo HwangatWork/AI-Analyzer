@@ -108,6 +108,11 @@ _SELF_REFERENTIAL = {
     "STOCH_RSI", "MARKET_MOMENTUM", "BETA"
 }
 
+# IQ-1: 동행지수 — 지수와 공동이동하므로 인과관계 불명확, 랭킹 완전 제외
+# (S&P500/KOSPI와 같이 움직이는 지수를 "S&P500 영향 지표"로 쓰는 것은 순환논리)
+_CONTEMPORANEOUS = {"NASDAQ100", "DOW", "KOSDAQ", "NIKKEI225"}
+
+
 def filter_ranking(ranking: list) -> tuple[list, list]:
     valid, filtered = [], []
     for item in ranking:
@@ -120,9 +125,15 @@ def filter_ranking(ranking: list) -> tuple[list, list]:
                   or (sp is not None and isinstance(sp, float) and np.isnan(sp))
                   or (kp is not None and isinstance(kp, float) and np.isnan(kp)))
 
-        # 자기참조 지표: S&P500 가격에서 직접 계산 → Granger가 순환논리 → 랭킹 완전 제외
+        # 자기참조 지표: S&P500 가격에서 직접 계산 → 순환논리 → 랭킹 완전 제외
         if ind in _SELF_REFERENTIAL:
             item["filter_reason"] = "자기참조 지표 — S&P500 가격에서 직접 계산, Granger 순환논리, 랭킹 제외"
+            filtered.append(item)
+            continue
+
+        # IQ-1: 동행지수 — 지수 간 공동이동, "영향 지표"로서 순환논리 → 랭킹 완전 제외
+        if ind in _CONTEMPORANEOUS:
+            item["filter_reason"] = "IQ-1 동행지수 — 지수 간 공동이동, 인과관계 불명확, 랭킹 제외"
             filtered.append(item)
             continue
 
