@@ -299,3 +299,23 @@ if __name__ == "__main__":
     print(json.dumps(decision, ensure_ascii=False, indent=2))
     print(f"\nSP500: {decision['sp500']['action']} (신뢰도 {decision['sp500']['confidence_pct']}%)")
     print(f"KOSPI: {decision['kospi']['action']} (신뢰도 {decision['kospi']['confidence_pct']}%)")
+
+    # ── Done Criteria 자체검증 ────────────────────────────────────
+    fails = []
+    for market, key in [("SP500", "sp500"), ("KOSPI", "kospi")]:
+        d = decision.get(key, {})
+        action = d.get("action", "")
+        conf   = d.get("confidence_pct", -1)
+        if action not in ("BUY", "SELL", "HOLD"):
+            fails.append(f"DE-1 {market} action 유효하지 않음: '{action}'")
+        if not (0 <= conf <= 100):
+            fails.append(f"DE-2 {market} confidence_pct 범위 오류: {conf}")
+        if not d.get("position_pct") and d.get("position_pct") != 0:
+            fails.append(f"DE-3 {market} position_pct 없음")
+    print("\n[Done Criteria] Decision Agent:")
+    if fails:
+        for f in fails:
+            print(f"  ✗ {f}")
+        print("[FAIL] Decision Agent Done Criteria 미충족")
+        sys.exit(1)
+    print("  ✓ DE-1~3 BUY/SELL/HOLD + 신뢰도 + 포지션 전항목 PASS")

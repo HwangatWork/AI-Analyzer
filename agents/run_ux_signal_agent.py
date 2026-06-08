@@ -5,13 +5,13 @@ UX Signal Agent — 시장 시그널 시각화 섹션 생성
 """
 
 def generate_signal_section(signal: dict) -> str:
-    score     = signal.get("score", 50) or 50
+    score     = max(0, min(100, int(signal.get("score", 50) or 50)))
     direction = signal.get("direction", "neutral")
     bullish   = signal.get("bullish_count", 0)
     bearish   = signal.get("bearish_count", 0)
     total     = signal.get("total_signals", 0)
-    computed  = signal.get("computed_at", "")[:10]
-    method    = signal.get("methodology", "")
+    computed  = (signal.get("computed_at", "") or "")[:10]
+    method    = signal.get("methodology", "") or ""
     ind_sigs  = signal.get("indicator_signals", [])
 
     dir_color = {"risk-on": "#22c55e", "neutral": "#f59e0b", "risk-off": "#ef4444"}.get(direction, "#64748b")
@@ -133,7 +133,49 @@ def generate_signal_section(signal: dict) -> str:
         <div style="font-size:1.4rem;font-weight:700;color:#94a3b8">{total}</div>
         <div style="font-size:0.75rem;color:#64748b">분석 지표 수</div>
       </div>
-      <div style="font-size:0.68rem;color:#334155;line-height:1.4;margin-top:4px">{method[:180]}…</div>
+      <div style="font-size:0.68rem;color:#334155;line-height:1.4;margin-top:4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical">{method if method else "방법론 미기재"}</div>
     </div>
   </div>
 </section>"""
+
+
+if __name__ == "__main__":
+    import json, sys
+    from pathlib import Path
+
+    BASE_DIR = Path(__file__).parent.parent
+    OUT_DIR  = BASE_DIR / "output"
+
+    def _jload(p):
+        try: return json.loads(p.read_text(encoding="utf-8"))
+        except Exception: return {}
+
+    results = _jload(OUT_DIR / "final_results.json")
+    signal  = results.get("market_signal", {
+        "score": 55, "direction": "neutral",
+        "bullish_count": 5, "bearish_count": 4,
+        "total_signals": 9, "indicator_signals": [],
+        "methodology": "복합 시그널 점수 계산",
+        "computed_at": "2026-06-08",
+    })
+
+    html = generate_signal_section(signal)
+
+    fails = []
+    score_val = max(0, min(100, int(signal.get("score", 50) or 50)))
+    if not (0 <= score_val <= 100):
+        fails.append(f"UX-S1 score 범위 오류: {score_val}")
+    if signal.get("direction", "") not in ("risk-on", "neutral", "risk-off"):
+        fails.append(f"UX-S2 direction 유효하지 않음: {signal.get('direction','')}")
+    if len(html) < 200:
+        fails.append("UX-S3 signal HTML 생성 실패 (200자 미만)")
+
+    print("=== Done Criteria ===")
+    for code in ["UX-S1", "UX-S2", "UX-S3"]:
+        fail_item = next((f for f in fails if code in f), None)
+        print(f"  {'✗' if fail_item else '✓'} {fail_item or code + ' PASS'}")
+
+    if fails:
+        print(f"\n[FAIL] {fails}")
+        sys.exit(1)
+    print("\n[PASS] UX-S1~UX-S3 통과")

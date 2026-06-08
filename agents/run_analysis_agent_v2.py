@@ -23,7 +23,8 @@ from datetime import datetime
 from scipy import stats
 
 try:
-    from statsmodels.tsa.stattools import grangercausalitytests
+    from statsmodels.tsa.stattools import grangercausalitytests, adfuller
+    from statsmodels.stats.multitest import multipletests
     HAS_STATSMODELS = True
 except ImportError:
     HAS_STATSMODELS = False
@@ -167,10 +168,33 @@ def compute_leading_corr(x: pd.Series, y: pd.Series, max_lead: int = 5) -> dict:
     }
 
 
+# ── ADF 정류성 검정 + 자동 차분 ─────────────────────────────
+
+def _adf_is_stationary(s: pd.Series, sig: float = 0.05) -> bool:
+    """ADF 검정: True if p < sig (정류적). statsmodels 없으면 True 가정."""
+    if not HAS_STATSMODELS:
+        return True
+    try:
+        result = adfuller(s.dropna(), autolag="AIC", regression="c")
+        return float(result[1]) < sig
+    except Exception:
+        return True
+
+
+def _ensure_stationary(s: pd.Series, max_diff: int = 2) -> tuple[pd.Series, int]:
+    """최대 max_diff회 차분하여 정류적 시계열 반환. (series, diff_count)"""
+    curr = s.dropna()
+    for d in range(max_diff + 1):
+        if _adf_is_stationary(curr):
+            return curr, d
+        curr = curr.diff().dropna()
+    return curr, max_diff
+
+
 def compute_granger(x: pd.Series, y: pd.Series, max_lag: int = 5) -> dict:
     """
     Granger 인과관계: x → y (x가 y를 Granger-cause하는가)
-    최소 p값과 해당 lag를 반환.
+    ADF 정류성 검정 후 필요 시 차분, 최소 p값과 해당 lag를 반환.
     statsmodels 없으면 수동 F-test로 대체.
     """
     merged = pd.concat([x, y], axis=1).dropna()
@@ -181,10 +205,20 @@ def compute_granger(x: pd.Series, y: pd.Series, max_lag: int = 5) -> dict:
         return {"granger_p": 1.0, "granger_lag": 0, "method": "insufficient_data",
                 "note": f"rows={len(merged)} < 60 minimum for reliable Granger"}
 
+    # ADF 정류성 검정 + 필요 시 차분
+    x_stat, x_diff = _ensure_stationary(merged["x"])
+    y_stat, y_diff = _ensure_stationary(merged["y"])
+    merged_stat = pd.concat([x_stat, y_stat], axis=1).dropna()
+    merged_stat.columns = ["x", "y"]
+
+    if len(merged_stat) < 30:
+        return {"granger_p": 1.0, "granger_lag": 0, "method": "adf_diff_too_short",
+                "note": f"차분 후 {len(merged_stat)}행 < 30 (x_diff={x_diff}, y_diff={y_diff})"}
+
     if HAS_STATSMODELS:
         try:
             res = grangercausalitytests(
-                merged[["y", "x"]], maxlag=min(max_lag, len(merged) // 10),
+                merged_stat[["y", "x"]], maxlag=min(max_lag, len(merged_stat) // 10),
                 verbose=False
             )
             best_p = 1.0
@@ -200,15 +234,17 @@ def compute_granger(x: pd.Series, y: pd.Series, max_lag: int = 5) -> dict:
                 "granger_p":   round(best_p, 6),
                 "granger_lag": best_lag,
                 "granger_sig": best_p < 0.05,
-                "method":      "grangercausalitytests",
+                "method":      "grangercausalitytests_adf",
+                "x_diff_order": x_diff,
+                "y_diff_order": y_diff,
             }
         except Exception as e:
             pass
 
     # 수동 F-test 폴백: 단순 lag 상관의 통계적 유의성
     try:
-        xv = merged["x"].values
-        yv = merged["y"].values
+        xv = merged_stat["x"].values
+        yv = merged_stat["y"].values
         n  = len(yv)
         # lag=1: OLS y_t ~ y_{t-1} + x_{t-1} vs y_t ~ y_{t-1}
         y_lag1 = yv[:-1]
@@ -224,13 +260,15 @@ def compute_granger(x: pd.Series, y: pd.Series, max_lag: int = 5) -> dict:
             rss_u = float(rss_u_arr[0])
         else:
             rss_u = np.sum((y_curr - X @ coef)**2)
-        f_stat = ((rss_r - rss_u) / 1) / (rss_u / (n - 3))
-        p_val  = float(stats.f.sf(max(f_stat, 0), 1, n - 3))
+        f_stat = ((rss_r - rss_u) / 1) / (rss_u / max(n - 3, 1))
+        p_val  = float(stats.f.sf(max(f_stat, 0), 1, max(n - 3, 1)))
         return {
             "granger_p":   round(p_val, 6),
             "granger_lag": 1,
             "granger_sig": p_val < 0.05,
-            "method":      "manual_f_test",
+            "method":      "manual_f_test_adf",
+            "x_diff_order": x_diff,
+            "y_diff_order": y_diff,
         }
     except Exception:
         return {"granger_p": 1.0, "granger_lag": 0, "granger_sig": False, "method": "failed"}
@@ -430,6 +468,22 @@ def compute_weight_ranking(sp500: dict, kospi: dict) -> list:
     )
     for i, r in enumerate(rows):
         r["rank"] = i + 1
+
+    # ── FDR (Benjamini-Hochberg) 다중비교 보정 ─────────────────
+    # ~174개 동시 검정 (29지표 × 2시장 × 3검정) → 허위 발견율 제어
+    if HAS_STATSMODELS and rows:
+        for target_key in [("sp500_granger_p", "sp500_granger_sig_fdr"),
+                           ("kospi_granger_p",  "kospi_granger_sig_fdr")]:
+            pval_key, sig_key = target_key
+            pvals = [r.get(pval_key, 1.0) or 1.0 for r in rows]
+            try:
+                _, corrected, _, _ = multipletests(pvals, alpha=0.05, method="fdr_bh")
+                for r, corr in zip(rows, corrected):
+                    r[sig_key] = bool(corr)
+            except Exception:
+                for r in rows:
+                    r[sig_key] = r.get(pval_key, 1.0) < 0.05
+
     return rows
 
 

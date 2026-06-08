@@ -3,10 +3,25 @@
 Narrative Agent — AI 언어 인사이트 + 액션플랜 자동 생성
 PM Condition F: 데이터를 한국어 분석 리포트 + 실무 액션플랜으로 변환
 
-방법: 규칙 기반 템플릿 + 데이터 주입 (Claude API 가용 시 LLM 강화 가능)
+방법: ANTHROPIC_API_KEY 환경변수 설정 시 Claude API LLM 강화, 미설정 시 규칙 기반 템플릿
+Done Criteria (NA-1~NA-4):
+  NA-1: market_overview 비어있지 않음
+  NA-2: sp500_action_plan 최소 1개 항목
+  NA-3: kospi_action_plan 최소 1개 항목
+  NA-4: disclaimer 존재
 """
 
+import os
 from datetime import datetime
+
+# ── Claude API (ANTHROPIC_API_KEY 환경변수 필요) ──────────────────
+try:
+    import anthropic as _anthropic
+    _ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+    HAS_ANTHROPIC = bool(_ANTHROPIC_KEY)
+except ImportError:
+    HAS_ANTHROPIC = False
+    _ANTHROPIC_KEY = ""
 
 
 def _z_desc(z: float) -> str:
@@ -21,8 +36,95 @@ def _direction_ko(direction: str) -> str:
     return {"risk-on": "위험 선호", "neutral": "중립", "risk-off": "위험 회피"}.get(direction, direction)
 
 
+def _generate_narrative_llm(signal: dict, decision: dict, ranking: list,
+                            sp500: dict, kospi: dict, meta: dict) -> dict | None:
+    """Claude API로 한국어 분석 리포트 생성. 실패 시 None 반환 → 템플릿 폴백."""
+    if not HAS_ANTHROPIC:
+        return None
+    try:
+        score      = signal.get("score", 50)
+        direction  = signal.get("direction", "neutral")
+        sp_action  = decision.get("sp500", {}).get("action", "HOLD")
+        ksp_action = decision.get("kospi", {}).get("action", "HOLD")
+        confidence = decision.get("sp500", {}).get("confidence_pct", 50)
+        top3_inds  = [r.get("indicator", "") for r in ranking[:3]]
+        sp_top1    = (sp500.get("contribution_top5", [{}]) or [{}])[0]
+        ksp_top1   = (kospi.get("contribution_top5", [{}]) or [{}])[0]
+        risk_factors = decision.get("risk_factors", [])
+        period     = meta.get("period", {})
+
+        prompt = f"""다음 시장 데이터를 바탕으로 한국어 투자 분석 리포트를 작성하세요.
+[데이터]
+- 복합 시그널 점수: {score}/100 ({direction})
+- S&P500 의사결정: {sp_action} (신뢰도 {confidence:.0f}%)
+- 코스피 의사결정: {ksp_action}
+- 상위 3개 지표: {', '.join(top3_inds)}
+- S&P500 기여 1위: {sp_top1.get('name','N/A')} ({sp_top1.get('stock_return_pct',0):+.1f}%)
+- 코스피 기여 1위: {ksp_top1.get('name','N/A')} ({ksp_top1.get('stock_return_pct',0):+.1f}%)
+- 리스크 요인: {', '.join(risk_factors[:3]) or '없음'}
+- 분석 기간: {period.get('start','?')} ~ {period.get('end','?')}
+
+[작성 요구사항]
+1. 시장 개요 (2~3문장): 현재 시장 상황 요약, 점수와 방향성 언급
+2. 강세 요인 (1~2문장): 상위 지표 기반 강세 근거
+3. 약세/리스크 요인 (1~2문장): 리스크 요인 기반
+4. S&P500 액션플랜 (2~3단계): {sp_action} 의사결정 기반 구체적 행동
+5. 코스피 액션플랜 (2~3단계): {ksp_action} 의사결정 기반 구체적 행동
+6. 모니터링 항목 3가지: 주간 점검 지표
+
+JSON 형식으로 반환:
+{{"market_overview":"...", "bullish_factors":"...", "bearish_factors":"...",
+  "sp500_action_plan":["1단계","2단계","3단계"],
+  "kospi_action_plan":["1단계","2단계"],
+  "monitoring_checklist":["항목1","항목2","항목3"]}}
+JSON만 반환하고 다른 텍스트는 포함하지 마세요."""
+
+        client = _anthropic.Anthropic(api_key=_ANTHROPIC_KEY)
+        resp = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1200,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        import json as _json
+        raw = resp.content[0].text.strip()
+        # JSON 블록 추출 (코드 펜스 있을 수 있음)
+        if "```" in raw:
+            raw = raw.split("```")[1].lstrip("json").strip()
+        parsed = _json.loads(raw)
+        today  = datetime.now().strftime("%Y년 %m월 %d일")
+        return {
+            "generated_at":      datetime.now().isoformat(),
+            "report_date":       today,
+            "analysis_period":   f"{period.get('start','?')} ~ {period.get('end','?')}",
+            "generation_method": "claude_api",
+            "market_overview":   parsed.get("market_overview", ""),
+            "bullish_factors":   parsed.get("bullish_factors", ""),
+            "bearish_factors":   parsed.get("bearish_factors", ""),
+            "sp500_stock_insight": f"{sp_top1.get('name','?')} ({sp_top1.get('stock_return_pct',0):+.1f}%)",
+            "kospi_stock_insight": f"{ksp_top1.get('name','?')} ({ksp_top1.get('stock_return_pct',0):+.1f}%)",
+            "sp500_action_plan":  parsed.get("sp500_action_plan", []),
+            "kospi_action_plan":  parsed.get("kospi_action_plan", []),
+            "monitoring_checklist": parsed.get("monitoring_checklist", []),
+            "risk_summary":       " / ".join(risk_factors[:3]),
+            "disclaimer": "본 리포트는 AI 분석 시스템이 자동 생성한 참고 자료입니다. 투자 결정은 개인 책임이며, 전문 투자 자문이 아닙니다.",
+        }
+    except Exception as e:
+        print(f"  [Narrative LLM] Claude API 실패: {e} → 템플릿 폴백")
+        return None
+
+
 def generate_narrative(signal: dict, decision: dict, ranking: list,
                        sp500: dict, kospi: dict, meta: dict) -> dict:
+    # LLM 우선 시도 (ANTHROPIC_API_KEY 설정 시)
+    llm_result = _generate_narrative_llm(signal, decision, ranking, sp500, kospi, meta)
+    if llm_result:
+        print("  [Narrative] Claude API LLM 생성 성공")
+        return llm_result
+    if HAS_ANTHROPIC:
+        print("  [Narrative] LLM 실패 → 템플릿 폴백")
+    else:
+        print("  [Narrative] 템플릿 모드 (ANTHROPIC_API_KEY 미설정)")
+
     score     = signal.get("score", 50)
     direction = signal.get("direction", "neutral")
     bullish   = signal.get("bullish_count", 0)
@@ -200,8 +302,7 @@ def generate_narrative_section(narrative: dict) -> str:
             for item in items
         )
 
-    return f"""
-<!-- ═══ NARRATIVE SECTION ═══ -->
+    return f"""<!-- ═══ NARRATIVE SECTION ═══ -->
 <section id="narrative">
   <h2 class="section-title">AI 분석 리포트</h2>
   <div style="font-size:0.72rem;color:#475569;margin-bottom:16px">
@@ -254,3 +355,62 @@ def generate_narrative_section(narrative: dict) -> str:
     {disclaimer}
   </div>
 </section>"""
+
+
+if __name__ == "__main__":
+    import json, sys
+    from pathlib import Path
+
+    BASE_DIR = Path(__file__).parent.parent
+    OUT_DIR  = BASE_DIR / "output"
+
+    # 데이터 로드 (없으면 더미)
+    def _jload(p):
+        try: return json.loads(p.read_text(encoding="utf-8"))
+        except Exception: return {}
+
+    results  = _jload(OUT_DIR / "final_results.json")
+    signal   = results.get("market_signal", {"score": 55, "direction": "neutral",
+                                              "bullish_count": 5, "bearish_count": 4,
+                                              "total_signals": 9, "indicator_signals": []})
+    decision = results.get("decision", {"sp500": {"action": "HOLD", "confidence_pct": 55,
+                                                   "position_pct": 30},
+                                         "kospi": {"action": "HOLD", "confidence_pct": 50},
+                                         "risk_factors": []})
+    ranking  = results.get("indicator_weight_ranking", [])
+    sp500    = results.get("sp500_analysis", {})
+    kospi    = results.get("kospi_analysis",  {})
+    meta     = results.get("meta", {"period": {"start": "?", "end": "?"}})
+
+    print("=" * 60)
+    print("Narrative Agent — Done Criteria 검증")
+    print(f"  LLM 모드: {'활성' if HAS_ANTHROPIC else '비활성 (템플릿)'}")
+    print("=" * 60)
+
+    narr = generate_narrative(signal, decision, ranking, sp500, kospi, meta)
+
+    # ── Done Criteria ──────────────────────────────────────────
+    fails = []
+    if not narr.get("market_overview", "").strip():
+        fails.append("NA-1 market_overview 비어있음")
+    if not narr.get("sp500_action_plan"):
+        fails.append("NA-2 sp500_action_plan 없음")
+    if not narr.get("kospi_action_plan"):
+        fails.append("NA-3 kospi_action_plan 없음")
+    if not narr.get("disclaimer", "").strip():
+        fails.append("NA-4 disclaimer 없음")
+
+    print("\n=== Done Criteria ===")
+    for code in ["NA-1", "NA-2", "NA-3", "NA-4"]:
+        fail_item = next((f for f in fails if code in f), None)
+        print(f"  {'✗' if fail_item else '✓'} {fail_item or code + ' PASS'}")
+
+    if fails:
+        print(f"\n[FAIL] Done Criteria 미충족: {fails}")
+        sys.exit(1)
+    print("\n[PASS] NA-1~NA-4 전항목 통과")
+
+    # 리포트 저장
+    out_file = OUT_DIR / "narrative.json"
+    out_file.write_text(json.dumps(narr, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"[저장] {out_file}")

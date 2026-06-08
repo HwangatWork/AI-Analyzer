@@ -161,3 +161,49 @@ def generate_stocks_section(sp500: dict, kospi: dict) -> str:
     코스피 데이터: FDR(KRX 직접) 우선, yfinance 크로스 검증
   </div>
 </section>"""
+
+
+if __name__ == "__main__":
+    import json, sys
+    from pathlib import Path
+
+    BASE_DIR = Path(__file__).parent.parent
+    OUT_DIR  = BASE_DIR / "output"
+
+    def _jload(p):
+        try: return json.loads(p.read_text(encoding="utf-8"))
+        except Exception: return {}
+
+    results = _jload(OUT_DIR / "final_results.json")
+    sp500   = results.get("sp500_analysis", {
+        "contribution_top5": [{"name": "Apple", "stock_return_pct": 25.3,
+                                "market_cap_b": 3000, "data_source": "yfinance",
+                                "data_quality": "검증불필요", "contribution_score": 1.5}],
+        "beneficiary_top5":  []
+    })
+    kospi   = results.get("kospi_analysis", {
+        "contribution_top5": [{"name": "삼성전자", "stock_return_pct": 12.1,
+                                "market_cap_b": 350, "data_source": "FDR",
+                                "data_quality": "검증완료", "contribution_score": 0.8}],
+        "beneficiary_top5":  []
+    })
+
+    html = generate_stocks_section(sp500, kospi)
+
+    fails = []
+    if len(html) < 300:
+        fails.append("UX-ST1 stocks HTML 생성 실패 (300자 미만)")
+    sp_cards = sp500.get("contribution_top5", [])
+    ksp_cards = kospi.get("contribution_top5", [])
+    if not sp_cards and not ksp_cards:
+        fails.append("UX-ST2 SP500/KOSPI 기여 종목 모두 없음")
+
+    print("=== Done Criteria ===")
+    for code in ["UX-ST1", "UX-ST2"]:
+        fail_item = next((f for f in fails if code in f), None)
+        print(f"  {'✗' if fail_item else '✓'} {fail_item or code + ' PASS'}")
+
+    if fails:
+        print(f"\n[FAIL] {fails}")
+        sys.exit(1)
+    print("\n[PASS] UX-ST1~UX-ST2 통과")

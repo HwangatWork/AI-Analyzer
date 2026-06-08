@@ -293,6 +293,146 @@ def pm_quality_checks() -> list[dict]:
                 "fix_stages": ["run_news_agent.py"],
             })
 
+    # ── Condition B: 복합 시그널 점수(0~100) + 방향성 ────────────
+    score_val = sig.get("score")
+    direction = sig.get("direction", "")
+    qb1_ok = (score_val is not None
+              and isinstance(score_val, (int, float))
+              and 0 <= float(score_val) <= 100
+              and direction in ("risk-on", "neutral", "risk-off"))
+    results.append({
+        "check": "QB-1 복합 시그널 점수 0~100 + 방향성",
+        "pass":  qb1_ok,
+        "detail": f"OK — score={score_val}, direction={direction}" if qb1_ok
+                  else f"FAIL — score={score_val} 범위 또는 direction={direction} 무효",
+        "fix_stages": ["run_ui_agent.py", "generate_report_v2.py"],
+    })
+
+    # ── Condition C: GitHub Pages 대시보드 배포 링크 ─────────────
+    dashboard_file = OUT_DIR / "dashboard.html"
+    qc1_ok = dashboard_file.exists() and dashboard_file.stat().st_size > 10000
+    results.append({
+        "check": "QC-1 dashboard.html 빌드 완료",
+        "pass":  qc1_ok,
+        "detail": (f"OK — {dashboard_file.stat().st_size:,}bytes" if qc1_ok
+                   else "FAIL — dashboard.html 없음 또는 10KB 미만"),
+        "fix_stages": ["run_ui_agent.py", "generate_report_v2.py"],
+    })
+
+    # ── Condition D: 주 1회 자동화 파이프라인 (GitHub Actions schedule) ──
+    import os as _os
+    wf_dir = BASE_DIR / ".github" / "workflows"
+    qd1_ok = False
+    qd1_detail = "FAIL — .github/workflows 없음"
+    if wf_dir.exists():
+        for wf in wf_dir.glob("*.yml"):
+            try:
+                content = wf.read_text(encoding="utf-8")
+                if "schedule" in content and "cron" in content:
+                    qd1_ok = True
+                    qd1_detail = f"OK — {wf.name}에 cron 스케줄 확인"
+                    break
+            except Exception:
+                pass
+        if not qd1_ok:
+            qd1_detail = "FAIL — 스케줄 cron 설정된 워크플로우 없음"
+    results.append({
+        "check": "QD-1 주간 자동화 파이프라인 스케줄",
+        "pass":  qd1_ok,
+        "detail": qd1_detail,
+        "fix_stages": [],   # CI 설정 — 자동 수정 불가
+    })
+
+    # ── Condition E: BUY/SELL/HOLD 의사결정 엔진 ─────────────────
+    # decision.json 또는 final_results.json["decision"] 확인
+    decision_file = OUT_DIR / "decision.json"
+    qe1_ok = False
+    qe1_detail = "FAIL — decision 데이터 없음"
+    valid_actions = {"BUY", "SELL", "HOLD", "SELL/AVOID"}
+    _dec_src = {}
+    if decision_file.exists():
+        try:
+            _dec_src = json.loads(decision_file.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    if not _dec_src:
+        _dec_src = data.get("decision", {})   # final_results.json["decision"]
+    if _dec_src:
+        sp_act  = (_dec_src.get("sp500") or {}).get("action", "")
+        ksp_act = (_dec_src.get("kospi")  or {}).get("action", "")
+        if sp_act in valid_actions and ksp_act in valid_actions:
+            qe1_ok = True
+            qe1_detail = f"OK — SP500={sp_act}, KOSPI={ksp_act}"
+        else:
+            qe1_detail = f"FAIL — 유효하지 않은 action: SP500={sp_act!r}, KOSPI={ksp_act!r}"
+    results.append({
+        "check": "QE-1 BUY/SELL/HOLD 의사결정 유효",
+        "pass":  qe1_ok,
+        "detail": qe1_detail,
+        "fix_stages": ["run_decision_agent.py", "generate_report_v2.py"],
+    })
+
+    # ── Condition F: AI 언어 리포트 + 액션플랜 ───────────────────
+    narrative_file = OUT_DIR / "narrative.json"
+    qf1_ok = False
+    qf1_detail = "FAIL — output/narrative.json 없음"
+    if narrative_file.exists():
+        try:
+            narr = json.loads(narrative_file.read_text(encoding="utf-8"))
+            has_overview = bool(narr.get("market_overview", "").strip())
+            has_plan     = bool(narr.get("sp500_action_plan") or narr.get("kospi_action_plan"))
+            if has_overview and has_plan:
+                method_tag = narr.get("generation_method", "template")
+                qf1_ok = True
+                qf1_detail = f"OK — overview + plan 존재 (method={method_tag})"
+            else:
+                qf1_detail = f"FAIL — overview={has_overview}, plan={has_plan}"
+        except Exception as e:
+            qf1_detail = f"FAIL — narrative.json 파싱 오류: {e}"
+    results.append({
+        "check": "QF-1 AI 언어 리포트 + 액션플랜",
+        "pass":  qf1_ok,
+        "detail": qf1_detail,
+        "fix_stages": ["run_narrative_agent.py", "generate_report_v2.py"],
+    })
+
+    # ── Condition G: Google Sheets 연동 상태 ─────────────────────
+    import os as _os2
+    google_sa = _os2.getenv("GOOGLE_SA_JSON", "")
+    qg1_ok = bool(google_sa)
+    results.append({
+        "check": "QG-1 Google Sheets 서비스 계정 설정",
+        "pass":  qg1_ok,
+        "detail": ("OK — GOOGLE_SA_JSON 설정됨" if qg1_ok
+                   else "FAIL — GOOGLE_SA_JSON 미설정 (pending_requests.json T9 참고)"),
+        "fix_stages": [],   # 사용자가 .env에 추가해야 함
+    })
+
+    # ── Condition H: 산업별 딥다이브 데이터 ──────────────────────
+    sector_file = OUT_DIR / "sector_analysis.json"
+    qh1_ok = False
+    qh1_detail = "FAIL — output/sector_analysis.json 없음"
+    if sector_file.exists():
+        try:
+            sec = json.loads(sector_file.read_text(encoding="utf-8"))
+            total_tickers = sum(
+                len([v for v in data.get("tickers", {}).values() if "return_1y" in v])
+                for k, data in sec.items() if k != "_meta"
+            )
+            if total_tickers >= 3:
+                qh1_ok = True
+                qh1_detail = f"OK — {len([k for k in sec if k!='_meta'])}개 섹터, {total_tickers}종목"
+            else:
+                qh1_detail = f"FAIL — 수집 종목 {total_tickers}개 (최소 3개 필요)"
+        except Exception as e:
+            qh1_detail = f"FAIL — sector_analysis.json 파싱 오류: {e}"
+    results.append({
+        "check": "QH-1 산업별 딥다이브 데이터",
+        "pass":  qh1_ok,
+        "detail": qh1_detail,
+        "fix_stages": ["run_sector_agent.py", "generate_report_v2.py"],
+    })
+
     return results
 
 
@@ -445,16 +585,38 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
     for iss in issues:
         print(f"  ⚠ {iss}")
 
-    # ── 문제 발견 시 자동 수정 ────────────────────────────────
+    # ── 문제 발견 시 자동 수정 + 재검증 루프 ────────────────────
     if issues:
         _write_fix_request(issues)
         _auto_fix_from_diagnosis(issues)
-        # 수정 후 quality check 결과 추가
-        qc = pm_quality_checks()
-        qc_failed = [c for c in qc if not c["pass"]]
-        if qc_failed:
-            for c in qc_failed:
-                issues.append(f"QC재검증 실패: {c['check']} — {c['detail']}")
+
+        # 수정 후 quality check 재실행 (최대 2회)
+        for fix_round in range(1, 3):
+            qc = pm_quality_checks()
+            qc_failed = [c for c in qc if not c["pass"]]
+            # 기존 SD 이슈와 겹치지 않는 새 QC 실패만 추가
+            existing_checks = {iss.split(":")[0] for iss in issues}
+            new_failures = [
+                f"QC재검증 실패: {c['check']} — {c['detail']}"
+                for c in qc_failed
+                if c["check"].split(" ")[0] not in existing_checks
+            ]
+            if new_failures:
+                issues.extend(new_failures)
+                print(f"  [PM] 재검증 round {fix_round}: 추가 실패 {len(new_failures)}개")
+                # 새 실패에 대해 추가 fix 시도
+                _auto_fix_from_diagnosis(new_failures)
+            else:
+                print(f"  [PM] 재검증 round {fix_round}: 추가 실패 없음 — 루프 종료")
+                break
+
+        # 최종 QC 결과 요약
+        final_qc = pm_quality_checks()
+        final_pass = [c for c in final_qc if c["pass"]]
+        final_fail = [c for c in final_qc if not c["pass"]]
+        print(f"  [PM] 최종 QC: {len(final_pass)}/{len(final_qc)} PASS")
+        if final_fail:
+            print(f"  [PM] 미해결 QC: {[c['check'] for c in final_fail[:5]]}")
 
     # ── 기준선 저장 ───────────────────────────────────────────
     _save_baseline(curr_count, rank)

@@ -109,31 +109,39 @@ def _resolve_redirect(url: str) -> str:
         return url
 
 
-def _fetch_rss(query: str, max_items: int = 5) -> list:
+def _fetch_rss(query: str, max_items: int = 5, _retries: int = 3) -> list:
+    """Google News RSS 수집. 실패 시 지수 백오프로 _retries회 재시도."""
     encoded = urllib.parse.quote(query)
     url = f"https://news.google.com/rss/search?q={encoded}&hl=en-US&gl=US&ceid=US:en"
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            root = ET.fromstring(resp.read())
-        channel = root.find("channel")
-        if channel is None:
-            return []
-        items = []
-        for item in channel.findall("item")[:max_items]:
-            title  = (item.findtext("title") or "").strip()
-            link   = (item.findtext("link") or "").strip()
-            src    = item.find("source")
-            source = (src.text or "News").strip() if src is not None else "News"
-            # source URL 속성에 실제 도메인이 있는 경우 활용
-            src_url = src.get("url", "") if src is not None else ""
-            if title and link:
-                items.append({"title": title, "link": link,
-                               "source": source, "source_url": src_url})
-        return items
-    except Exception as e:
-        print(f"[WARN] RSS ({query[:25]}): {e}")
-        return []
+
+    for attempt in range(_retries):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                root = ET.fromstring(resp.read())
+            channel = root.find("channel")
+            if channel is None:
+                return []
+            items = []
+            for item in channel.findall("item")[:max_items]:
+                title   = (item.findtext("title") or "").strip()
+                link    = (item.findtext("link") or "").strip()
+                src     = item.find("source")
+                source  = (src.text or "News").strip() if src is not None else "News"
+                src_url = src.get("url", "") if src is not None else ""
+                if title and link:
+                    items.append({"title": title, "link": link,
+                                  "source": source, "source_url": src_url})
+            return items
+        except Exception as e:
+            if attempt == _retries - 1:
+                print(f"[WARN] RSS ({query[:25]}): {_retries}회 재시도 후 실패: {e}")
+                return []
+            wait = 2 ** attempt   # 1초, 2초 (최대 2회 재시도)
+            import time as _time
+            print(f"[WARN] RSS ({query[:25]}): 재시도 {attempt+1}/{_retries} ({wait}s 후)")
+            _time.sleep(wait)
+    return []
 
 
 def fetch_news() -> dict:
@@ -414,11 +422,52 @@ def _calculate_bls_dates(today: date) -> list:
     return events
 
 
-def _get_upcoming_fomc(today: date, days: int = 35) -> list:
-    """다음 FOMC 발표일 (today 이후 days일 이내)."""
+def _estimate_fomc_dates_for_year(year: int) -> list:
+    """
+    FOMC 회의 날짜를 연도별로 추정 (패턴: 연 8회, 6~7주 간격).
+    공식 발표일과 ±1~2일 오차 가능. 실제 확정 전 '추정' 표기.
+    """
+    # FOMC 패턴: (월, 해당 월의 N번째 주, 요일 3=수요일)
+    # 회의 2일차(수요일)가 발표일
+    FOMC_MONTH_PATTERN = [
+        (1, 4, 2),   # 1월 4번째 수요일
+        (3, 3, 2),   # 3월 3번째 수요일
+        (4, 4, 2),   # 4월 4번째 수요일
+        (6, 2, 2),   # 6월 2번째 수요일 (SEP)
+        (7, 4, 2),   # 7월 4번째 수요일
+        (9, 2, 2),   # 9월 2번째 수요일 (SEP)
+        (10, 4, 2),  # 10월 4번째 수요일
+        (12, 1, 2),  # 12월 1번째 수요일 (SEP)
+    ]
     results = []
+    for month, nth, weekday in FOMC_MONTH_PATTERN:
+        try:
+            d = _nth_weekday_of_month(year, month, weekday, nth)
+            has_sep = month in (3, 6, 9, 12)
+            sig = "경제전망요약(SEP) + 점도표 공개" if has_sep else "금리 동결/변경 결정"
+            results.append((
+                d.strftime("%Y-%m-%d"),
+                f"FOMC 금리 결정 발표 ({year}년 추정)",
+                sig,
+            ))
+        except ValueError:
+            pass
+    return results
+
+
+def _get_upcoming_fomc(today: date, days: int = 35) -> list:
+    """다음 FOMC 발표일 (today 이후 days일 이내). 2026 확정 + 이후 연도 추정."""
     horizon = today + timedelta(days=days)
-    for date_str, event, significance in FOMC_2026:
+
+    # 연도별 날짜 소스 결정: 2026년은 확정, 이후는 추정
+    all_fomc = list(FOMC_2026)
+    years_covered = {datetime.strptime(d, "%Y-%m-%d").year for d, _, _ in FOMC_2026}
+    for yr in range(today.year, today.year + 3):
+        if yr not in years_covered:
+            all_fomc.extend(_estimate_fomc_dates_for_year(yr))
+
+    results = []
+    for date_str, event, significance in sorted(all_fomc):
         d = datetime.strptime(date_str, "%Y-%m-%d").date()
         if today < d <= horizon:
             results.append((date_str, event, significance))

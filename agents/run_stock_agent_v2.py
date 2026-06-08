@@ -643,6 +643,28 @@ def run_kospi_analysis(universe: list[tuple[str, str]], idx_series: pd.Series) -
     annotate_warn_reasons(contrib_list, return_key="stock_return_pct")
     annotate_warn_reasons(benefit_list, return_key="excess_return_pct")
 
+    # KOSPI 우선주 중복 제거 (M4 준수): 삼성전자/삼성전자우 등 동일기업 복수 클래스
+    KOSPI_DEDUP = [
+        {"005930.KS", "005935.KS"},   # 삼성전자 / 삼성전자우
+        {"000660.KS", "000665.KS"},   # SK하이닉스 / SK하이닉스우
+        {"051910.KS", "051915.KS"},   # LG화학 / LG화학우
+        {"006400.KS", "006405.KS"},   # 삼성SDI / 삼성SDI우
+        {"005380.KS", "005385.KS"},   # 현대차 / 현대차우
+    ]
+    def kospi_dedup(lst: list, score_key: str) -> list:
+        remove = set()
+        for group in KOSPI_DEDUP:
+            items = [x for x in lst if x.get("ticker", "") in group]
+            if len(items) >= 2:
+                items.sort(key=lambda x: x.get(score_key, 0), reverse=True)
+                for dup in items[1:]:
+                    remove.add(dup.get("ticker", ""))
+                    print(f"  [DEDUP] {dup.get('name','?')} ({dup.get('ticker','')}) 중복 제거 — {items[0].get('name','?')} 유지")
+        return [x for x in lst if x.get("ticker", "") not in remove]
+
+    contrib_list = kospi_dedup(contrib_list, "contribution_score")
+    benefit_list = kospi_dedup(benefit_list, "beneficiary_score")
+
     return {
         "contribution_top5": contrib_list[:5],
         "beneficiary_top5":  benefit_list[:5],
@@ -679,7 +701,7 @@ def run_sp500_analysis(universe: list[tuple[str, str]], idx_series: pd.Series) -
             c.update({"data_quality": "검증불필요", "data_source": "yfinance", "ticker": sym, "name": name})
             contrib_list.append(c)
         if b:
-            b.update({"data_source": "yfinance", "ticker": sym, "name": name})
+            b.update({"data_quality": "검증불필요", "data_source": "yfinance", "ticker": sym, "name": name})
             benefit_list.append(b)
 
     for sym, _ in universe:

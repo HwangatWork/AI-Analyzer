@@ -420,15 +420,43 @@ if __name__ == "__main__":
     if failed:
         print(f"실패: {failed}")
 
+    # ── Done Criteria 자체검증 (exit(1) on failure) ─────────────
+    import sys as _sys
+
+    F01_OK = all(k in ok for k in ["SP500","NASDAQ100","DOW","KOSPI","KOSDAQ","NIKKEI225"])
+    F02_OK = all(k in ok for k in ["US10Y","DXY","WTI","FED_ASSETS","T10Y2Y","HY_SPREAD"])
+    # F03: VIX 필수 + 심리 지표 최소 4개 (PUT_CALL 영구 수집불가 허용)
+    F03_CORE = all(k in ok for k in ["VIX","MARKET_MOMENTUM","MARKET_STRENGTH"])
+    F03_OK   = F03_CORE and ("SKEW" in ok or "CNN_FG" in ok)
+    # F04: 핵심 기술 지표 4개 필수 + 전체 6개 이상
+    F04_CORE = all(k in ok for k in ["RSI14","MA50","MA200","MA_SIGNAL"])
+    F04_OK   = F04_CORE and sum(1 for k in ["RSI14","RSI_SIGNAL","MA50","MA200","MA_SIGNAL","BBAND","BETA","STOCH_RSI"] if k in ok) >= 6
+    # F05: 수급 3개 전원 필수
+    F05_OK   = all(k in ok for k in ["FOREIGN_NET","INSTITUTION_NET","INDIVIDUAL_NET"])
+    TOTAL_MIN = 22
+
+    done_checks = {
+        "DC-1 F01 시장지수 6/6":       F01_OK,
+        "DC-2 F02 매크로 6/6":         F02_OK,
+        "DC-3 F03 심리 VIX+핵심4개+":  F03_OK,
+        "DC-4 F04 기술 핵심4개+6개+":  F04_OK,
+        "DC-5 F05 수급 3/3":           F05_OK,
+        f"DC-6 전체 ≥{TOTAL_MIN}개":   len(ok) >= TOTAL_MIN,
+    }
+
+    print("\n[Done Criteria] 자체검증:")
+    hard_fails = []
+    for check, passed in done_checks.items():
+        print(f"  {'✓' if passed else '✗'} {check}")
+        if not passed:
+            hard_fails.append(check)
+
     # feature_list.json 업데이트
     fl_path = BASE_DIR / "feature_list.json"
     fl = json.loads(fl_path.read_text(encoding="utf-8"))
     f_done = {
-        "F01": all(k in ok for k in ["SP500","NASDAQ100","DOW","KOSPI","KOSDAQ","NIKKEI225"]),
-        "F02": all(k in ok for k in ["US10Y","DXY","WTI","FED_ASSETS","T10Y2Y","HY_SPREAD"]),
-        "F03": any(k in ok for k in ["VIX","SKEW","CNN_FG"]),
-        "F04": any(k in ok for k in ["RSI14","MA50","MA200","BBAND"]),
-        "F05": any(k in ok for k in ["FOREIGN_NET","INSTITUTION_NET","INDIVIDUAL_NET"]),
+        "F01": F01_OK, "F02": F02_OK, "F03": F03_OK,
+        "F04": F04_OK, "F05": F05_OK,
     }
     for feat in fl["features"]:
         if feat["id"] in f_done:
@@ -440,3 +468,8 @@ if __name__ == "__main__":
     (BASE_DIR / "data" / "collection_report_v2.json").write_text(
         json.dumps(RESULTS, ensure_ascii=False, indent=2), encoding="utf-8"
     )
+
+    if hard_fails:
+        print(f"\n[FAIL] Done Criteria 미충족 — 파이프라인 중단: {hard_fails}")
+        _sys.exit(1)
+    print(f"\n[PASS] Done Criteria 전항목 통과 ({len(ok)}/{len(RESULTS)}개 수집 완료)")

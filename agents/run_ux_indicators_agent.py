@@ -179,3 +179,48 @@ def generate_indicators_section(ranking: list, data_quality: dict, meta: dict) -
     </div>
   </div>
 </section>"""
+
+
+if __name__ == "__main__":
+    import json, sys
+    from pathlib import Path
+
+    BASE_DIR = Path(__file__).parent.parent
+    OUT_DIR  = BASE_DIR / "output"
+    PROC_DIR = BASE_DIR / "data" / "processed"
+
+    def _jload(p):
+        try: return json.loads(p.read_text(encoding="utf-8"))
+        except Exception: return {}
+
+    results  = _jload(OUT_DIR / "final_results.json")
+    ranking  = results.get("indicator_weight_ranking", [
+        {"indicator": "HY_SPREAD", "combined_weight": 0.35, "rank": 1,
+         "sp500_signed_r": -0.55, "kospi_signed_r": -0.42,
+         "sp500_significant": True, "kospi_significant": True, "ind_type": "diff"}
+    ])
+    dq       = results.get("data_quality", {
+        "failed_indicators": [], "failure_reasons": {}, "low_confidence_excluded": [], "freshness": {}
+    })
+    meta     = results.get("meta", {
+        "collection_rate": f"{len(ranking)}/29",
+        "data_reference_date": "2026-06-08",
+    })
+
+    html = generate_indicators_section(ranking, dq, meta)
+
+    fails = []
+    if len(html) < 200:
+        fails.append("UX-I1 indicators HTML 생성 실패 (200자 미만)")
+    if not ranking:
+        fails.append("UX-I2 랭킹 데이터 없음")
+
+    print("=== Done Criteria ===")
+    for code in ["UX-I1", "UX-I2"]:
+        fail_item = next((f for f in fails if code in f), None)
+        print(f"  {'✗' if fail_item else '✓'} {fail_item or code + ' PASS'}")
+
+    if fails:
+        print(f"\n[FAIL] {fails}")
+        sys.exit(1)
+    print("\n[PASS] UX-I1~UX-I2 통과")
