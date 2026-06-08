@@ -955,18 +955,20 @@ def validate_results() -> list[tuple[Criterion, str]]:
 # ── 전체 파이프라인 실행 ──────────────────────────────────────────
 
 PIPELINE_STAGES = [
-    ("run_data_agent_v2.py",    "Data Agent",       1, 800),
-    ("refresh_data.py",         "Refresh",          2, 120),
-    ("run_analysis_agent_v2.py","Analysis Agent",   3, 300),
-    ("run_stock_agent_v2.py",   "Stock Agent",      4, 600),
-    ("run_evaluator_agent_v2.py","Evaluator Agent", 5, 120),
-    ("run_sector_agent.py",     "Sector Agent",     6, 120),
-    ("run_validation_agent.py", "Validation Agent", 7, 120),
-    ("run_ui_agent.py",         "UI Agent",         8, 120),
-    ("generate_report_v2.py",   "Report",           9, 120),
-    ("run_audit_agent.py",      "Audit Agent",      10, 300),
+    ("run_data_agent_v2.py",    "Data Agent",       1,  800),
+    ("refresh_data.py",         "Refresh",          2,  120),
+    ("run_analysis_agent_v2.py","Analysis Agent",   3,  300),
+    ("run_stock_agent_v2.py",   "Stock Agent",      4,  600),
+    ("run_evaluator_agent_v2.py","Evaluator Agent", 5,  120),
+    ("run_news_agent.py",       "News Agent",       6,  120),
+    ("run_sector_agent.py",     "Sector Agent",     7,  120),
+    ("run_validation_agent.py", "Validation Agent", 8,  120),
+    ("run_decision_agent.py",   "Decision Agent",   9,  120),
+    ("run_ui_agent.py",         "UI Agent",         10, 120),
+    ("generate_report_v2.py",   "Report",           11, 120),
+    ("run_audit_agent.py",      "Audit Agent",      12, 300),
 ]
-TOTAL_STEPS = 11  # 10 스테이지 + 1 최종 보고
+TOTAL_STEPS = 13  # 12 스테이지 + 1 최종 보고
 
 
 def run_full_pipeline(skip_data: bool = False) -> list[tuple[str, bool]]:
