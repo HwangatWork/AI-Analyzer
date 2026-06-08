@@ -22,12 +22,18 @@ Done Criteria (PM-1~PM-6):
   --skip-data : Data Agent(오래 걸림) 건너뜀 — 이미 수집된 데이터 재사용
 """
 
+import io
 import json
 import subprocess
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
+
+# Windows cp949 환경에서 한글 UnicodeEncodeError 방지
+if hasattr(sys.stdout, "buffer") and sys.stdout.encoding.lower().replace("-", "") not in ("utf8",):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 try:
     from dotenv import load_dotenv
@@ -634,14 +640,23 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
         pass  # API 오류 시 건너뜀 (rate limit 등)
 
     # SD-8: News Agent 실제 URL 부족 시 재실행 플래그
+    # NQ-4와 동일 기준: https:// 시작 + 비자명 경로 (_pm_is_article_url 재사용)
+    def _sd8_is_article_url(url: str) -> bool:
+        try:
+            from urllib.parse import urlparse
+            path = urlparse(url).path.rstrip("/")
+            return bool(path) and path not in ("", "/", "/home", "/news")
+        except Exception:
+            return False
+
     _news_file = OUT_DIR / "news_report.json"
     if _news_file.exists():
         try:
             _news_data = json.loads(_news_file.read_text(encoding="utf-8"))
             _real_links = [
                 s for s in _news_data.get("sources", [])
-                if s.get("link", "").startswith("http")
-                and "news.google.com" not in s.get("link", "")
+                if s.get("link", "").startswith("https://")
+                and _sd8_is_article_url(s.get("link", ""))
             ]
             if len(_real_links) < 3:
                 issues.append(
@@ -650,6 +665,119 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
                 )
         except Exception:
             pass
+
+    # ── SD-10: 명세-구현 일치 검증 (Claude API 주장 vs 실제 코드) ─
+    _api_claim_keywords = ("claude api", "anthropic_api_key", "anthropic api")
+    _api_call_patterns  = ("anthropic.Anthropic(", "client.messages.create(", "anthropic.messages.create(")
+    for _py in AGENTS_DIR.glob("*.py"):
+        try:
+            _src = _py.read_text(encoding="utf-8", errors="ignore")
+            _doc = _src[:600].lower()  # 첫 600자 = 파일 헤더/docstring 범위
+            _claims_api = any(kw in _doc for kw in _api_claim_keywords)
+            _has_api_call = any(pat in _src for pat in _api_call_patterns)
+            if _claims_api and not _has_api_call:
+                issues.append(
+                    f"SD-10 명세-구현 불일치: {_py.name} — 'Claude API 사용' 주장이나 "
+                    f"실제 API 호출 코드(anthropic.Anthropic 등) 없음"
+                )
+        except Exception:
+            pass
+
+    # ── SD-11: 템플릿/하드코딩 위장 패턴 탐지 ─────────────────────
+    import re as _re11
+    # 자기 자신(run_pm_agent.py)은 검사 제외
+    # 패턴: 진짜 구현 없이 명세를 위장하는 코드 (fallback 제외)
+    _hardcode_re_patterns = [
+        # top5 리스트에 리터럴 기업명이 하드코딩된 경우 (3개 이상)
+        (r'"name":\s*"[A-Za-z가-힣].*"name":\s*"[A-Za-z가-힣].*"name":\s*"[A-Za-z가-힣]', "Top5에 리터럴 기업명 3개 이상 하드코딩 의심"),
+        # 조건 없이 항상 PASS를 반환하는 구조
+        (r'if\s+True:\s*#\s*always', "조건 우회 의심"),
+        # TODO/placeholder 미구현 표시
+        (r'#\s*(TODO|FIXME|placeholder|stub).*implement', "미구현 stub 탐지"),
+    ]
+    for _py in AGENTS_DIR.glob("*.py"):
+        if _py.name == Path(__file__).name:
+            continue  # self-check 제외
+        try:
+            _src = _py.read_text(encoding="utf-8", errors="ignore")
+            for _rpat, _desc in _hardcode_re_patterns:
+                if _re11.search(_rpat, _src, _re11.DOTALL | _re11.IGNORECASE):
+                    issues.append(
+                        f"SD-11 하드코딩 위장 패턴: {_py.name} — {_desc}"
+                    )
+                    break  # 파일당 첫 번째 패턴만 보고
+        except Exception:
+            pass
+
+    # ── SD-12: Done Criteria exit(1) 정적 분석 ───────────────────────
+    # 파이프라인 각 Agent의 done_criteria 정의 + exit(1) 가드 공존 여부 확인
+    import re as _re12
+    for _ag12 in [s for s, *_ in PIPELINE_STAGES]:
+        _ag12_path = AGENTS_DIR / _ag12
+        if not _ag12_path.exists():
+            continue
+        try:
+            _src12    = _ag12_path.read_text(encoding="utf-8", errors="ignore")
+            _has_dc12 = ("done_criteria" in _src12.lower()
+                         or "done criteria" in _src12.lower())
+            _has_exit12 = bool(_re12.search(r'(?:sys\.)?exit\s*\(\s*1\s*\)', _src12))
+            if _has_dc12 and not _has_exit12:
+                issues.append(
+                    f"SD-12 Done Criteria exit(1) 누락: {_ag12} — "
+                    f"done_criteria 정의 있으나 exit(1) 가드 없음 (파이프라인 차단 불가)"
+                )
+        except Exception:
+            pass
+
+    # ── SD-13: 항상 True인 Done Criteria 조건 탐지 ────────────────────
+    # 빈 리스트에서 vacuously True가 되는 조건 → 실패 데이터도 PASS 처리 우려
+    import re as _re13
+    _vacuous_pats13 = [
+        # not any(condition for s in list) in done_criteria — 빈 리스트에서 항상 True
+        (r"""["']SA-\d+[^"']*["']\s*:\s*not any\(""",
+         "not any() 조건 — 빈 리스트에서 vacuously True (실제 실패 미감지 가능)"),
+        # not has_company_dup(empty_list) in done_criteria — 빈 리스트에서 항상 True
+        (r"""["']SA-\d+[^"']*["']\s*:\s*not has_company_dup\(""",
+         "not has_company_dup() — 빈 리스트에서 vacuously True"),
+    ]
+    for _py13 in AGENTS_DIR.glob("*.py"):
+        if _py13.name == Path(__file__).name:
+            continue
+        try:
+            _src13 = _py13.read_text(encoding="utf-8", errors="ignore")
+            for _rpat13, _desc13 in _vacuous_pats13:
+                if _re13.search(_rpat13, _src13, _re13.DOTALL | _re13.IGNORECASE):
+                    issues.append(
+                        f"SD-13 항상True 조건 탐지: {_py13.name} — {_desc13}"
+                    )
+                    break
+        except Exception:
+            pass
+
+    # ── SD-14: QC 기준선 회귀 탐지 ───────────────────────────────────
+    # 현재 QC PASS 수가 기준선보다 줄어들면 즉시 Telegram 알림
+    try:
+        _qc14      = pm_quality_checks()
+        _qc14_pass = sum(1 for c in _qc14 if c["pass"])
+        _qc14_base = baseline.get("qc_pass_count")
+        if _qc14_base is not None and _qc14_pass < _qc14_base:
+            _regressed14  = _qc14_base - _qc14_pass
+            _prev_fails14 = set(baseline.get("qc_failed_checks", []))
+            _new_fails14  = [c["check"] for c in _qc14
+                             if not c["pass"] and c["check"] not in _prev_fails14]
+            issues.append(
+                f"SD-14 QC 회귀: {_qc14_pass}/{len(_qc14)} PASS "
+                f"(기준선 {_qc14_base} → 현재 {_qc14_pass}, "
+                f"-{_regressed14}개 감소). 신규 실패: {_new_fails14}"
+            )
+            _tg_send(
+                f"🚨 <b>SD-14 QC 회귀 감지</b>\n"
+                f"기준선 {_qc14_base}/{len(_qc14)} → "
+                f"현재 {_qc14_pass}/{len(_qc14)} PASS\n"
+                f"신규 실패: {', '.join(_new_fails14[:5]) or '없음'}"
+            )
+    except Exception:
+        pass
 
     print(f"[PM] 자가진단 완료 — 이슈 {len(issues)}개")
     for iss in issues:
@@ -671,11 +799,13 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
             qc = pm_quality_checks()
             qc_failed = [c for c in qc if not c["pass"]]
             # 기존 SD 이슈와 겹치지 않는 새 QC 실패만 추가
+            # fix_stages 없는 항목(미설정 자격증명 등, QG-1 등)은 SD 이슈에서 제외
             existing_checks = {iss.split(":")[0] for iss in issues}
             new_failures = [
                 f"QC재검증 실패: {c['check']} — {c['detail']}"
                 for c in qc_failed
                 if c["check"].split(" ")[0] not in existing_checks
+                and c.get("fix_stages")  # fix_stages 없으면 자동 수정 불가 — SD 목록 제외
             ]
             if new_failures:
                 issues.extend(new_failures)
@@ -699,8 +829,8 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
         if final_fail:
             print(f"  [PM] 미해결 QC: {[c['check'] for c in final_fail[:5]]}")
 
-    # ── 기준선 저장 ───────────────────────────────────────────
-    _save_baseline(curr_count, rank)
+    # ── 기준선 저장 (최종 QC 결과 포함 — SD-14 다음 실행에서 회귀 감지에 사용) ──
+    _save_baseline(curr_count, rank, pm_quality_checks())
 
     return len(issues) == 0, issues
 
@@ -739,19 +869,20 @@ def _auto_fix_from_diagnosis(issues: list[str]) -> None:
             scripts_needed |= {"run_stock_agent_v2.py"}
         if "SD-8" in iss:
             scripts_needed |= {"run_news_agent.py"}
+        if "SD-13" in iss or "SD-14" in iss:
+            scripts_needed |= {"run_validation_agent.py"}
         # SD-7 (GitHub Actions 실패)는 원격 CI 문제 — 로컬 재실행 불필요
+        # SD-12 (exit 가드 누락)는 코드 수정 필요 — 로컬 재실행 무의미
+        # SD-13 (항상True 조건)은 코드 수정 필요 — 재실행으로 해결 불가
 
     if not scripts_needed:
         return
 
-    # 항상 마지막 단계 포함
-    scripts_needed |= {"run_ui_agent.py", "generate_report_v2.py"}
-
-    pipeline_order = [s for s, *_ in PIPELINE_STAGES]
-    ordered = sorted(
-        scripts_needed,
-        key=lambda s: pipeline_order.index(s) if s in pipeline_order else 99
-    )
+    # 의존성 맵 기반 재실행: 진단 이슈 스크립트 + 전이적 의존 단계만 실행
+    known = {s for s in scripts_needed if s in {st for st, *_ in PIPELINE_STAGES}}
+    if not known:
+        return
+    ordered = _get_dependents(known)
 
     _tg_send(
         f"🔧 <b>PM 자가진단 자동 수정</b>\n"
@@ -763,18 +894,25 @@ def _auto_fix_from_diagnosis(issues: list[str]) -> None:
     run_partial_pipeline(ordered)
 
 
-def _save_baseline(indicator_count: int, rank: list) -> None:
+def _save_baseline(indicator_count: int, rank: list,
+                   qc_results: list | None = None) -> None:
     baseline = {
         "timestamp":       datetime.now().isoformat(),
         "indicator_count": indicator_count,
         "top5_indicators": [r["indicator"] for r in rank[:5]],
         "top1_indicator":  rank[0]["indicator"] if rank else None,
     }
+    if qc_results is not None:
+        baseline["qc_pass_count"]    = sum(1 for c in qc_results if c["pass"])
+        baseline["qc_total"]         = len(qc_results)
+        baseline["qc_failed_checks"] = [c["check"] for c in qc_results if not c["pass"]]
     PROC_DIR.mkdir(parents=True, exist_ok=True)
     BASELINE_FILE.write_text(
         json.dumps(baseline, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    print(f"[PM] 기준선 저장: {indicator_count}개 지표")
+    print(f"[PM] 기준선 저장: {indicator_count}개 지표"
+          + (f" / QC {baseline.get('qc_pass_count')}/{baseline.get('qc_total')} PASS"
+             if qc_results is not None else ""))
 
 
 def _tg_send_quality_report(checks: list[dict]) -> None:
@@ -1018,6 +1156,59 @@ PIPELINE_STAGES = [
 ]
 TOTAL_STEPS = 13  # 12 스테이지 + 1 최종 보고
 
+# ── 단계 간 데이터 의존성 맵 ─────────────────────────────────────
+# Key: 스크립트명, Value: 이 스크립트가 직접 의존하는 선행 스크립트 목록
+# 의존성 없음 = 독립 실행 가능 (데이터를 외부에서 직접 수집)
+STAGE_DEPS: dict[str, list[str]] = {
+    "run_data_agent_v2.py":      [],                              # root — 외부 API 직접 수집
+    "refresh_data.py":           ["run_data_agent_v2.py"],        # raw → processed 변환
+    "run_analysis_agent_v2.py":  ["refresh_data.py"],             # processed 지표 → 상관/Granger
+    "run_stock_agent_v2.py":     ["refresh_data.py"],             # processed 지표 → 종목 분석 (analysis와 병렬)
+    "run_evaluator_agent_v2.py": ["run_analysis_agent_v2.py"],    # 분석 결과 → 가중치 랭킹
+    "run_news_agent.py":         [],                              # 독립 — 외부 RSS 직접 수집
+    "run_sector_agent.py":       ["refresh_data.py"],             # processed 지표 → 섹터 분석
+    "run_validation_agent.py":   ["run_evaluator_agent_v2.py",
+                                   "run_stock_agent_v2.py"],      # 랭킹 + 종목 → 검증
+    "run_decision_agent.py":     ["run_validation_agent.py"],     # 검증 결과 → 의사결정
+    "run_ui_agent.py":           ["run_decision_agent.py",
+                                   "run_evaluator_agent_v2.py",
+                                   "run_stock_agent_v2.py"],      # 의사결정 + 랭킹 + 종목 → 대시보드
+    "generate_report_v2.py":     ["run_ui_agent.py"],             # 대시보드 → 최종 리포트
+    "run_audit_agent.py":        ["generate_report_v2.py"],       # 최종 리포트 → 감사
+}
+
+
+def _get_dependents(failed_scripts: set[str]) -> list[str]:
+    """
+    실패한 스크립트 집합에서 재실행이 필요한 스크립트 목록 반환.
+
+    STAGE_DEPS의 역방향 그래프를 BFS로 탐색해 전이적 의존 단계를 수집한다.
+    의존성 없는 독립 단계(run_news_agent.py 등)는 포함되지 않으므로
+    불필요한 재실행을 방지한다.
+
+    반환: 파이프라인 순서(PIPELINE_STAGES)로 정렬된 재실행 대상 목록
+    """
+    # 역방향 의존성 맵: X가 실패하면 누가 영향받는가
+    reverse_deps: dict[str, list[str]] = {s: [] for s in STAGE_DEPS}
+    for stage, deps in STAGE_DEPS.items():
+        for dep in deps:
+            if dep in reverse_deps:
+                reverse_deps[dep].append(stage)
+
+    # BFS — 실패 단계 + 전이적 의존 후속 단계 수집
+    to_run: set[str] = set(failed_scripts)
+    queue: list[str] = list(failed_scripts)
+    while queue:
+        current = queue.pop(0)
+        for dependent in reverse_deps.get(current, []):
+            if dependent not in to_run:
+                to_run.add(dependent)
+                queue.append(dependent)
+
+    # 파이프라인 정의 순서로 정렬
+    pipeline_order = [s for s, *_ in PIPELINE_STAGES]
+    return [s for s in pipeline_order if s in to_run]
+
 
 def run_full_pipeline(skip_data: bool = False) -> list[tuple[str, bool]]:
     """전체 파이프라인 실행. 각 단계 완료 시 Telegram 보고."""
@@ -1069,18 +1260,15 @@ def auto_fix(failures: list[tuple[Criterion, str]], attempt: int) -> None:
     if not fatal:
         return
 
-    # 가장 영향 범위가 큰 fix_stages 합집합으로 재실행 (중복 제거, 순서 유지)
-    seen    = set()
-    ordered = []
-    for c, _ in fatal:
-        for s in c.fix_stages:
-            if s not in seen:
-                seen.add(s)
-                ordered.append(s)
-
-    # 파이프라인 순서 보존
+    # 의존성 맵 기반 재실행: 실패 단계 + 전이적 의존 단계만 실행
+    # (독립 단계 — run_news_agent 등 — 불필요 재실행 방지)
     pipeline_order = [s for s, *_ in PIPELINE_STAGES]
-    ordered.sort(key=lambda s: pipeline_order.index(s) if s in pipeline_order else 99)
+    fix_stage_set: set[str] = {
+        s for c, _ in fatal for s in c.fix_stages if s in pipeline_order
+    }
+    if not fix_stage_set:
+        return
+    ordered = _get_dependents(fix_stage_set)
 
     fail_descs = "\n".join(f"  [{c.code}] {d}" for c, d in fatal)
     _tg_send(

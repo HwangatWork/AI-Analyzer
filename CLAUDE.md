@@ -202,7 +202,7 @@ _SELF_REFERENTIAL = {"RSI14", "MA50", "RSI_SIGNAL", "BETA", "MA_SIGNAL"}
 - BBAND, STOCH_RSI, MARKET_MOMENTUM은 지연 지표(lagged)로 유효 — 포함 유지
 - 이 규칙은 `run_evaluator_agent_v2.py` `_SELF_REFERENTIAL` 변수로 구현됨
 
-## pm_self_diagnosis SD 기준 (SD-1~9)
+## pm_self_diagnosis SD 기준 (SD-1~14)
 
 `run_pm_agent.py`의 `pm_self_diagnosis()` 함수가 자동 탐지하는 이슈 목록.
 
@@ -217,3 +217,8 @@ _SELF_REFERENTIAL = {"RSI14", "MA50", "RSI_SIGNAL", "BETA", "MA_SIGNAL"}
 | SD-7 | GitHub Actions 마지막 run-pipeline conclusion ≠ success | ❌ 수동 확인 필요 |
 | SD-8 | News Agent URL이 뉴스 기사가 아닌 홈페이지 URL | ✅ News Agent 재실행 |
 | SD-9 | TG 중복 전송 감지 (동일 해시 60s 이내) | ✅ 전송 차단 (자동) |
+| SD-10 | Agent 파일 헤더 'Claude API 사용' 주장 vs 실제 API 호출 코드 불일치 | ❌ 수동 코드 수정 |
+| SD-11 | 하드코딩 위장 패턴 탐지 (리터럴 기업명 3개+, `if True:` 우회, TODO stub) | ❌ 수동 코드 수정 |
+| SD-12 | Done Criteria 정의 있으나 exit(1) 가드 없는 Agent 탐지 | ❌ 수동 코드 수정 |
+| SD-13 | 빈 리스트에서 vacuously True가 되는 Done Criteria 조건 탐지 | ✅ Validation 재실행 |
+| SD-14 | QC PASS 수가 기준선 대비 감소 (회귀) — Telegram 즉시 알림 | ✅ Validation 재실행 |

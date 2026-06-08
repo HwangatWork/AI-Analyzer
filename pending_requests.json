@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-09T07:46:19",
+  "updated": "2026-06-09T12:30:00",
   "completed": [
     {
       "id": "REQ-001",
@@ -66,33 +66,68 @@
     },
     {
       "id": "REQ-010",
-      "request": "재시도 정책 수정 — 실패 단계부터만 재실행",
-      "status": "pending",
-      "details": "현재 run_pm_agent.py 자동 수정 루프는 fix_stages 전체를 재실행함. 실패한 단계 이후 단계만 재실행하도록 run_partial_pipeline() 로직 수정 필요"
+      "request": "재시도 정책 수정 — 의존성 기반 최소 재실행",
+      "status": "done",
+      "completed_at": "2026-06-09T11:00:00",
+      "details": "STAGE_DEPS 의존성 맵 + _get_dependents() 추가. auto_fix/_auto_fix_from_diagnosis: 실패 단계 전이적 의존 후속만 재실행. 시뮬: Stock(4단계) 실패 시 9단계→6단계(Evaluator/News/Sector 절약)"
     },
     {
       "id": "REQ-011",
       "request": "SD-8 vs NQ-4 URL 불일치 수정",
-      "status": "pending",
-      "details": "SD-8은 '실제 기사 URL ≥3개' 기준, NQ-4는 news.google.com 제외 기준 — 두 체크가 서로 다른 조건으로 판단해 SD-8 FAIL + NQ-4 PASS 불일치 발생. 기준 통일 또는 SD-8 판단 로직 수정 필요"
+      "status": "done",
+      "completed_at": "2026-06-09T10:30:00",
+      "details": "SD-8: 'news.google.com 제외' 기준 → NQ-4와 동일한 _sd8_is_article_url() (https:// + 비자명 경로) 기준으로 통일. Google News /rss/articles/ 경로 허용"
     },
     {
       "id": "REQ-012",
       "request": "pm_self_diagnosis QG-1 중복 표시 수정",
-      "status": "pending",
-      "details": "pm_self_diagnosis 자가진단 결과에 QG-1(Google Sheets 미설정) 이슈가 중복 표시됨. fix_request.md와 최종 보고 양쪽에서 중복 카운트되는 원인 확인 및 제거 필요"
+      "status": "done",
+      "completed_at": "2026-06-09T10:30:00",
+      "details": "pm_self_diagnosis 재검증 루프: fix_stages 없는 QC 실패(자격증명 미설정 등) SD 이슈 목록에서 제외. QG-1 중복 카운트 해소"
     },
     {
       "id": "REQ-013",
       "request": "매도 알림 신뢰도 32.9% 발송 문제 수정",
-      "status": "pending",
-      "details": "confidence_tier hold(<50%) 기준임에도 SELL 신호 TG 알림이 발송됨. decision.json confidence_tier=hold 시 TG 전송을 차단하거나 '신호 보류' 명시 필요. _format_decision_for_tg() 로직 재확인"
+      "status": "done",
+      "completed_at": "2026-06-09T10:30:00",
+      "details": "run_telegram_agent.py run_check(): decision.json에서 min(SP500/KOSPI confidence_pct) < 50% 이면 BUY/SELL 알림 차단. telegram_log에 '알림 차단: 낮은 신뢰도' 기록"
     },
     {
       "id": "REQ-014",
-      "request": "Validation 29/30 원인 확인",
-      "status": "pending",
-      "details": "run_validation_agent.py 결과가 29/30 PASS (이전 30/30에서 1개 하락). 어느 체크가 FAIL인지 validation 로그 확인 후 원인 분석 필요"
+      "request": "Validation 29/30 원인 확인 + 수정",
+      "status": "done",
+      "completed_at": "2026-06-09T11:00:00",
+      "details": "R2 FAIL 원인: 효성 excess_return=-31.47% = 주가수익(154.29%) - KOSPI(185.76%). 데이터 오류 아님(실측 KOSPI 2856→8161). 필터 (x.get('beneficiary_score') or 0) > 0 — None TypeError 버그도 수정. 효성화학 stock_return=0% + corr=None은 별도 데이터 수집 이슈"
+    },
+    {
+      "id": "REQ-015",
+      "request": "PM Agent 자기 감사 레이어 (sd_meta_check) — B단계 완료, C~F 대기",
+      "status": "partial",
+      "priority": "high",
+      "details": "A단계: SD-10(API 주장 vs 실제 코드), SD-11(하드코딩 위장 패턴). B단계: SD-12(exit(1) 정적 분석), SD-13(항상True 조건 탐지), SD-14(QC 회귀→Telegram 알림+기준선에 qc_pass_count 저장). C~F단계(SD-15~SD-20) 대기",
+      "stages": {
+        "A": "done",
+        "B": "done",
+        "C": "backlog",
+        "D": "backlog",
+        "E": "backlog",
+        "F": "backlog"
+      }
+    },
+    {
+      "id": "REQ-016",
+      "request": "cp949 인코딩 문제 수정 — Windows 한글/특수문자 UnicodeEncodeError",
+      "status": "done",
+      "completed_at": "2026-06-09T11:00:00",
+      "priority": "low",
+      "details": "agents/utf8_setup.py 공통 모듈 생성. 25개 전체 파일 적용 완료(누락 0개). run_pm_agent.py/run_telegram_agent.py는 inline 유지. 신규 에이전트 가이드: import utf8_setup 한 줄만 추가"
+    },
+    {
+      "id": "REQ-017",
+      "request": "효성화학 데이터 수집 오류 — stock_return=0.0%, corr=None",
+      "status": "backlog",
+      "priority": "low",
+      "details": "효성화학(KS#096770 또는 동일 계열사) stock_return_pct=0.0%, corr=None으로 수혜 분석 제외됨. 원인 후보: (1) pykrx 티커 불일치, (2) 상장폐지/상호변경, (3) 데이터 기간 내 거래일 <50일. run_stock_agent_v2.py에서 종목 수집 로직 점검 필요. REQ-014 R2 FAIL 조사 중 발견"
     },
     {
       "id": "REQ-FUTURE-001",
