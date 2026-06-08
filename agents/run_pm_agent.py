@@ -35,13 +35,61 @@ try:
 except ImportError:
     pass
 
-BASE_DIR         = Path(__file__).parent.parent
-AGENTS_DIR       = Path(__file__).parent
-OUT_DIR          = BASE_DIR / "output"
-PROC_DIR         = BASE_DIR / "data" / "processed"
-RESULTS_FILE     = OUT_DIR / "final_results.json"
-BASELINE_FILE    = PROC_DIR / "pm_baseline.json"
-FIX_REQUEST_FILE = BASE_DIR / "fix_request.md"
+BASE_DIR          = Path(__file__).parent.parent
+AGENTS_DIR        = Path(__file__).parent
+OUT_DIR           = BASE_DIR / "output"
+PROC_DIR          = BASE_DIR / "data" / "processed"
+RESULTS_FILE      = OUT_DIR / "final_results.json"
+BASELINE_FILE     = PROC_DIR / "pm_baseline.json"
+FIX_REQUEST_FILE  = BASE_DIR / "fix_request.md"
+PENDING_FILE      = BASE_DIR / "pending_requests.json"
+
+
+# ── pending_requests.json 헬퍼 ────────────────────────────────────
+
+def _load_pending() -> dict:
+    """pending_requests.json 로드. 파일 없으면 빈 구조 반환."""
+    if PENDING_FILE.exists():
+        try:
+            return json.loads(PENDING_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return {"completed": [], "pending": []}
+
+
+def _save_pending(data: dict) -> None:
+    """updated 필드를 현재 시각으로 갱신 후 저장."""
+    data["updated"] = datetime.now().isoformat(timespec="seconds")
+    PENDING_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def register_pending(req_id: str, request: str, status: str = "pending",
+                     details: str = "", completed_at: str | None = None) -> None:
+    """
+    pending_requests.json에 항목 추가 또는 갱신.
+    이미 같은 id가 있으면 업데이트, 없으면 삽입.
+    completed_at이 있으면 completed 배열로 이동.
+    """
+    data = _load_pending()
+    entry: dict = {
+        "id": req_id,
+        "request": request,
+        "status": status,
+        "details": details,
+    }
+    if completed_at:
+        entry["completed_at"] = completed_at
+
+    target_list = "completed" if status == "done" else "pending"
+    other_list  = "pending"   if status == "done" else "completed"
+
+    # 기존 항목 양쪽에서 제거
+    data[target_list] = [e for e in data[target_list] if e["id"] != req_id]
+    data[other_list]  = [e for e in data[other_list]  if e["id"] != req_id]
+
+    data[target_list].append(entry)
+    _save_pending(data)
+    print(f"[PM] pending_requests 등록: {req_id} ({status})")
 
 MAX_RETRIES = 3
 

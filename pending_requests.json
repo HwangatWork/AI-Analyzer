@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-09T07:45:00",
+  "updated": "2026-06-09T07:46:19",
   "completed": [
     {
       "id": "REQ-001",
@@ -93,6 +93,12 @@
       "request": "Validation 29/30 원인 확인",
       "status": "pending",
       "details": "run_validation_agent.py 결과가 29/30 PASS (이전 30/30에서 1개 하락). 어느 체크가 FAIL인지 validation 로그 확인 후 원인 분석 필요"
+    },
+    {
+      "id": "REQ-FUTURE-001",
+      "request": "코스피100 → 코스피200 유니버스 확장",
+      "status": "backlog",
+      "details": "Stock Agent 분석 유니버스를 코스피100에서 코스피200으로 확장. pykrx get_market_cap_of_date() 기준 상위 200종목 동적 수집. Done Criteria U2 기준 충족 여부 재검증 필요"
     }
   ]
 }
