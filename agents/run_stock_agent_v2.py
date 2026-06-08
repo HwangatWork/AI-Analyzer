@@ -614,7 +614,8 @@ def run_kospi_analysis(universe: list[tuple[str, str]], idx_series: pd.Series) -
             contrib_list.append(c)
 
         if b:
-            b.update({"data_source": src, "ticker": ticker, "name": name})
+            dq_b = cross_validate_return(ticker, b["stock_return_pct"])
+            b.update({"data_quality": dq_b, "data_source": src, "ticker": ticker, "name": name})
             benefit_list.append(b)
 
     contrib_list.sort(key=lambda x: x["contribution_score"], reverse=True)

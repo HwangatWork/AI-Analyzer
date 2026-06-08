@@ -1,0 +1,29 @@
+{
+  "generated": "2026-06-08",
+  "pending": [
+    {
+      "id": "T9",
+      "title": "Google Sheets 완전 자동화",
+      "description": "GOOGLE_SA_JSON 서비스 계정 JSON 경로를 .env에 추가하면 gspread를 통해 indicator_ranking.csv, market_signals.csv, stock_analysis.csv가 Google Sheets에 자동 업로드됩니다.",
+      "blocker": "GOOGLE_SA_JSON (서비스 계정 JSON 파일 경로) 미등록",
+      "action_required": ".env에 GOOGLE_SA_JSON=<서비스계정.json 경로> 추가",
+      "agent": "run_sheets_agent.py"
+    },
+    {
+      "id": "T10",
+      "title": "Notion 연동 활성화",
+      "description": "Notion API 토큰이 등록되면 주간 리포트가 Notion 페이지에 자동으로 기록됩니다.",
+      "blocker": "NOTION_TOKEN 미등록",
+      "action_required": ".env에 NOTION_TOKEN=<토큰> 추가. Page ID: 3781a4c7-30d8-81f9-bf7d-db6541a23fcf",
+      "agent": "run_narrative_agent.py"
+    }
+  ],
+  "completed_this_session": [
+    "T6: News Agent URL 강화 (NQ-4 기사경로 검증, collect_sources raw_link 유지)",
+    "T6-추가: NQ-2 media prefix 강화, _build_cause_effect 폴백 헤드라인 기반",
+    "T12: SD-7 공개 repo 토큰 불필요 수정",
+    "T13: IQ-1 hard filter + FRED yfinance fallback",
+    "SA-8: KOSPI 극단종목 교차검증 커버리지 체크 추가",
+    "beneficiary_top5 교차검증 누락 수정 (run_stock_agent_v2.py)"
+  ]
+}

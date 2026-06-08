@@ -179,6 +179,24 @@ def pm_quality_checks() -> list[dict]:
         "fix_stages": ["run_stock_agent_v2.py", "run_ui_agent.py", "generate_report_v2.py"],
     })
 
+    # SA-8: KOSPI 극단 수익률(±200%) 종목 전원 교차검증 실행 확인
+    kospi_extreme = [
+        s for s in ksp_cont + ksp_bene
+        if abs(s.get("stock_return_pct", 0)) >= 200
+    ]
+    cross_missing = [
+        s.get("name", s.get("ticker", "?"))
+        for s in kospi_extreme
+        if not s.get("data_quality") or s.get("data_quality") == "없음"
+    ]
+    results.append({
+        "check": "SA-8 KOSPI 극단종목 교차검증 실행",
+        "pass":  len(cross_missing) == 0,
+        "detail": f"OK — 극단종목 {len(kospi_extreme)}개 전원 교차검증 완료" if not cross_missing
+                  else f"FAIL — 교차검증 미실행: {cross_missing}",
+        "fix_stages": ["run_stock_agent_v2.py"],
+    })
+
     # ── Signal Integrity ───────────────────────────────────────
 
     # SI-1: signal total == Z-Score indicator count (already IQ-4, recheck explicitly)
