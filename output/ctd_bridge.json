@@ -1,42 +1,24 @@
 {
-  "generated_at": "2026-06-08T00:12:24.151689",
+  "generated_at": "2026-06-08T13:27:53.025240",
   "source": "AI Analyzer v4",
   "signal": {
-    "score": 43.2,
+    "score": 43.4,
     "direction": "neutral",
-    "bullish_count": 8,
-    "total_signals": 18
+    "bullish_count": 7,
+    "total_signals": 13
   },
   "top_indicators": [
     {
       "rank": 1,
-      "name": "BBAND",
-      "name_kr": "볼린저밴드",
-      "weight": 0.4459,
-      "sp500_r": 0.3737,
-      "lead_lag": null,
-      "granger": false
-    },
-    {
-      "rank": 2,
       "name": "VIX",
       "name_kr": "VIX공포지수",
       "weight": 0.432,
       "sp500_r": -0.2095,
       "lead_lag": null,
-      "granger": false
+      "granger": true
     },
     {
-      "rank": 3,
-      "name": "NASDAQ100",
-      "name_kr": "나스닥100",
-      "weight": 0.2991,
-      "sp500_r": 0.949,
-      "lead_lag": null,
-      "granger": false
-    },
-    {
-      "rank": 4,
+      "rank": 2,
       "name": "HY_SPREAD",
       "name_kr": "하이일드스프레드",
       "weight": 0.2829,
@@ -45,16 +27,7 @@
       "granger": false
     },
     {
-      "rank": 5,
-      "name": "DOW",
-      "name_kr": "다우존스",
-      "weight": 0.2782,
-      "sp500_r": 0.8584,
-      "lead_lag": null,
-      "granger": false
-    },
-    {
-      "rank": 8,
+      "rank": 3,
       "name": "WTI",
       "name_kr": "WTI원유",
       "weight": 0.2465,
@@ -63,7 +36,7 @@
       "granger": false
     },
     {
-      "rank": 9,
+      "rank": 4,
       "name": "DXY",
       "name_kr": "달러인덱스",
       "weight": 0.243,
@@ -72,16 +45,7 @@
       "granger": false
     },
     {
-      "rank": 10,
-      "name": "STOCH_RSI",
-      "name_kr": "Stoch RSI",
-      "weight": 0.2408,
-      "sp500_r": 0.2847,
-      "lead_lag": null,
-      "granger": false
-    },
-    {
-      "rank": 11,
+      "rank": 5,
       "name": "INDIVIDUAL_NET",
       "name_kr": "INDIVIDUAL_NET",
       "weight": 0.2399,
@@ -90,32 +54,52 @@
       "granger": false
     },
     {
-      "rank": 12,
-      "name": "KOSDAQ",
-      "name_kr": "코스닥",
-      "weight": 0.2372,
-      "sp500_r": 0.0103,
+      "rank": 6,
+      "name": "US10Y",
+      "name_kr": "미국10년물",
+      "weight": 0.2325,
+      "sp500_r": -0.1454,
+      "lead_lag": null,
+      "granger": false
+    },
+    {
+      "rank": 7,
+      "name": "FOREIGN_NET",
+      "name_kr": "외국인순매수",
+      "weight": 0.2281,
+      "sp500_r": 0.0348,
+      "lead_lag": null,
+      "granger": false
+    },
+    {
+      "rank": 8,
+      "name": "MARKET_STRENGTH",
+      "name_kr": "시장강도",
+      "weight": 0.2127,
+      "sp500_r": 0.1269,
+      "lead_lag": null,
+      "granger": false
+    },
+    {
+      "rank": 10,
+      "name": "DOW",
+      "name_kr": "다우존스",
+      "weight": 0.1464,
+      "sp500_r": 0.8584,
+      "lead_lag": null,
+      "granger": false
+    },
+    {
+      "rank": 11,
+      "name": "NASDAQ100",
+      "name_kr": "나스닥100",
+      "weight": 0.1452,
+      "sp500_r": 0.949,
       "lead_lag": null,
       "granger": false
     }
   ],
   "sp500_top5": [
-    {
-      "beta": 2.8593,
-      "correlation": 0.511,
-      "p_value": 0.0,
-      "stock_return_pct": 680.6,
-      "index_return_pct": 22.94,
-      "period_days": 249,
-      "period_label": "1년 (365일)",
-      "market_cap_b": 974.4,
-      "contribution_score": 3.4235,
-      "n_days": 249,
-      "data_quality": "검증불필요",
-      "data_source": "yfinance",
-      "ticker": "MU",
-      "name": "Micron Technology"
-    },
     {
       "beta": 1.3065,
       "correlation": 0.5435,
@@ -125,7 +109,8 @@
       "period_days": 249,
       "period_label": "1년 (365일)",
       "market_cap_b": 4494.2,
-      "contribution_score": 2.687,
+      "market_cap_start_b": 2142.6,
+      "contribution_score": 1.2841,
       "n_days": 249,
       "data_quality": "검증불필요",
       "data_source": "yfinance",
@@ -141,7 +126,8 @@
       "period_days": 249,
       "period_label": "1년 (365일)",
       "market_cap_b": 4967.7,
-      "contribution_score": 1.4003,
+      "market_cap_start_b": 3449.8,
+      "contribution_score": 0.9733,
       "n_days": 249,
       "data_quality": "검증불필요",
       "data_source": "yfinance",
@@ -157,7 +143,8 @@
       "period_days": 249,
       "period_label": "1년 (365일)",
       "market_cap_b": 4514.0,
-      "contribution_score": 1.2076,
+      "market_cap_start_b": 2947.1,
+      "contribution_score": 0.7893,
       "n_days": 249,
       "data_quality": "검증불필요",
       "data_source": "yfinance",
@@ -165,39 +152,42 @@
       "name": "Apple Inc."
     },
     {
-      "beta": 2.8287,
-      "correlation": 0.5224,
+      "beta": 2.8593,
+      "correlation": 0.511,
       "p_value": 0.0,
-      "stock_return_pct": 283.13,
+      "stock_return_pct": 680.6,
       "index_return_pct": 22.94,
       "period_days": 249,
       "period_label": "1년 (365일)",
-      "market_cap_b": 760.5,
-      "contribution_score": 1.1396,
+      "market_cap_b": 974.4,
+      "market_cap_start_b": 124.8,
+      "contribution_score": 0.4689,
       "n_days": 249,
       "data_quality": "검증불필요",
       "data_source": "yfinance",
-      "ticker": "AMD",
-      "name": "Advanced Micro Devices"
+      "ticker": "MU",
+      "name": "Micron Technology",
+      "warn_reason": "AI HBM 메모리 수요 급증 (엔비디아 H100/H200 공급) — 실제 반도체 사이클 수혜"
+    },
+    {
+      "beta": 2.124,
+      "correlation": 0.5716,
+      "p_value": 0.0,
+      "stock_return_pct": 59.18,
+      "index_return_pct": 22.94,
+      "period_days": 249,
+      "period_label": "1년 (365일)",
+      "market_cap_b": 1826.3,
+      "market_cap_start_b": 1147.3,
+      "contribution_score": 0.3915,
+      "n_days": 249,
+      "data_quality": "검증불필요",
+      "data_source": "yfinance",
+      "ticker": "AVGO",
+      "name": "Broadcom"
     }
   ],
   "kospi_top5": [
-    {
-      "beta": 1.547,
-      "correlation": 0.8471,
-      "p_value": 0.0,
-      "stock_return_pct": 803.93,
-      "index_return_pct": 185.76,
-      "period_days": 242,
-      "period_label": "1년 (365일)",
-      "market_cap_b": 1475293.9,
-      "contribution_score": 10046.8604,
-      "n_days": 242,
-      "data_quality": "검증완료",
-      "data_source": "FDR",
-      "ticker": "000660.KS",
-      "name": "SK하이닉스"
-    },
     {
       "beta": 1.2853,
       "correlation": 0.8808,
@@ -206,13 +196,32 @@
       "index_return_pct": 185.76,
       "period_days": 242,
       "period_label": "1년 (365일)",
-      "market_cap_b": 1923425.7,
-      "contribution_score": 7626.5217,
+      "market_cap_b": 1424.8,
+      "market_cap_start_b": 259.0,
+      "contribution_score": 1.0665,
       "n_days": 242,
       "data_quality": "검증완료",
       "data_source": "FDR",
       "ticker": "005930.KS",
       "name": "삼성전자"
+    },
+    {
+      "beta": 1.547,
+      "correlation": 0.8471,
+      "p_value": 0.0,
+      "stock_return_pct": 803.93,
+      "index_return_pct": 185.76,
+      "period_days": 242,
+      "period_label": "1년 (365일)",
+      "market_cap_b": 1092.8,
+      "market_cap_start_b": 120.9,
+      "contribution_score": 0.8914,
+      "n_days": 242,
+      "data_quality": "검증완료",
+      "data_source": "FDR",
+      "ticker": "000660.KS",
+      "name": "SK하이닉스",
+      "warn_reason": "극단 수익률 — 기업 이벤트(분사/합병/AI테마) 가능성, 수동 확인 권장"
     },
     {
       "beta": 1.6057,
@@ -222,13 +231,15 @@
       "index_return_pct": 185.76,
       "period_days": 242,
       "period_label": "1년 (365일)",
-      "market_cap_b": 166003.6,
-      "contribution_score": 1141.8428,
+      "market_cap_b": 123.0,
+      "market_cap_start_b": 12.6,
+      "contribution_score": 0.1552,
       "n_days": 242,
       "data_quality": "검증완료",
       "data_source": "FDR",
       "ticker": "402340.KS",
-      "name": "SK스퀘어"
+      "name": "SK스퀘어",
+      "warn_reason": "극단 수익률 — 기업 이벤트(분사/합병/AI테마) 가능성, 수동 확인 권장"
     },
     {
       "beta": 1.2011,
@@ -238,8 +249,9 @@
       "index_return_pct": 185.76,
       "period_days": 242,
       "period_label": "1년 (365일)",
-      "market_cap_b": 169300.3,
-      "contribution_score": 481.2774,
+      "market_cap_b": 125.4,
+      "market_cap_start_b": 29.1,
+      "contribution_score": 0.1112,
       "n_days": 242,
       "data_quality": "검증완료",
       "data_source": "FDR",
@@ -254,8 +266,9 @@
       "index_return_pct": 185.76,
       "period_days": 242,
       "period_label": "1년 (365일)",
-      "market_cap_b": 143330.4,
-      "contribution_score": 223.8773,
+      "market_cap_b": 106.2,
+      "market_cap_start_b": 30.0,
+      "contribution_score": 0.0625,
       "n_days": 242,
       "data_quality": "검증완료",
       "data_source": "FDR",

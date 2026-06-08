@@ -1,0 +1,33 @@
+{
+  "updated": "2026-06-08T13:30:00",
+  "completed": [
+    {
+      "id": "REQ-001",
+      "request": "CTD 연동 새 랭킹 업데이트 (VIX #1)",
+      "status": "done",
+      "completed_at": "2026-06-08T13:27:00",
+      "details": "ctd_weights.json/ctd_bridge.json/frontend/index.html 전체 업데이트. Done Criteria CI-1~CI-5 PASS"
+    },
+    {
+      "id": "REQ-002",
+      "request": "KRX 수급 데이터 상태 재확인",
+      "status": "done",
+      "completed_at": "2026-06-08T13:28:00",
+      "details": "KRX_ID/KRX_PW .env 확인. 3종목 264행 정상 수집. _FAILED.txt 28개 삭제. save_parquet() 자동 정리 코드 추가"
+    }
+  ],
+  "pending": [
+    {
+      "id": "REQ-003",
+      "request": "Google Sheets 완전 자동화",
+      "status": "waiting_credentials",
+      "details": "GOOGLE_SA_JSON 서비스 계정 경로 .env에 추가 필요"
+    },
+    {
+      "id": "REQ-004",
+      "request": "Notion 연동 활성화",
+      "status": "waiting_credentials",
+      "details": "NOTION_TOKEN .env에 추가 필요. Page ID: 3781a4c7-30d8-81f9-bf7d-db6541a23fcf"
+    }
+  ]
+}

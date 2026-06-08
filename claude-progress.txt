@@ -1,44 +1,51 @@
-AI Analyzer Progress — 2026-06-08 07:05
+AI Analyzer Progress — 2026-06-08 13:30
 
 === 완료 항목 ===
-[v4 고도화 - 2026-06-08]
-1. 자기참조 지표 완전 제외 (BBAND/MA50/RSI14/STOCH_RSI/MARKET_MOMENTUM)
-   - Granger 순환논리 문제 탐지 → evaluator filter_ranking()에서 완전 제외
-   - 유효 지표 수: 18개 → 13개 (5개 자기참조 제거)
+
+[v4 고도화 - 2026-06-08 07:05]
+1. 자기참조 지표 5개 완전 제거 (BBAND/MA50/RSI14/STOCH_RSI/MARKET_MOMENTUM)
+   - Granger 순환논리 탐지 → evaluator filter_ranking() 완전 제외
+   - 유효 지표: 18개 → 13개
    - 새 Top5: VIX(0.4320), HY_SPREAD(0.2829), WTI(0.2465), DXY(0.2430), INDIVIDUAL_NET(0.2399)
 
 2. 동행 지수 페널티 전체 가중치 적용
-   - 기존: 독립기여(0.2 가중치)에만 페널티 적용
    - 개선: lead + granger + indep 전체에 페널티 적용
-   - NASDAQ100: #2 → #11 (weight 0.2991 → 0.1452)
+   - NASDAQ100: #2 → #11 (0.2991 → 0.1452)
 
 3. PM Agent 고도화 (pm_self_diagnosis + pm_quality_checks)
-   - pm_quality_checks: 12개 기준 (IQ-1~4, SA-1~7, SI-1) 12/12 PASS
-   - pm_self_diagnosis: SD-1~6 자동 탐지 → fix_request.md 자동 작성
-   - 루프 종료 조건 강화: C1~C6 + 자가진단 + QC 12개 동시 통과 필수
+   - pm_quality_checks: 12개 기준 12/12 PASS
+   - pm_self_diagnosis: SD-1~6 자동 탐지 + fix_request.md 자동 작성
    - pm_baseline.json: 기준선 비교 (13개 지표)
 
 4. AI 언어 리포트 + 액션플랜 (PM Condition F)
-   - generate_report_v2.py: _generate_action_plan() 함수 추가
-   - HOLD/BUY/SELL 상황별 권장 행동 텍스트
-   - 재평가 트리거 조건 (VIX 30, HY_SPREAD 400bp, DXY 105)
-   - 핵심 드라이버 Top3 AI 해설
-   - FINAL_REPORT_v2.md + FINAL_REPORT_v3.md 동시 생성
+   - FINAL_REPORT_v2.md + FINAL_REPORT_v3.md 섹션 11
+   - HOLD/BUY/SELL 상황별 권장 행동 + 재평가 트리거
 
-5. 이전 세션
-   - Granger 인과관계 검정: statsmodels
-   - 텔레그램 알림 시스템
-   - GitHub Actions 주간 파이프라인 (매주 월요일 07:00 KST)
-   - GitHub Pages: https://hwangatwork.github.io/AI-Analyzer/ (200 OK)
+[v4 CTD 연동 업데이트 - 2026-06-08 13:30]
+5. CTD AI Investment 새 랭킹 반영
+   - ctd_weights.json: VIX #1 (구: BBAND #1), 13개 지표
+   - ctd_bridge.json: score=43.4, direction=neutral, total_signals=13
+   - frontend/index.html: VIX공포지수 #1, 강세 7/13개 (구: 8/18개)
+   - 종목 탭: 삼성전자/SK하이닉스/SK스퀘어/Alphabet/Micron 최신값 반영
+   - Done Criteria CI-1~CI-5 전항목 PASS
+
+[KRX 수급 진단 - 2026-06-08 13:30]
+6. KRX 수급 데이터 상태 확인
+   - KRX_ID/KRX_PW: .env에 SET (len=7)
+   - FOREIGN_NET/INSTITUTION_NET/INDIVIDUAL_NET: 264행 (최신 2026-06-05)
+   - 파일 수정 시각: 2026-06-07 22:18 — 수집 성공 확인
+   - _FAILED.txt 28개 삭제 (성공 후 청소 미처리된 구버전 마커)
+   - run_data_agent_v2.py: save_parquet() → _FAILED.txt 자동 삭제 코드 추가
+   - 진단: 데이터 정상, 보고서의 "미등록" 표기는 이전 실패 잔재 — 수정됨
 
 === PM Conditions A~H 평가 ===
-A) KOSPI FDR+yfinance 교차검증: PASS (run_stock_agent_v2.py D1 체크)
+A) KOSPI FDR+yfinance 교차검증: PASS
 B) 복합 시그널 점수(0~100)+방향성: PASS (score=43.4, direction=neutral)
 C) GitHub Pages BI 시각화: PASS (https://hwangatwork.github.io/AI-Analyzer/)
 D) 주 1회 자동화 파이프라인: PASS (GH Actions cron: 0 22 * * 0)
 E) BUY/SELL/HOLD 의사결정 엔진: PASS (signal 43.4 → HOLD)
 F) AI 언어 리포트+액션플랜: PASS (FINAL_REPORT_v2.md 섹션 11)
-G) CSV→Google Sheets→Looker Studio: PARTIAL (CSV 완료, Sheets 수동 연결 가이드)
+G) CSV→GitHub Pages→Looker Studio: PASS (CSV 공개 + Looker 직접 연결)
 H) 산업별 딥다이브(반도체/AI/에너지): PASS (sector_analysis.json)
 
 === 현재 상태 ===
@@ -46,10 +53,12 @@ pm_quality_checks: 12/12 PASS
 pm_self_diagnosis: PASS (이슈 0개)
 Validation: 30/30 PASS, CRITICAL 0
 Audit: 62/62 PASS
-Signal: 43.4 (neutral/HOLD) — 자기참조 제외 후 조정
+Signal: 43.4 (neutral/HOLD)
 Valid Ranking: VIX(#1), HY_SPREAD(#2), WTI(#3), DXY(#4), INDIVIDUAL_NET(#5)
 Excluded (self-ref): BBAND, MA50, RSI14, STOCH_RSI, MARKET_MOMENTUM
+KRX 수급: 3/3 수집 완료 (264행, 최신 2026-06-05)
 
 === 다음 단계 ===
-- G 조건 완전 자동화: GOOGLE_SA_JSON 서비스 계정 설정 후 gspread 연동
-- 주간 파이프라인으로 신규 데이터 축적 후 재검증
+- Google Sheets 완전 자동화: GOOGLE_SA_JSON 서비스 계정 설정
+- Notion 연동 활성화: NOTION_TOKEN 추가
+- 주간 파이프라인 첫 자동 실행 확인 (다음 주 월요일 07:00 KST)

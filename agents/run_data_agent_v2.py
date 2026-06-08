@@ -52,6 +52,10 @@ def save_parquet(df: pd.DataFrame, name: str, source: str) -> bool:
     df = df.sort_values("date").reset_index(drop=True)
     path = RAW_DIR / f"{name}.parquet"
     df.to_parquet(path, index=False)
+    # 이전 실패 마커 삭제 (성공 시 _FAILED.txt 잔류 방지)
+    failed_path = RAW_DIR / f"{name}_FAILED.txt"
+    if failed_path.exists():
+        failed_path.unlink()
     RESULTS[name] = {"status": "ok", "rows": len(df), "source": source}
     print(f"  [OK] {name}: {len(df)}rows ({source})")
     return True
