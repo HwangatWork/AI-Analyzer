@@ -52,6 +52,7 @@ jobs:
           python -X utf8 agents/run_stock_agent_v2.py
           python -X utf8 agents/run_evaluator_agent_v2.py
           python -X utf8 agents/run_news_agent.py
+          python -X utf8 agents/run_decision_agent.py
           python -X utf8 agents/run_ui_agent.py
           python -X utf8 agents/generate_report_v2.py
 
