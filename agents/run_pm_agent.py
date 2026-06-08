@@ -386,57 +386,31 @@ def pm_quality_checks() -> list[dict]:
     })
 
     # ── Condition F: AI 언어 리포트 + 액션플랜 ───────────────────
-    import os as _osF, re as _reF
-    _anthropic_key = _osF.getenv("ANTHROPIC_API_KEY", "")
-    narrative_file  = OUT_DIR / "narrative.json"
-    final_report    = OUT_DIR / "FINAL_REPORT.md"
+    # QF-1: FINAL_REPORT.md 내용 품질만 검사 (API 키 여부 무관)
+    import re as _reF
+    final_report_f  = OUT_DIR / "FINAL_REPORT.md"
+    narrative_ctx_f = OUT_DIR / "narrative_context.json"
     qf1_ok = False
-    qf1_detail = "FAIL — FINAL_REPORT.md 없음"
-    if not _anthropic_key:
-        qf1_ok = False
-        qf1_detail = "WARN — ANTHROPIC_API_KEY 미설정 (AI 리포트 생성 불가)"
-    elif final_report.exists():
+    qf1_detail = "FAIL — FINAL_REPORT.md 없음 (서브에이전트 미실행)"
+    if final_report_f.exists():
         try:
-            report_text  = final_report.read_text(encoding="utf-8")
-            # 실제 수치 포함 여부 (Z=±X.XX 또는 숫자 10개 이상)
-            num_matches  = _reF.findall(r'[+-]?\d+\.?\d+', report_text)
-            has_numbers  = len(num_matches) >= 10
-            # 템플릿 문구만 있는지 확인
-            template_only = bool(_reF.search(r'(강세 국면|약세 국면)', report_text)) and not has_numbers
-            # narrative.json method 확인
-            method_tag = "unknown"
-            if narrative_file.exists():
-                try:
-                    _narr = json.loads(narrative_file.read_text(encoding="utf-8"))
-                    method_tag = _narr.get("generation_method", "unknown")
-                except Exception:
-                    pass
-            if template_only:
-                qf1_ok = False
-                qf1_detail = "FAIL — FINAL_REPORT.md 템플릿 문구만 있음 (수치 없음)"
+            report_text = final_report_f.read_text(encoding="utf-8")
+            num_matches = _reF.findall(r'[+-]?\d+\.?\d+', report_text)
+            has_numbers = len(num_matches) >= 10
+            # 내용이 없거나 너무 짧으면 FAIL
+            if len(report_text.strip()) < 200:
+                qf1_detail = f"FAIL — FINAL_REPORT.md 내용 너무 짧음 ({len(report_text)}자)"
             elif not has_numbers:
-                qf1_ok = False
-                qf1_detail = f"FAIL — FINAL_REPORT.md 수치 부족 ({len(num_matches)}개 < 10)"
-            elif method_tag not in ("claude_api", "unknown"):
-                qf1_ok = False
-                qf1_detail = f"WARN — 생성 방식 비정상 (method={method_tag})"
+                qf1_detail = f"FAIL — FINAL_REPORT.md 실제 수치 없음 ({len(num_matches)}개 < 10)"
             else:
                 qf1_ok = True
-                qf1_detail = f"OK — FINAL_REPORT.md 수치 {len(num_matches)}개, method={method_tag}"
+                qf1_detail = f"OK — FINAL_REPORT.md {len(report_text)}자, 수치 {len(num_matches)}개"
         except Exception as _e:
             qf1_detail = f"FAIL — FINAL_REPORT.md 읽기 오류: {_e}"
-    elif narrative_file.exists():
-        try:
-            narr = json.loads(narrative_file.read_text(encoding="utf-8"))
-            method_tag = narr.get("generation_method", "template")
-            if method_tag == "claude_api":
-                qf1_ok = False
-                qf1_detail = "WARN — narrative.json 있으나 FINAL_REPORT.md 미생성"
-            else:
-                qf1_ok = False
-                qf1_detail = "FAIL — 템플릿 방식 + FINAL_REPORT.md 없음"
-        except Exception:
-            pass
+    elif narrative_ctx_f.exists():
+        # 컨텍스트만 있고 리포트 미생성 — 서브에이전트 실행 필요
+        qf1_ok = False
+        qf1_detail = "WARN — narrative_context.json 준비됨, FINAL_REPORT.md 미생성 (서브에이전트 실행 필요)"
     results.append({
         "check": "QF-1 AI 언어 리포트 + 액션플랜",
         "pass":  qf1_ok,

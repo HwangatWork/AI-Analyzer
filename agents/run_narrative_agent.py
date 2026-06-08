@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-Narrative Agent — AI 언어 인사이트 + 액션플랜 자동 생성
-PM Condition F: final_results.json 읽기 → Claude API 서브에이전트 → FINAL_REPORT.md 저장
+Narrative Agent — 데이터 준비 전용
+PM Condition F: final_results.json 읽기 → narrative_context.json 저장
 
-Done Criteria (NA-1~NA-5):
-  NA-1: ANTHROPIC_API_KEY 설정됨
-  NA-2: market_overview에 실제 수치(score, Z-score 등) 포함
-  NA-3: sp500_action_plan 최소 1개 항목
-  NA-4: kospi_action_plan 최소 1개 항목
-  NA-5: FINAL_REPORT.md 생성 + 실제 지표 수치 포함
+역할 분리:
+  이 스크립트  = 데이터 추출 + 컨텍스트 구조화만 담당 (AI API 호출 없음)
+  리포트 생성  = Claude Code /agent 서브에이전트가 narrative_context.json 읽고 FINAL_REPORT.md 작성
+
+Done Criteria (NA-1~NA-3):
+  NA-1: final_results.json 존재 + 필수 섹션 포함
+  NA-2: narrative_context.json 저장 완료 (signal/decision/ranking/stocks 필드)
+  NA-3: 컨텍스트 내 실제 수치 존재 (signal.score, 지표 Z-score 등)
 """
 
 import json
-import os
-import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -26,8 +26,8 @@ def _load_json(p: Path) -> dict:
         return {}
 
 
-def _build_prompt(results: dict) -> str:
-    """final_results.json 전체 데이터를 LLM 프롬프트로 변환."""
+def build_narrative_context(results: dict) -> dict:
+    """final_results.json → 서브에이전트용 구조화 컨텍스트."""
     signal   = results.get("market_signal", {})
     decision = results.get("decision", {})
     ranking  = results.get("indicator_weight_ranking", [])
@@ -35,335 +35,181 @@ def _build_prompt(results: dict) -> str:
     kospi    = results.get("kospi_analysis", {})
     meta     = results.get("meta", {})
 
-    score     = signal.get("score", 50)
-    direction = signal.get("direction", "neutral")
-    bullish   = signal.get("bullish_count", 0)
-    bearish   = signal.get("bearish_count", 0)
-    total     = signal.get("total_signals", 0)
-    ind_sigs  = signal.get("indicator_signals", [])
+    period = meta.get("period", {})
+    ind_sigs = signal.get("indicator_signals", [])
 
-    sp_dec   = decision.get("sp500", {})
-    ksp_dec  = decision.get("kospi", {})
-    sp_action  = sp_dec.get("action", "HOLD")
-    ksp_action = ksp_dec.get("action", "HOLD")
-    sp_conf    = sp_dec.get("confidence_pct", 50)
-    ksp_conf   = ksp_dec.get("confidence_pct", 50)
-    sp_pos     = sp_dec.get("position_size_pct", 0)
-    ksp_pos    = ksp_dec.get("position_size_pct", 0)
-    risk_factors = decision.get("risk_factors", [])
-
-    period   = meta.get("period", {})
-    start    = period.get("start", "?")
-    end      = period.get("end", "?")
-
-    # 지표 시그널 목록 (Z-score 포함)
-    sig_lines = []
-    for s in ind_sigs:
-        ind = s.get("indicator", "")
-        z   = s.get("z_score", 0)
-        w   = s.get("weight", 0)
-        bull = "강세" if s.get("bullish") else "약세"
-        sig_lines.append(f"  - {ind}: Z={z:+.3f}, 가중치={w:.4f}, 방향={bull}")
-    sigs_text = "\n".join(sig_lines) if sig_lines else "  (없음)"
+    # 지표 시그널 (Z-score + 가중치 포함)
+    indicator_details = [
+        {
+            "indicator": s.get("indicator", ""),
+            "z_score":   round(s.get("z_score", 0), 4),
+            "weight":    round(s.get("weight", 0), 5),
+            "bullish":   s.get("bullish", False),
+        }
+        for s in sorted(ind_sigs, key=lambda x: abs(x.get("z_score", 0)), reverse=True)
+    ]
 
     # 가중치 Top5
-    top5_lines = []
-    for r in ranking[:5]:
-        top5_lines.append(
-            f"  - {r.get('indicator','?')}: combined_weight={r.get('combined_weight',0):.4f}, "
-            f"SP500_r={r.get('sp500_signed_r',0):+.3f}, KOSPI_r={r.get('kospi_signed_r',0):+.3f}"
-        )
-    top5_text = "\n".join(top5_lines) if top5_lines else "  (없음)"
+    top5_ranking = [
+        {
+            "rank":             r.get("rank", i + 1),
+            "indicator":        r.get("indicator", ""),
+            "combined_weight":  round(r.get("combined_weight", 0), 5),
+            "sp500_signed_r":   round(r.get("sp500_signed_r", 0), 4),
+            "kospi_signed_r":   round(r.get("kospi_signed_r", 0), 4),
+        }
+        for i, r in enumerate(ranking[:5])
+    ]
 
-    # S&P500 기여/수혜 Top3
-    sp_cont = sp500.get("contribution_top5", [])[:3]
-    sp_ben  = sp500.get("beneficiary_top5",  [])[:3]
-    sp_cont_text = "\n".join(
-        f"  - {s.get('name','?')}: 1Y={s.get('stock_return_pct',0):+.1f}%, 기여점수={s.get('contribution_score',0):.2f}"
-        for s in sp_cont
-    ) or "  (없음)"
-    sp_ben_text = "\n".join(
-        f"  - {s.get('name','?')}: 초과수익={s.get('excess_return',0):+.1f}%"
-        for s in sp_ben
-    ) or "  (없음)"
+    # S&P500 Top5 기여/수혜
+    sp_cont = [
+        {
+            "name":              s.get("name", ""),
+            "stock_return_pct":  round(s.get("stock_return_pct", 0), 1),
+            "contribution_score": round(s.get("contribution_score", 0), 3),
+        }
+        for s in (sp500.get("contribution_top5") or [])[:5]
+    ]
+    sp_ben = [
+        {
+            "name":           s.get("name", ""),
+            "excess_return":  round(s.get("excess_return", 0), 1),
+        }
+        for s in (sp500.get("beneficiary_top5") or [])[:5]
+    ]
 
-    # KOSPI 기여/수혜 Top3
-    ksp_cont = kospi.get("contribution_top5", [])[:3]
-    ksp_ben  = kospi.get("beneficiary_top5",  [])[:3]
-    ksp_cont_text = "\n".join(
-        f"  - {s.get('name','?')}: 1Y={s.get('stock_return_pct',0):+.1f}%, 기여점수={s.get('contribution_score',0):.2f}"
-        for s in ksp_cont
-    ) or "  (없음)"
-    ksp_ben_text = "\n".join(
-        f"  - {s.get('name','?')}: 초과수익={s.get('excess_return',0):+.1f}%"
-        for s in ksp_ben
-    ) or "  (없음)"
+    # KOSPI Top5 기여/수혜
+    ksp_cont = [
+        {
+            "name":              s.get("name", ""),
+            "stock_return_pct":  round(s.get("stock_return_pct", 0), 1),
+            "contribution_score": round(s.get("contribution_score", 0), 3),
+        }
+        for s in (kospi.get("contribution_top5") or [])[:5]
+    ]
+    ksp_ben = [
+        {
+            "name":           s.get("name", ""),
+            "excess_return":  round(s.get("excess_return", 0), 1),
+        }
+        for s in (kospi.get("beneficiary_top5") or [])[:5]
+    ]
 
-    return f"""당신은 전문 퀀트 애널리스트입니다. 아래 실제 시장 데이터를 분석하여 한국어 투자 리포트를 작성하세요.
+    sp_dec  = decision.get("sp500", {})
+    ksp_dec = decision.get("kospi", {})
 
-[분석 기간]
-{start} ~ {end}
-
-[복합 시그널]
-- 점수: {score}/100
-- 방향성: {direction}
-- 강세 지표: {bullish}개 / 약세 지표: {bearish}개 / 총 유효 지표: {total}개
-
-[지표별 Z-Score 상세]
-{sigs_text}
-
-[가중치 Top5 지표]
-{top5_text}
-
-[S&P500 의사결정]
-- 행동: {sp_action}
-- 신뢰도: {sp_conf:.1f}%
-- 포지션 비중: {sp_pos:.0f}%
-
-[코스피 의사결정]
-- 행동: {ksp_action}
-- 신뢰도: {ksp_conf:.1f}%
-- 포지션 비중: {ksp_pos:.0f}%
-
-[리스크 요인]
-{chr(10).join('- ' + r for r in risk_factors) if risk_factors else '- 없음'}
-
-[S&P500 기여 Top3]
-{sp_cont_text}
-
-[S&P500 수혜 Top3]
-{sp_ben_text}
-
-[코스피 기여 Top3]
-{ksp_cont_text}
-
-[코스피 수혜 Top3]
-{ksp_ben_text}
-
-[작성 요구사항]
-반드시 위의 실제 수치(점수, Z-score, %, 가중치)를 인용하여 작성하세요.
-단순 "강세 국면" / "약세 국면" 같은 일반적 표현만 쓰지 마세요.
-
-다음 JSON 형식으로 반환하세요 (JSON 외 텍스트 금지):
-{{
-  "market_overview": "현재 시장 상황 3~4문장. 점수 {score}/100, {direction} 방향, Z-score 상위 지표명과 수치 반드시 포함",
-  "bullish_factors": "강세 지표 2~3개, Z-score 수치 포함 2문장",
-  "bearish_factors": "약세 지표 2~3개, Z-score 수치 포함 2문장",
-  "sp500_action_plan": ["1단계: 구체적 행동 ({sp_action}, 신뢰도 {sp_conf:.0f}%)", "2단계", "3단계"],
-  "kospi_action_plan": ["1단계: 구체적 행동 ({ksp_action}, 신뢰도 {ksp_conf:.0f}%)", "2단계"],
-  "monitoring_checklist": ["모니터링항목1 (구체적 수치 임계값 포함)", "항목2", "항목3"],
-  "top_indicator_insight": "가중치 1위 지표에 대한 1문장 해설 (수치 포함)"
-}}"""
+    return {
+        "generated_at": datetime.now().isoformat(),
+        "analysis_period": {
+            "start": period.get("start", "?"),
+            "end":   period.get("end",   "?"),
+        },
+        "signal": {
+            "score":         signal.get("score", 50),
+            "direction":     signal.get("direction", "neutral"),
+            "bullish_count": signal.get("bullish_count", 0),
+            "bearish_count": signal.get("bearish_count", 0),
+            "total_signals": signal.get("total_signals", 0),
+            "indicator_details": indicator_details,
+        },
+        "decision": {
+            "sp500": {
+                "action":           sp_dec.get("action", "HOLD"),
+                "confidence_pct":   round(sp_dec.get("confidence_pct", 0), 1),
+                "confidence_tier":  sp_dec.get("confidence_tier", "warn"),
+                "position_size_pct": sp_dec.get("position_size_pct", 0),
+            },
+            "kospi": {
+                "action":           ksp_dec.get("action", "HOLD"),
+                "confidence_pct":   round(ksp_dec.get("confidence_pct", 0), 1),
+                "confidence_tier":  ksp_dec.get("confidence_tier", "warn"),
+                "position_size_pct": ksp_dec.get("position_size_pct", 0),
+            },
+            "risk_factors": decision.get("risk_factors", []),
+        },
+        "top5_ranking": top5_ranking,
+        "sp500": {
+            "contribution_top5": sp_cont,
+            "beneficiary_top5":  sp_ben,
+        },
+        "kospi": {
+            "contribution_top5": ksp_cont,
+            "beneficiary_top5":  ksp_ben,
+        },
+    }
 
 
-def generate_narrative_llm(results: dict) -> dict:
-    """Claude API 서브에이전트로 한국어 분석 리포트 생성. 실패 시 exit(1)."""
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        print("[Narrative] ANTHROPIC_API_KEY 미설정 — 리포트 생성 불가")
-        sys.exit(1)
+def generate_narrative(signal: dict, decision: dict, ranking: list,
+                       sp500: dict, kospi: dict, meta: dict) -> dict:
+    """UI Agent 호환성 함수: narrative.json(서브에이전트 생성) 우선, 없으면 기본 구조 반환."""
+    import re as _re
+    # 서브에이전트가 생성한 narrative.json 우선 사용
+    base = Path(__file__).parent.parent / "output"
+    narr_path = base / "narrative.json"
+    if narr_path.exists():
+        try:
+            data = json.loads(narr_path.read_text(encoding="utf-8"))
+            if data.get("market_overview"):
+                return data
+        except Exception:
+            pass
 
-    try:
-        import anthropic
-    except ImportError:
-        print("[Narrative] anthropic 패키지 미설치 — pip install anthropic")
-        sys.exit(1)
-
-    prompt = _build_prompt(results)
-
-    print("  [Narrative] Claude API 호출 중 (claude-haiku-4-5-20251001)...")
-    client = anthropic.Anthropic(api_key=api_key)
-    resp = client.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=1500,
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    raw = resp.content[0].text.strip()
-    # 코드 펜스 제거
-    if "```" in raw:
-        raw = raw.split("```")[1].lstrip("json").strip()
-        if "```" in raw:
-            raw = raw[:raw.index("```")]
-
-    parsed = json.loads(raw)
-
-    signal   = results.get("market_signal", {})
-    decision = results.get("decision", {})
-    meta     = results.get("meta", {})
+    # 서브에이전트 미실행 — 컨텍스트에서 기본 구조 구성 (템플릿 없음, 수치만)
     period   = meta.get("period", {})
+    score    = signal.get("score", 50)
+    direction = signal.get("direction", "neutral")
+    dir_map  = {"risk-on": "위험 선호", "neutral": "중립", "risk-off": "위험 회피"}
+    dir_ko   = dir_map.get(direction, direction)
+    bullish  = signal.get("bullish_count", 0)
+    bearish  = signal.get("bearish_count", 0)
+    total    = signal.get("total_signals", 0)
+
+    sp_dec  = decision.get("sp500", {})
+    ksp_dec = decision.get("kospi", {})
+    sp_action  = sp_dec.get("action", "HOLD")
+    ksp_action = ksp_dec.get("action", "HOLD")
+    sp_conf    = sp_dec.get("confidence_pct", 0)
     risk_factors = decision.get("risk_factors", [])
 
-    sp500  = results.get("sp500_analysis", {})
-    kospi  = results.get("kospi_analysis", {})
-    sp_top1  = (sp500.get("contribution_top5") or [{}])[0]
-    ksp_top1 = (kospi.get("contribution_top5") or [{}])[0]
-
+    top_inds = [r.get("indicator", "") for r in ranking[:3]]
     today = datetime.now().strftime("%Y년 %m월 %d일")
+
     return {
-        "generated_at":         datetime.now().isoformat(),
-        "report_date":          today,
-        "analysis_period":      f"{period.get('start','?')} ~ {period.get('end','?')}",
-        "generation_method":    "claude_api",
-        "market_overview":      parsed.get("market_overview", ""),
-        "bullish_factors":      parsed.get("bullish_factors", ""),
-        "bearish_factors":      parsed.get("bearish_factors", ""),
-        "top_indicator_insight":parsed.get("top_indicator_insight", ""),
-        "sp500_stock_insight":  f"{sp_top1.get('name','?')} ({sp_top1.get('stock_return_pct',0):+.1f}%)",
-        "kospi_stock_insight":  f"{ksp_top1.get('name','?')} ({ksp_top1.get('stock_return_pct',0):+.1f}%)",
-        "sp500_action_plan":    parsed.get("sp500_action_plan", []),
-        "kospi_action_plan":    parsed.get("kospi_action_plan", []),
-        "monitoring_checklist": parsed.get("monitoring_checklist", []),
-        "risk_summary":         " / ".join(risk_factors[:3]),
-        "signal_score":         signal.get("score", 50),
-        "signal_direction":     signal.get("direction", "neutral"),
+        "generated_at":      datetime.now().isoformat(),
+        "report_date":       today,
+        "analysis_period":   f"{period.get('start','?')} ~ {period.get('end','?')}",
+        "generation_method": "context_only",
+        "market_overview":   f"복합 시그널 {score}/100 ({dir_ko}). 강세 {bullish}개 / 약세 {bearish}개 / 유효 {total}개. 상위 지표: {', '.join(top_inds)}.",
+        "bullish_factors":   " / ".join(top_inds[:2]) if bullish > 0 else "현재 강세 요인 없음",
+        "bearish_factors":   " / ".join(top_inds[-2:]) if bearish > 0 else "현재 주요 약세 요인 없음",
+        "sp500_action_plan": [f"{sp_action} — 신뢰도 {sp_conf:.0f}%", "서브에이전트 실행 후 상세 액션플랜 생성됩니다"],
+        "kospi_action_plan": [f"{ksp_action}", "서브에이전트 실행 후 상세 액션플랜 생성됩니다"],
+        "monitoring_checklist": [f"복합 시그널 점수 (현재 {score})", "HY_SPREAD 추세", "VIX 수준"],
+        "risk_summary":      " / ".join(risk_factors[:3]),
+        "sp500_stock_insight": "",
+        "kospi_stock_insight": "",
         "disclaimer": "본 리포트는 AI 분석 시스템이 자동 생성한 참고 자료입니다. 투자 결정은 개인 책임이며, 전문 투자 자문이 아닙니다.",
     }
 
 
-def save_final_report_md(narr: dict, results: dict, out_dir: Path) -> Path:
-    """FINAL_REPORT.md 생성 — 실제 지표 수치 포함 마크다운 리포트."""
-    signal   = results.get("market_signal", {})
-    decision = results.get("decision", {})
-    ranking  = results.get("indicator_weight_ranking", [])
-    ind_sigs = signal.get("indicator_signals", [])
-
-    score     = signal.get("score", 50)
-    direction = signal.get("direction", "neutral")
-    sp_dec    = decision.get("sp500", {})
-    ksp_dec   = decision.get("kospi", {})
-    today     = narr.get("report_date", datetime.now().strftime("%Y년 %m월 %d일"))
-    period    = narr.get("analysis_period", "?")
-
-    dir_map = {"risk-on": "위험 선호", "neutral": "중립", "risk-off": "위험 회피"}
-    dir_ko  = dir_map.get(direction, direction)
-
-    # 지표 시그널 테이블
-    sig_rows = []
-    for s in sorted(ind_sigs, key=lambda x: abs(x.get("z_score", 0)), reverse=True):
-        ind  = s.get("indicator", "")
-        z    = s.get("z_score", 0)
-        w    = s.get("weight", 0)
-        bull = "🟢 강세" if s.get("bullish") else "🔴 약세"
-        sig_rows.append(f"| {ind} | {z:+.3f} | {w:.4f} | {bull} |")
-    sig_table = "\n".join(sig_rows) if sig_rows else "| (없음) | - | - | - |"
-
-    # 가중치 Top5 테이블
-    rank_rows = []
-    for i, r in enumerate(ranking[:5], 1):
-        rank_rows.append(
-            f"| {i} | {r.get('indicator','?')} | {r.get('combined_weight',0):.4f} | "
-            f"{r.get('sp500_signed_r',0):+.3f} | {r.get('kospi_signed_r',0):+.3f} |"
-        )
-    rank_table = "\n".join(rank_rows) if rank_rows else "| - | (없음) | - | - | - |"
-
-    sp_plan_md  = "\n".join(f"{i+1}. {p}" for i, p in enumerate(narr.get("sp500_action_plan", [])))
-    ksp_plan_md = "\n".join(f"{i+1}. {p}" for i, p in enumerate(narr.get("kospi_action_plan", [])))
-    monitor_md  = "\n".join(f"- [ ] {m}" for m in narr.get("monitoring_checklist", []))
-
-    md = f"""# AI Analyzer — 주간 시장 분석 리포트
-> 자동 생성: {today} | 분석 기간: {period}
-
----
-
-## 📊 복합 시그널 요약
-
-| 항목 | 수치 |
-|------|------|
-| 복합 시그널 점수 | **{score}/100** |
-| 시장 방향성 | **{dir_ko}** ({direction}) |
-| 강세 지표 수 | {signal.get('bullish_count', 0)}개 |
-| 약세 지표 수 | {signal.get('bearish_count', 0)}개 |
-| 유효 지표 총수 | {signal.get('total_signals', 0)}개 |
-
----
-
-## 🎯 의사결정
-
-| 시장 | 행동 | 신뢰도 | 포지션 |
-|------|------|--------|--------|
-| S&P500 | **{sp_dec.get('action','HOLD')}** | {sp_dec.get('confidence_pct',0):.1f}% | {sp_dec.get('position_size_pct',0):.0f}% |
-| 코스피  | **{ksp_dec.get('action','HOLD')}** | {ksp_dec.get('confidence_pct',0):.1f}% | {ksp_dec.get('position_size_pct',0):.0f}% |
-
----
-
-## 📈 지표별 Z-Score 분석
-
-| 지표 | Z-Score | 가중치 | 방향 |
-|------|---------|--------|------|
-{sig_table}
-
----
-
-## 🏆 가중치 Top5 지표
-
-| 순위 | 지표 | Combined Weight | S&P500 r | KOSPI r |
-|------|------|-----------------|----------|---------|
-{rank_table}
-
----
-
-## 💬 시장 개요
-
-{narr.get('market_overview', '')}
-
-### 강세 요인
-{narr.get('bullish_factors', '')}
-
-### 약세 요인 / 리스크
-{narr.get('bearish_factors', '')}
-
-{f"### 핵심 지표 인사이트{chr(10)}{narr.get('top_indicator_insight', '')}" if narr.get('top_indicator_insight') else ''}
-
----
-
-## 📋 액션플랜
-
-### S&P500
-{sp_plan_md}
-
-### 코스피
-{ksp_plan_md}
-
----
-
-## 🔍 주간 모니터링 체크리스트
-
-{monitor_md}
-
----
-
-## 📌 리스크 요약
-{narr.get('risk_summary', '없음')}
-
----
-
-*{narr.get('disclaimer', '')}*
-*생성 방식: {narr.get('generation_method', 'unknown')} | 생성 시각: {narr.get('generated_at', '')}*
-"""
-
-    out_path = out_dir / "FINAL_REPORT.md"
-    out_path.write_text(md, encoding="utf-8")
-    return out_path
-
-
 def generate_narrative_section(narrative: dict) -> str:
-    """대시보드 HTML 용 내러티브 섹션 (run_ui_agent.py에서 호출)."""
-    today    = narrative.get("report_date", "")
-    period   = narrative.get("analysis_period", "")
-    overview = narrative.get("market_overview", "")
-    bull_f   = narrative.get("bullish_factors", "")
-    bear_f   = narrative.get("bearish_factors", "")
-    sp_plan  = narrative.get("sp500_action_plan", [])
-    ksp_plan = narrative.get("kospi_action_plan", [])
-    monitor  = narrative.get("monitoring_checklist", [])
-    risk_sum = narrative.get("risk_summary", "")
-    sp_hint  = narrative.get("sp500_stock_insight", "")
-    ksp_hint = narrative.get("kospi_stock_insight", "")
+    """대시보드 HTML용 내러티브 섹션 렌더러."""
+    import re as _re
+    today      = narrative.get("report_date", "")
+    period     = narrative.get("analysis_period", "")
+    overview   = narrative.get("market_overview", "")
+    bull_f     = narrative.get("bullish_factors", "")
+    bear_f     = narrative.get("bearish_factors", "")
+    sp_plan    = narrative.get("sp500_action_plan", [])
+    ksp_plan   = narrative.get("kospi_action_plan", [])
+    monitor    = narrative.get("monitoring_checklist", [])
+    risk_sum   = narrative.get("risk_summary", "")
+    sp_hint    = narrative.get("sp500_stock_insight", "")
+    ksp_hint   = narrative.get("kospi_stock_insight", "")
     disclaimer = narrative.get("disclaimer", "")
 
     def md_bold(text: str) -> str:
-        return re.sub(r'\*\*(.*?)\*\*', r'<strong style="color:#e2e8f0">\1</strong>', text)
+        return _re.sub(r'\*\*(.*?)\*\*', r'<strong style="color:#e2e8f0">\1</strong>', text)
 
     def plan_html(items):
         return "".join(
@@ -441,66 +287,74 @@ if __name__ == "__main__":
     OUT_DIR  = BASE_DIR / "output"
 
     print("=" * 60)
-    print("Narrative Agent — Claude API 서브에이전트 모드")
+    print("Narrative Agent — 데이터 준비 (AI API 없음)")
     print("=" * 60)
 
-    results = _load_json(OUT_DIR / "final_results.json")
-    if not results:
-        print("[FAIL] final_results.json 없음 또는 빈 파일")
-        sys.exit(1)
+    # NA-1: final_results.json 존재 확인
+    results_path = OUT_DIR / "final_results.json"
+    results = _load_json(results_path)
 
-    # Claude API 호출 (API 키 없으면 내부에서 exit(1))
-    narr = generate_narrative_llm(results)
-    print("  [Narrative] Claude API LLM 생성 성공")
-
-    # ── Done Criteria ──────────────────────────────────────────
     fails = []
 
-    # NA-1: API 키 확인 (여기까지 왔으면 이미 PASS)
-    print("  ✓ NA-1 ANTHROPIC_API_KEY 설정됨 PASS")
-
-    # NA-2: 실제 수치 포함 여부
-    overview = narr.get("market_overview", "")
-    has_numbers = bool(re.search(r'\d+\.?\d*', overview))
-    if not has_numbers:
-        fails.append("NA-2 market_overview에 실제 수치 없음")
-    else:
-        print(f"  ✓ NA-2 market_overview 수치 포함 PASS")
-
-    # NA-3: SP500 액션플랜
-    if not narr.get("sp500_action_plan"):
-        fails.append("NA-3 sp500_action_plan 없음")
-    else:
-        print(f"  ✓ NA-3 sp500_action_plan {len(narr['sp500_action_plan'])}개 PASS")
-
-    # NA-4: KOSPI 액션플랜
-    if not narr.get("kospi_action_plan"):
-        fails.append("NA-4 kospi_action_plan 없음")
-    else:
-        print(f"  ✓ NA-4 kospi_action_plan {len(narr['kospi_action_plan'])}개 PASS")
-
-    # 저장 — narrative.json (대시보드 호환)
-    narr_path = OUT_DIR / "narrative.json"
-    narr_path.write_text(json.dumps(narr, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"  [저장] {narr_path}")
-
-    # NA-5: FINAL_REPORT.md 생성 + 수치 포함 확인
-    report_path = save_final_report_md(narr, results, OUT_DIR)
-    report_text = report_path.read_text(encoding="utf-8")
-    num_count   = len(re.findall(r'[+-]?\d+\.?\d*', report_text))
-    if num_count < 10:
-        fails.append(f"NA-5 FINAL_REPORT.md 수치 부족 ({num_count}개 < 10)")
-    else:
-        print(f"  ✓ NA-5 FINAL_REPORT.md 생성 완료 (수치 {num_count}개) PASS")
-
-    print("\n=== Done Criteria 최종 ===")
-    if fails:
-        for f in fails:
-            print(f"  ✗ {f}")
-        print(f"\n[FAIL] Done Criteria 미충족: {fails}")
+    if not results:
+        fails.append("NA-1 final_results.json 없음 또는 빈 파일")
+        print(f"[FAIL] {fails[0]}")
         sys.exit(1)
 
-    print("[PASS] NA-1~NA-5 전항목 통과")
-    print(f"\n시장 개요 (첫 150자):\n{overview[:150]}...")
-    print(f"\nSP500 액션플랜:\n" + "\n".join(f"  {i+1}. {p}" for i,p in enumerate(narr.get('sp500_action_plan',[]))))
-    print(f"\nKOSPI 액션플랜:\n" + "\n".join(f"  {i+1}. {p}" for i,p in enumerate(narr.get('kospi_action_plan',[]))))
+    required_sections = ["market_signal", "indicator_weight_ranking"]
+    for sec in required_sections:
+        if sec not in results:
+            fails.append(f"NA-1 final_results.json에 '{sec}' 섹션 없음")
+
+    if fails:
+        print(f"[FAIL] {fails}")
+        sys.exit(1)
+
+    print("  ✓ NA-1 final_results.json 로드 성공")
+
+    # 컨텍스트 구축
+    ctx = build_narrative_context(results)
+
+    # NA-3: 실제 수치 존재 확인
+    score = ctx["signal"]["score"]
+    n_indicators = len(ctx["signal"]["indicator_details"])
+    if score == 0 and n_indicators == 0:
+        fails.append("NA-3 시그널 수치 없음 (score=0, indicators=0)")
+
+    if fails:
+        print(f"[FAIL] {fails}")
+        sys.exit(1)
+
+    print(f"  ✓ NA-3 수치 확인: score={score}, 지표={n_indicators}개")
+
+    # NA-2: narrative_context.json 저장
+    ctx_path = OUT_DIR / "narrative_context.json"
+    ctx_path.write_text(
+        json.dumps(ctx, ensure_ascii=False, indent=2),
+        encoding="utf-8"
+    )
+
+    # 필수 필드 확인
+    for field in ("signal", "decision", "top5_ranking", "sp500", "kospi"):
+        if field not in ctx:
+            fails.append(f"NA-2 context에 '{field}' 필드 없음")
+
+    if fails:
+        print(f"[FAIL] {fails}")
+        sys.exit(1)
+
+    print(f"  ✓ NA-2 narrative_context.json 저장 완료")
+
+    print("\n=== Done Criteria ===")
+    print("  ✓ NA-1 final_results.json 로드 PASS")
+    print("  ✓ NA-2 narrative_context.json 저장 PASS")
+    print("  ✓ NA-3 실제 수치 포함 PASS")
+    print("\n[PASS] NA-1~NA-3 전항목 통과")
+    print(f"\n컨텍스트 요약:")
+    print(f"  분석 기간: {ctx['analysis_period']['start']} ~ {ctx['analysis_period']['end']}")
+    print(f"  시그널: {score}/100 ({ctx['signal']['direction']})")
+    print(f"  강세/약세: {ctx['signal']['bullish_count']}/{ctx['signal']['bearish_count']}")
+    print(f"  SP500: {ctx['decision']['sp500']['action']} ({ctx['decision']['sp500']['confidence_pct']}%)")
+    print(f"  KOSPI:  {ctx['decision']['kospi']['action']} ({ctx['decision']['kospi']['confidence_pct']}%)")
+    print(f"  가중치 Top1: {ctx['top5_ranking'][0]['indicator'] if ctx['top5_ranking'] else 'N/A'}")
+    print(f"\n→ 다음 단계: Claude Code 서브에이전트가 narrative_context.json 읽고 FINAL_REPORT.md 생성")

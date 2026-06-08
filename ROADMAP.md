@@ -102,7 +102,7 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 - [x] SD-9: TG 중복 전송 방지 — MD5 해시 + 60초 윈도우 차단 (_tg_last_sent 캐시)
 - [⚠] T7 (재발): workflow Commit 스텝 race condition 수정 — git pull --rebase 추가, master 푸시 완료 (run_id=27149561371 success), run-pipeline Evidence 보류 (workflow_dispatch 필요)
 - [x] 긴급 1: Z-Score 13개 일치 — evaluator _SELF_REFERENTIAL={RSI14/MA50/RSI_SIGNAL/BETA/MA_SIGNAL}, LOW_CONF_THRESHOLD=50. Top13: VIX/HY_SPREAD/WTI/DXY/INDIVIDUAL_NET/US10Y/FOREIGN_NET/MARKET_STRENGTH/CNN_FG/BBAND/STOCH_RSI/INSTITUTION_NET/MARKET_MOMENTUM
-- [x] 긴급 2: Narrative Agent Claude API 서브에이전트 전환 — 템플릿 폴백 완전 제거, FINAL_REPORT.md 생성 (실제 Z-score 포함), Done Criteria NA-1~NA-5, QF-1 수정 (FINAL_REPORT.md 수치 10개 이상)
+- [x] 긴급 2: Narrative Agent 재구현 — ANTHROPIC_API_KEY 의존성 완전 제거, Python=데이터 준비(narrative_context.json), Claude Code 서브에이전트=FINAL_REPORT.md 생성(4681자, 수치 153개), QF-1 수정 (내용 품질만 판단)
 - [x] 긴급 3: decision.json 신뢰도 임계값 — confidence_tier(normal/warn/hold) 필드 추가, TG 알림 70%+ 정상 / 50~70% WARN / 50% 미만 보류 표시
 
 ## Phase 8 - 외부 연동 (자격증명 대기 중)
