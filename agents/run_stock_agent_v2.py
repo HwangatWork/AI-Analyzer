@@ -510,6 +510,8 @@ def compute_contribution(stock_df: pd.DataFrame, idx: pd.Series,
     if len(mg) < 30:
         return None
     mg.columns = ["s", "i"]
+    if np.std(mg["s"].values) < 1e-10 or np.std(mg["i"].values) < 1e-10:
+        return None  # pct_change 후에도 상수 시계열 (forward-fill 등)
     slope, _, r_val, p_val, _ = stats.linregress(mg["i"].values, mg["s"].values)
     s_total = float((1 + mg["s"]).prod() - 1)
     i_total = float((1 + mg["i"]).prod() - 1)
@@ -571,6 +573,8 @@ def compute_beneficiary(stock_df: pd.DataFrame, idx: pd.Series) -> dict | None:
     if len(mg) < 30:
         return None
     mg.columns = ["s", "i"]
+    if np.std(mg["s"].values) < 1e-10 or np.std(mg["i"].values) < 1e-10:
+        return None  # pct_change 후 상수 시계열
     up = mg[mg["i"] > 0]
     if len(up) < 15:
         return None

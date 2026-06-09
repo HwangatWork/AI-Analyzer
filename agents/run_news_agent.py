@@ -7,6 +7,7 @@ Done Criteria (NQ-1~NQ-4):
   NQ-3: 주시 포인트 날짜가 "미정" 아닌 실제 날짜 (YYYY-MM-DD 형식)
   NQ-4: ≥3개 클릭 가능한 URL
 """
+import utf8_setup  # noqa: F401
 
 import json
 import os
@@ -43,18 +44,23 @@ BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID   = os.getenv("TELEGRAM_CHAT_ID", "")
 MAX_RETRIES = 2
 
-# ── 2026 FOMC 공식 일정 (연준 홈페이지 확인 기준) ────────────
+# ── FOMC 확정 일정 (연준 홈페이지 확인 기준, 연도별 dict) ─────
 # 발표일 = 회의 2일차, statement + press conference
-FOMC_2026 = [
-    ("2026-01-28", "FOMC 금리 결정 발표",    "금리 동결/변경 결정, 1월 첫 회의"),
-    ("2026-03-18", "FOMC 금리 결정 발표",    "경제전망요약(SEP) + 점도표 공개"),
-    ("2026-04-29", "FOMC 금리 결정 발표",    "금리 동결/변경 결정"),
-    ("2026-06-17", "FOMC 금리 결정 발표",    "금리 동결 여부, 성장주·반도체 방향성 분수령"),
-    ("2026-07-29", "FOMC 금리 결정 발표",    "금리 동결/변경 결정"),
-    ("2026-09-16", "FOMC 금리 결정 발표",    "경제전망요약(SEP) + 점도표 공개"),
-    ("2026-10-28", "FOMC 금리 결정 발표",    "금리 동결/변경 결정"),
-    ("2026-12-09", "FOMC 금리 결정 발표",    "경제전망요약(SEP) + 연간 최종 회의"),
-]
+# 새 연도 확정 시 아래 dict에 항목 추가. 미등록 연도는 _estimate_fomc_dates_for_year()로 추정.
+FOMC_CONFIRMED: dict[int, list] = {
+    2026: [
+        ("2026-01-28", "FOMC 금리 결정 발표", "금리 동결/변경 결정, 1월 첫 회의"),
+        ("2026-03-18", "FOMC 금리 결정 발표", "경제전망요약(SEP) + 점도표 공개"),
+        ("2026-04-29", "FOMC 금리 결정 발표", "금리 동결/변경 결정"),
+        ("2026-06-17", "FOMC 금리 결정 발표", "금리 동결 여부, 성장주·반도체 방향성 분수령"),
+        ("2026-07-29", "FOMC 금리 결정 발표", "금리 동결/변경 결정"),
+        ("2026-09-16", "FOMC 금리 결정 발표", "경제전망요약(SEP) + 점도표 공개"),
+        ("2026-10-28", "FOMC 금리 결정 발표", "금리 동결/변경 결정"),
+        ("2026-12-09", "FOMC 금리 결정 발표", "경제전망요약(SEP) + 연간 최종 회의"),
+    ],
+}
+# 하위 호환: FOMC_2026은 기존 코드 참조용 alias
+FOMC_2026 = FOMC_CONFIRMED.get(2026, [])
 
 # BLS 주요 지표 발표 패턴 (월별 계산용)
 # CPI: 매월 두 번째 또는 세 번째 주 수요일/목요일
@@ -145,12 +151,15 @@ def _fetch_rss(query: str, max_items: int = 5, _retries: int = 3) -> list:
 
 
 def fetch_news() -> dict:
+    _now = datetime.now()
+    _yr  = _now.year
+    _mo  = _now.strftime("%B")  # e.g. "June"
     queries = {
         "us_market": "US stock market S&P500 NASDAQ today",
         "macro":     "Fed FOMC interest rate inflation economy",
         "korea":     "KOSPI Korean stock market economy",
-        "earnings":  "NVDA AMD earnings date results 2026",
-        "events":    "CPI inflation report release date June 2026",
+        "earnings":  f"NVDA AMD earnings date results {_yr}",
+        "events":    f"CPI inflation report release date {_mo} {_yr}",
     }
     all_news = {}
     for key, q in queries.items():
@@ -456,12 +465,14 @@ def _estimate_fomc_dates_for_year(year: int) -> list:
 
 
 def _get_upcoming_fomc(today: date, days: int = 35) -> list:
-    """다음 FOMC 발표일 (today 이후 days일 이내). 2026 확정 + 이후 연도 추정."""
+    """다음 FOMC 발표일 (today 이후 days일 이내). 확정 일정 우선, 미등록 연도는 추정."""
     horizon = today + timedelta(days=days)
 
-    # 연도별 날짜 소스 결정: 2026년은 확정, 이후는 추정
-    all_fomc = list(FOMC_2026)
-    years_covered = {datetime.strptime(d, "%Y-%m-%d").year for d, _, _ in FOMC_2026}
+    # FOMC_CONFIRMED에서 모든 확정 날짜 수집, 미등록 연도는 추정으로 보완
+    all_fomc: list = []
+    for yr_dates in FOMC_CONFIRMED.values():
+        all_fomc.extend(yr_dates)
+    years_covered = {datetime.strptime(d, "%Y-%m-%d").year for d, _, _ in all_fomc}
     for yr in range(today.year, today.year + 3):
         if yr not in years_covered:
             all_fomc.extend(_estimate_fomc_dates_for_year(yr))

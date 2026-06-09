@@ -14,6 +14,7 @@ Done Criteria (AN-1~AN-5):
   AN-4: 모든 지표의 lag_r 및 granger_p 필드 존재
   AN-5: 가중치 공식이 |선행_r|*0.4 + granger*0.4 + indep*0.2 구조
 """
+import utf8_setup  # noqa: F401
 
 import json, warnings
 import numpy as np
@@ -246,6 +247,9 @@ def compute_granger(x: pd.Series, y: pd.Series, max_lag: int = 5) -> dict:
         xv = merged_stat["x"].values
         yv = merged_stat["y"].values
         n  = len(yv)
+        if np.std(yv) < 1e-10 or np.std(xv) < 1e-10:  # constant series → linregress 불가
+            return {"granger_p": 1.0, "granger_lag": 0, "method": "constant_series",
+                    "note": "시계열 분산 없음 — Granger 검정 불가"}
         # lag=1: OLS y_t ~ y_{t-1} + x_{t-1} vs y_t ~ y_{t-1}
         y_lag1 = yv[:-1]
         y_curr = yv[1:]

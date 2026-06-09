@@ -1,4 +1,4 @@
-AI Analyzer Progress — 2026-06-09 (세션 D 완료)
+AI Analyzer Progress — 2026-06-09 (세션 E 완료)
 
 === 세션 D 완료 항목 (REQ-015 C~F단계 + REQ-017~018 + 6-Layer 감사) ===
 
@@ -40,16 +40,44 @@ AI Analyzer Progress — 2026-06-09 (세션 D 완료)
    - SD-12 이슈 (stock/evaluator/validation/ui/audit exit(1) 없음) — 별도 추적 중
    - agentic_audit_prompt.md 신규 생성
 
+=== 세션 E 완료 항목 (REQ-020/021/022/019) ===
+
+[REQ-020 — stat_utils.py + std==0 가드]
+1. agents/stat_utils.py 신규 생성 — safe_pearsonr/safe_linregress/is_constant
+2. run_analysis_agent_v2.py L255 Granger fallback 유일 미가드 호출 수정
+3. run_stock_agent_v2.py pct_change() 후 2차 std==0 방어선 추가
+   - constant series 동적 테스트 5종 PASS (std=0→None, NaN 없음)
+
+[REQ-021 — FOMC 날짜 동적화]
+4. FOMC_2026 하드코딩 → FOMC_CONFIRMED: dict[int,list] 멀티연도 구조
+5. _get_upcoming_fomc(): FOMC_CONFIRMED.values() 순회 + 미등록 연도 자동 추정
+6. fetch_news() 검색 쿼리 동적화 ({_yr}/{_mo})
+   - 2027-01-01 기준 테스트: 2027-01-27(Wednesday) 정상 반환
+
+[REQ-022 — baseline schema_version:2]
+7. _KNOWN_FAIL_CHECKS=['QG-1','ANTHROPIC_API_KEY'] 상수 추가
+8. _load_baseline() 헬퍼 신규 (v1→v2 자동 마이그레이션)
+9. _save_baseline() — schema_version:2 + known_fail_checks 추가
+10. SD-14 known-fail 제외 비교 로직으로 전환
+    - 마이그레이션 전/후 출력 PASS, SD-14 케이스 3종 assertion PASS
+
+[REQ-019 / REQ-015 E단계 — exit(1) 확인]
+11. 5개 에이전트 모두 exit(1) 이미 존재 확인 후 mock 빈 데이터 테스트
+    - stock_agent exit_code=1 ✓, evaluator_agent exit_code=1 ✓
+    - validation_agent exit_code=1 ✓, ui_agent exit_code=1 ✓, audit_agent exit_code=1 ✓
+    - REQ-015 E단계 완료
+
 === 현재 상태 ===
 pm_quality_checks: 23/24 PASS (QG-1 = Google Sheets 자격증명 없음, 영구 FAIL)
-pm_self_diagnosis: SD-1~19 구현 완료 (SD-20 수동 처리)
+pm_self_diagnosis: SD-1~20 구현 완료
 Validation: 29/30 PASS (R2: 효성화학 거래정지, 정상)
 Signal: 43.4 (neutral/HOLD)
 Valid Ranking: VIX(#1), HY_SPREAD(#2), WTI(#3), DXY(#4), INDIVIDUAL_NET(#5)
 GitHub Actions: conclusion=success (REQ-008)
+pm_baseline: schema_version=2, known_fail_checks=[QG-1, ANTHROPIC_API_KEY]
 
 === 미완료 (backlog) ===
 - REQ-003: Google Sheets 자동화 (GOOGLE_SA_JSON 필요)
 - REQ-004: Notion 연동 (NOTION_TOKEN 필요)
 - REQ-FUTURE-001: 코스피100→코스피200 유니버스 확장
-- REQ-015 C~F단계: SD-15~20 중 SD-12 이슈(exit(1) 5개 에이전트) 수동 수정 대기
+- REQ-015 F단계: SD-12 탐지 zero 확인 (5개 에이전트 exit(1) 확인 후 SD-12 재실행)

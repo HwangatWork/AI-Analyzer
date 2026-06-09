@@ -56,6 +56,9 @@ BASELINE_FILE     = PROC_DIR / "pm_baseline.json"
 FIX_REQUEST_FILE  = BASE_DIR / "fix_request.md"
 PENDING_FILE      = BASE_DIR / "pending_requests.json"
 
+# SD-14 회귀 감지에서 영구 제외할 QC 체크 (자격증명 미설정 등 외부 의존성)
+_KNOWN_FAIL_CHECKS: list[str] = ["QG-1", "ANTHROPIC_API_KEY"]
+
 
 # ── pending_requests.json 헬퍼 ────────────────────────────────────
 
@@ -608,12 +611,7 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
     ksp_a = data.get("kospi_analysis", {})
 
     # ── 기준선 로드 ───────────────────────────────────────────
-    baseline: dict = {}
-    if BASELINE_FILE.exists():
-        try:
-            baseline = json.loads(BASELINE_FILE.read_text(encoding="utf-8"))
-        except Exception:
-            pass
+    baseline = _load_baseline()
 
     curr_count = len(rank)
     prev_count = baseline.get("indicator_count")
@@ -817,35 +815,46 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
             pass
 
     # ── SD-14: QC 기준선 회귀 탐지 ───────────────────────────────────
-    # 현재 QC PASS 수가 기준선보다 줄어들면 즉시 Telegram 알림
+    # known_fail_checks(자격증명 대기 등)는 비교에서 제외 — 항상 실패하는 항목 오탐 방지
     try:
-        _qc14      = pm_quality_checks()
-        _qc14_pass = sum(1 for c in _qc14 if c["pass"])
-        _qc14_base = baseline.get("qc_pass_count")
-        if _qc14_base is not None and _qc14_pass < _qc14_base:
-            _regressed14 = _qc14_base - _qc14_pass
-            # qc_failed_checks가 None이면 legacy baseline — 신규 실패 목록 미출력
-            # (QG-1처럼 항상 실패하는 known-fail이 오탐되지 않도록)
-            _prev_fail_history14 = baseline.get("qc_failed_checks")
-            if _prev_fail_history14 is not None:
-                _prev_fails14 = set(_prev_fail_history14)
-                _new_fails14  = [c["check"] for c in _qc14
-                                 if not c["pass"] and c["check"] not in _prev_fails14]
-            else:
-                _prev_fails14 = set()
-                _new_fails14  = []  # Legacy baseline: known-fail 오탐 방지
+        _known_fails14       = set(baseline.get("known_fail_checks", _KNOWN_FAIL_CHECKS))
+        _qc14                = pm_quality_checks()
+        _qc14_all_pass       = sum(1 for c in _qc14 if c["pass"])
+        _prev_fail_history14 = baseline.get("qc_failed_checks")
+
+        # effective = known_fail_checks 제외 후 비교
+        _effective_fails_now  = [c["check"] for c in _qc14
+                                  if not c["pass"] and c["check"] not in _known_fails14]
+        _effective_fails_prev = (
+            [f for f in _prev_fail_history14 if f not in _known_fails14]
+            if _prev_fail_history14 is not None else None
+        )
+
+        _regressed14 = 0
+        _new_fails14: list[str] = []
+        if _effective_fails_prev is not None:
+            _new_fails14 = [f for f in _effective_fails_now
+                            if f not in set(_effective_fails_prev)]
+            _regressed14 = len(_new_fails14)
+        else:
+            # Legacy baseline: count 기반 (known-fail 차감 후 비교)
+            _qc14_base = baseline.get("qc_pass_count")
+            if _qc14_base is not None:
+                _effective_pass_now = len(_qc14) - len(_effective_fails_now)
+                if _effective_pass_now < _qc14_base:
+                    _regressed14 = _qc14_base - _effective_pass_now
+
+        if _regressed14 > 0:
             issues.append(
-                f"SD-14 QC 회귀: {_qc14_pass}/{len(_qc14)} PASS "
-                f"(기준선 {_qc14_base} → 현재 {_qc14_pass}, "
-                f"-{_regressed14}개 감소)"
+                f"SD-14 QC 회귀: {_qc14_all_pass}/{len(_qc14)} PASS "
+                f"(known-fail 제외 신규 실패 {_regressed14}개)"
                 + (f". 신규 실패: {_new_fails14}" if _new_fails14 else "")
             )
             _tg_send(
                 f"🚨 <b>SD-14 QC 회귀 감지</b>\n"
-                f"기준선 {_qc14_base}/{len(_qc14)} → "
-                f"현재 {_qc14_pass}/{len(_qc14)} PASS\n"
+                f"현재 {_qc14_all_pass}/{len(_qc14)} PASS\n"
                 + (f"신규 실패: {', '.join(_new_fails14[:5])}" if _new_fails14
-                   else "신규 실패: 없음 (legacy baseline — known-fail 제외)")
+                   else f"신규 실패: {_regressed14}개 (known-fail 외)")
             )
     except Exception:
         pass
@@ -1089,13 +1098,29 @@ def _auto_fix_from_diagnosis(issues: list[str]) -> None:
     run_partial_pipeline(ordered)
 
 
+def _load_baseline() -> dict:
+    """pm_baseline.json 로드. v1(schema_version 없음) → v2 자동 마이그레이션."""
+    if not BASELINE_FILE.exists():
+        return {}
+    try:
+        b = json.loads(BASELINE_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    if b.get("schema_version") is None:
+        b["schema_version"] = 2
+        b.setdefault("known_fail_checks", _KNOWN_FAIL_CHECKS)
+    return b
+
+
 def _save_baseline(indicator_count: int, rank: list,
                    qc_results: list | None = None) -> None:
     baseline = {
+        "schema_version":  2,
         "timestamp":       datetime.now().isoformat(),
         "indicator_count": indicator_count,
         "top5_indicators": [r["indicator"] for r in rank[:5]],
         "top1_indicator":  rank[0]["indicator"] if rank else None,
+        "known_fail_checks": _KNOWN_FAIL_CHECKS,
     }
     if qc_results is not None:
         baseline["qc_pass_count"]    = sum(1 for c in qc_results if c["pass"])
@@ -1105,7 +1130,7 @@ def _save_baseline(indicator_count: int, rank: list,
     BASELINE_FILE.write_text(
         json.dumps(baseline, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    print(f"[PM] 기준선 저장: {indicator_count}개 지표"
+    print(f"[PM] 기준선 저장 (v2): {indicator_count}개 지표"
           + (f" / QC {baseline.get('qc_pass_count')}/{baseline.get('qc_total')} PASS"
              if qc_results is not None else ""))
 

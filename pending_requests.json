@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-09T15:00:00",
+  "updated": "2026-06-09T20:44:00",
   "completed": [
     {
       "id": "REQ-001",
@@ -101,16 +101,16 @@
     },
     {
       "id": "REQ-015",
-      "request": "PM Agent 자기 감사 레이어 (sd_meta_check) — C/D단계 완료, E~F 대기",
+      "request": "PM Agent 자기 감사 레이어 (sd_meta_check) — E단계 완료",
       "status": "partial",
       "priority": "high",
-      "details": "A단계: SD-10(API 주장 vs 실제 코드), SD-11(하드코딩 위장 패턴). B단계: SD-12~14. C단계: SD-15(vacuous PASS 탐지), SD-16(신선도 25h), SD-17(파일 크기). D단계: SD-18(하드코딩 날짜 탐지+수정), SD-19(fix_request 동적화), SD-20(CLAUDE.md 패턴 추가). E~F단계(SD-12 exit(1) 5개 에이전트 수동 수정) 대기",
+      "details": "A단계: SD-10(API 주장 vs 실제 코드), SD-11(하드코딩 위장 패턴). B단계: SD-12~14. C단계: SD-15(vacuous PASS 탐지), SD-16(신선도 25h), SD-17(파일 크기). D단계: SD-18(하드코딩 날짜 탐지+수정), SD-19(fix_request 동적화), SD-20(CLAUDE.md 패턴 추가). E단계: 5개 에이전트 exit(1) 확인 완료 (mock exit_code=1 PASS). F단계(SD-12 탐지 zero 확인) 대기",
       "stages": {
         "A": "done",
         "B": "done",
         "C": "done",
         "D": "done",
-        "E": "backlog",
+        "E": "done",
         "F": "backlog"
       }
     },
@@ -140,10 +140,35 @@
     },
     {
       "id": "REQ-019",
-      "request": "SD-12 exit(1) 가드 추가 — 5개 에이전트 (REQ-015 E단계)",
-      "status": "backlog",
+      "request": "SD-12 exit(1) 가드 확인 — 5개 에이전트 (REQ-015 E단계)",
+      "status": "done",
+      "completed_at": "2026-06-09T20:44:00",
       "priority": "medium",
-      "details": "stock-agent/evaluator-agent/validation-agent/ui-agent/audit-agent: done_criteria 있으나 exit(1) 없음. 각 에이전트 __main__ 끝에 done_criteria FAIL 시 sys.exit(1) 추가 필요. pm_self_diagnosis SD-12가 탐지 중이나 코드 수정은 수동 필요."
+      "details": "5개 에이전트 모두 exit(1) 이미 존재 확인. mock 빈 데이터 테스트 결과: stock_agent exit_code=1 ✓, evaluator_agent exit_code=1 ✓, validation_agent exit_code=1 ✓, ui_agent exit_code=1 ✓, audit_agent exit_code=1 ✓. REQ-015 E단계 완료."
+    },
+    {
+      "id": "REQ-020",
+      "request": "run_analysis_agent_v2.py std==0 가드 + stat_utils.py 공통 모듈",
+      "status": "done",
+      "completed_at": "2026-06-09T20:00:00",
+      "priority": "high",
+      "details": "agents/stat_utils.py 신규 생성 (safe_pearsonr/safe_linregress/is_constant). run_analysis_agent_v2.py L255 Granger fallback 유일 미가드 호출 수정. run_stock_agent_v2.py pct_change() 후 2차 방어선 추가. constant series 동적 테스트 5종 PASS (std=0 입력 → None 반환, NaN 없음)."
+    },
+    {
+      "id": "REQ-021",
+      "request": "run_news_agent.py FOMC 날짜 동적화",
+      "status": "done",
+      "completed_at": "2026-06-09T20:15:00",
+      "priority": "medium",
+      "details": "FOMC_2026 하드코딩 → FOMC_CONFIRMED: dict[int,list] 멀티연도 구조로 교체. _get_upcoming_fomc()가 FOMC_CONFIRMED.values() 순회. 미등록 연도는 _estimate_fomc_dates_for_year() 자동 추정. fetch_news() 검색 쿼리 동적화({_yr}/{_mo}). 2027-01-01 기준 테스트: 2027-01-27(Wednesday) 정상 반환."
+    },
+    {
+      "id": "REQ-022",
+      "request": "baseline schema_version:2 + _load_baseline() + known_fail_checks",
+      "status": "done",
+      "completed_at": "2026-06-09T20:44:00",
+      "priority": "medium",
+      "details": "run_pm_agent.py: _KNOWN_FAIL_CHECKS=['QG-1','ANTHROPIC_API_KEY'] 상수 추가. _load_baseline() 헬퍼 신규 생성(v1→v2 자동 마이그레이션). _save_baseline()에 schema_version:2 + known_fail_checks 추가. SD-14 known-fail 제외 비교 로직으로 전환. 마이그레이션 전/후 출력: v1(schema_version없음)→v2(schema_version:2,known_fail_checks:[QG-1,ANTHROPIC_API_KEY]) PASS. SD-14 케이스 3개 assertion PASS."
     },
     {
       "id": "REQ-FUTURE-001",
