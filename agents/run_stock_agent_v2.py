@@ -14,6 +14,7 @@ F10: 코스피  지수 기여 Top5
 F11: S&P500 수혜 종목 Top5 (지수 초과수익 × 상관도)
 F12: 코스피  수혜 종목 Top5
 """
+import utf8_setup  # noqa: F401
 
 import json
 import time
@@ -664,6 +665,8 @@ def run_kospi_analysis(universe: list[tuple[str, str]], idx_series: pd.Series) -
 
     contrib_list = kospi_dedup(contrib_list, "contribution_score")
     benefit_list = kospi_dedup(benefit_list, "beneficiary_score")
+    # 수혜 점수 양수인 종목만 포함 (excess_return 음수 → beneficiary_score ≤ 0 → 수혜 아님)
+    benefit_list = [x for x in benefit_list if (x.get("beneficiary_score") or 0) > 0]
 
     return {
         "contribution_top5": contrib_list[:5],
@@ -735,6 +738,8 @@ def run_sp500_analysis(universe: list[tuple[str, str]], idx_series: pd.Series) -
     benefit_list = dedup(benefit_list, "beneficiary_score")
     contrib_list.sort(key=lambda x: x["contribution_score"], reverse=True)
     benefit_list.sort(key=lambda x: x["beneficiary_score"],  reverse=True)
+    # 수혜 점수 양수인 종목만 포함 (excess_return 음수 → beneficiary_score ≤ 0 → 수혜 아님)
+    benefit_list = [x for x in benefit_list if (x.get("beneficiary_score") or 0) > 0]
 
     elapsed = time.time() - t0
     ok = len(price_data)
@@ -837,8 +842,8 @@ if __name__ == "__main__":
         "SA-2 KOSPI ≥50개 분석":          ksp_res["analyzed_count"] >= 50,
         "SA-3 S&P500 ≥100개 분석":        sp_res["analyzed_count"] >= 100,
         "SA-4 KOSPI Top5 시총 존재":       any((s.get("market_cap_b") or 0) > 0 for s in results["f10_kospi_contribution_top5"]),
-        "SA-5 SP500 극단수익률 플래그":     not any(abs(s.get("stock_return_pct") or 0) > 5000 for s in all_top5),
-        "SA-6 동일기업 중복 없음 (SP500)":  not has_company_dup(results["f09_sp500_contribution_top5"]),
+        "SA-5 SP500 극단수익률 플래그":     bool(all_top5) and not any(abs(s.get("stock_return_pct") or 0) > 5000 for s in all_top5),
+        "SA-6 동일기업 중복 없음 (SP500)":  bool(results["f09_sp500_contribution_top5"]) and not has_company_dup(results["f09_sp500_contribution_top5"]),
         "SA-7 기여/수혜 결과 비어있지 않음": len(results["f09_sp500_contribution_top5"]) >= 3 and len(results["f10_kospi_contribution_top5"]) >= 3,
     }
 

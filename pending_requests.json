@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-09T12:30:00",
+  "updated": "2026-06-09T13:30:00",
   "completed": [
     {
       "id": "REQ-001",
@@ -128,6 +128,14 @@
       "status": "backlog",
       "priority": "low",
       "details": "효성화학(KS#096770 또는 동일 계열사) stock_return_pct=0.0%, corr=None으로 수혜 분석 제외됨. 원인 후보: (1) pykrx 티커 불일치, (2) 상장폐지/상호변경, (3) 데이터 기간 내 거래일 <50일. run_stock_agent_v2.py에서 종목 수집 로직 점검 필요. REQ-014 R2 FAIL 조사 중 발견"
+    },
+    {
+      "id": "REQ-018",
+      "request": "보고서 레벨 자가 평가 — report_quality_check() + CLAUDE.md 레벨 8 동적 테스트 의무화",
+      "status": "done",
+      "completed_at": "2026-06-09T13:00:00",
+      "priority": "high",
+      "details": "report_quality_check() 구현: priority=high 완료 항목에 수치/exit code 없으면 QR-1 WARN, 정적 분석만 있으면 QR-2 WARN. pm_self_diagnosis()에서 SD-14 이후 호출. CLAUDE.md에 레벨별 Evidence 요구사항 표 + 재발 패턴 기록 추가. 재발방지: SD-12 B단계 정적 분석만으로 완료 보고한 패턴 기록됨"
     },
     {
       "id": "REQ-FUTURE-001",

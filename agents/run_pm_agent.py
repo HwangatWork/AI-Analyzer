@@ -110,6 +110,62 @@ EXTREME_RETURN_THRESHOLD  = 500.0  # ⚠ 이유 텍스트 의무 기준 (%)
 
 
 # ══════════════════════════════════════════════════════════════
+# report_quality_check — 완료 보고 품질 자가 평가 (REQ-018)
+# ══════════════════════════════════════════════════════════════
+
+def report_quality_check() -> list[str]:
+    """
+    QR: 최근 완료 항목의 Evidence 품질 검증.
+    - priority=high 완료 항목에 수치/exit code/실행 결과 없으면 QR-1 WARN
+    - 정적 분석 키워드만 있고 동적 실행 증거 없으면 QR-2 WARN
+    반환: WARN 메시지 리스트 (빈 리스트 = 전항목 OK)
+    """
+    import re as _re_qr
+    warnings: list[str] = []
+    if not PENDING_FILE.exists():
+        return warnings
+    try:
+        _pdata = json.loads(PENDING_FILE.read_text(encoding="utf-8"))
+        _all_items = _pdata.get("completed", []) + _pdata.get("pending", [])
+        _done_items = [i for i in _all_items if i.get("status") == "done"]
+    except Exception:
+        return warnings
+
+    # 동적 실행 증거 키워드 (수치/exit code/로그 포함)
+    _dyn_evidence = _re_qr.compile(
+        r'\d+/\d+|exit[= ]\d|\bexit\s*code\b|exit_code|run_id=|conclusion='
+        r'|\d+%|\d+개|\d+건|\bPASS\b|\bFAIL\b|\d{4,}',
+        _re_qr.IGNORECASE,
+    )
+    # 정적 분석만 시사하는 키워드
+    _static_only = _re_qr.compile(
+        r'정적 분석|코드 읽기|코드 확인|grep으로|read_text|패턴 탐지만',
+        _re_qr.IGNORECASE,
+    )
+
+    for _item in _done_items:
+        if _item.get("priority") != "high":
+            continue
+        _req_id  = _item.get("id", "?")
+        _details = _item.get("details", "")
+
+        _has_dyn    = bool(_dyn_evidence.search(_details))
+        _has_static = bool(_static_only.search(_details))
+
+        if not _has_dyn:
+            warnings.append(
+                f"QR-1 {_req_id} Evidence 수치 없음 — priority=high 완료 보고에 "
+                f"exit code/실행 수치/run_id 없음 (동적 테스트 미확인 가능성)"
+            )
+        elif _has_static and not _has_dyn:
+            warnings.append(
+                f"QR-2 {_req_id} 정적 분석만 기재 — 동적 실행 증거(exit code/수치) 없음"
+            )
+
+    return warnings
+
+
+# ══════════════════════════════════════════════════════════════
 # pm_quality_checks — 전체 품질 기준 검증 함수
 # ══════════════════════════════════════════════════════════════
 
@@ -778,6 +834,11 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
             )
     except Exception:
         pass
+
+    # ── QR: 보고서 품질 자가 평가 (REQ-018) ──────────────────────
+    _qr_warns = report_quality_check()
+    for _qr in _qr_warns:
+        issues.append(_qr)
 
     print(f"[PM] 자가진단 완료 — 이슈 {len(issues)}개")
     for iss in issues:
