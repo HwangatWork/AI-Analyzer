@@ -44,6 +44,27 @@ BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID   = os.getenv("TELEGRAM_CHAT_ID", "")
 MAX_RETRIES = 2
 
+# ── NQ-2 예측성/현황 기사 제목 필터 — 원인→결과 구조 추출 불가 패턴 ──
+# "prediction for Monday", "Today S&P 500" 등 결과 원인이 없는 헤드라인
+_PREDICTIVE_TITLE_RE = re.compile(
+    r'\b(?:'
+    r'prediction(?:s)?\s+for'           # "prediction for Monday"
+    r'|forecast\s+for'                  # "forecast for next week"
+    r'|outlook\s+for'                   # "outlook for Q3"
+    r'|what\s+to\s+(?:watch|expect)'   # "what to watch today"
+    r'|(?:week|day)\s+ahead'            # "week ahead", "day ahead"
+    r'|could\s+(?:move|rise|fall|drop|rally|surge)'  # "could rally this week"
+    r'|might\s+(?:move|rise|fall|drop|rally|surge)'  # "might drop"
+    r'|here[\'s]?\s+(?:what|why|how)'  # "here's what to watch"
+    r'|watch\s+(?:these|this)\s+stock' # "watch these stocks"
+    r')',
+    re.IGNORECASE,
+)
+_TODAY_MARKET_RE = re.compile(
+    r'\btoday[\'s]?\s+(?:s&?p|sp\s*500|stock\s+market|market|nasdaq)',
+    re.IGNORECASE,
+)
+
 # ── FOMC 확정 일정 (연준 홈페이지 확인 기준, 연도별 dict) ─────
 # 발표일 = 회의 2일차, statement + press conference
 # 새 연도 확정 시 아래 dict에 항목 추가. 미등록 연도는 _estimate_fomc_dates_for_year()로 추정.
@@ -340,6 +361,11 @@ def build_causes_v2(news: dict, market: dict) -> list:
             if dedup in seen_titles:
                 continue
             seen_titles.add(dedup)
+
+            # NQ-2 필터: 예측성/현황 기사 — 원인→결과 구조 추출 불가
+            if _PREDICTIVE_TITLE_RE.search(title) or _TODAY_MARKET_RE.search(title):
+                print(f"    [skip-predictive] {title[:55]}...")
+                continue
 
             etype = _classify_event(title)
             if etype in seen_types and etype not in ("general",):

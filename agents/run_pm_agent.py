@@ -30,6 +30,7 @@ Done Criteria (PM-1~PM-6):
 
 import io
 import json
+import re
 import subprocess
 import sys
 import time
@@ -1022,21 +1023,32 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
     return len(issues) == 0, issues
 
 
+def _derive_fix_scripts(issues: list[str]) -> tuple[set[str], list[str]]:
+    """이슈 코드 → 자동 수정 스크립트 + 수동 수정 목록 도출 (단일 진실 소스).
+
+    re.findall로 SD-N 코드를 정밀 추출해 'SD-1' in 'SD-19' 오매칭 방지.
+    """
+    scripts: set[str] = set()
+    manual: list[str] = []
+    for iss in issues:
+        codes = set(re.findall(r"SD-\d+", iss))
+        if codes & {"SD-1", "SD-6"}:
+            scripts |= {"run_analysis_agent_v2.py", "run_evaluator_agent_v2.py"}
+        if codes & {"SD-2", "SD-3"}:
+            scripts |= {"run_evaluator_agent_v2.py", "run_validation_agent.py"}
+        if codes & {"SD-4", "SD-5"}:
+            scripts |= {"run_stock_agent_v2.py"}
+        if codes & {"SD-8"}:
+            scripts |= {"run_news_agent.py"}
+        if codes & {"SD-13", "SD-14"}:
+            scripts |= {"run_validation_agent.py"}
+        if codes & {"SD-7", "SD-10", "SD-11", "SD-12"}:
+            manual.append(iss)
+    return scripts, manual
+
+
 def _write_fix_request(issues: list[str]) -> None:
-    # derive actual auto-fix scripts from issue codes (mirrors _auto_fix_from_diagnosis logic)
-    _fx_scripts: set[str] = set()
-    for _iss in issues:
-        if "SD-1" in _iss or "SD-6" in _iss:
-            _fx_scripts |= {"run_analysis_agent_v2.py", "run_evaluator_agent_v2.py"}
-        if "SD-2" in _iss or "SD-3" in _iss:
-            _fx_scripts |= {"run_evaluator_agent_v2.py", "run_validation_agent.py"}
-        if "SD-4" in _iss or "SD-5" in _iss:
-            _fx_scripts |= {"run_stock_agent_v2.py"}
-        if "SD-8" in _iss:
-            _fx_scripts |= {"run_news_agent.py"}
-        if "SD-13" in _iss or "SD-14" in _iss:
-            _fx_scripts |= {"run_validation_agent.py"}
-    _manual_issues = [i for i in issues if any(c in i for c in ("SD-7", "SD-10", "SD-11", "SD-12"))]
+    _fx_scripts, _manual_issues = _derive_fix_scripts(issues)
 
     lines = [
         "# PM Agent 자가진단 수정 요청서",
@@ -1062,22 +1074,9 @@ def _write_fix_request(issues: list[str]) -> None:
 
 def _auto_fix_from_diagnosis(issues: list[str]) -> None:
     """진단 코드별로 해당 Agent 자동 재실행."""
-    scripts_needed: set[str] = set()
-
-    for iss in issues:
-        if "SD-1" in iss or "SD-6" in iss:
-            scripts_needed |= {"run_analysis_agent_v2.py", "run_evaluator_agent_v2.py"}
-        if "SD-2" in iss or "SD-3" in iss:
-            scripts_needed |= {"run_evaluator_agent_v2.py", "run_validation_agent.py"}
-        if "SD-4" in iss or "SD-5" in iss:
-            scripts_needed |= {"run_stock_agent_v2.py"}
-        if "SD-8" in iss:
-            scripts_needed |= {"run_news_agent.py"}
-        if "SD-13" in iss or "SD-14" in iss:
-            scripts_needed |= {"run_validation_agent.py"}
-        # SD-7 (GitHub Actions 실패)는 원격 CI 문제 — 로컬 재실행 불필요
-        # SD-12 (exit 가드 누락)는 코드 수정 필요 — 로컬 재실행 무의미
-        # SD-13 (항상True 조건)은 코드 수정 필요 — 재실행으로 해결 불가
+    scripts_needed, _ = _derive_fix_scripts(issues)
+    # SD-7 (GitHub Actions): 원격 CI 문제 — 로컬 재실행 불필요
+    # SD-10~12: 코드 수정 필요 — 재실행 무의미 (_derive_fix_scripts에서 manual로 분류됨)
 
     if not scripts_needed:
         return

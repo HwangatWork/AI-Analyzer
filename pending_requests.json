@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-09T20:44:00",
+  "updated": "2026-06-09T23:36:11",
   "completed": [
     {
       "id": "REQ-001",
@@ -175,6 +175,30 @@
       "request": "코스피100 → 코스피200 유니버스 확장",
       "status": "backlog",
       "details": "Stock Agent 분석 유니버스를 코스피100에서 코스피200으로 확장. pykrx get_market_cap_of_date() 기준 상위 200종목 동적 수집. Done Criteria U2 기준 충족 여부 재검증 필요"
+    },
+    {
+      "id": "REQ-023",
+      "request": "QC 2개 실패 원인 확인",
+      "status": "done",
+      "completed_at": "2026-06-09T23:36:11",
+      "priority": "low",
+      "details": "FAIL 2개: (1) SA-6 KOSPI 기여 Top1 시총 $200B 미달 — 효성중공업 $4.6B. KOSPI 최대 시총 삼성전자~$250B, $200B 기준은 사실상 삼성전자 외 불가. 기준 문제(S&P500 기준 KOSPI 그대로 적용). (2) QG-1 Google Sheets GOOGLE_SA_JSON 미설정 — REQ-003 대기 외부 의존."
+    },
+    {
+      "id": "REQ-024",
+      "request": "SD-19 _write_fix_request() + _auto_fix_from_diagnosis() 단일 진실 소스 통합",
+      "status": "done",
+      "completed_at": "2026-06-09T23:36:11",
+      "priority": "medium",
+      "details": "_derive_fix_scripts() 헬퍼 신규 추가 — re.findall(SD-\\d+) 정밀 추출로 SD-1 in SD-19 서브스트링 오매칭 버그 동시 수정. _write_fix_request()/_auto_fix_from_diagnosis() 모두 _derive_fix_scripts() 호출. 수정 전: SD-19 이슈가 run_analysis+evaluator 잘못 매핑. 수정 후: SD-19 → (자동수정 없음), SD-8 → news_agent, SD-14 → validation_agent."
+    },
+    {
+      "id": "REQ-025",
+      "request": "News Agent NQ-2 예측성/현황 기사 제목 필터",
+      "status": "done",
+      "completed_at": "2026-06-09T23:36:11",
+      "priority": "medium",
+      "details": "_PREDICTIVE_TITLE_RE + _TODAY_MARKET_RE 패턴 추가. build_causes_v2() 내 예측성 기사 skip (prediction for/forecast for/today S&P 등). 11/11 테스트 PASS. BEFORE: causes 2번/3번이 prediction/Today 헤드라인 그대로 원인으로 등장. AFTER: BLOCKED — AI칩 섹터 등 실제 원인 기사만 통과."
     }
   ]
 }
