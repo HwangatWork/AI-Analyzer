@@ -114,9 +114,15 @@ SELF_REFERENTIAL = {
     "RSI14", "MA50", "RSI_SIGNAL", "BETA", "MA_SIGNAL",
     # 완화된 항목 (지연 지표 — KOSPI 예측 유효): BBAND, STOCH_RSI, MARKET_MOMENTUM 제거
 }
-SMALL_CAP_USD_B_THRESHOLD = 5.0    # $5B 미만이면 소형주 경고
-CONTRIBUTOR_TOP1_MIN_MC_B = 200.0  # 기여 1위 시작 시총 최소 기준 (USD billions)
-EXTREME_RETURN_THRESHOLD  = 500.0  # ⚠ 이유 텍스트 의무 기준 (%)
+SMALL_CAP_USD_B_THRESHOLD       = 5.0    # $5B 미만이면 소형주 경고
+# 기여 Top1 시총 최소 기준 — S&P500/KOSPI 별도 적용
+# S&P500: 구성 대형주 특성상 $200B (GOOGL/NVDA/AAPL 수준 정상)
+# KOSPI: 시총 상위5 평균 $82.2B의 약 5% → $4B
+#        (삼성전자 $239B, SK하이닉스 $69B, 삼성바이오 $40B, LGэнерго $38B, 셀트리온 $25B 기준)
+SP500_CONTRIBUTOR_TOP1_MIN_MC_B = 200.0
+KOSPI_CONTRIBUTOR_TOP1_MIN_MC_B =   4.0
+CONTRIBUTOR_TOP1_MIN_MC_B       = 200.0  # 하위호환 alias (SP500 기준 유지)
+EXTREME_RETURN_THRESHOLD        = 500.0  # ⚠ 이유 텍스트 의무 기준 (%)
 
 
 # ══════════════════════════════════════════════════════════════
@@ -261,25 +267,25 @@ def pm_quality_checks() -> list[dict]:
             "fix_stages": ["run_stock_agent_v2.py", "run_ui_agent.py", "generate_report_v2.py"],
         })
 
-    # SA-5: SP500 기여 Top1 시작 시총 ≥ $200B
+    # SA-5: SP500 기여 Top1 시작 시총 ≥ $200B (SP500 기준 유지)
     sp_top1 = sp_cont[0] if sp_cont else {}
     mc1 = sp_top1.get("market_cap_start_b") or sp_top1.get("market_cap_b") or 0
     results.append({
-        "check": "SA-5 기여 Top1 시총 ≥$200B",
-        "pass":  mc1 >= CONTRIBUTOR_TOP1_MIN_MC_B,
-        "detail": f"OK — ${mc1:.0f}B" if mc1 >= CONTRIBUTOR_TOP1_MIN_MC_B
-                  else f"FAIL — ${mc1:.0f}B < $200B ({sp_top1.get('name','?')})",
+        "check": f"SA-5 기여 Top1 시총 ≥${SP500_CONTRIBUTOR_TOP1_MIN_MC_B:.0f}B",
+        "pass":  mc1 >= SP500_CONTRIBUTOR_TOP1_MIN_MC_B,
+        "detail": f"OK — ${mc1:.0f}B" if mc1 >= SP500_CONTRIBUTOR_TOP1_MIN_MC_B
+                  else f"FAIL — ${mc1:.0f}B < ${SP500_CONTRIBUTOR_TOP1_MIN_MC_B:.0f}B ({sp_top1.get('name','?')})",
         "fix_stages": [],   # 경고만 (데이터 결과)
     })
 
-    # SA-6: KOSPI 기여 Top1 시작 시총 ≥ $200B
+    # SA-6: KOSPI 기여 Top1 시작 시총 ≥ KOSPI 기준 ($4B — KOSPI 상위5 평균 $82.2B의 5%)
     ksp_top1 = ksp_cont[0] if ksp_cont else {}
     mc1k = ksp_top1.get("market_cap_start_b") or ksp_top1.get("market_cap_b") or 0
     results.append({
-        "check": "SA-6 KOSPI 기여 Top1 시총 ≥$200B",
-        "pass":  mc1k >= CONTRIBUTOR_TOP1_MIN_MC_B,
-        "detail": f"OK — ${mc1k:.0f}B" if mc1k >= CONTRIBUTOR_TOP1_MIN_MC_B
-                  else f"FAIL — ${mc1k:.0f}B < $200B ({ksp_top1.get('name','?')})",
+        "check": f"SA-6 KOSPI 기여 Top1 시총 ≥${KOSPI_CONTRIBUTOR_TOP1_MIN_MC_B:.0f}B",
+        "pass":  mc1k >= KOSPI_CONTRIBUTOR_TOP1_MIN_MC_B,
+        "detail": f"OK — ${mc1k:.1f}B" if mc1k >= KOSPI_CONTRIBUTOR_TOP1_MIN_MC_B
+                  else f"FAIL — ${mc1k:.1f}B < ${KOSPI_CONTRIBUTOR_TOP1_MIN_MC_B:.0f}B ({ksp_top1.get('name','?')})",
         "fix_stages": [],
     })
 

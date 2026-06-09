@@ -61,7 +61,7 @@ _PREDICTIVE_TITLE_RE = re.compile(
     re.IGNORECASE,
 )
 _TODAY_MARKET_RE = re.compile(
-    r'\btoday[\'s]?\s+(?:s&?p|sp\s*500|stock\s+market|market|nasdaq)',
+    r'\btoday[\'s]?[^a-zA-Z0-9]*(?:s&?p|sp\s*500|stock\s+market|market|nasdaq)',
     re.IGNORECASE,
 )
 
