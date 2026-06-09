@@ -502,6 +502,8 @@ def compute_contribution(stock_df: pd.DataFrame, idx: pd.Series,
     기여도 공식: |corr| × |return_capped| × (mc_start_usd / 1e12 + 0.01)
     mc_start: 시작 시점 시가총액 추정 = (mc / 현재가) × 시작가
     """
+    if stock_df["close"].std() == 0:  # 거래정지: 가격 변동 없음 → corr 계산 불가
+        return None
     sr = stock_df["close"].pct_change().dropna()
     ir = idx.pct_change().dropna()
     mg = pd.concat([sr, ir], axis=1).dropna()
@@ -561,6 +563,8 @@ def compute_contribution(stock_df: pd.DataFrame, idx: pd.Series,
 
 
 def compute_beneficiary(stock_df: pd.DataFrame, idx: pd.Series) -> dict | None:
+    if stock_df["close"].std() == 0:  # 거래정지: 가격 변동 없음 → corr 계산 불가
+        return None
     sr = stock_df["close"].pct_change().dropna()
     ir = idx.pct_change().dropna()
     mg = pd.concat([sr, ir], axis=1).dropna()

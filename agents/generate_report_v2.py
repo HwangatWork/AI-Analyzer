@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """최종 리포트 v2 생성 스크립트"""
+import utf8_setup  # noqa: F401
 
 import json, numpy as np
 from pathlib import Path
@@ -394,6 +395,22 @@ path = OUT / "FINAL_REPORT_v2.md"
 path.write_text(report, encoding="utf-8")
 print(f"FINAL_REPORT_v2.md 저장: {path}")
 print(f"총 {len(report.splitlines())}줄")
+
+# ── Done Criteria 자체검증 ────────────────────────────────────────────────────
+import sys
+done_criteria = {
+    "RG-1 리포트 파일 생성":     path.exists() and path.stat().st_size > 1_000,
+    "RG-2 랭킹 포함":            len(ranking) >= 5,
+    "RG-3 종목 Top5 포함":       len(sp_contrib) >= 3 or len(kp_contrib) >= 3,
+    "RG-4 final_results 업데이트": (OUT / "final_results.json").exists(),
+}
+_fails = [k for k, v in done_criteria.items() if not v]
+print("\n[Done Criteria]")
+for k, v in done_criteria.items():
+    print(f"  {'PASS' if v else 'FAIL'} {k}")
+if _fails:
+    print(f"\n[generate_report_v2] Done Criteria FAIL: {_fails}")
+    sys.exit(1)
 
 # final_results.json: UI Agent가 v3.0으로 이미 저장한 파일에 freshness만 병합
 # (generate_report_v2는 FINAL_REPORT_v2.md 생성이 주 목적 - final_results를 덮어쓰지 않음)

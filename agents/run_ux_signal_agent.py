@@ -3,6 +3,8 @@
 UX Signal Agent — 시장 시그널 시각화 섹션 생성
 담당: SVG 게이지, Z-score 바 차트, 시그널 요약 카드
 """
+import utf8_setup  # noqa: F401
+
 
 def generate_signal_section(signal: dict) -> str:
     score     = max(0, min(100, int(signal.get("score", 50) or 50)))
@@ -156,7 +158,7 @@ if __name__ == "__main__":
         "bullish_count": 5, "bearish_count": 4,
         "total_signals": 9, "indicator_signals": [],
         "methodology": "복합 시그널 점수 계산",
-        "computed_at": "2026-06-08",
+        "computed_at": __import__("datetime").datetime.now().strftime("%Y-%m-%d"),
     })
 
     html = generate_signal_section(signal)

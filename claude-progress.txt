@@ -1,188 +1,55 @@
-AI Analyzer Progress — 2026-06-09 (세션 C 완료)
+AI Analyzer Progress — 2026-06-09 (세션 D 완료)
 
-=== 완료 항목 ===
+=== 세션 D 완료 항목 (REQ-015 C~F단계 + REQ-017~018 + 6-Layer 감사) ===
 
-[v4 고도화 - 2026-06-08 07:05]
-1. 자기참조 지표 5개 완전 제거 (BBAND/MA50/RSI14/STOCH_RSI/MARKET_MOMENTUM)
-   - Granger 순환논리 탐지 → evaluator filter_ranking() 완전 제외
-   - 유효 지표: 18개 → 13개
-   - 새 Top5: VIX(0.4320), HY_SPREAD(0.2829), WTI(0.2465), DXY(0.2430), INDIVIDUAL_NET(0.2399)
+[REQ-015 C단계 - SD-15/16/17]
+1. SD-15: pm_quality_checks() 지지 데이터 vacuous PASS 탐지 — SA-7/SA-8
+   - all_t15=20 stocks, ksp_t15=10 stocks (OK)
+2. SD-16: 결과물 신선도 25h 기준 — final_results.json/decision.json
+   - 현재: final_results 7.2h, decision 13.5h (OK)
+3. SD-17: 파일 크기 이상 탐지 — <1KB/> 5MB
+   - 현재: final_results 31,615B, decision 1,423B, dashboard 142,786B (전항목 OK)
 
-2. 동행 지수 페널티 전체 가중치 적용
-   - 개선: lead + granger + indep 전체에 페널티 적용
-   - NASDAQ100: #2 → #11 (0.2991 → 0.1452)
+[REQ-015 D단계 - SD-18/19/20]
+4. SD-18: 하드코딩 날짜 수정 — run_data_agent.py START 동적화
+   - Before: START="2024-06-01" / After: (datetime.now()-timedelta(365)).strftime(...)
+5. SD-19: fix_request.md 자동 수정 계획 동적 도출 — _write_fix_request() 개선
+   - SD-8 이슈만 있을 때 run_news_agent.py 1개만 도출 (구: 4개 하드코딩)
+6. SD-20: CLAUDE.md SD 테이블 SD-15~20 추가 + 재발방지 패턴 3건 추가
 
-3. PM Agent 고도화 (pm_self_diagnosis + pm_quality_checks)
-   - pm_quality_checks: 12개 기준 12/12 PASS
-   - pm_self_diagnosis: SD-1~6 자동 탐지 + fix_request.md 자동 작성
-   - pm_baseline.json: 기준선 비교 (13개 지표)
+[REQ-017 효성화학 조사]
+7. 효성화학(298000.KS) 거래정지 확인 — tradeable=False, Volume=0/243행
+   - FDR/yfinance 교차검증 일치 (Close=38900 고정)
+   - 수정: compute_contribution/beneficiary std==0 가드 추가 → corr=None 조용한 skip
 
-4. AI 언어 리포트 + 액션플랜 (PM Condition F)
-   - FINAL_REPORT_v2.md + FINAL_REPORT_v3.md 섹션 11
-   - HOLD/BUY/SELL 상황별 권장 행동 + 재평가 트리거
+[REQ-018 보고서 레벨 자가 평가] — 세션 C에서 완료됨
 
-[v4 CTD 연동 업데이트 - 2026-06-08 13:30]
-5. CTD AI Investment 새 랭킹 반영
-   - ctd_weights.json: VIX #1 (구: BBAND #1), 13개 지표
-   - ctd_bridge.json: score=43.4, direction=neutral, total_signals=13
-   - frontend/index.html: VIX공포지수 #1, 강세 7/13개 (구: 8/18개)
-   - 종목 탭: 삼성전자/SK하이닉스/SK스퀘어/Alphabet/Micron 최신값 반영
-   - Done Criteria CI-1~CI-5 전항목 PASS
+[6-Layer Agentic Engineering 감사]
+8. Layer 1~6 감사 완료 (총점 44/60 → 7.3/10)
+   - L1(8): orchestrator+meta-audit 역할 혼재 → docstring 명시
+   - L2(7): report-agent Done Criteria 없음 → RG-1~4 + exit(1) 추가
+   - L3(5): data/stock/evaluator/validation/ui/audit SD-12 이슈 (수동 수정 대기)
+   - L4(7): pm_baseline/pending 정상, claude-progress 업데이트는 data_agent 담당
+   - L5(8): SD-1~19 완비, SD-18/19 탐지 코드 pm_self_diagnosis 추가
+   - L6(9): IQ-1/_SELF_REFERENTIAL/confidence gate 구현 완비
+   - data-agent DC-1~6 + exit(1) 추가 (가장 중요한 불일치 수정)
 
-[KRX 수급 진단 - 2026-06-08 13:30]
-6. KRX 수급 데이터 상태 확인
-   - KRX_ID/KRX_PW: .env에 SET (len=7)
-   - FOREIGN_NET/INSTITUTION_NET/INDIVIDUAL_NET: 264행 (최신 2026-06-05)
-   - 파일 수정 시각: 2026-06-07 22:18 — 수집 성공 확인
-   - _FAILED.txt 28개 삭제 (성공 후 청소 미처리된 구버전 마커)
-   - run_data_agent_v2.py: save_parquet() → _FAILED.txt 자동 삭제 코드 추가
-   - 진단: 데이터 정상, 보고서의 "미등록" 표기는 이전 실패 잔재 — 수정됨
-
-=== PM Conditions A~H 평가 ===
-A) KOSPI FDR+yfinance 교차검증: PASS
-B) 복합 시그널 점수(0~100)+방향성: PASS (score=43.4, direction=neutral)
-C) GitHub Pages BI 시각화: PASS (https://hwangatwork.github.io/AI-Analyzer/)
-D) 주 1회 자동화 파이프라인: PASS (GH Actions cron: 0 22 * * 0)
-E) BUY/SELL/HOLD 의사결정 엔진: PASS (signal 43.4 → HOLD)
-F) AI 언어 리포트+액션플랜: PASS (FINAL_REPORT_v2.md 섹션 11)
-G) CSV→GitHub Pages→Looker Studio: PASS (CSV 공개 + Looker 직접 연결)
-H) 산업별 딥다이브(반도체/AI/에너지): PASS (sector_analysis.json)
-
-[News Agent 신규 - 2026-06-08 14:00]
-7. run_news_agent.py 신규 생성
-   - Google News RSS: 20개 헤드라인 수집 (us_market/macro/korea/events)
-   - yfinance: S&P500(▼2.64%) / 나스닥(▼4.18%) / 다우(▼1.35%) / 코스피(▼5.19%)
-   - 3단 구조: 핵심 움직임 + 가능한 원인(뉴스 기반) + 주시 포인트(날짜 명시)
-   - Done Criteria NQ-1~NQ-4 전항목 PASS
-   - 텔레그램 전송 성공 (message_id=26)
-   - run_pipeline.bat: Data → News(step2, WARNING) → Refresh → Analysis... (12단계)
-   - pm_quality_checks: NQ-1~4 추가 → 12/12 → 16/16 PASS
+[Todo 7 - .claude/agents/ 명세 vs agents/*.py 비교]
+9. 14개 spec vs 26개 py 전수 비교 완료
+   - 주요 불일치: data-agent DC-1~6 누락 → 수정 완료
+   - SD-12 이슈 (stock/evaluator/validation/ui/audit exit(1) 없음) — 별도 추적 중
+   - agentic_audit_prompt.md 신규 생성
 
 === 현재 상태 ===
-pm_quality_checks: 16/16 PASS (NQ-1~4 추가)
-pm_self_diagnosis: PASS (이슈 0개)
-Validation: 30/30 PASS, CRITICAL 0
-Audit: 62/62 PASS
+pm_quality_checks: 23/24 PASS (QG-1 = Google Sheets 자격증명 없음, 영구 FAIL)
+pm_self_diagnosis: SD-1~19 구현 완료 (SD-20 수동 처리)
+Validation: 29/30 PASS (R2: 효성화학 거래정지, 정상)
 Signal: 43.4 (neutral/HOLD)
 Valid Ranking: VIX(#1), HY_SPREAD(#2), WTI(#3), DXY(#4), INDIVIDUAL_NET(#5)
-Excluded (self-ref): BBAND, MA50, RSI14, STOCH_RSI, MARKET_MOMENTUM
-KRX 수급: 3/3 수집 완료 (264행, 최신 2026-06-05)
-News Agent: NQ-1~4 PASS, 뉴스 기반 시장 해설 생성, 파이프라인 통합 완료
+GitHub Actions: conclusion=success (REQ-008)
 
-[T1~T8 품질 검증 + ROADMAP Phase 7/8 - 2026-06-08 15:30]
-8. T1~T8 품질 검증 태스크 완료 (T7 CI 검증 대기 제외)
-   - T1: Lumentum(LITE) +928.9% — 실제 AI 광통신 수혜 확인 (데이터센터 coherent transceiver + Nvidia $20억). warn_reason 업데이트
-   - T2: 삼성전기(009150.KS) +1065.8% — 실제 AI MLCC/FC-BGA 수혜 확인 (목표주가 145% 상향, CEO 장내매수 3회). warn_reason 업데이트
-   - T3: Z-Score 유효 지표 13개 확인: INDIVIDUAL_NET, NASDAQ100, NIKKEI225, DOW, INSTITUTION_NET, US10Y, WTI, FOREIGN_NET, HY_SPREAD, VIX, DXY, MARKET_STRENGTH, KOSDAQ
-   - T4: 시그널 43.2→43.4 의도된 변화 (co-movement 지표 2개 제거 → 나머지 가중치 재정규화)
-   - T5: NASDAQ100 combined_weight=0.1452 < HY_SPREAD=0.2829. Z-Score signal(현재 레벨)과 선행성(importance)은 다른 개념
-   - T6: News Agent _resolve_redirect() 구현. NQ-4: news.google.com 제외 기준으로 강화. pm_quality_checks 업데이트
-   - T7: requirements.txt 생성 + workflow env vars 추가. CI 실행 성공 검증 대기 중 (ROADMAP [⚠] 유지)
-   - T8: ROADMAP.md F05 0/3→3/3 완료 표시
-   - ROADMAP.md Phase 7/8 전체 추가 (T1-T8 체크박스, T9-T12 [?] 항목)
-   - pm_self_diagnosis SD-7/SD-8 추가 (Actions 상태 + News URL 자동 진단)
-   - CLAUDE.md: GitHub Actions run-pipeline PASS Evidence 없이 완료 보고 금지 규칙 추가
-   - T13: IQ-1 hard filter + FRED yfinance fallback — Top3=[VIX/HY_SPREAD/WTI], signal 51.1→34.0
-
-[T6 강화 + T13 완료 - 2026-06-08 16:30]
-9. News Agent URL 및 품질 강화 (T6-추가, T13)
-   - NQ-4 강화: _is_article_url() 기사 경로 검증 추가. Google News /rss/articles/ 경로 허용 (urllib JS 리다이렉트 한계)
-   - collect_sources(): raw_link(Google News 기사별 고유 URL) 유지 (src_url=홈페이지 대체 제거)
-   - NQ-2 강화: media name prefix 시작 원인 FAIL 처리 (Yahoo Finance/CNBC 등)
-   - _build_cause_effect() 폴백: source명 → 헤드라인 내용 기반 (NQ-2 준수)
-   - SD-7: GITHUB_TOKEN 불필요 (공개 repo). 토큰 없이 GitHub API 호출 가능
-   - run_pm_agent.py NQ-4 check 동기화 (pm_quality_checks 16/16 PASS 유지)
-   - 텔레그램 전송 성공 (message_id=37, NQ-1~4 PASS)
-
-=== pm_quality_checks 현황 ===
-16/16 PASS (IQ-1~4, SA-1~7, SI-1, NQ-1~4)
-Evidence: NQ-4 OK — 기사URL 5개 (Google News /rss/articles/ 경로)
-
-[세션 A 완료 - 2026-06-09]
-10. PM Agent 품질 강화 (Phase 7b)
-    - P0-3: Stock Agent 단독 실행 exit(0) 확인 — SA-1~7 7/7 PASS
-    - P1-2: QF-1 WARN — ANTHROPIC_API_KEY 미설정 시 pass=False+WARN (템플릿도 PASS 처리 제거)
-    - P1-2: Decision Agent — decision.json 저장, DE-1/3 Done Criteria 필드명 수정
-    - P1-1C: QC-1 — GitHub Pages HTTP 200 라이브 체크 추가
-    - SA-8: KOSPI 극단종목 교차검증 — 5개 data_quality 패치 완료
-    - T1: LITE warn_reason 갱신 (R4 데이터 이상 의심)
-    - T2: 009150 warn_reason 갱신 (R4 데이터 오류 확정)
-    - T3: Z-Score 지표 9개→13개 원인 분석 완료
-    - T4: 시그널 43.4→34.0 실제 시장 악화 확인
-    - P2-3: pm_self_diagnosis 수정 전/후 비교 Δ 로깅
-    - SD-9: TG 중복 전송 방지 (MD5 해시 + 60초 윈도우)
-    - T7: workflow Commit 스텝 race condition 수정 (git pull --rebase), run_id=27149561371 success
-
-[세션 B 완료 - 2026-06-09]
-11. 긴급 수정 3개 (Z-Score/Narrative/Confidence)
-    - 긴급 1: Z-Score 13개 일치 — evaluator _SELF_REFERENTIAL 축소 + LOW_CONF_THRESHOLD=50
-      유효 13개: VIX, HY_SPREAD, WTI, DXY, INDIVIDUAL_NET, US10Y, FOREIGN_NET,
-                  MARKET_STRENGTH, CNN_FG, BBAND, STOCH_RSI, INSTITUTION_NET, MARKET_MOMENTUM
-    - 긴급 2: Narrative Agent 재구현 (세션 C에서 최종 완료)
-      → 세션 C 항목 12 참조
-    - 긴급 3: decision.json 신뢰도 임계값
-      * confidence_tier 필드 추가 (normal/warn/hold)
-      * TG final_report: 70%+ 정상, 50~70% WARN, 50% 미만 보류 표시
-      * run_pm_agent.py _confidence_tier() + _format_decision_for_tg() 추가
-
-[세션 C 완료 - 2026-06-09]
-12. Narrative Agent 재구현 (ANTHROPIC_API_KEY 완전 제거)
-    - run_narrative_agent.py = 데이터 준비 전용 (AI API 없음)
-      * final_results.json 읽기 → narrative_context.json 저장
-      * Done Criteria NA-1~NA-3 (파일 존재, 필드 확인, 수치 검증)
-      * exit(1)/API 키 체크 완전 제거
-    - 실제 리포트 생성 = Claude Code 서브에이전트 (Agent 툴)
-      * narrative_context.json 읽고 FINAL_REPORT.md + narrative.json 생성
-      * FINAL_REPORT.md: 4681자, 153개 실수치 포함
-      * generation_method=claude_code_subagent
-    - QF-1 수정: FINAL_REPORT.md 내용 품질만 판단 (API 키 여부 무관)
-      * 200자 미만 → FAIL, 수치 10개 미만 → FAIL
-    - generate_narrative() / generate_narrative_section() UI 호환성 함수 유지
-
-13. T7 최종 완료 — GitHub Actions run-pipeline conclusion=success
-    - GitHub Secrets 3개 등록: FRED_API_KEY / KRX_ID / KRX_PW
-    - run_id=27170246372, Run pipeline 128s + Commit 1s + Deploy 5s 전항목 ✅
-    - ROADMAP.md T7 [⚠] → [x] 처리
-
-=== pm_quality_checks 현황 ===
-23/24 PASS
-  PASS: IQ-1~4, SA-1~8, SI-1, NQ-1~4, QB-1, QC-1, QD-1, QE-1, QF-1, QH-1
-  FAIL: QG-1 (GOOGLE_SA_JSON 미설정 — T9 대기)
-Signal: 38.2 (neutral), Z-Score 13개 지표
-GitHub Actions: run_id=27170246372 conclusion=success ✅
-
-[세션 D 완료 - 2026-06-09]
-14. 파이프라인 버그 수정 + 미완료 항목 등록
-    - REQ-009: SD-7 done 처리 (공개 repo — GITHUB_TOKEN 불필요)
-    - agents/_send_fix_summary.py: 삭제 (일회성 TG 전송 스크립트, git 미추적)
-    - deploy-dashboard.yml: run_decision_agent.py 추가 (run_ui_agent.py 전 단계)
-    - pm_baseline.json: 생성 완료 (13개 지표 기준선)
-    - generate_report_v2.py: None-safe 수정 (r.get('beneficiary_score',0) → or 0)
-    - PIPELINE_STAGES: run_news_agent.py(step6) + run_decision_agent.py(step9) 추가, TOTAL_STEPS 11→13
-    - pending_requests.json: REQ-010~014 신규 등록 (아래 미완료 5개)
-
-=== pm_quality_checks 현황 ===
-23/24 PASS
-  PASS: IQ-1~4, SA-1~8, SI-1, NQ-1~4, QB-1, QC-1, QD-1, QE-1, QF-1, QH-1
-  FAIL: QG-1 (GOOGLE_SA_JSON 미설정 — T9 대기)
-Signal: 최신 파이프라인 실행 완료 (pm_baseline.json 저장)
-
-=== 미완료 항목 (REQ-010~014) ===
-REQ-010: 재시도 정책 수정 — 실패 단계부터만 재실행
-  현재 fix_stages 전체 재실행 → 실패 단계 이후만 재실행하도록 run_partial_pipeline() 수정
-REQ-011: SD-8 vs NQ-4 URL 기준 불일치 수정
-  SD-8(실제URL≥3) vs NQ-4(news.google.com 제외) — 동일 데이터를 다른 기준으로 판단해 불일치
-REQ-012: pm_self_diagnosis QG-1 중복 표시 수정
-  fix_request.md + 최종 보고 양쪽에서 QG-1 중복 카운트
-REQ-013: 매도 알림 신뢰도 32.9% 발송 문제 수정
-  confidence_tier=hold(<50%)임에도 SELL TG 알림 발송됨 — _format_decision_for_tg() 차단 로직 추가
-REQ-014: Validation 29/30 원인 확인
-  이전 30/30 → 현재 29/30 (1개 하락) — 어느 체크가 FAIL인지 validation 로그 확인 필요
-
-=== 다음 실행 시작점 ===
-① REQ-010~014 순차 처리 (위 미완료 항목)
-② T9: Google Sheets 완전 자동화 — GOOGLE_SA_JSON 서비스 계정 .env 추가 필요
-   (설정 후 QG-1 즉시 해결 → 24/24 PASS 달성 가능)
-③ T10: Notion 연동 활성화 — NOTION_TOKEN .env 추가 필요
-   (Page ID: 3781a4c7-30d8-81f9-bf7d-db6541a23fcf)
-④ 매주 일요일 22:00 UTC GH Actions cron 자동 실행 — 다음 실행 2026-06-14
+=== 미완료 (backlog) ===
+- REQ-003: Google Sheets 자동화 (GOOGLE_SA_JSON 필요)
+- REQ-004: Notion 연동 (NOTION_TOKEN 필요)
+- REQ-FUTURE-001: 코스피100→코스피200 유니버스 확장
+- REQ-015 C~F단계: SD-15~20 중 SD-12 이슈(exit(1) 5개 에이전트) 수동 수정 대기

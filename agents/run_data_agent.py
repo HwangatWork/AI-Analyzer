@@ -1,7 +1,8 @@
 """
 Data Agent — F01~F05 데이터 수집
-수집 기간: 2025-06-07 ~ 2026-06-07
+수집 기간: 최근 1년 (실행 시점 기준 동적 산출)
 """
+import utf8_setup  # noqa: F401
 
 import os
 import sys
@@ -19,8 +20,8 @@ BASE_DIR = Path(__file__).parent.parent
 RAW_DIR = BASE_DIR / "data" / "raw"
 RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-START = "2024-06-01"
 END = datetime.now().strftime("%Y-%m-%d")
+START = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
 FRED_API_KEY = os.getenv("FRED_API_KEY", "")
 
 RESULTS = {}
@@ -516,8 +517,8 @@ if __name__ == "__main__":
 - Phase 3 Analysis Agent + Stock Agent 대기 중
 
 ## 데이터 수집 기간
-시작: 2025-06-07
-종료: 2026-06-07 (최근 1년)
+시작: {START}
+종료: {END} (최근 1년)
 
 ## 주요 이슈
 {chr(10).join([f'- {k}: {RESULTS[k]["reason"]}' for k in failed]) if failed else '- 없음'}
@@ -529,3 +530,24 @@ if __name__ == "__main__":
     result_path = BASE_DIR / "data" / "collection_report.json"
     result_path.write_text(json.dumps(RESULTS, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"수집 리포트 저장: {result_path}")
+
+    # ── Done Criteria 자체검증 (DC-1~DC-6) ───────────────────────────────────
+    import sys
+    _F02_KEYS = ["US10Y", "DXY", "WTI", "FED_ASSETS", "T10Y2Y", "HY_SPREAD"]
+    _F05_KEYS = ["FOREIGN_NET", "INSTITUTION_NET", "INDIVIDUAL_NET"]
+    _F01_KEYS = ["SP500", "NASDAQ100", "DOW", "KOSPI", "KOSDAQ", "NIKKEI225"]
+    done_criteria = {
+        "DC-1 F01 시장지수 수집":   all(RESULTS.get(k, {}).get("status") == "ok" for k in _F01_KEYS),
+        "DC-2 F02 매크로 6/6":      all(RESULTS.get(k, {}).get("status") == "ok" for k in _F02_KEYS),
+        "DC-3 F03 심리지표 ≥1":     any(RESULTS.get(k, {}).get("status") == "ok" for k in ["VIX", "SKEW", "PUT_CALL", "CNN_FG"]),
+        "DC-4 F04 기술지표 ≥1":     any(RESULTS.get(k, {}).get("status") == "ok" for k in ["RSI14", "MA50", "MA200", "BBAND"]),
+        "DC-5 F05 수급 3/3":        all(RESULTS.get(k, {}).get("status") == "ok" for k in _F05_KEYS),
+        "DC-6 수집 파일 저장 확인":  result_path.exists() and result_path.stat().st_size > 50,
+    }
+    _dc_fails = [k for k, v in done_criteria.items() if not v]
+    print("\n[Done Criteria]")
+    for k, v in done_criteria.items():
+        print(f"  {'PASS' if v else 'FAIL'} {k}")
+    if _dc_fails:
+        print(f"\n[DATA AGENT] Done Criteria FAIL: {_dc_fails}")
+        sys.exit(1)

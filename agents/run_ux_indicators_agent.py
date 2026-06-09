@@ -3,6 +3,8 @@
 UX Indicators Agent — 지표 가중치 랭킹 + 데이터 품질 섹션 생성
 담당: 가중치 시각화 바, SP500/KOSPI 상관계수 비교, 수집 현황, 신선도 테이블
 """
+import utf8_setup  # noqa: F401
+
 
 
 def generate_indicators_section(ranking: list, data_quality: dict, meta: dict) -> str:
@@ -204,7 +206,7 @@ if __name__ == "__main__":
     })
     meta     = results.get("meta", {
         "collection_rate": f"{len(ranking)}/29",
-        "data_reference_date": "2026-06-08",
+        "data_reference_date": __import__("datetime").datetime.now().strftime("%Y-%m-%d"),
     })
 
     html = generate_indicators_section(ranking, dq, meta)

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-09T13:30:00",
+  "updated": "2026-06-09T15:00:00",
   "completed": [
     {
       "id": "REQ-001",
@@ -101,15 +101,15 @@
     },
     {
       "id": "REQ-015",
-      "request": "PM Agent 자기 감사 레이어 (sd_meta_check) — B단계 완료, C~F 대기",
+      "request": "PM Agent 자기 감사 레이어 (sd_meta_check) — C/D단계 완료, E~F 대기",
       "status": "partial",
       "priority": "high",
-      "details": "A단계: SD-10(API 주장 vs 실제 코드), SD-11(하드코딩 위장 패턴). B단계: SD-12(exit(1) 정적 분석), SD-13(항상True 조건 탐지), SD-14(QC 회귀→Telegram 알림+기준선에 qc_pass_count 저장). C~F단계(SD-15~SD-20) 대기",
+      "details": "A단계: SD-10(API 주장 vs 실제 코드), SD-11(하드코딩 위장 패턴). B단계: SD-12~14. C단계: SD-15(vacuous PASS 탐지), SD-16(신선도 25h), SD-17(파일 크기). D단계: SD-18(하드코딩 날짜 탐지+수정), SD-19(fix_request 동적화), SD-20(CLAUDE.md 패턴 추가). E~F단계(SD-12 exit(1) 5개 에이전트 수동 수정) 대기",
       "stages": {
         "A": "done",
         "B": "done",
-        "C": "backlog",
-        "D": "backlog",
+        "C": "done",
+        "D": "done",
         "E": "backlog",
         "F": "backlog"
       }
@@ -125,9 +125,10 @@
     {
       "id": "REQ-017",
       "request": "효성화학 데이터 수집 오류 — stock_return=0.0%, corr=None",
-      "status": "backlog",
+      "status": "done",
+      "completed_at": "2026-06-09T14:00:00",
       "priority": "low",
-      "details": "효성화학(KS#096770 또는 동일 계열사) stock_return_pct=0.0%, corr=None으로 수혜 분석 제외됨. 원인 후보: (1) pykrx 티커 불일치, (2) 상장폐지/상호변경, (3) 데이터 기간 내 거래일 <50일. run_stock_agent_v2.py에서 종목 수집 로직 점검 필요. REQ-014 R2 FAIL 조사 중 발견"
+      "details": "근본 원인: 효성화학(298000.KS) tradeable=False — 전체 분석 기간(1년) 거래 정지. yfinance/FDR 모두 Close=38900, Volume=0 (243행). compute_contribution/beneficiary에 std==0 가드 추가 → corr=None 이슈 조용한 skip으로 처리. 오류가 아닌 실제 거래정지 현상 확인"
     },
     {
       "id": "REQ-018",
@@ -136,6 +137,13 @@
       "completed_at": "2026-06-09T13:00:00",
       "priority": "high",
       "details": "report_quality_check() 구현: priority=high 완료 항목에 수치/exit code 없으면 QR-1 WARN, 정적 분석만 있으면 QR-2 WARN. pm_self_diagnosis()에서 SD-14 이후 호출. CLAUDE.md에 레벨별 Evidence 요구사항 표 + 재발 패턴 기록 추가. 재발방지: SD-12 B단계 정적 분석만으로 완료 보고한 패턴 기록됨"
+    },
+    {
+      "id": "REQ-019",
+      "request": "SD-12 exit(1) 가드 추가 — 5개 에이전트 (REQ-015 E단계)",
+      "status": "backlog",
+      "priority": "medium",
+      "details": "stock-agent/evaluator-agent/validation-agent/ui-agent/audit-agent: done_criteria 있으나 exit(1) 없음. 각 에이전트 __main__ 끝에 done_criteria FAIL 시 sys.exit(1) 추가 필요. pm_self_diagnosis SD-12가 탐지 중이나 코드 수정은 수동 필요."
     },
     {
       "id": "REQ-FUTURE-001",

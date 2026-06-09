@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-PM Agent (고도화) — 완전 자율 파이프라인 오케스트레이터
+PM Agent — Orchestrator + Meta-Audit (run_pm_agent.py)
+  역할 1 (Orchestrator/.claude/agents/orchestrator.md):
+    파이프라인 조율, APPROVE/HOLD 최종 판단, pending_requests 갱신
+  역할 2 (Meta-Audit/.claude/agents/meta-audit-agent.md):
+    pm_self_diagnosis() — SD-1~20 자가진단, report_quality_check() 보고서 레벨 평가
+  [설계 주의] 두 역할이 한 파일에 혼재. 규모 확장 시 별도 분리 고려.
+
 Done Criteria (PM-1~PM-6):
   PM-1: 전체 파이프라인 단계 실행 (exit 0)
   PM-2: 6가지 자체검증 기준 모두 통과
@@ -817,21 +823,132 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
         _qc14_pass = sum(1 for c in _qc14 if c["pass"])
         _qc14_base = baseline.get("qc_pass_count")
         if _qc14_base is not None and _qc14_pass < _qc14_base:
-            _regressed14  = _qc14_base - _qc14_pass
-            _prev_fails14 = set(baseline.get("qc_failed_checks", []))
-            _new_fails14  = [c["check"] for c in _qc14
-                             if not c["pass"] and c["check"] not in _prev_fails14]
+            _regressed14 = _qc14_base - _qc14_pass
+            # qc_failed_checks가 None이면 legacy baseline — 신규 실패 목록 미출력
+            # (QG-1처럼 항상 실패하는 known-fail이 오탐되지 않도록)
+            _prev_fail_history14 = baseline.get("qc_failed_checks")
+            if _prev_fail_history14 is not None:
+                _prev_fails14 = set(_prev_fail_history14)
+                _new_fails14  = [c["check"] for c in _qc14
+                                 if not c["pass"] and c["check"] not in _prev_fails14]
+            else:
+                _prev_fails14 = set()
+                _new_fails14  = []  # Legacy baseline: known-fail 오탐 방지
             issues.append(
                 f"SD-14 QC 회귀: {_qc14_pass}/{len(_qc14)} PASS "
                 f"(기준선 {_qc14_base} → 현재 {_qc14_pass}, "
-                f"-{_regressed14}개 감소). 신규 실패: {_new_fails14}"
+                f"-{_regressed14}개 감소)"
+                + (f". 신규 실패: {_new_fails14}" if _new_fails14 else "")
             )
             _tg_send(
                 f"🚨 <b>SD-14 QC 회귀 감지</b>\n"
                 f"기준선 {_qc14_base}/{len(_qc14)} → "
                 f"현재 {_qc14_pass}/{len(_qc14)} PASS\n"
-                f"신규 실패: {', '.join(_new_fails14[:5]) or '없음'}"
+                + (f"신규 실패: {', '.join(_new_fails14[:5])}" if _new_fails14
+                   else "신규 실패: 없음 (legacy baseline — known-fail 제외)")
             )
+    except Exception:
+        pass
+
+    # ── SD-15: pm_quality_checks() 조건 실제 검증 능력 분석 ──────────
+    # 핵심 지지 데이터가 비어 있는데 PASS하는 조건 → vacuous PASS 탐지
+    try:
+        _fr15      = data  # pm_self_diagnosis 시작에서 로드한 final_results 재사용
+        _sp_a15    = _fr15.get("sp500_analysis",  {})
+        _ksp_a15   = _fr15.get("kospi_analysis",  {})
+        _all_t15   = (_sp_a15.get("contribution_top5", []) + _sp_a15.get("beneficiary_top5", []) +
+                      _ksp_a15.get("contribution_top5", []) + _ksp_a15.get("beneficiary_top5", []))
+        _ksp_t15   = (_ksp_a15.get("contribution_top5", []) + _ksp_a15.get("beneficiary_top5", []))
+        _ksp_ext15 = [s for s in _ksp_t15 if abs(s.get("stock_return_pct", 0)) >= 200]
+
+        # SA-7 vacuous: all_stocks=[] 인데 PASS → 종목 데이터 없이 경고 체크 통과
+        if not _all_t15:
+            issues.append(
+                "SD-15 SA-7 vacuous PASS — all_stocks=[] (종목 미수집 상태에서 "
+                "warn_reason 체크 통과, SA-1~4와 연동 의존)"
+            )
+        # SA-8 vacuous: KOSPI 종목 없는데 PASS
+        if not _ksp_t15:
+            issues.append(
+                "SD-15 SA-8 vacuous PASS — KOSPI 종목=[] (극단 수익률 교차검증 vacuously 통과)"
+            )
+        # permanent FAIL 종목 확인 (fix_stages=[] → 자동수정 불가)
+        _qc15 = pm_quality_checks()
+        _perm_fails15 = [c["check"] for c in _qc15
+                         if not c["pass"] and not c.get("fix_stages")]
+        print(f"  [SD-15] QC {sum(1 for c in _qc15 if c['pass'])}/{len(_qc15)} PASS | "
+              f"extreme_stocks={len(_ksp_ext15)} | permanent_fail={_perm_fails15}")
+    except Exception:
+        pass
+
+    # ── SD-16: 결과물 타임스탬프 신선도 검증 ───────────────────────
+    # daily 파이프라인 기준: 25시간 초과 생성 파일 → SD 이슈
+    try:
+        import time as _time16
+        _FRESH_H = 25
+        for _ff16 in [OUT_DIR / "final_results.json", OUT_DIR / "decision.json"]:
+            if _ff16.exists():
+                _age_h = (_time16.time() - _ff16.stat().st_mtime) / 3600
+                if _age_h > _FRESH_H:
+                    issues.append(
+                        f"SD-16 결과물 신선도 경고: {_ff16.name} "
+                        f"{_age_h:.1f}h 경과 (기준 {_FRESH_H}h) — 파이프라인 미실행 가능성"
+                    )
+                else:
+                    print(f"  [SD-16] {_ff16.name}: {_age_h:.1f}h 경과 (OK)")
+    except Exception:
+        pass
+
+    # ── SD-17: 핵심 출력 파일 크기 이상 탐지 ───────────────────────
+    try:
+        _sz_checks = {
+            OUT_DIR / "final_results.json": (1_024,    5_242_880),   # 1KB ~ 5MB
+            OUT_DIR / "decision.json":      (100,      1_048_576),   # 100B ~ 1MB
+            OUT_DIR / "dashboard.html":     (5_120,   10_485_760),   # 5KB ~ 10MB
+        }
+        for _sf17, (_mn, _mx) in _sz_checks.items():
+            if _sf17.exists():
+                _sz = _sf17.stat().st_size
+                if _sz < _mn:
+                    issues.append(f"SD-17 빈 파일: {_sf17.name} {_sz}B < {_mn}B 최소")
+                elif _sz > _mx:
+                    issues.append(f"SD-17 파일 팽창: {_sf17.name} {_sz//1024}KB > {_mx//1024}KB 최대")
+                else:
+                    print(f"  [SD-17] {_sf17.name}: {_sz:,}B (OK)")
+    except Exception:
+        pass
+
+    # ── SD-18: Agent 파일 내 하드코딩 날짜 리터럴 탐지 ──────────
+    try:
+        import re as _re18
+        _date_pat18   = _re18.compile(r'= ["\']20\d\d-\d\d-\d\d["\']')
+        _skip_line18  = {"completed_at", "updated", "timestamp", "NOTION_VERSION", "API_VERSION"}
+        # 파이프라인에 등록된 파일만 감사 (v1/레거시 파일 제외)
+        _pipeline_files18 = {s for s, *_ in PIPELINE_STAGES}
+        for _py18 in BASE_DIR.glob("agents/*.py"):
+            if _py18.name not in _pipeline_files18 and _py18.name != Path(__file__).name:
+                continue
+            _src18 = _py18.read_text(encoding="utf-8", errors="ignore")
+            for _ln18, _line18 in enumerate(_src18.splitlines(), 1):
+                if _date_pat18.search(_line18):
+                    if any(skip in _line18 for skip in _skip_line18):
+                        continue
+                    issues.append(
+                        f"SD-18 하드코딩 날짜: {_py18.name}:L{_ln18} — {_line18.strip()[:60]}"
+                    )
+    except Exception:
+        pass
+
+    # ── SD-19: fix_request.md 자동 수정 계획 하드코딩 탐지 ───────
+    try:
+        if FIX_REQUEST_FILE.exists():
+            _fr19_txt = FIX_REQUEST_FILE.read_text(encoding="utf-8", errors="ignore")
+            # Heuristic: hardcoded plan has static agent list without "이슈별 도출" header
+            if "자동 수정 계획" in _fr19_txt and "이슈별 도출" not in _fr19_txt:
+                issues.append(
+                    "SD-19 fix_request.md 자동 수정 계획이 이슈 기반이 아닌 하드코딩 목록 — "
+                    "_write_fix_request() 점검 필요"
+                )
     except Exception:
         pass
 
@@ -897,6 +1014,21 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
 
 
 def _write_fix_request(issues: list[str]) -> None:
+    # derive actual auto-fix scripts from issue codes (mirrors _auto_fix_from_diagnosis logic)
+    _fx_scripts: set[str] = set()
+    for _iss in issues:
+        if "SD-1" in _iss or "SD-6" in _iss:
+            _fx_scripts |= {"run_analysis_agent_v2.py", "run_evaluator_agent_v2.py"}
+        if "SD-2" in _iss or "SD-3" in _iss:
+            _fx_scripts |= {"run_evaluator_agent_v2.py", "run_validation_agent.py"}
+        if "SD-4" in _iss or "SD-5" in _iss:
+            _fx_scripts |= {"run_stock_agent_v2.py"}
+        if "SD-8" in _iss:
+            _fx_scripts |= {"run_news_agent.py"}
+        if "SD-13" in _iss or "SD-14" in _iss:
+            _fx_scripts |= {"run_validation_agent.py"}
+    _manual_issues = [i for i in issues if any(c in i for c in ("SD-7", "SD-10", "SD-11", "SD-12"))]
+
     lines = [
         "# PM Agent 자가진단 수정 요청서",
         f"생성: {datetime.now().strftime('%Y/%m/%d %H:%M:%S')}",
@@ -905,16 +1037,18 @@ def _write_fix_request(issues: list[str]) -> None:
     ]
     for i, iss in enumerate(issues, 1):
         lines.append(f"{i}. {iss}")
-    lines += [
-        "",
-        "## 자동 수정 계획",
-        "- run_evaluator_agent_v2.py  — 자기참조/동행지수 재필터",
-        "- run_stock_agent_v2.py      — warn_reason 재생성",
-        "- run_ui_agent.py            — 최종 결과 재빌드",
-        "- generate_report_v2.py      — 리포트 재생성",
-    ]
+    lines += ["", "## 자동 수정 계획 (이슈별 도출)"]
+    if _fx_scripts:
+        for sc in sorted(_fx_scripts):
+            lines.append(f"- {sc}")
+    else:
+        lines.append("- (자동 수정 대상 없음 — 수동 점검 필요)")
+    if _manual_issues:
+        lines += ["", "## 수동 수정 필요"]
+        for mi in _manual_issues:
+            lines.append(f"- {mi}")
     FIX_REQUEST_FILE.write_text("\n".join(lines), encoding="utf-8")
-    print(f"[PM] fix_request.md 작성 완료 ({len(issues)}개 이슈)")
+    print(f"[PM] fix_request.md 작성 완료 ({len(issues)}개 이슈, 자동수정 {len(_fx_scripts)}개 스크립트)")
 
 
 def _auto_fix_from_diagnosis(issues: list[str]) -> None:

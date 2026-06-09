@@ -20,6 +20,7 @@ UX 서브 에이전트 (7개):
   run_sector_agent.py        → 산업별 딥다이브 (반도체/AI/에너지)
   run_sheets_agent.py        → Google Sheets + Looker Studio 연동 가이드
 """
+import utf8_setup  # noqa: F401
 
 import json
 import sys
@@ -500,8 +501,8 @@ if __name__ == "__main__":
     _done_criteria = {
         "UX-1 모바일 nav 스크롤":      "overflow-x" in _html_text,
         "UX-2 HOLD 카드 설명":         signal.get("direction") != "neutral" or ("신규 매수" in _html_text and "기존 보유" in _html_text),
-        "UX-3 $0B 경고 배지":          (not _zero_mcap) or "미집계" in _html_text,
-        "UX-4 극단 수익률 경고":        not any(abs(s.get("stock_return_pct") or 0) > 1000 for s in _all_stocks) or "이벤트 영향" in _html_text,
+        "UX-3 $0B 경고 배지":          bool(_all_stocks) and ((not _zero_mcap) or "미집계" in _html_text),
+        "UX-4 극단 수익률 경고":        bool(_all_stocks) and (not any(abs(s.get("stock_return_pct") or 0) > 1000 for s in _all_stocks) or "이벤트 영향" in _html_text),
         "UX-5 신뢰도 설명":            "개 강세" in _html_text,
         "UX-6 7개 탭 모두 존재":        all(f"page-{t}" in _html_text for t in ["decision","narrative","signal","stocks","sector","indicators","looker"]),
         "UX-7 footer 면책 문구":        "투자 판단은 개인 책임" in _html_text or "개인 책임" in _html_text,
