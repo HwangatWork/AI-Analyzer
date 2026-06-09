@@ -115,12 +115,11 @@ SELF_REFERENTIAL = {
     # 완화된 항목 (지연 지표 — KOSPI 예측 유효): BBAND, STOCH_RSI, MARKET_MOMENTUM 제거
 }
 SMALL_CAP_USD_B_THRESHOLD       = 5.0    # $5B 미만이면 소형주 경고
-# 기여 Top1 시총 최소 기준 — S&P500/KOSPI 별도 적용
-# S&P500: 구성 대형주 특성상 $200B (GOOGL/NVDA/AAPL 수준 정상)
-# KOSPI: 시총 상위5 평균 $82.2B의 약 5% → $4B
-#        (삼성전자 $239B, SK하이닉스 $69B, 삼성바이오 $40B, LGэнерго $38B, 셀트리온 $25B 기준)
+# SA-5 S&P500: 구성종목이 대형주 보장이므로 $200B 금액 기준 유효
+# SA-6 KOSPI: 금액 기준 없음 — contribution_score가 시총 가중치를 내포하므로
+#             소형주가 고수익률·고상관으로 Top1 도달 가능. 별도 임계값 = 이중 체크.
+#             목적: "데이터 오류(시총=0) 감지" 만 수행.
 SP500_CONTRIBUTOR_TOP1_MIN_MC_B = 200.0
-KOSPI_CONTRIBUTOR_TOP1_MIN_MC_B =   4.0
 CONTRIBUTOR_TOP1_MIN_MC_B       = 200.0  # 하위호환 alias (SP500 기준 유지)
 EXTREME_RETURN_THRESHOLD        = 500.0  # ⚠ 이유 텍스트 의무 기준 (%)
 
@@ -278,15 +277,18 @@ def pm_quality_checks() -> list[dict]:
         "fix_stages": [],   # 경고만 (데이터 결과)
     })
 
-    # SA-6: KOSPI 기여 Top1 시작 시총 ≥ KOSPI 기준 ($4B — KOSPI 상위5 평균 $82.2B의 5%)
+    # SA-6: KOSPI 기여 Top1 존재 + 시총 > 0 (데이터 오류 감지)
+    # 금액 임계값 없음 — contribution_score에 시총 가중치 내포, 소형주 Top1 가능
     ksp_top1 = ksp_cont[0] if ksp_cont else {}
     mc1k = ksp_top1.get("market_cap_start_b") or ksp_top1.get("market_cap_b") or 0
+    sa6_pass = bool(ksp_cont) and mc1k > 0
     results.append({
-        "check": f"SA-6 KOSPI 기여 Top1 시총 ≥${KOSPI_CONTRIBUTOR_TOP1_MIN_MC_B:.0f}B",
-        "pass":  mc1k >= KOSPI_CONTRIBUTOR_TOP1_MIN_MC_B,
-        "detail": f"OK — ${mc1k:.1f}B" if mc1k >= KOSPI_CONTRIBUTOR_TOP1_MIN_MC_B
-                  else f"FAIL — ${mc1k:.1f}B < ${KOSPI_CONTRIBUTOR_TOP1_MIN_MC_B:.0f}B ({ksp_top1.get('name','?')})",
-        "fix_stages": [],
+        "check": "SA-6 KOSPI 기여 Top1 존재 (데이터 유효성)",
+        "pass":  sa6_pass,
+        "detail": (f"OK — {ksp_top1.get('name','?')} ${mc1k:.1f}B" if sa6_pass
+                   else ("FAIL — 기여 Top1 없음" if not ksp_cont
+                         else f"FAIL — {ksp_top1.get('name','?')} 시총 미수집 (mc=0)")),
+        "fix_stages": ["run_stock_agent_v2.py"],
     })
 
     # SA-7: ⚠ 표시 종목 전원 warn_reason 보유
