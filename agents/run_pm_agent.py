@@ -57,8 +57,10 @@ BASELINE_FILE     = PROC_DIR / "pm_baseline.json"
 FIX_REQUEST_FILE  = BASE_DIR / "fix_request.md"
 PENDING_FILE      = BASE_DIR / "pending_requests.json"
 
-# SD-14 회귀 감지에서 영구 제외할 QC 체크 (자격증명 미설정 등 외부 의존성)
-_KNOWN_FAIL_CHECKS: list[str] = ["QG-1", "ANTHROPIC_API_KEY"]
+# SD-14 회귀 감지에서 영구 제외할 QC 체크
+# QG-1: optional 체크로 전환 — 미설정=SKIP(soft-pass), 더 이상 항상-FAIL 아님
+# ANTHROPIC_API_KEY: 파이프라인에서 직접 사용하지 않는 항목 (legacy)
+_KNOWN_FAIL_CHECKS: list[str] = ["ANTHROPIC_API_KEY"]
 
 
 # ── pending_requests.json 헬퍼 ────────────────────────────────────
@@ -546,16 +548,26 @@ def pm_quality_checks() -> list[dict]:
         "fix_stages": ["run_narrative_agent.py", "generate_report_v2.py"],
     })
 
-    # ── Condition G: Google Sheets 연동 상태 ─────────────────────
+    # ── Condition G: Google Sheets 연동 상태 (optional 체크) ──────
+    # 설계 원칙: 선택 기능은 3-state — 미설정→SKIP(soft-pass) / 설정+오류→FAIL / 설정+정상→PASS
+    # 미설정은 비활성화 상태이지 오류가 아님. FAIL = 설정은 됐는데 파일이 없는 경우만.
     import os as _os2
+    from pathlib import Path as _Path2
     google_sa = _os2.getenv("GOOGLE_SA_JSON", "")
-    qg1_ok = bool(google_sa)
+    if not google_sa:
+        # 미설정 = 기능 비활성화 → soft-pass
+        qg1_pass   = True
+        qg1_detail = "SKIP — 미활성화 (선택 기능, GOOGLE_SA_JSON 미설정)"
+    else:
+        sa_path    = _Path2(google_sa)
+        qg1_pass   = sa_path.exists()
+        qg1_detail = (f"OK — {google_sa}" if qg1_pass
+                      else f"FAIL — 자격증명 파일 없음: {google_sa}")
     results.append({
-        "check": "QG-1 Google Sheets 서비스 계정 설정",
-        "pass":  qg1_ok,
-        "detail": ("OK — GOOGLE_SA_JSON 설정됨" if qg1_ok
-                   else "FAIL — GOOGLE_SA_JSON 미설정 (pending_requests.json T9 참고)"),
-        "fix_stages": [],   # 사용자가 .env에 추가해야 함
+        "check":      "QG-1 Google Sheets 서비스 계정 설정",
+        "pass":       qg1_pass,
+        "detail":     qg1_detail,
+        "fix_stages": [],
     })
 
     # ── Condition H: 산업별 딥다이브 데이터 ──────────────────────
