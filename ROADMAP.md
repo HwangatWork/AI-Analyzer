@@ -146,4 +146,127 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 6. 모든 [?] 항목 제거됨 - 사람 개입 없이 끝까지 자율 실행
 7. PM Conditions A~H 모두 PASS 확인 후 완료 보고
 8. 완료 시 ntfy.sh 알림 + output/FINAL_REPORT.md 업데이트
+
 ---
+
+# 레벨 10 Agentic Engineering 재구축 로드맵 (2026-06-11~)
+
+> **구현 강도**: 레벨 10 전체 (구조 수정 + 재발방지 + 검증 + 회귀테스트 + 문서화)
+>
+> **핵심 원칙**: mock 테스트 통과는 완료가 아니다. 실전 환경(실제 hook 트리거, 실제 파이프라인 실행)에서 검증돼야 완료다.
+>
+> **실행 규칙**: Phase 0→1→2→3→4→5 순서 엄수. 게이트 미통과 시 Telegram 보고 후 중단.
+
+## Phase 0: agents/ 폴더 구조 정리 [레벨 8]
+
+**상태**: `[x]` 완료 (2026-06-11)
+
+**목적**: v1/v2 혼재, 파이프라인 미사용 스크립트, 명세 이중화 제거. Agent Team 토대 단일 진실 소스화.
+
+### 구현 내용
+- **0-1**: v1/v2 전수 점검 — PIPELINE_STAGES 기준 루트 v1 파일 → archive/
+- **0-2**: 파일 3그룹 분류 — active(파이프라인+infra)/standby(대기 중)/dead(구버전)
+- **0-3**: 명세 단일화 — agents/*.md 삭제, .claude/agents/가 유일 소스, CLAUDE.md 명시
+- **0-4**: SD/SA 스캔 범위 확인 — active 그룹만 스캔하는지 검증
+
+### 게이트 0
+- [ ] 루트 v1/v2 중복 0건
+- [ ] 전체 .py 파일 active/standby/dead 분류 완료
+- [ ] agents/*.md 제거 + CLAUDE.md 명시
+- [ ] pm_quality_checks 24/24 PASS 유지
+- [ ] 분류표 + 이동 파일 목록 Telegram 전송
+
+## Phase 1: 회귀 테스트 스위트 구축 [레벨 10]
+
+**상태**: `[x]` 완료 (2026-06-11) — 19/19 PASS, 1.32초
+
+**목적**: "수정했다"는 보고가 다음 세션에서 무효가 되는 도돌이표를 끊는다. 지금까지 발견된 모든 버그를 영구 테스트로 고정.
+
+### 포함 버그 케이스 (최소 15개)
+| ID | 버그 | 출처 |
+|----|------|------|
+| T01 | stop_hook check_static_only 레벨 8 작업 SKIP (E2) | G-4 |
+| T02 | stop_hook check_evidence 공백전용 → FAIL 오반환 (C1-I) | I |
+| T03 | check_static_only 정적분석+실행없음 → PASS 오반환 (B2/C2) | G-4 |
+| T04 | vacuously True — 빈 리스트 all() = True | SA-13 |
+| T05 | SD-14 known FAIL 오탐 (선택 기능 = FAIL) | QG-1 |
+| T06 | HOLD confidence 역설 (중립=100%) | REQ-029 |
+| T07 | 서브스트링 SD 매칭 (SD-1이 SD-10/11 매칭) | REQ-027 |
+| T08 | 삼성전자 Marcap=0 → contribution_score 오계산 | SA-7c |
+| T09 | 효성화학 std==0 → Pearson r None → 크래시 | REQ-017/020 |
+| T10 | _last_messages tool_use 블록 text 포함 | TQ-1 |
+| T11 | CONTEMPORANEOUS 지수 decision_agent 직접 참조 | SA-1 |
+| T12 | SA-7 warn_reason 미포함 → 극단수익률 경고 누락 | H |
+| T13 | NQ-2 예측성 기사 필터 미작동 | REQ-025 |
+| T14 | SD-19 fix_request 불일치 | SD-19 |
+| T15 | PM-5 notion_agent 파일 미존재 → Done Criteria FAIL | REQ-030 |
+
+### 게이트 1
+- [ ] pytest 전체 PASS
+- [ ] 실행 시간 3분 이내
+- [ ] 테스트 개수 15개 이상
+- [ ] pytest 출력 전문 Telegram 전송
+
+## Phase 2: 실전 환경 검증 체계 [레벨 10]
+
+**상태**: `[ ]` 미완료
+
+**목적**: mock 테스트 26/26 PASS인데 실전에서 체크2 SKIP, 빈 트리거 반복 문제 제거.
+
+### 게이트 2
+- [ ] --selftest: 실제 transcript 입력으로 3개 체크 의도대로 작동
+- [ ] 실전 TG 메시지에서 체크2 SKIP이 아닌 PASS/WARN 확인
+- [ ] 빈 트리거 미전송 확인
+- [ ] 실전 트리거 Telegram 원문 전송
+
+## Phase 3: run_pm_agent.py 책임 분리 [레벨 9]
+
+**상태**: `[ ]` 미완료
+
+**목적**: 2279줄 단일 파일 해체. REQ-SA2 실행.
+
+### 게이트 3
+- [ ] 분리 후 회귀 테스트 전체 PASS
+- [ ] 전체 파이프라인 1회 실제 실행 성공
+- [ ] pm_quality_checks 24/24 PASS 유지
+- [ ] 각 파일 800줄 이하
+- [ ] 파일별 줄 수 + 회귀 테스트 결과 Telegram 전송
+
+## Phase 4: Agent Team 단계 전환 [레벨 9]
+
+**상태**: `[ ]` 미완료
+
+**목적**: 단일 순차 실행 → 독립 검증 가능 Agent Team 전환.
+
+### 게이트 4
+- [ ] 최소 4개 에이전트 전환 (narrative + 검증 트리오)
+- [ ] 전환 전후 파이프라인 출력 동일성 확인
+- [ ] 회귀 테스트 전체 PASS
+- [ ] 에이전트별 전환 전후 비교표 Telegram 전송
+
+## Phase 5: 자율 개선 루프 완성 [레벨 10]
+
+**상태**: `[ ]` 미완료
+
+**목적**: 사람 개입 없이 발견-등록-수정-검증 폐쇄 루프 전환.
+
+### 구현 내용
+- SA-1~SA-7 매 파이프라인 실행 후 자동 실행 고정
+- SA-8 신규: 회귀 테스트 스위트 자체 건강도 감사
+- 주 1회 전체 시스템 감사 리포트 자동 전송
+
+### 게이트 5
+- [ ] 파이프라인 → SA 자동 실행 → 이슈 등록 → TG 보고 (사람 개입 없이 1사이클)
+- [ ] 6-Layer 재감사 점수 52/60 이상
+- [ ] 전체 사이클 로그 + 6-Layer 점수표 Telegram 전송
+
+## 완료 현황
+
+| Phase | 상태 | 게이트 통과 | 완료일 |
+|-------|------|------------|--------|
+| Phase 0 | **완료** | ✅ 통과 | 2026-06-11 |
+| Phase 1 | **완료** | ✅ 통과 | 2026-06-11 |
+| Phase 2 | 미완료 | - | - |
+| Phase 3 | 미완료 | - | - |
+| Phase 4 | 미완료 | - | - |
+| Phase 5 | 미완료 | - | - |

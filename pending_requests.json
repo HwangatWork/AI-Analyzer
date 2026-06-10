@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-09T23:36:11",
+  "updated": "2026-06-11T02:31:23",
   "completed": [
     {
       "id": "REQ-001",
@@ -38,6 +38,56 @@
     }
   ],
   "pending": [
+    {
+      "id": "PHASE-5",
+      "status": "pending",
+      "request": "자율 개선 루프 완성 [레벨 10]",
+      "details": "SA-1~7 자동 실행, SA-8 테스트 건강도 감사, 주 1회 자동 감사 리포트, 6-Layer 52/60+",
+      "created_at": "2026-06-11T02:24:35",
+      "priority": "medium"
+    },
+    {
+      "id": "PHASE-4",
+      "status": "pending",
+      "request": "Agent Team 단계 전환 [레벨 9]",
+      "details": "narrative→검증 트리오→data/stock→나머지 전환, 전환 전후 출력 동일성 확인",
+      "created_at": "2026-06-11T02:24:35",
+      "priority": "medium"
+    },
+    {
+      "id": "PHASE-3",
+      "status": "pending",
+      "request": "run_pm_agent.py 책임 분리 [레벨 9]",
+      "details": "pm_orchestrator.py + pm_quality.py + pm_utils.py 분리, REQ-SA2 실행, 각 800줄 이하",
+      "created_at": "2026-06-11T02:24:35",
+      "priority": "medium"
+    },
+    {
+      "id": "PHASE-2",
+      "status": "pending_next_session",
+      "request": "실전 환경 검증 체계 [레벨 10]",
+      "details": "stop_hook --selftest 모드, 실제 transcript 입력, 체크2 SKIP/빈트리거 원인 확정",
+      "created_at": "2026-06-11T02:24:35",
+      "priority": "high"
+    },
+    {
+      "id": "PHASE-1",
+      "status": "done",
+      "request": "회귀 테스트 스위트 구축 [레벨 10]",
+      "details": "agents/tests/test_regression.py 19개 케이스, run_tests.bat, pytest 19/19 PASS 1.32초, TG 전송 완료",
+      "created_at": "2026-06-11T02:24:35",
+      "priority": "high",
+      "completed_at": "2026-06-11T02:31:23"
+    },
+    {
+      "id": "PHASE-0",
+      "status": "done",
+      "request": "agents/ 폴더 구조 정리 [레벨 8]",
+      "details": "v1 이동(run_data_agent.py→archive), standby/ 생성(sheets/ctd), agents/*.md 6개 삭제, CLAUDE.md 명세 소스 명시, pm_quality_checks 24/24 PASS, TG 전송 완료",
+      "created_at": "2026-06-11T02:24:35",
+      "priority": "critical",
+      "completed_at": "2026-06-11T02:31:23"
+    },
     {
       "id": "REQ-003",
       "request": "Google Sheets 완전 자동화",
@@ -199,6 +249,59 @@
       "completed_at": "2026-06-09T23:36:11",
       "priority": "medium",
       "details": "_PREDICTIVE_TITLE_RE + _TODAY_MARKET_RE 패턴 추가. build_causes_v2() 내 예측성 기사 skip (prediction for/forecast for/today S&P 등). 11/11 테스트 PASS. BEFORE: causes 2번/3번이 prediction/Today 헤드라인 그대로 원인으로 등장. AFTER: BLOCKED — AI칩 섹터 등 실제 원인 기사만 통과."
+    },
+    {
+      "id": "REQ-026",
+      "request": "ANTHROPIC_API_KEY optional 전환 + pm_quality_checks SKIP 표시 형식 개선",
+      "status": "done",
+      "completed_at": "2026-06-10T00:00:00",
+      "priority": "low",
+      "details": "_KNOWN_FAIL_CHECKS=[] (ANTHROPIC_API_KEY 제거 — optional 3-state 전환으로 영구제외 불필요). _qc_summary() 헬퍼 신규: SKIP 항목 있으면 '24/24 PASS (QG-1 SKIP 포함)' 형식. _tg_send_quality_report() SKIP 항목 별도 섹션 표시. SD-14/save_baseline/fix_round 출력 모두 _qc_summary() 사용. 동적 테스트: _KNOWN_FAIL_CHECKS=[] 확인, 24/24 PASS (QG-1 SKIP 포함) 출력 확인."
+    },
+    {
+      "id": "REQ-027",
+      "request": "SD-6 fix_scripts 매핑 오류 수정",
+      "status": "done",
+      "completed_at": "2026-06-10T09:00:00",
+      "priority": "medium",
+      "details": "_derive_fix_scripts(): SD-1과 SD-6 분리. SD-6 → run_decision_agent.py (시그널↔방향 불일치는 decision layer 문제). SD-1 → analysis+evaluator 유지. 4케이스 동적 테스트 PASS: SD-6단독={'run_decision_agent.py'}, SD-1단독={'analysis+evaluator'}, SD-1+SD-6=3개 모두, SD-19 서브스트링 오매칭 방지 확인."
+    },
+    {
+      "id": "REQ-028",
+      "request": "run_narrative_agent.py PIPELINE_STAGES 미등록 수정",
+      "status": "done",
+      "completed_at": "2026-06-10T09:00:00",
+      "priority": "medium",
+      "details": "PIPELINE_STAGES step11에 narrative_agent 추가 (generate=12, audit=13). TOTAL_STEPS 13→14. STAGE_DEPS: narrative←ui_agent, generate←narrative 등록. _get_dependents({'run_narrative_agent.py'})=['run_narrative_agent.py','generate_report_v2.py','run_audit_agent.py'] 확인. auto_fix 알 수 없는 스크립트 건너뜀 제거."
+    },
+    {
+      "id": "REQ-029",
+      "request": "HOLD confidence 역설 수정 + IQ-4/SI-1 중복 제거",
+      "status": "done",
+      "completed_at": "2026-06-10T09:00:00",
+      "priority": "high",
+      "details": "run_decision_agent.py: HOLD confidence=(1-abs)*100 → abs(ratio-0.5)*2*100. ratio=0.5→0%, 0.1→80%, 0.9→80% 3케이스 PASS. run_pm_agent.py: SI-1 제거(IQ-4 중복), QI-1 추가(BUY/SELL confidence≥20%). QI-1 mock2케이스: conf=25%→PASS, conf=10%→FAIL['SP500=BUY 10.0%<20%']. 24/24 PASS 유지. threshold 조정 사유: Telegram 50% 게이트 별도 운용, 현재 SELL/AVOID=22.9% 정상 범위."
+    },
+    {
+      "id": "REQ-030",
+      "request": "v1 파일 archive 이동 + SD 스캔 범위 한정",
+      "status": "done",
+      "completed_at": "2026-06-10T09:00:00",
+      "priority": "low",
+      "details": "agents/archive/ 신규 생성. run_analysis/evaluator/stock_agent.py v1 3개 이동 완료. SD-10/11 스캔: AGENTS_DIR.glob('*.py') → _scan_targets10_11(PIPELINE_STAGES 13개). v1 파일 스캔 대상 제외 확인. agents/=False, archive/=True 3개 모두 확인."
+    },
+    {
+      "id": "REQ-FUTURE-031",
+      "request": "Decision Agent KOSPI 독립 시그널 + CONTEMPORANEOUS 역입력 제거",
+      "status": "backlog",
+      "priority": "high",
+      "details": "설계 변경 레벨 9 — 별도 세션에서 진행. KOSPI 판단이 KOSDAQ/NIKKEI(CONTEMPORANEOUS 지수) Z-score를 부스터로 사용하는 역설 제거. KOSPI 전용 지표 Z-score 집계 추가 필요."
+    },
+    {
+      "id": "REQ-SA2",
+      "request": "[SA-2 MEDIUM] 대형 함수 탐지",
+      "status": "backlog",
+      "details": "≥200줄 함수 1개: ['run_ui_agent.py:generate_html_dashboard() 227L'] | run_pm_agent.py 총 2121줄"
     }
   ]
 }

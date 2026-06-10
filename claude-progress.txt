@@ -1,46 +1,6 @@
-AI Analyzer Progress — 2026-06-09 (세션 E 완료)
+AI Analyzer Progress — 2026-06-10 (세션 G 완료)
 
-=== 세션 D 완료 항목 (REQ-015 C~F단계 + REQ-017~018 + 6-Layer 감사) ===
-
-[REQ-015 C단계 - SD-15/16/17]
-1. SD-15: pm_quality_checks() 지지 데이터 vacuous PASS 탐지 — SA-7/SA-8
-   - all_t15=20 stocks, ksp_t15=10 stocks (OK)
-2. SD-16: 결과물 신선도 25h 기준 — final_results.json/decision.json
-   - 현재: final_results 7.2h, decision 13.5h (OK)
-3. SD-17: 파일 크기 이상 탐지 — <1KB/> 5MB
-   - 현재: final_results 31,615B, decision 1,423B, dashboard 142,786B (전항목 OK)
-
-[REQ-015 D단계 - SD-18/19/20]
-4. SD-18: 하드코딩 날짜 수정 — run_data_agent.py START 동적화
-   - Before: START="2024-06-01" / After: (datetime.now()-timedelta(365)).strftime(...)
-5. SD-19: fix_request.md 자동 수정 계획 동적 도출 — _write_fix_request() 개선
-   - SD-8 이슈만 있을 때 run_news_agent.py 1개만 도출 (구: 4개 하드코딩)
-6. SD-20: CLAUDE.md SD 테이블 SD-15~20 추가 + 재발방지 패턴 3건 추가
-
-[REQ-017 효성화학 조사]
-7. 효성화학(298000.KS) 거래정지 확인 — tradeable=False, Volume=0/243행
-   - FDR/yfinance 교차검증 일치 (Close=38900 고정)
-   - 수정: compute_contribution/beneficiary std==0 가드 추가 → corr=None 조용한 skip
-
-[REQ-018 보고서 레벨 자가 평가] — 세션 C에서 완료됨
-
-[6-Layer Agentic Engineering 감사]
-8. Layer 1~6 감사 완료 (총점 44/60 → 7.3/10)
-   - L1(8): orchestrator+meta-audit 역할 혼재 → docstring 명시
-   - L2(7): report-agent Done Criteria 없음 → RG-1~4 + exit(1) 추가
-   - L3(5): data/stock/evaluator/validation/ui/audit SD-12 이슈 (수동 수정 대기)
-   - L4(7): pm_baseline/pending 정상, claude-progress 업데이트는 data_agent 담당
-   - L5(8): SD-1~19 완비, SD-18/19 탐지 코드 pm_self_diagnosis 추가
-   - L6(9): IQ-1/_SELF_REFERENTIAL/confidence gate 구현 완비
-   - data-agent DC-1~6 + exit(1) 추가 (가장 중요한 불일치 수정)
-
-[Todo 7 - .claude/agents/ 명세 vs agents/*.py 비교]
-9. 14개 spec vs 26개 py 전수 비교 완료
-   - 주요 불일치: data-agent DC-1~6 누락 → 수정 완료
-   - SD-12 이슈 (stock/evaluator/validation/ui/audit exit(1) 없음) — 별도 추적 중
-   - agentic_audit_prompt.md 신규 생성
-
-=== 세션 E 완료 항목 (REQ-020/021/022/019) ===
+=== 세션 E 완료 항목 (REQ-020~022, REQ-019) ===
 
 [REQ-020 — stat_utils.py + std==0 가드]
 1. agents/stat_utils.py 신규 생성 — safe_pearsonr/safe_linregress/is_constant
@@ -51,33 +11,309 @@ AI Analyzer Progress — 2026-06-09 (세션 E 완료)
 [REQ-021 — FOMC 날짜 동적화]
 4. FOMC_2026 하드코딩 → FOMC_CONFIRMED: dict[int,list] 멀티연도 구조
 5. _get_upcoming_fomc(): FOMC_CONFIRMED.values() 순회 + 미등록 연도 자동 추정
-6. fetch_news() 검색 쿼리 동적화 ({_yr}/{_mo})
+6. fetch_news() 검색 쿼리 동적화
    - 2027-01-01 기준 테스트: 2027-01-27(Wednesday) 정상 반환
 
 [REQ-022 — baseline schema_version:2]
-7. _KNOWN_FAIL_CHECKS=['QG-1','ANTHROPIC_API_KEY'] 상수 추가
-8. _load_baseline() 헬퍼 신규 (v1→v2 자동 마이그레이션)
-9. _save_baseline() — schema_version:2 + known_fail_checks 추가
-10. SD-14 known-fail 제외 비교 로직으로 전환
-    - 마이그레이션 전/후 출력 PASS, SD-14 케이스 3종 assertion PASS
+7. _KNOWN_FAIL_CHECKS=[] (QG-1/ANTHROPIC_API_KEY optional 3-state로 전환)
+8. _load_baseline() v1→v2 자동 마이그레이션
+9. SD-14 known-fail 제외 비교 로직
 
 [REQ-019 / REQ-015 E단계 — exit(1) 확인]
-11. 5개 에이전트 모두 exit(1) 이미 존재 확인 후 mock 빈 데이터 테스트
-    - stock_agent exit_code=1 ✓, evaluator_agent exit_code=1 ✓
-    - validation_agent exit_code=1 ✓, ui_agent exit_code=1 ✓, audit_agent exit_code=1 ✓
-    - REQ-015 E단계 완료
+10. 5개 에이전트 exit_code=1 mock 동적 테스트 PASS
+
+=== 세션 F 완료 항목 (REQ-023~030) ===
+
+[REQ-023~025 — QC 진단, SD-19, NQ-2]
+- SA-6 KOSPI 기준 optional 전환 (mc>0 only), QG-1 optional 3-state
+- SD-19 _derive_fix_scripts() 단일 진실 소스, 서브스트링 버그 수정
+- NQ-2 예측성 기사 필터 _PREDICTIVE_TITLE_RE/_TODAY_MARKET_RE
+
+[REQ-026 — SKIP 표시 형식]
+- _KNOWN_FAIL_CHECKS=[], _qc_summary() "N/N PASS (X SKIP 포함)" 형식
+
+[REQ-027 — SD-6 fix_scripts 매핑 오류 수정]
+- _derive_fix_scripts(): SD-6 → run_decision_agent.py (분리)
+- SD-1 → analysis+evaluator (기존 유지)
+- 4케이스 동적 테스트 PASS (SD-6단독, SD-1단독, 복합, SD-19 회귀방지)
+
+[REQ-028 — run_narrative_agent.py PIPELINE_STAGES 미등록 수정]
+- PIPELINE_STAGES step11 narrative 추가 (generate=12, audit=13)
+- TOTAL_STEPS 13→14
+- STAGE_DEPS: narrative←ui_agent, generate←narrative
+- _get_dependents 전이 의존 확인: ['narrative','generate','audit'] ✓
+
+[REQ-029 — HOLD confidence 역설 수정 + SI-1→QI-1]
+- run_decision_agent.py: HOLD confidence 공식 반전 (중립=0%, 극단=100%)
+  ratio=0.5→0%, 0.1→80%, 0.9→80% PASS
+- run_pm_agent.py: SI-1(IQ-4 중복) 제거, QI-1(BUY/SELL 신뢰도≥20%) 추가
+  mock CaseA(25%)=PASS, CaseB(10%)=FAIL PASS
+- 24/24 PASS 유지
+
+[REQ-030 — v1 파일 archive 이동 + SD 스캔 범위 한정]
+- agents/archive/ 신규, v1 파일 3개 이동 (analysis/evaluator/stock)
+- SD-10/11 스캔: glob("*.py") → PIPELINE_STAGES 13개 스크립트만
+- v1 파일 스캔 대상 제외 확인
+
+=== 세션 G 완료 항목 (REQ-034~036) ===
+
+[REQ-034 — pm_system_audit() 구현 (레벨 9)]
+- SA-1: AST 분석으로 run_decision_agent.py CONTEMPORANEOUS 지수 직접 참조 탐지
+  실제 결과: L46:'KOSDAQ', L47:'NIKKEI225' → CRITICAL 2건 탐지
+- SA-2: PIPELINE_STAGES 전체 ≥200줄 함수 탐지 + pm_agent.py 총 라인
+  결과: run_ui_agent.py:generate_html_dashboard() 227줄 | pm_agent 2121줄
+- SA-3: pm_quality_checks() 중복 .get() 필드 탐지
+  결과: 접근 1개, 중복 없음 (SI-1 제거 후 INFO)
+- SA-4: _derive_fix_scripts() SD→script 매핑 추출
+  결과: 6개 매핑 (SD-6→decision, SD-1→analysis+evaluator 등)
+- SA-5: fix_stages 항목 PIPELINE_STAGES 미등록 탐지
+  결과: 10개 항목 모두 등록됨 (INFO)
+
+[REQ-035 — _register_audit_findings() 자동 등록 (레벨 8)]
+- CRITICAL → 즉시 등록 + Telegram 알림 (SA-1 신규 시 REQ-SA1 등록 + TG 확인)
+- SA-1 dedup: REQ-FUTURE-031 (CONTEMPORANEOUS 키워드) 발견 → 신규 등록 생략 PASS
+- SA-2(MEDIUM) → REQ-SA2 backlog 자동 등록 확인
+- _last_audit_findings 모듈 캐시 → 메인 파이프라인 TG 전송용
+
+[REQ-036 — pm_self_diagnosis() SA 통합 (레벨 7)]
+- SA CRITICAL → issues 목록 추가 → pm_self_diagnosis() False 반환 확인 PASS
+- 메인 파이프라인 3단계-B: SA 결과 Telegram 전송 (CRITICAL n건/전체 요약)
+- 동적 테스트: clear=False, issues=['SA-1 CONTEMPORANEOUS 역입력...'] PASS
 
 === 현재 상태 ===
-pm_quality_checks: 23/24 PASS (QG-1 = Google Sheets 자격증명 없음, 영구 FAIL)
-pm_self_diagnosis: SD-1~20 구현 완료
+pm_quality_checks: 24/24 PASS (QG-1 SKIP 포함)
+pm_self_diagnosis: SD-1~20 + SA-1~SA-5 구현 완료
+  ※ SA-1 CRITICAL 활성 (REQ-FUTURE-031: CONTEMPORANEOUS 역입력 미제거)
+SA audit: SA-1=CRITICAL, SA-2=MEDIUM, SA-3~SA-5=INFO
 Validation: 29/30 PASS (R2: 효성화학 거래정지, 정상)
-Signal: 43.4 (neutral/HOLD)
+Signal: 40.0 (neutral/SELL/AVOID for SP500, HOLD for KOSPI)
 Valid Ranking: VIX(#1), HY_SPREAD(#2), WTI(#3), DXY(#4), INDIVIDUAL_NET(#5)
-GitHub Actions: conclusion=success (REQ-008)
-pm_baseline: schema_version=2, known_fail_checks=[QG-1, ANTHROPIC_API_KEY]
+GitHub Actions: conclusion=success
+pm_baseline: schema_version=2, known_fail_checks=[]
+PIPELINE_STAGES: 13단계
+
+=== 세션 G-2 완료 항목 (Stop Hook) ===
+
+[Stop Hook — 자가 검증 강제 실행 (레벨 8)]
+- .claude/hooks/stop_hook.py 신규 생성
+- 체크1 Evidence: N/N PASS / [TEST] / exit_code / 동적테스트 등 8패턴 탐지
+  → 3종 이상=PASS, 1~2종=WARN, 0종=FAIL
+- 체크2 정적분석전용: 레벨 7+ 작업 + '코드 읽기/grep으로' 있고 실행 로그 없으면 WARN
+- 체크3 CLAUDE.md: git diff HEAD로 미커밋 변경 확인, 없으면 WARN
+- 7/7 케이스 동적 테스트 PASS (PASS/FAIL/WARN/SKIP 모두 올바른 분기 확인)
+- .claude/settings.json Stop hook 등록 (python .claude/hooks/stop_hook.py)
+
+[Stop Hook — 전체 보고 Telegram 전송 (레벨 7)]
+- 작업 완료 보고 (last assistant message) + 자가 검증 결과 분리 전송
+- 4096자 초과 시 분할 전송: 4097자 → 2/2청크 PASS
+- _tg_send() 분할 로직: rfind('\n')으로 자연스러운 줄바꿈 지점 탐지
+- 완료 보고: plain text / 체크 결과: HTML parse_mode
+- stdin 엔드-투-엔드 시뮬레이션: exit_code=0, Telegram 1/1청크 PASS
+
+=== 시스템 불합리 분석 결과 처리 현황 ===
+완료: REQ-027(L6), REQ-028(L6), REQ-029(L7), REQ-030(L5), REQ-034(L9), REQ-035(L8), REQ-036(L7)
+      Stop Hook 자가검증(L8), Stop Hook TG 보고(L7)
+=== 세션 G-3 완료 항목 (stop_hook.py 자가 진단 + TQ 개선) ===
+
+[pm_system_audit() SA-6 확장]
+- SA-6 신규: stop_hook.py TQ-1~TQ-5 품질 검사
+  TQ-1: type=text 블록 필터 여부 / TQ-2: 섹션1~4 추출 / TQ-3: Markdown→HTML
+  TQ-4: _tg_send 분리 전송 수 / TQ-5: 터미널↔TG 동일성 검증
+- SA-6 수정 전: HIGH (5개 이슈 탐지)
+- SA-6 수정 후: INFO (TQ-1~TQ-5 모두 통과)
+
+[stop_hook.py v2 개선 (TQ-1~TQ-5 해결)]
+- TQ-1: _extract_text_only() — type="text" 블록만 추출, tool_use/tool_result 제외
+- TQ-2: _find_completion_section() — 섹션 1~4 시작점 탐지
+- TQ-3: _md_to_tg_html() — ### header/**bold**/`code`/테이블 구분선 HTML 변환
+- TQ-4: _tg_send() 1회 단일 통합 메시지 전송 (기존 2회 분리 → 1회)
+- TQ-5: _sync_verify() — 터미널↔TG 키워드 동일성 확인 (SYNC: YES)
+- stdin UTF-8 명시 읽기 (Windows cp949 방지)
+- TG surrogate 문자 오류 방지 (encode errors=replace)
+- 동적 테스트: TQ-1~TQ-5 모두 PASS, Telegram 1/1청크 성공
+
+[터미널↔Telegram 동일성 Evidence]
+TG=790자(HTML), terminal=672자, 키워드 동일: YES
+키워드: PASS×6, SKIP×3, WARN×1 (양측 일치 확인)
+
+다음 세션 최우선:
+- REQ-FUTURE-031(L9): Decision Agent KOSPI 독립 시그널 + CONTEMPORANEOUS 역입력 제거
+  → SA-1이 매 파이프라인 실행 시 자동 탐지/보고 중
+
+=== 세션 G-4 완료 항목 (stop_hook.py check_static_only 버그 수정) ===
+
+[check_static_only 버그 3개 탐지 및 수정]
+- 버그 탐지 방법: test_checks.py 12케이스 동적 테스트 (수정 전 8/11 PASS)
+- B2: 레벨8 + 정적분석 표현 있음 → PASS 오반환 (expect WARN)
+  원인: 정적분석 패턴 `코드\s*읽기`가 "코드를 읽어보니"에 미매치
+        → has_static=False, has_exec=False → 마지막 브랜치 PASS
+- C2: 레벨8 + 아무것도없음 → PASS 오반환 (expect WARN)
+  원인: 동일 — 마지막 브랜치 `return "PASS", "정적 분석 전용 패턴 없음"`
+- E2: 레벨이 이전 메시지에만 있고 last_user에 없음 → SKIP
+  원인: last_user만 스캔, 이전 레벨 컨텍스트 미확인
+
+[수정 내용]
+- check_static_only 마지막 브랜치: PASS → WARN "실행 Evidence 미확인"
+- _last_messages() 시그니처 확장: (last_user, last_asst, recent_level_ctx) 반환
+  - recent_level_ctx: 최근 10개 user 메시지 역탐색, 레벨 7+ 언급 첫 메시지
+- check_static_only(): recent_level_ctx 파라미터 추가 (기본값 "")
+  - combined = recent_level_ctx + last_user + last_asst 로 레벨 탐지
+- main(): _last_messages 3-tuple 언패킹 + check_static_only(recent_lvl_ctx 전달)
+
+[검증 Evidence]
+- 동적 테스트: 12/12 PASS (수정 후)
+- E2E 테스트: exit_code=0, Telegram 1/1청크 성공, SYNC: YES
+- pm_quality_checks: 24/24 PASS 유지
+- SA audit: SA-1=CRITICAL, SA-2=MEDIUM, SA-3~SA-6=INFO (변경 없음, 정상)
+- REQ-SA2 pending_requests.json 등록 확인: id="REQ-SA2", status="backlog"
+- Before/After Telegram 전송 완료 (972자)
+
+다음 세션 최우선:
+- REQ-FUTURE-031(L9): Decision Agent KOSPI 독립 시그널 + CONTEMPORANEOUS 역입력 제거
+  → SA-1이 매 파이프라인 실행 시 자동 탐지/보고 중
+
+=== 세션 H 완료 항목 (SA-7 구현 + KOSPI Top5 수정) ===
+
+[SA-7 — 데이터 파이프라인 산출물 품질 검증 (레벨 8)]
+- pm_system_audit()에 SA-7 추가 (SA-7a/b/c 3개 서브 체크)
+  SA-7a: KOSPI/SP500 기여 Top5 시총 0원 종목 탐지 → HIGH
+  SA-7b: 기여 Top5 마이너스 수익률 종목 탐지 → HIGH
+  SA-7c: FDR 시총 Top3 vs 기여 Top5 비교, 30x 초과 부재 시 CRITICAL
+- BEFORE 탐지: SA-7c CRITICAL — 삼성전자(52x), SK하이닉스(43x) 기여 Top5 부재
+
+[KOSPI 기여 Top5 수정 (레벨 9)]
+- 근본 원인: 이전 stock agent 실행 시 기여 점수 집계 누락 (데이터 수집은 성공)
+- 삼성전자: ret=+438.5%, corr=0.888, mc_start=243B USD, score=0.9860
+- SK하이닉스: ret=+867.2%, corr=0.853, mc_start=112B USD, score=0.5196
+  → SK하이닉스 +867.2% > 500% 극단 수익률, warn_reason 추가
+
+BEFORE KOSPI Top5: 효성중공업(0.0393), HD현대일렉트릭(0.0191), DB하이텍(0.0187)...
+AFTER KOSPI Top5:  삼성전자(0.9860), SK하이닉스(0.5196), 효성중공업(0.0393)...
+
+[검증 Evidence]
+- SA-7 BEFORE: CRITICAL (삼성/SK하이닉스 52x/43x)
+- SA-7 AFTER: INFO (SA-7a/b/c 모두 통과)
+- pm_quality_checks: 24/24 PASS 유지 (SA-7 warn_reason 포함)
+- 완료 조건 전항목 PASS
+  ✅ Top1=삼성전자 (1310B USD)
+  ✅ 시총 0원 없음
+  ✅ 마이너스 수익률 없음
+  ✅ Telegram Before/After 수신 확인 (1161자)
+- CLAUDE.md 재발 방지 패턴 추가 (SA-7c)
+
+=== 현재 상태 (세션 H) ===
+pm_quality_checks: 24/24 PASS
+SA audit: SA-1=CRITICAL(미해결), SA-2=MEDIUM, SA-3~SA-7=INFO
+KOSPI Top1: 삼성전자 (score=0.9860)
+KOSPI Top2: SK하이닉스 (score=0.5196, warn_reason 포함)
+
+다음 세션 최우선:
+- REQ-FUTURE-031(L9): Decision Agent KOSPI 독립 시그널 + CONTEMPORANEOUS 역입력 제거
+  → SA-1이 매 파이프라인 실행 시 자동 탐지/보고 중
+
+=== 세션 I 완료 항목 (stop_hook check_evidence C1-I 버그 수정) ===
+
+[C1-I 버그 탐지 및 수정 (레벨 8)]
+- 발견: test_hooks_full.py 동적 테스트에서 26케이스 중 24/26 PASS
+  - C1-I: check_evidence("   \n  ") → FAIL (expect SKIP)
+    원인: `if not last_asst:` — 공백/개행만인 문자열은 Python truthy
+    수정: `if not last_asst.strip():` (L203 .claude/hooks/stop_hook.py)
+  - C1-F: 테스트 기대값 오류 (WARN→FAIL 정정, 코드 자체는 정상)
+    `[TEST] 케이스 확인 중` → 패턴 `\[TEST\].*PASS` 불매칭 → FAIL 정상
+
+[검증 Evidence]
+- 동적 테스트 AFTER: 26/26 PASS ✅
+  check_evidence: 12/12 PASS
+  check_static_only: 12/12 PASS
+  check_claude_md: 1/1 PASS
+  _last_messages 3-tuple: 1/1 PASS
+- pm_quality_checks: 24/24 PASS 유지
+- Telegram Before/After 전송 완료 (status=200)
+
+삼성전자/SK하이닉스 근본원인 최종 확인:
+- stock_results.json 중간 산출물에 두 종목 부재 (0건)
+- FDR Marcap=0 가설 수치 확인: 삼성 score 0.0389 < 효성중공업 0.0393
+  → FDR 네트워크/데이터 이슈로 Marcap 미집계 = 근본원인 (HIGH 신뢰도)
+- final_results.json 수정 후: Top5 삼성전자·SK하이닉스 포함 ✅
+
+=== 현재 상태 (세션 I) ===
+pm_quality_checks: 24/24 PASS
+stop_hook.py: 3개 체크 26/26 PASS (check_evidence/static_only/claude_md + 3-tuple)
+SA audit: SA-1=CRITICAL(미해결), SA-2=MEDIUM, SA-3~SA-7=INFO
+
+다음 세션 최우선:
+- REQ-FUTURE-031(L9): Decision Agent KOSPI 독립 시그널 + CONTEMPORANEOUS 역입력 제거
+
+=== 세션 J 완료 항목 (레벨 10 로드맵 Phase 0+1) ===
+
+[ROADMAP.md — 레벨 10 재구축 로드맵 저장]
+- Phase 0~5 전체 명세 + 게이트 조건 + 분류표 ROADMAP.md에 저장
+- PHASE-0~5 pending_requests.json 등록 완료
+
+[Phase 0: agents/ 폴더 구조 정리 (레벨 8)]
+- agents/standby/ 신규 생성
+- v1 파일 archive 이동: run_data_agent.py (v1)
+- standby 이동: run_sheets_agent.py, run_ctd_integration_agent.py
+- agents/*.md 6개 삭제 (중복 명세 제거 — .claude/agents/ 단일 소스화)
+- CLAUDE.md: "에이전트 명세 = .claude/agents/ 유일 진실 소스" 명시
+- SD-10/11 스캔: PIPELINE_STAGES 기준 active만 (standby 자동 제외 확인)
+
+파일 분류 결과 (27개 .py):
+  active (PIPELINE_STAGES 13): run_data/analysis/stock/evaluator/news/sector
+    validation/decision/ui/narrative/audit_agent_v2, refresh_data, generate_report_v2
+  active (infra 3): run_pm_agent.py, stat_utils.py, utf8_setup.py
+  active (UX 서브 3): run_ux_indicators/signal/stocks_agent.py
+  active (조건부 2): run_telegram_agent.py, run_notion_agent.py
+  standby (2): run_sheets_agent.py, run_ctd_integration_agent.py
+  archive v1 (4): run_data/analysis/evaluator/stock_agent.py (v1)
+
+[게이트 0 Evidence]
+- 루트 v1/v2 중복 0건 ✅
+- 27개 분류 완료 ✅
+- agents/*.md 0개 ✅
+- pm_quality_checks 24/24 PASS ✅
+- Telegram 전송 완료 ✅
+
+[Phase 1: 회귀 테스트 스위트 구축 (레벨 10)]
+- agents/tests/test_regression.py 신규 생성 (19개 케이스)
+- run_tests.bat 신규 생성
+- pytest 19/19 PASS, 실행 시간 1.32초
+
+포함 케이스:
+  T01 check_static_only E2 (레벨 이전 대화)
+  T02 check_evidence C1-I (공백 전용)
+  T03 check_static_only B2/C2 (정적분석만→PASS)
+  T04 vacuously True 빈 리스트
+  T05 QG-1 optional 오탐
+  T06 HOLD confidence 역설
+  T07 SD-1/SD-10 서브스트링 매칭
+  T08 삼성전자 Marcap=0 기여점수
+  T09 효성화학 std==0 safe_pearsonr
+  T10 tool_use 블록 text 포함 (TQ-1)
+  T11 CONTEMPORANEOUS decision_agent 참조 추적
+  T12 극단수익률 warn_reason 누락
+  T13 NQ-2 예측성 기사 필터
+  T14 SD-19 fix_request 동적 도출
+  T15 PM-5 notion_agent 존재
+  T16 check_evidence PASS/WARN/FAIL 기준
+  T17 _last_messages 3-tuple 구조
+  T18 EXTREME/SPINOFF 상수 존재
+  T19 SA-5/SA-6 vacuous PASS 방지
+
+[게이트 1 Evidence]
+- pytest 19/19 PASS ✅
+- 실행 시간 1.32초 (< 3분) ✅
+- 테스트 개수 19개 (> 15개) ✅
+- Telegram 전송 완료 ✅
+
+=== 현재 상태 (세션 J) ===
+pm_quality_checks: 24/24 PASS
+ROADMAP 진행: Phase 0 ✅ → Phase 1 ✅ → Phase 2 (다음 세션)
+회귀 테스트: 19/19 PASS (agents/tests/test_regression.py)
+다음 우선: PHASE-2 (stop_hook --selftest 실전 환경 검증 체계)
 
 === 미완료 (backlog) ===
 - REQ-003: Google Sheets 자동화 (GOOGLE_SA_JSON 필요)
 - REQ-004: Notion 연동 (NOTION_TOKEN 필요)
 - REQ-FUTURE-001: 코스피100→코스피200 유니버스 확장
-- REQ-015 F단계: SD-12 탐지 zero 확인 (5개 에이전트 exit(1) 확인 후 SD-12 재실행)
+- REQ-015 F단계: SD-12 탐지 zero 확인
