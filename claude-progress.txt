@@ -374,6 +374,29 @@ composite_score: 25.3/SP500, 37.9/KOSPI 독립 (risk-off)
 다음 우선: PHASE-3 (run_pm_agent.py 책임 분리 [레벨 9])
           Gate 2 실전 Telegram 최종 확인 (다음 세션 종료 시)
 
+=== 세션 M 완료 항목 (Gate 2 실전 확인 + REQ-031 최종 검증) ===
+
+[Gate 2 실전 확인 — Level 10]
+- pm_system_audit() 실행: SA-1=INFO (CONTEMPORANEOUS 역입력 없음) ✅
+- stop_hook.py --selftest: Check1=PASS, Check2=PASS (not SKIP), task_hint non-empty ✅
+- 회귀 테스트 21/21 PASS ✅
+- pm_quality_checks 23/24 PASS (1 SKIP = Google Sheets 선택기능) ✅
+- Telegram Evidence 전송 완료 (message_id: 189) ✅
+- Gate 2 PASSED — Check2 SKIP 버그(FIX-D) 실전 확인 완료
+
+[REQ-031 최종 검증]
+- SA-1=INFO: _CONTEMPORANEOUS 정의 라인 skip, 동행 지수 직접 참조 없음 ✅
+- compute_kospi_score() 정상 작동: CONTEMPORANEOUS 배제, kospi_signed_r/granger 활용 ✅
+- T11/T21 회귀 테스트 PASS ✅
+
+=== 현재 상태 (세션 M) ===
+pm_quality_checks: 23/24 PASS (1 SKIP)
+ROADMAP 진행: Phase 0 ✅ → Phase 1 ✅ → Phase 2 ✅ → Gate 2 ✅ → Phase 3 (다음 세션)
+회귀 테스트: 21/21 PASS (agents/tests/test_regression.py)
+SA audit: SA-1=INFO, SA-2=MEDIUM, SA-3~SA-7=INFO
+Gate 2: PASSED (FIX-D 실전 확인 완료)
+다음 우선: PHASE-3 (run_pm_agent.py 책임 분리 [레벨 9])
+
 === 미완료 (backlog) ===
 - REQ-003: Google Sheets 자동화 (GOOGLE_SA_JSON 필요)
 - REQ-004: Notion 연동 (NOTION_TOKEN 필요)

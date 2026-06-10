@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-11T07:25:00",
+  "updated": "2026-06-11T08:00:00",
   "completed": [
     {
       "id": "REQ-001",
@@ -73,9 +73,10 @@
       "id": "PHASE-2",
       "status": "done",
       "request": "실전 환경 검증 체계 [레벨 10]",
-      "details": "FIX-A/B/C/D: last_user .strip()기준, 빈메시지카운트제외, 영어Level패턴, JSONL형식지원. --selftest exit_code=0. 회귀테스트 21/21 PASS. TG 전송 완료.",
+      "details": "FIX-A/B/C/D: last_user .strip()기준, 빈메시지카운트제외, 영어Level패턴, JSONL형식지원. --selftest exit_code=0. 회귀테스트 21/21 PASS. Gate 2 실전 확인: selftest Check2=PASS+pm_system_audit SA-1=INFO+TG message_id=189 전송완료. Gate 2 PASSED.",
       "created_at": "2026-06-11T02:24:35",
       "completed_at": "2026-06-11T07:25:00",
+      "gate2_confirmed_at": "2026-06-11T08:00:00",
       "priority": "high"
     },
     {
