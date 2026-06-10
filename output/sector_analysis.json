@@ -4,81 +4,81 @@
       "ACN": {
         "name": "Accenture",
         "market": "US",
-        "return_1y": -45.11,
-        "return_1m": -3.2,
-        "last_price": 174.43,
+        "return_1y": -46.35,
+        "return_1m": -1.07,
+        "last_price": 170.5,
         "source": "yfinance"
       },
       "ADBE": {
         "name": "Adobe Inc.",
         "market": "US",
-        "return_1y": -38.12,
-        "return_1m": -4.49,
-        "last_price": 244.99,
+        "return_1y": -41.06,
+        "return_1m": -5.19,
+        "last_price": 233.38,
         "source": "yfinance"
       },
       "AMD": {
         "name": "Advanced Micro Devices",
         "market": "US",
-        "return_1y": 353.51,
-        "return_1m": 20.04,
-        "last_price": 490.33,
+        "return_1y": 318.42,
+        "return_1m": -1.39,
+        "last_price": 452.4,
         "source": "yfinance"
       },
       "AKAM": {
         "name": "Akamai Technologies",
         "market": "US",
-        "return_1y": 80.06,
-        "return_1m": 21.58,
-        "last_price": 141.87,
+        "return_1y": 64.96,
+        "return_1m": -15.06,
+        "last_price": 129.97,
         "source": "yfinance"
       },
       "APH": {
         "name": "Amphenol",
         "market": "US",
-        "return_1y": 71.22,
-        "return_1m": 5.11,
-        "last_price": 143.6,
+        "return_1y": 77.93,
+        "return_1m": 21.84,
+        "last_price": 149.22,
         "source": "yfinance"
       },
       "ADI": {
         "name": "Analog Devices",
         "market": "US",
-        "return_1y": 84.26,
-        "return_1m": -0.86,
-        "last_price": 403.89,
+        "return_1y": 79.14,
+        "return_1m": -6.86,
+        "last_price": 392.67,
         "source": "yfinance"
       },
       "AAPL": {
         "name": "Apple Inc.",
         "market": "US",
-        "return_1y": 43.62,
-        "return_1m": 5.0,
-        "last_price": 301.54,
+        "return_1y": 38.88,
+        "return_1m": -0.38,
+        "last_price": 291.58,
         "source": "yfinance"
       },
       "000660.KS": {
         "name": "SK하이닉스",
         "market": "KR",
-        "return_1y": 880.0,
-        "return_1m": 19.36,
-        "last_price": 1911000.0,
+        "return_1y": 950.26,
+        "return_1m": 21.47,
+        "last_price": 2048000.0,
         "source": "FDR"
       },
       "005930.KS": {
         "name": "삼성전자",
         "market": "KR",
-        "return_1y": 413.02,
-        "return_1m": 11.09,
-        "last_price": 295500.0,
+        "return_1y": 425.17,
+        "return_1m": 12.66,
+        "last_price": 302500.0,
         "source": "FDR"
       },
       "042700.KS": {
         "name": "한미반도체",
         "market": "KR",
-        "return_1y": 205.42,
-        "return_1m": -35.74,
-        "last_price": 253500.0,
+        "return_1y": 225.3,
+        "return_1m": -30.77,
+        "last_price": 270000.0,
         "source": "FDR"
       }
     },
@@ -91,81 +91,81 @@
       "ACN": {
         "name": "Accenture",
         "market": "US",
-        "return_1y": -45.11,
-        "return_1m": -3.2,
-        "last_price": 174.43,
+        "return_1y": -46.35,
+        "return_1m": -1.07,
+        "last_price": 170.5,
         "source": "yfinance"
       },
       "ADBE": {
         "name": "Adobe Inc.",
         "market": "US",
-        "return_1y": -38.12,
-        "return_1m": -4.49,
-        "last_price": 244.99,
+        "return_1y": -41.06,
+        "return_1m": -5.19,
+        "last_price": 233.38,
         "source": "yfinance"
       },
       "AMD": {
         "name": "Advanced Micro Devices",
         "market": "US",
-        "return_1y": 353.51,
-        "return_1m": 20.04,
-        "last_price": 490.33,
+        "return_1y": 318.42,
+        "return_1m": -1.39,
+        "last_price": 452.4,
         "source": "yfinance"
       },
       "AKAM": {
         "name": "Akamai Technologies",
         "market": "US",
-        "return_1y": 80.06,
-        "return_1m": 21.58,
-        "last_price": 141.87,
+        "return_1y": 64.96,
+        "return_1m": -15.06,
+        "last_price": 129.97,
         "source": "yfinance"
       },
       "GOOGL": {
         "name": "Alphabet Inc. (Class A)",
         "market": "US",
-        "return_1y": 130.07,
-        "return_1m": -8.71,
-        "last_price": 363.31,
+        "return_1y": 125.82,
+        "return_1m": -8.25,
+        "last_price": 356.38,
         "source": "yfinance"
       },
       "GOOG": {
         "name": "Alphabet Inc. (Class C)",
         "market": "US",
-        "return_1y": 127.11,
-        "return_1m": -8.63,
-        "last_price": 361.17,
+        "return_1y": 122.31,
+        "return_1m": -8.59,
+        "last_price": 353.32,
         "source": "yfinance"
       },
       "APH": {
         "name": "Amphenol",
         "market": "US",
-        "return_1y": 71.22,
-        "return_1m": 5.11,
-        "last_price": 143.6,
+        "return_1y": 77.93,
+        "return_1m": 21.84,
+        "last_price": 149.22,
         "source": "yfinance"
       },
       "035720.KS": {
         "name": "카카오",
         "market": "KR",
-        "return_1y": 1.31,
-        "return_1m": -16.63,
-        "last_price": 38600.0,
+        "return_1y": 0.13,
+        "return_1m": -17.07,
+        "last_price": 38150.0,
         "source": "FDR"
       },
       "035420.KS": {
         "name": "NAVER",
         "market": "KR",
-        "return_1y": 46.69,
-        "return_1m": 34.13,
-        "last_price": 279000.0,
+        "return_1y": 19.35,
+        "return_1m": 5.58,
+        "last_price": 227000.0,
         "source": "FDR"
       },
       "259960.KS": {
         "name": "크래프톤",
         "market": "KR",
-        "return_1y": -35.06,
-        "return_1m": -13.91,
-        "last_price": 244500.0,
+        "return_1y": -38.38,
+        "return_1m": -15.02,
+        "last_price": 232000.0,
         "source": "FDR"
       }
     },
@@ -178,81 +178,81 @@
       "AES": {
         "name": "AES Corporation",
         "market": "US",
-        "return_1y": 30.3,
-        "return_1m": 2.94,
-        "last_price": 14.71,
+        "return_1y": 29.59,
+        "return_1m": 1.95,
+        "last_price": 14.63,
         "source": "yfinance"
       },
       "APD": {
         "name": "Air Products",
         "market": "US",
-        "return_1y": 2.89,
-        "return_1m": -6.18,
-        "last_price": 276.77,
+        "return_1y": 2.79,
+        "return_1m": -9.19,
+        "last_price": 276.51,
         "source": "yfinance"
       },
       "LNT": {
         "name": "Alliant Energy",
         "market": "US",
-        "return_1y": 24.26,
-        "return_1m": 0.03,
-        "last_price": 71.71,
+        "return_1y": 26.49,
+        "return_1m": 0.73,
+        "last_price": 73.0,
         "source": "yfinance"
       },
       "AEE": {
         "name": "Ameren",
         "market": "US",
-        "return_1y": 15.54,
-        "return_1m": -1.49,
-        "last_price": 107.15,
+        "return_1y": 18.11,
+        "return_1m": -0.41,
+        "last_price": 108.77,
         "source": "yfinance"
       },
       "AEP": {
         "name": "American Electric Power",
         "market": "US",
-        "return_1y": 29.5,
-        "return_1m": -3.09,
-        "last_price": 126.77,
+        "return_1y": 31.3,
+        "return_1m": -1.66,
+        "last_price": 128.53,
         "source": "yfinance"
       },
       "AWK": {
         "name": "American Water Works",
         "market": "US",
-        "return_1y": -8.78,
-        "return_1m": -2.25,
-        "last_price": 122.49,
+        "return_1y": -5.82,
+        "return_1m": 1.08,
+        "last_price": 126.46,
         "source": "yfinance"
       },
       "APA": {
         "name": "APA Corporation",
         "market": "US",
-        "return_1y": 121.5,
-        "return_1m": 3.92,
-        "last_price": 37.66,
+        "return_1y": 123.5,
+        "return_1m": 3.54,
+        "last_price": 38.0,
         "source": "yfinance"
       },
       "015760.KS": {
         "name": "한국전력",
         "market": "KR",
-        "return_1y": 33.83,
-        "return_1m": -20.09,
-        "last_price": 36000.0,
+        "return_1y": 35.32,
+        "return_1m": -17.37,
+        "last_price": 36400.0,
         "source": "FDR"
       },
       "034020.KS": {
         "name": "두산에너빌리티",
         "market": "KR",
-        "return_1y": 197.92,
-        "return_1m": -32.44,
-        "last_price": 85800.0,
+        "return_1y": 216.32,
+        "return_1m": -29.71,
+        "last_price": 91100.0,
         "source": "FDR"
       },
       "010950.KS": {
         "name": "S-Oil",
         "market": "KR",
-        "return_1y": 107.06,
-        "return_1m": -11.07,
-        "last_price": 108500.0,
+        "return_1y": 111.45,
+        "return_1m": -5.14,
+        "last_price": 110800.0,
         "source": "FDR"
       }
     },
@@ -261,7 +261,7 @@
     "universe_src": "dynamic"
   },
   "_meta": {
-    "generated_at": "2026-06-09T07:35:34.371377",
+    "generated_at": "2026-06-11T06:41:34.344492",
     "dynamic_sectors": 3,
     "total_sectors": 3
   }

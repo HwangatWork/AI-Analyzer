@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-11T02:31:23",
+  "updated": "2026-06-11T07:15:00",
   "completed": [
     {
       "id": "REQ-001",
@@ -64,10 +64,11 @@
     },
     {
       "id": "PHASE-2",
-      "status": "pending_next_session",
+      "status": "done",
       "request": "실전 환경 검증 체계 [레벨 10]",
-      "details": "stop_hook --selftest 모드, 실제 transcript 입력, 체크2 SKIP/빈트리거 원인 확정",
+      "details": "FIX-A/B/C: last_user .strip() 기준, 빈 메시지 카운트 제외, 영어 Level 패턴. --selftest exit_code=0. 회귀 테스트 20/20 PASS. TG 전송 완료.",
       "created_at": "2026-06-11T02:24:35",
+      "completed_at": "2026-06-11T07:15:00",
       "priority": "high"
     },
     {

@@ -36,13 +36,20 @@ OUTPUT_DIR = BASE_DIR / "output"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent / "standby"))  # standby 에이전트 fallback
 from run_ux_signal_agent     import generate_signal_section
 from run_ux_stocks_agent     import generate_stocks_section
 from run_ux_indicators_agent import generate_indicators_section
 from run_decision_agent      import compute_decision, generate_decision_section
 from run_narrative_agent     import generate_narrative, generate_narrative_section
 from run_sector_agent        import generate_sector_section
-from run_sheets_agent        import upload_to_sheets, generate_sheets_section
+try:
+    from run_sheets_agent    import upload_to_sheets, generate_sheets_section
+except ImportError:
+    def upload_to_sheets() -> dict:
+        return {"status": "standby", "csv_files": [], "sheets_url": None, "looker_url": None, "guide": []}
+    def generate_sheets_section(sheets_result: dict) -> str:
+        return '<div class="section"><h2>Google Sheets</h2><p>GOOGLE_SA_JSON 미설정 — standby 상태</p></div>'
 
 
 def load_json(path: Path) -> dict:

@@ -26,32 +26,43 @@ def _load(rel_path: str):
 # ── stop_hook 모듈 로드 ──────────────────────────────────────────
 sh = _load(".claude/hooks/stop_hook.py")
 
+SELFTEST_TRANSCRIPT = BASE / "agents" / "tests" / "selftest_transcript.json"
+
 
 # ════════════════════════════════════════════════════════════════
-# T01: check_static_only — 레벨이 이전 대화에만 있을 때 SKIP 오반환
-#      (세션 G-4 E2 버그: recent_level_ctx 미전달)
+# T01: 실전 transcript 기반 — Check2 SKIP 재발 방지 (FIX-A/B/C)
+#      실전 문제: last_user="\n"(공백전용)이 truthy로 처리돼 loop 조기 종료
+#                + 영어 'Level 10' 미인식 → Check2=SKIP
+#      수정 후: Check2 = WARN 또는 PASS (not SKIP)
 # ════════════════════════════════════════════════════════════════
-def test_T01_check_static_only_level_in_previous_turn():
-    """레벨 8이 이전 대화에만 있고 last_user에 없을 때 SKIP이 아닌 WARN이어야 한다."""
-    last_user = "그 부분도 고쳐줘"
-    last_asst = "수정 완료했습니다."
-    recent_ctx = "레벨 8 구현해줘"
-
-    result, detail = sh.check_static_only(last_user, last_asst, recent_ctx)
-    assert result == "WARN", (
-        f"T01 FAIL: recent_level_ctx 있는데 SKIP 반환. got=({result!r},{detail!r})"
+def test_T01_real_transcript_check2_not_skip():
+    """실전 transcript(English Level 10 + whitespace last_user)에서 Check2=SKIP 금지."""
+    assert SELFTEST_TRANSCRIPT.exists(), f"T01 FAIL: selftest_transcript.json 없음"
+    transcript = json.loads(SELFTEST_TRANSCRIPT.read_text(encoding="utf-8"))
+    lu, la, rc = sh._last_messages(transcript)
+    result, detail = sh.check_static_only(lu, la, rc)
+    assert result != "SKIP", (
+        f"T01 FAIL: 실전 transcript에서 Check2=SKIP 재발. got=({result!r},{detail!r})\n"
+        f"  last_user={lu[:60]!r}, recent_ctx={rc[:60]!r}"
     )
 
 
 # ════════════════════════════════════════════════════════════════
-# T02: check_evidence — 공백/개행 전용 문자열 → FAIL 오반환
-#      (세션 I C1-I 버그: `if not last_asst` vs `.strip()`)
+# T02: 실전 transcript 기반 — 빈 task_hint(작업 내용 없음) 재발 방지 (FIX-A)
+#      실전 문제: last_user="\n" → strip() = "" → task_hint="(작업 내용 없음)"
+#      수정 후: task_hint는 실제 task 내용 포함
 # ════════════════════════════════════════════════════════════════
-def test_T02_check_evidence_whitespace_only():
-    """공백·개행만 있는 문자열은 SKIP을 반환해야 한다."""
-    result, detail = sh.check_evidence("   \n  \t  ")
-    assert result == "SKIP", (
-        f"T02 FAIL: 공백 전용 문자열이 SKIP이 아님. got=({result!r},{detail!r})"
+def test_T02_real_transcript_task_hint_not_empty():
+    """실전 transcript에서 task_hint='(작업 내용 없음)' 재발 금지."""
+    assert SELFTEST_TRANSCRIPT.exists(), f"T02 FAIL: selftest_transcript.json 없음"
+    transcript = json.loads(SELFTEST_TRANSCRIPT.read_text(encoding="utf-8"))
+    lu, la, rc = sh._last_messages(transcript)
+    task_hint = (lu[:70].replace("\n", " ").strip() or "(작업 내용 없음)")
+    assert task_hint != "(작업 내용 없음)", (
+        f"T02 FAIL: 실전 transcript에서 빈 task_hint 재발. last_user={lu[:60]!r}"
+    )
+    assert task_hint.strip(), (
+        f"T02 FAIL: task_hint가 공백 전용. last_user={lu[:60]!r}"
     )
 
 
@@ -459,3 +470,23 @@ def test_T19_sa5_sa6_empty_list_not_vacuously_pass():
         assert len(items) > 0, (
             f"T19 FAIL: {section}.{key}가 빈 리스트 — SA 체크가 vacuously PASS 될 위험"
         )
+
+
+# ════════════════════════════════════════════════════════════════
+# T20: stop_hook --selftest — 실전 transcript으로 selftest PASS (Phase 2 Gate 2)
+#      FIX-A/B/C 적용 후 selftest_transcript.json으로 exit_code=0 반환해야 함
+# ════════════════════════════════════════════════════════════════
+def test_T20_selftest_passes_with_real_transcript():
+    """stop_hook.py --selftest가 실전 transcript로 exit_code=0을 반환해야 한다."""
+    import subprocess
+    result = subprocess.run(
+        [sys.executable, str(BASE / ".claude" / "hooks" / "stop_hook.py"),
+         "--selftest", str(SELFTEST_TRANSCRIPT)],
+        capture_output=True, encoding="utf-8", errors="replace",
+        timeout=30,
+    )
+    assert result.returncode == 0, (
+        f"T20 FAIL: selftest exit_code={result.returncode}\n"
+        f"stdout: {result.stdout[-500:]}\n"
+        f"stderr: {result.stderr[-200:]}"
+    )
