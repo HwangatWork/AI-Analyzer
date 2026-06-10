@@ -342,12 +342,37 @@ ROADMAP 진행: Phase 0 ✅ → Phase 1 ✅ → Phase 2 (다음 세션)
 - 회귀 테스트: 20/20 PASS (1.59초)
 - TG 전송 완료
 
-=== 현재 상태 (세션 K) ===
+=== 세션 L 완료 항목 (Gate 2 FIX-D + REQ-031) ===
+
+[Task 1 — Gate 2 FIX-D (레벨 9)]
+- 근본 원인: 실제 Claude Code hook stdin transcript가 JSONL 형식
+  {type, message: {role, content}}인데 msg.get("role","") 최상위 탐색 → "" 반환
+  → last_user=last_asst="" → Check2=SKIP, task_hint="(작업 내용 없음)"
+- FIX-D: _normalize_msg() 헬퍼 추가 — JSONL형식과 clean형식 모두 지원
+- selftest_transcript.json → JSONL 형식으로 업데이트
+- 실제 Phase1 JSONL transcript로 검증: Check2=PASS, task_hint 정상
+- selftest exit_code=0, 21/21 PASS 1.24s
+- Gate 2 selftest 조건 만족. 다음 세션 종료 시 실전 Telegram 최종 확인
+
+[Task 2 — REQ-031 KOSPI 독립 시그널 (레벨 9)]
+- compute_kospi_score(ind_sigs, ranking) 신규 구현
+  sign(kospi_signed_r) * z / 2.0 + kospi_granger_sig 1.5x 가중
+  CONTEMPORANEOUS 지수(_CONTEMPORANEOUS 집합) 배제
+- KOSDAQ/NIKKEI225 bull_boost 완전 제거 (kospi_bull_boost/kosdaq_sig/nikkei_sig 삭제)
+- SA-1 check 수정: _CONTEMPORANEOUS 정의 라인 skip → false positive 방지
+- SA-1: CRITICAL → INFO
+- pm_quality_checks: 24/24 PASS
+- T11 업데이트 (FIXED), T21 추가 (compute_kospi_score 검증)
+- 21/21 PASS 1.24s, TG 전송 완료
+
+=== 현재 상태 (세션 L) ===
 pm_quality_checks: 24/24 PASS
 ROADMAP 진행: Phase 0 ✅ → Phase 1 ✅ → Phase 2 ✅ → Phase 3 (다음 세션)
-회귀 테스트: 20/20 PASS (agents/tests/test_regression.py)
-composite_score: 40.0 (neutral/SELL/AVOID for SP500, HOLD for KOSPI)
+회귀 테스트: 21/21 PASS (agents/tests/test_regression.py)
+SA audit: SA-1=INFO, SA-2=MEDIUM, SA-3~SA-7=INFO
+composite_score: 25.3/SP500, 37.9/KOSPI 독립 (risk-off)
 다음 우선: PHASE-3 (run_pm_agent.py 책임 분리 [레벨 9])
+          Gate 2 실전 Telegram 최종 확인 (다음 세션 종료 시)
 
 === 미완료 (backlog) ===
 - REQ-003: Google Sheets 자동화 (GOOGLE_SA_JSON 필요)
