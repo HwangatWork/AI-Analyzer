@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Claude Code Stop Hook  v3 (2026-06-11)
+Claude Code Stop Hook  v4 (2026-06-11)
   1. 자가 검증 3개 체크 (Evidence / 정적분석전용 / CLAUDE.md 업데이트)
   2. 작업 완료 전체 보고 + 체크 결과 Telegram 전송 (4096자 분할)
   3. --selftest 모드: 실제 transcript 파일로 3개 체크 검증
@@ -12,14 +12,21 @@ Claude Code Stop Hook  v3 (2026-06-11)
   TQ-4: 단일 통합 메시지 전송 (완료 보고 + 체크 결과)
   TQ-5: 터미널 출력 ↔ Telegram 내용 동일성 보장 (HTML 태그 제거 후 비교)
 
-수정 (2026-06-11 — 실전 트리거 버그 수정):
-  FIX-A: _last_messages — 공백/개행 전용 user 메시지를 truthy로 처리해 루프 조기 종료하던 버그
-          (last_user="\n"이 `if last_user and last_asst` 조건을 True로 통과)
+수정 이력:
+  FIX-A (2026-06-11): _last_messages — 공백/개행 전용 user 메시지 truthy 버그
+          (last_user="\\n" → if last_user and last_asst 조기 종료)
           → .strip() 기준으로 판단 변경
-  FIX-B: recent_level_ctx 스캔 — 빈 메시지를 카운트에 포함해 실제 task 메시지를 찾지 못하던 버그
+  FIX-B (2026-06-11): recent_level_ctx 스캔 — 빈 메시지 카운트 포함 버그
           → 빈 메시지 건너뜀 + 한도 20개로 상향
-  FIX-C: check_static_only — 한국어 '레벨'만 인식, 영어 'Level 10'에 SKIP 오반환
+  FIX-C (2026-06-11): check_static_only — 한국어 '레벨'만 인식, 영어 'Level 10' SKIP 오반환
           → '(?:레벨|Level)' 패턴으로 수정
+  FIX-D (2026-06-11): _last_messages — 실제 Claude Code JSONL 형식 ({type, message: {role,
+          content}}) 미지원 버그. Claude Code가 hook stdin에 보내는 transcript는 각 항목이
+          {"type":"user","message":{"role":"user","content":"..."}} 형식이지만
+          코드가 msg.get("role","")로 최상위에서 role을 찾아 항상 ""를 반환.
+          → _normalize_msg() 헬퍼로 두 가지 형식 모두 지원:
+             (a) 클린 형식: {role, content} 직접 (selftest/합성 트랜스크립트)
+             (b) JSONL 형식: {type, message: {role, content}, ...} (실제 Claude Code)
 
 입력: JSON via stdin  {"session_id": str, "stop_hook_active": bool, "transcript": [...]}
 """
@@ -101,7 +108,7 @@ def _tg_send(token: str, chat_id: str, text: str,
 # ── TQ-1: text 블록 전용 추출 (tool_use/tool_result 제외) ────────────────────
 
 def _extract_text_only(content) -> str:
-    """Content 배열에서 type='text' 블록만 추출 — tool_use/tool_result 제외."""
+    """Content 배열에서 type='text' 블록만 추출 — tool_use/tool_result/thinking 제외."""
     if isinstance(content, str):
         return content
     if isinstance(content, list):
@@ -115,9 +122,29 @@ def _extract_text_only(content) -> str:
             elif block_type == "":  # 구버전 포맷 (type 필드 없음)
                 if "text" in b:
                     parts.append(b["text"])
-            # tool_use / tool_result 는 건너뜀
+            # tool_use / tool_result / thinking 는 건너뜀
         return "\n".join(p for p in parts if p.strip())
     return str(content)
+
+# ── FIX-D: JSONL / 클린 양식 정규화 ─────────────────────────────────────────
+
+def _normalize_msg(msg: dict) -> tuple[str, str]:
+    """transcript 항목에서 (role, content) 추출.
+
+    FIX-D (2026-06-11): 실제 Claude Code가 hook stdin에 전달하는 transcript는
+    각 항목이 JSONL 형식 {type, message: {role, content}, ...} 이다.
+    기존 코드는 최상위 msg.get("role","") 로 role을 찾아 항상 ""를 반환했다.
+
+    지원 형식:
+      (a) JSONL 형식 (실제 Claude Code 트랜스크립트):
+          {"type": "user", "message": {"role": "user", "content": "..."}, ...}
+      (b) 클린 형식 (selftest/합성 트랜스크립트):
+          {"role": "user", "content": "..."}
+    """
+    if isinstance(msg.get("message"), dict):
+        inner = msg["message"]
+        return inner.get("role", ""), inner.get("content", "")
+    return msg.get("role", ""), msg.get("content", "")
 
 def _last_messages(transcript: list) -> tuple[str, str, str]:
     """(last_user_text, last_assistant_text, recent_level_ctx) 반환.
@@ -125,17 +152,15 @@ def _last_messages(transcript: list) -> tuple[str, str, str]:
 
     FIX-A (2026-06-11): 공백/개행 전용 user 메시지를 truthy로 처리하지 않음.
       .strip() 기준으로 "실질 내용 있음"을 판단한다.
-      수정 전: last_user="\\n"이 if last_user and last_asst 를 True로 통과 → 조기 종료
-      수정 후: last_user.strip() 기준 → 빈 문자열 처럼 취급, 계속 탐색
     FIX-B (2026-06-11): recent_level_ctx 스캔에서 빈 메시지를 카운트 제외.
-      수정 전: tool_result 전용 user 메시지(text="")도 카운트 → 10개 한도 초과 후 조기 종료
-      수정 후: text.strip()=='' 인 메시지는 건너뜀(카운트 없음) + 한도 20개로 상향
+      빈 메시지 건너뜀 + 한도 20개로 상향.
+    FIX-C (2026-06-11): 영어 'Level' 및 한국어 '레벨' 모두 인식.
+    FIX-D (2026-06-11): JSONL 형식 지원 — _normalize_msg() 경유.
     """
     last_user = last_asst = recent_level_ctx = ""
     for msg in reversed(transcript):
-        role    = msg.get("role", "")
-        content = msg.get("content", "")
-        text    = _extract_text_only(content) if isinstance(content, list) else str(content)
+        role, content = _normalize_msg(msg)
+        text = _extract_text_only(content) if isinstance(content, list) else str(content)
         if role == "assistant" and not last_asst.strip():
             last_asst = text
         elif role == "user" and not last_user.strip():
@@ -147,10 +172,11 @@ def _last_messages(transcript: list) -> tuple[str, str, str]:
     # FIX-C: 영어 'Level' 및 한국어 '레벨' 모두 인식
     scanned = 0
     for msg in reversed(transcript):
-        if msg.get("role") != "user":
+        role, _ = _normalize_msg(msg)
+        if role != "user":
             continue
-        content = msg.get("content", "")
-        text    = _extract_text_only(content) if isinstance(content, list) else str(content)
+        _, content = _normalize_msg(msg)
+        text = _extract_text_only(content) if isinstance(content, list) else str(content)
         if not text.strip():
             continue  # 빈 메시지는 카운트 없이 건너뜀
         if re.search(r"(?:레벨|Level)\s*([789]|10)", text, re.I):
@@ -246,7 +272,6 @@ _EXECUTION_RE = [
 def check_static_only(last_user: str, last_asst: str,
                       recent_level_ctx: str = "") -> tuple[str, str]:
     # FIX-C (2026-06-11): 영어 'Level' 및 한국어 '레벨' 모두 인식
-    # 수정 전: r"레벨\s*([789]|10)" — 영어 'Level 10' 미인식 → SKIP 오반환
     combined = (recent_level_ctx or "") + "\n" + last_user + "\n" + last_asst
     m = re.search(r"(?:레벨|Level)\s*([789]|10)", combined, re.I)
     if not m:
@@ -296,7 +321,6 @@ def check_claude_md() -> tuple[str, str]:
 
 def _sync_verify(html_msg: str, terminal_text: str) -> tuple[bool, str]:
     """HTML 메시지와 터미널 plain text의 핵심 내용 동일성 확인."""
-    # 태그 제거 후 핵심 키워드 비교
     html_plain = _html_to_plain(html_msg)
     # 체크 결과 키워드 (PASS/WARN/FAIL/SKIP) 위치 비교
     keywords   = re.findall(r'\b(?:PASS|WARN|FAIL|SKIP)\b', html_plain)
@@ -314,14 +338,13 @@ def _sync_verify(html_msg: str, terminal_text: str) -> tuple[bool, str]:
 def _selftest(transcript_file: Path) -> int:
     """--selftest: 실제 transcript 파일로 3개 체크가 의도대로 작동하는지 검증.
 
-    통과 기준 (FIX-A/B/C 적용 후):
+    통과 기준 (FIX-A/B/C/D 적용 후):
       - Check2: SKIP이 아닌 WARN 또는 PASS (레벨 7+ 인식)
       - task_hint: '(작업 내용 없음)' 아닌 실제 내용 포함
       - Check1: PASS 또는 WARN (FAIL은 허용 안 함)
 
-    수정 전 selftest_transcript.json 사용 시 재현되던 실패:
-      (a) Check2=SKIP — 마지막 user 메시지가 "\\n" 이고 영어 'Level 10' 미인식
-      (b) task_hint='(작업 내용 없음)' — last_user="\\n".strip()="" 로 빈 task_hint
+    FIX-D (2026-06-11): selftest_transcript.json이 실제 JSONL 형식을 사용해야
+    진짜 hook 동작을 검증할 수 있다. 클린 형식({role,content})도 여전히 지원.
     """
     if not transcript_file.exists():
         print(f"[SELFTEST] 파일 없음: {transcript_file}", file=sys.stderr)
@@ -345,9 +368,9 @@ def _selftest(transcript_file: Path) -> int:
 
     fails = []
     if c2_st == "SKIP":
-        fails.append("Check2=SKIP (레벨 7+ 미인식 — FIX-A/B/C 미적용)")
+        fails.append("Check2=SKIP (레벨 7+ 미인식 — FIX-A/B/C/D 미적용)")
     if task_hint == "(작업 내용 없음)":
-        fails.append("task_hint='(작업 내용 없음)' (last_user 빈 문자열 — FIX-A 미적용)")
+        fails.append("task_hint='(작업 내용 없음)' (last_user 빈 문자열 — FIX-A/D 미적용)")
     if c1_st == "FAIL":
         fails.append("Check1=FAIL (Evidence 없음)")
 

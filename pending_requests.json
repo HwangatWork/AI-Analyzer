@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-11T07:15:00",
+  "updated": "2026-06-11T07:25:00",
   "completed": [
     {
       "id": "REQ-001",
@@ -35,6 +35,13 @@
       "status": "done",
       "completed_at": "2026-06-08T15:30:00",
       "details": "T1(LITE warn_reason), T2(009150.KS warn_reason), T3(13개 지표 검증), T4(43.2→43.4 의도된 변화), T5(NASDAQ100/HY_SPREAD 역설 해소), T6(URL 리다이렉트 해소+NQ-4), T8(F05 3/3). ROADMAP Phase 7/8 전체 추가. pm_self_diagnosis SD-7(Actions)/SD-8(NewsURL) 추가. CLAUDE.md Actions Evidence 규칙 추가. T7 CI 검증 대기 중 ([⚠] 유지)"
+    },
+    {
+      "id": "REQ-031",
+      "request": "Decision Agent KOSPI 독립 시그널 + CONTEMPORANEOUS 제거",
+      "status": "done",
+      "completed_at": "2026-06-11T07:25:00",
+      "details": "compute_kospi_score(ind_sigs, ranking): kospi_granger_sig+kospi_signed_r 집계. KOSDAQ/NIKKEI225 bull_boost 제거. SA-1: CRITICAL→INFO. 21/21 PASS."
     }
   ],
   "pending": [
@@ -66,9 +73,9 @@
       "id": "PHASE-2",
       "status": "done",
       "request": "실전 환경 검증 체계 [레벨 10]",
-      "details": "FIX-A/B/C: last_user .strip() 기준, 빈 메시지 카운트 제외, 영어 Level 패턴. --selftest exit_code=0. 회귀 테스트 20/20 PASS. TG 전송 완료.",
+      "details": "FIX-A/B/C/D: last_user .strip()기준, 빈메시지카운트제외, 영어Level패턴, JSONL형식지원. --selftest exit_code=0. 회귀테스트 21/21 PASS. TG 전송 완료.",
       "created_at": "2026-06-11T02:24:35",
-      "completed_at": "2026-06-11T07:15:00",
+      "completed_at": "2026-06-11T07:25:00",
       "priority": "high"
     },
     {
@@ -290,13 +297,6 @@
       "completed_at": "2026-06-10T09:00:00",
       "priority": "low",
       "details": "agents/archive/ 신규 생성. run_analysis/evaluator/stock_agent.py v1 3개 이동 완료. SD-10/11 스캔: AGENTS_DIR.glob('*.py') → _scan_targets10_11(PIPELINE_STAGES 13개). v1 파일 스캔 대상 제외 확인. agents/=False, archive/=True 3개 모두 확인."
-    },
-    {
-      "id": "REQ-FUTURE-031",
-      "request": "Decision Agent KOSPI 독립 시그널 + CONTEMPORANEOUS 역입력 제거",
-      "status": "backlog",
-      "priority": "high",
-      "details": "설계 변경 레벨 9 — 별도 세션에서 진행. KOSPI 판단이 KOSDAQ/NIKKEI(CONTEMPORANEOUS 지수) Z-score를 부스터로 사용하는 역설 제거. KOSPI 전용 지표 Z-score 집계 추가 필요."
     },
     {
       "id": "REQ-SA2",

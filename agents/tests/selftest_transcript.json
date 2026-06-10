@@ -1,97 +1,111 @@
 [
   {
-    "role": "user",
-    "content": "New session start. Restore context: read ROADMAP.md, claude-progress.txt.\n\nTask 1 — Complete Gate 0 [Level 6]\nTask 2 — Classification consistency [Level 5]\nTask 3 — Phase 2: production-environment verification [Level 10]\n\nImplementation level definitions (1-10): Level 1-3 = symptom-only fix. Level 4-6 = root-cause fix. Level 7-9 = structural fix + recurrence prevention + verification. Level 10 = structural fix + recurrence prevention + verification + regression tests + documentation.\n\nPhase 1: 회귀 테스트 스위트 구축 [Level 10]. Run pytest agents/tests/test_regression.py."
+    "type": "user",
+    "message": {
+      "role": "user",
+      "content": "New session start. Restore context: read ROADMAP.md, claude-progress.txt.\n\nTask 1 — Complete Gate 0 [Level 6]\nTask 2 — Classification consistency [Level 5]\nTask 3 — Phase 2: production-environment verification [Level 10]\n\nImplementation level definitions (1-10): Level 1-3 = symptom-only fix. Level 4-6 = root-cause fix. Level 7-9 = structural fix + recurrence prevention + verification. Level 10 = structural fix + recurrence prevention + verification + regression tests + documentation."
+    },
+    "uuid": "msg-001",
+    "sessionId": "test-session-selftest"
   },
   {
-    "role": "assistant",
-    "content": [
-      {"type": "tool_use", "id": "t0", "name": "Read", "input": {"file_path": "ROADMAP.md"}}
-    ]
+    "type": "assistant",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {"type": "thinking", "thinking": "Let me restore context by reading the key files."},
+        {"type": "tool_use", "id": "t0", "name": "Read", "input": {"file_path": "ROADMAP.md"}}
+      ]
+    }
   },
   {
-    "role": "user",
-    "content": [
-      {"type": "tool_result", "tool_use_id": "t0", "content": "# AI Analyzer ROADMAP\n...content..."}
-    ]
+    "type": "user",
+    "message": {
+      "role": "user",
+      "content": [
+        {"type": "tool_result", "tool_use_id": "t0", "content": "# AI Analyzer ROADMAP\n...content..."}
+      ]
+    }
   },
   {
-    "role": "assistant",
-    "content": [
-      {"type": "tool_use", "id": "t1", "name": "Read", "input": {"file_path": "claude-progress.txt"}}
-    ]
+    "type": "assistant",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {"type": "tool_use", "id": "t1", "name": "Read", "input": {"file_path": "claude-progress.txt"}}
+      ]
+    }
   },
   {
-    "role": "user",
-    "content": [
-      {"type": "tool_result", "tool_use_id": "t1", "content": "Phase 0+1 complete..."}
-    ]
+    "type": "user",
+    "message": {
+      "role": "user",
+      "content": [
+        {"type": "tool_result", "tool_use_id": "t1", "content": "Phase 0+1 complete. Last commit 5f44081."}
+      ]
+    }
   },
   {
-    "role": "assistant",
-    "content": [
-      {"type": "tool_use", "id": "t2", "name": "Bash", "input": {"command": "cd agents && mkdir -p tests"}}
-    ]
+    "type": "assistant",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {"type": "tool_use", "id": "t2", "name": "Bash", "input": {"command": "pytest agents/tests/test_regression.py -v"}}
+      ]
+    }
   },
   {
-    "role": "user",
-    "content": [
-      {"type": "tool_result", "tool_use_id": "t2", "content": ""}
-    ]
+    "type": "user",
+    "message": {
+      "role": "user",
+      "content": [
+        {"type": "tool_result", "tool_use_id": "t2", "content": "20 passed in 1.33s"}
+      ]
+    }
   },
   {
-    "role": "assistant",
-    "content": [
-      {"type": "tool_use", "id": "t3", "name": "Write", "input": {"file_path": "agents/tests/test_regression.py", "content": "..."}}
-    ]
+    "type": "assistant",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {"type": "tool_use", "id": "t3", "name": "Write", "input": {"file_path": "agents/tests/selftest_transcript.json", "content": "..."}}
+      ]
+    }
   },
   {
-    "role": "user",
-    "content": [
-      {"type": "tool_result", "tool_use_id": "t3", "content": "File written successfully."}
-    ]
+    "type": "user",
+    "message": {
+      "role": "user",
+      "content": [
+        {"type": "tool_result", "tool_use_id": "t3", "content": "File written successfully."}
+      ]
+    }
   },
   {
-    "role": "assistant",
-    "content": [
-      {"type": "tool_use", "id": "t4", "name": "Bash", "input": {"command": "pytest agents/tests/test_regression.py -v"}}
-    ]
+    "type": "assistant",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {"type": "tool_use", "id": "t4", "name": "Bash", "input": {"command": "git add -A && git commit -m 'feat: Phase 2 FIX-A/B/C/D'"}}
+      ]
+    }
   },
   {
-    "role": "user",
-    "content": [
-      {"type": "tool_result", "tool_use_id": "t4", "content": "19 passed in 1.32s"}
-    ]
+    "type": "user",
+    "message": {
+      "role": "user",
+      "content": [
+        {"type": "tool_result", "tool_use_id": "t4", "content": "[master 5cc3ac5] feat: Phase 2 FIX-A/B/C/D applied — 20/20 PASS"}
+      ]
+    }
   },
   {
-    "role": "assistant",
-    "content": [
-      {"type": "tool_use", "id": "t5", "name": "Bash", "input": {"command": "git add -A && git commit -m 'feat: Phase 1 regression tests 19/19 PASS'"}}
-    ]
-  },
-  {
-    "role": "user",
-    "content": [
-      {"type": "tool_result", "tool_use_id": "t5", "content": "[master abc1234] feat: Phase 1 regression tests 19/19 PASS"}
-    ]
-  },
-  {
-    "role": "assistant",
-    "content": [
-      {"type": "tool_use", "id": "t6", "name": "Bash", "input": {"command": "python -c \"import subprocess; r=subprocess.run(['python','.claude/hooks/stop_hook.py'], input='{}')\""}}
-    ]
-  },
-  {
-    "role": "user",
-    "content": "\n"
-  },
-  {
-    "role": "assistant",
-    "content": [
-      {
-        "type": "text",
-        "text": "### 섹션 1. 요청 vs 결과 대조\n| 요청 항목 | 상태 | 핵심 결과 |\n|----------|------|----------|\n| Phase 1 회귀 테스트 스위트 | ✅ 완료 | pytest 19/19 PASS |\n| Gate 1 기준 충족 | ✅ 완료 | 1.32초, 19개 > 15개 |\n\n### 섹션 2. 발견된 문제\n없음\n\n### 섹션 3. 변경된 파일\n- agents/tests/test_regression.py 신규 생성 (19개 케이스)\n- agents/tests/run_tests.bat 신규 생성\n\n### 섹션 4. 검증 결과\n- pytest 19/19 PASS\n- 실행 시간 1.32초\n- exit_code=0\n- 동적 테스트 완료\n- pm_quality_checks: 24/24 PASS"
-      }
-    ]
+    "type": "assistant",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {"type": "text", "text": "### 섹션 1. 요청 vs 결과 대조\n| 요청 항목 | 상태 | 핵심 결과 |\n|----------|------|----------|\n| Phase 2 FIX-D JSONL 형식 지원 | ✅ 완료 | pytest 20/20 PASS |\n| Gate 2 selftest 통과 | ✅ 완료 | exit_code=0 |\n\n### 섹션 2. 발견된 문제\n- FIX-D: 실제 Claude Code transcript JSONL 형식 미지원 → Check2=SKIP, empty-trigger 근본 원인\n\n### 섹션 3. 변경된 파일\n- .claude/hooks/stop_hook.py: _normalize_msg() 추가, FIX-D 적용\n- agents/tests/selftest_transcript.json: JSONL 형식으로 업데이트\n\n### 섹션 4. 검증 결과\n- pytest 20/20 PASS, exit_code=0, 1.33s\n- selftest --selftest: PASS (Check2=PASS, task_hint non-empty)\n- 동적 테스트 완료"}
+      ]
+    }
   }
 ]

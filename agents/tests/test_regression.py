@@ -265,24 +265,33 @@ def test_T10_last_messages_filters_tool_blocks():
 
 
 # ════════════════════════════════════════════════════════════════
-# T11: CONTEMPORANEOUS 지수가 decision_agent에서 직접 참조 → SA-1 CRITICAL
-#      (SA-1: KOSDAQ/NIKKEI225 등이 decision_agent에 하드코딩 참조)
+# T11: REQ-031 FIXED — CONTEMPORANEOUS 지수가 결정 로직에서 제거됐는지 확인
+#      (REQ-031 해결: kosdaq_sig/nikkei_sig bull_boost 제거, compute_kospi_score 도입)
 # ════════════════════════════════════════════════════════════════
 def test_T11_contemporaneous_in_decision_agent():
-    """run_decision_agent.py에 CONTEMPORANEOUS 지수가 직접 참조됨을 확인 (기존 CRITICAL 유지)."""
+    """run_decision_agent.py에서 CONTEMPORANEOUS bull_boost 로직이 제거됐는지 확인 (REQ-031 FIXED)."""
     dec_path = AGENTS / "run_decision_agent.py"
     content  = dec_path.read_text(encoding="utf-8")
 
-    contemporaneous = {"KOSDAQ", "NIKKEI225", "DOW", "NASDAQ100"}
-    found = [idx for idx in contemporaneous if f'"{idx}"' in content or f"'{idx}'" in content]
-
-    # 이 버그는 아직 미해결 (REQ-FUTURE-031). 존재함을 확인해서 리그레션 추적.
-    assert len(found) >= 1, (
-        "T11 NOTE: decision_agent에서 CONTEMPORANEOUS 지수가 사라짐 — "
-        "REQ-FUTURE-031 해소됐으면 이 테스트를 'FIXED' 버전으로 업데이트"
+    # REQ-031 FIXED: bull_boost 변수와 kosdaq_sig/nikkei_sig 직접 결정 로직 제거 확인
+    assert "kospi_bull_boost" not in content, (
+        "T11 FAIL: kospi_bull_boost가 여전히 decision_agent에 존재 — REQ-031 미해결"
     )
-    # 발견된 지수를 출력 (CRITICAL 상태 추적)
-    print(f"\n  T11 INFO: decision_agent CONTEMPORANEOUS 직접참조: {found} (REQ-FUTURE-031 미해결)")
+    assert "kosdaq_sig = next" not in content, (
+        "T11 FAIL: kosdaq_sig direct lookup이 여전히 존재 — REQ-031 미해결"
+    )
+    assert "nikkei_sig = next" not in content, (
+        "T11 FAIL: nikkei_sig direct lookup이 여전히 존재 — REQ-031 미해결"
+    )
+    # _CONTEMPORANEOUS 집합 정의는 허용 (배제 목적)
+    assert "_CONTEMPORANEOUS" in content, (
+        "T11 FAIL: _CONTEMPORANEOUS 배제 집합이 없음 — IQ-1 하드 필터 미적용"
+    )
+    # compute_kospi_score 함수 존재 확인
+    assert "def compute_kospi_score" in content, (
+        "T11 FAIL: compute_kospi_score 함수 없음 — REQ-031 미구현"
+    )
+    print("\n  T11 INFO: REQ-031 FIXED — bull_boost 제거, compute_kospi_score 도입 확인")
 
 
 # ════════════════════════════════════════════════════════════════
@@ -490,3 +499,55 @@ def test_T20_selftest_passes_with_real_transcript():
         f"stdout: {result.stdout[-500:]}\n"
         f"stderr: {result.stderr[-200:]}"
     )
+
+
+# ════════════════════════════════════════════════════════════════
+# T21: REQ-031 compute_kospi_score — KOSPI 독립 스코어 산출 검증
+#      CONTEMPORANEOUS 지수 없이 kospi_granger_sig/kospi_signed_r 집계
+# ════════════════════════════════════════════════════════════════
+def test_T21_compute_kospi_score_independent():
+    """compute_kospi_score가 SP500 시그널과 독립적으로 KOSPI 스코어를 산출한다."""
+    sys.path.insert(0, str(AGENTS))
+    import run_decision_agent as da
+
+    _CONTEMPORANEOUS = {"NASDAQ100", "DOW", "KOSDAQ", "NIKKEI225"}
+
+    # 합성 ranking: KOSPI Granger 유효 지표 3개 + 동행 지수 2개
+    ranking = [
+        {"indicator": "VIX",        "kospi_signed_r": -0.35, "kospi_granger_sig": True,  "combined_weight": 0.40},
+        {"indicator": "HY_SPREAD",  "kospi_signed_r": -0.25, "kospi_granger_sig": True,  "combined_weight": 0.30},
+        {"indicator": "DXY",        "kospi_signed_r": -0.18, "kospi_granger_sig": True,  "combined_weight": 0.20},
+        {"indicator": "KOSDAQ",     "kospi_signed_r":  0.90, "kospi_granger_sig": True,  "combined_weight": 0.50},  # CONTEMPORANEOUS — 배제돼야
+        {"indicator": "NIKKEI225",  "kospi_signed_r":  0.85, "kospi_granger_sig": True,  "combined_weight": 0.45},  # CONTEMPORANEOUS — 배제돼야
+    ]
+
+    # 모든 지표 bearish (z=-1.5): VIX/HY_SPREAD/DXY 음의 kospi_r → kospi_signal 양수(강세)
+    # KOSDAQ/NIKKEI225는 배제 → bull_boost 없어야 함
+    ind_sigs_bearish = [
+        {"indicator": "VIX",       "z_score": -1.5},  # VIX 하락 = 시장 강세 시그널
+        {"indicator": "HY_SPREAD", "z_score": -1.5},  # HY spread 축소 = 강세
+        {"indicator": "DXY",       "z_score": -1.5},  # DXY 하락 = 강세
+        {"indicator": "KOSDAQ",    "z_score":  2.0},  # 배제됨
+        {"indicator": "NIKKEI225", "z_score":  2.0},  # 배제됨
+    ]
+
+    score_with_contemporaneous_excluded = da.compute_kospi_score(ind_sigs_bearish, ranking)
+
+    # KOSDAQ/NIKKEI225가 배제되면 낮은 z에 의해 점수가 50 이상이어야 함
+    assert 50 < score_with_contemporaneous_excluded <= 100, (
+        f"T21 FAIL: VIX/HY/DXY bearish → KOSPI강세 기대, score={score_with_contemporaneous_excluded}"
+    )
+
+    # CONTEMPORANEOUS 지수만 있는 경우 → 모두 배제 → 50.0 반환
+    ind_sigs_only_contemporaneous = [
+        {"indicator": "KOSDAQ",   "z_score": 2.0},
+        {"indicator": "NIKKEI225","z_score": 2.0},
+    ]
+    score_no_valid = da.compute_kospi_score(ind_sigs_only_contemporaneous, ranking)
+    assert score_no_valid == 50.0, (
+        f"T21 FAIL: CONTEMPORANEOUS만 있으면 50.0 기대, got {score_no_valid}"
+    )
+
+    # SP500 score와 독립: kospi_signed_r 방향이 다른 경우 다른 결과 나와야 함
+    # (SP500 기반이면 같은 z_score로 같은 방향이지만, KOSPI r이 다르면 달라야)
+    print(f"\n  T21 INFO: compute_kospi_score PASS, score={score_with_contemporaneous_excluded}")

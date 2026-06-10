@@ -58,9 +58,11 @@ FIX_REQUEST_FILE  = BASE_DIR / "fix_request.md"
 PENDING_FILE      = BASE_DIR / "pending_requests.json"
 
 # SD-14 회귀 감지에서 영구 제외할 QC 체크
-# QG-1: optional 체크로 전환 — 미설정=SKIP(soft-pass), 더 이상 항상-FAIL 아님
-# ANTHROPIC_API_KEY: 파이프라인에서 직접 사용하지 않는 항목 (legacy)
-_KNOWN_FAIL_CHECKS: list[str] = ["ANTHROPIC_API_KEY"]
+# QG-1, ANTHROPIC_API_KEY 등은 optional 3-state로 전환 — SKIP=soft-pass, 영구 제외 불필요
+_KNOWN_FAIL_CHECKS: list[str] = []
+
+# pm_system_audit() 마지막 실행 결과 캐시 — 메인 파이프라인 Telegram 전송용
+_last_audit_findings: list[dict] = []
 
 
 # ── pending_requests.json 헬퍼 ────────────────────────────────────
@@ -329,14 +331,39 @@ def pm_quality_checks() -> list[dict]:
 
     # ── Signal Integrity ───────────────────────────────────────
 
-    # SI-1: signal total == Z-Score indicator count (already IQ-4, recheck explicitly)
-    z_inds   = len(sig.get("indicator_signals", []))
+    # QI-1: BUY/SELL 액션일 때 신뢰도 ≥ 20% (HOLD는 confidence 낮음이 정상)
+    # 20% 기준 근거: Telegram 50% 게이트가 별도 운용, QI-1은 절대 하한선 (신호 없음 수준 탐지)
+    _QI1_MIN_CONF = 20.0
+    _qi1_dec: dict = {}
+    _qi1_dec_file = OUT_DIR / "decision.json"
+    if _qi1_dec_file.exists():
+        try:
+            _qi1_dec = json.loads(_qi1_dec_file.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    if not _qi1_dec:
+        _qi1_dec = data.get("decision", {})
+    if _qi1_dec:
+        _qi1_sp_act  = (_qi1_dec.get("sp500")  or {}).get("action",         "HOLD")
+        _qi1_ksp_act = (_qi1_dec.get("kospi")   or {}).get("action",         "HOLD")
+        _qi1_sp_conf = (_qi1_dec.get("sp500")   or {}).get("confidence_pct", 0.0)
+        _qi1_ksp_conf= (_qi1_dec.get("kospi")   or {}).get("confidence_pct", 0.0)
+        _qi1_fails = []
+        if _qi1_sp_act  not in ("HOLD",) and _qi1_sp_conf  < _QI1_MIN_CONF:
+            _qi1_fails.append(f"SP500={_qi1_sp_act} {_qi1_sp_conf:.1f}%<{_QI1_MIN_CONF}%")
+        if _qi1_ksp_act not in ("HOLD",) and _qi1_ksp_conf < _QI1_MIN_CONF:
+            _qi1_fails.append(f"KOSPI={_qi1_ksp_act} {_qi1_ksp_conf:.1f}%<{_QI1_MIN_CONF}%")
+        qi1_pass   = len(_qi1_fails) == 0
+        qi1_detail = (f"OK — SP500={_qi1_sp_act}/{_qi1_sp_conf:.1f}%, KOSPI={_qi1_ksp_act}/{_qi1_ksp_conf:.1f}%"
+                      if qi1_pass else f"FAIL — {', '.join(_qi1_fails)}")
+    else:
+        qi1_pass   = True   # decision.json 없으면 체크 불가 → soft-pass
+        qi1_detail = "SKIP — decision.json 없음"
     results.append({
-        "check": "SI-1 시그널 지표 수 = Z-Score 수",
-        "pass":  z_inds == rank_count,
-        "detail": f"OK — {z_inds}개" if z_inds == rank_count
-                  else f"FAIL — 시그널 {z_inds}개 vs 랭킹 {rank_count}개",
-        "fix_stages": ["run_ui_agent.py", "generate_report_v2.py"],
+        "check": f"QI-1 BUY/SELL 신뢰도 ≥{_QI1_MIN_CONF:.0f}%",
+        "pass":  qi1_pass,
+        "detail": qi1_detail,
+        "fix_stages": ["run_decision_agent.py"],
     })
 
     # ── News Quality ───────────────────────────────────────────
@@ -747,10 +774,14 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
         except Exception:
             pass
 
+    # SD-10/11 공통: 스캔 대상 = PIPELINE_STAGES 등록 스크립트만 (archive/ dead code 제외)
+    _scan_targets10_11 = [AGENTS_DIR / s for s, *_ in PIPELINE_STAGES
+                          if (AGENTS_DIR / s).exists() and s != Path(__file__).name]
+
     # ── SD-10: 명세-구현 일치 검증 (Claude API 주장 vs 실제 코드) ─
     _api_claim_keywords = ("claude api", "anthropic_api_key", "anthropic api")
     _api_call_patterns  = ("anthropic.Anthropic(", "client.messages.create(", "anthropic.messages.create(")
-    for _py in AGENTS_DIR.glob("*.py"):
+    for _py in _scan_targets10_11:
         try:
             _src = _py.read_text(encoding="utf-8", errors="ignore")
             _doc = _src[:600].lower()  # 첫 600자 = 파일 헤더/docstring 범위
@@ -766,8 +797,6 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
 
     # ── SD-11: 템플릿/하드코딩 위장 패턴 탐지 ─────────────────────
     import re as _re11
-    # 자기 자신(run_pm_agent.py)은 검사 제외
-    # 패턴: 진짜 구현 없이 명세를 위장하는 코드 (fallback 제외)
     _hardcode_re_patterns = [
         # top5 리스트에 리터럴 기업명이 하드코딩된 경우 (3개 이상)
         (r'"name":\s*"[A-Za-z가-힣].*"name":\s*"[A-Za-z가-힣].*"name":\s*"[A-Za-z가-힣]', "Top5에 리터럴 기업명 3개 이상 하드코딩 의심"),
@@ -776,9 +805,7 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
         # TODO/placeholder 미구현 표시
         (r'#\s*(TODO|FIXME|placeholder|stub).*implement', "미구현 stub 탐지"),
     ]
-    for _py in AGENTS_DIR.glob("*.py"):
-        if _py.name == Path(__file__).name:
-            continue  # self-check 제외
+    for _py in _scan_targets10_11:
         try:
             _src = _py.read_text(encoding="utf-8", errors="ignore")
             for _rpat, _desc in _hardcode_re_patterns:
@@ -867,13 +894,13 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
 
         if _regressed14 > 0:
             issues.append(
-                f"SD-14 QC 회귀: {_qc14_all_pass}/{len(_qc14)} PASS "
+                f"SD-14 QC 회귀: {_qc_summary(_qc14)} "
                 f"(known-fail 제외 신규 실패 {_regressed14}개)"
                 + (f". 신규 실패: {_new_fails14}" if _new_fails14 else "")
             )
             _tg_send(
                 f"🚨 <b>SD-14 QC 회귀 감지</b>\n"
-                f"현재 {_qc14_all_pass}/{len(_qc14)} PASS\n"
+                f"현재 {_qc_summary(_qc14)}\n"
                 + (f"신규 실패: {', '.join(_new_fails14[:5])}" if _new_fails14
                    else f"신규 실패: {_regressed14}개 (known-fail 외)")
             )
@@ -998,7 +1025,7 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
         # P2-3: before/after pass-count 비교
         _qc_before = pm_quality_checks()
         _pass_before = sum(1 for c in _qc_before if c["pass"])
-        print(f"  [PM] 수정 전 QC: {_pass_before}/{len(_qc_before)} PASS")
+        print(f"  [PM] 수정 전 QC: {_qc_summary(_qc_before)}")
 
         _auto_fix_from_diagnosis(issues)
 
@@ -1031,7 +1058,7 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
         _pass_after = len(final_pass)
         _delta = _pass_after - _pass_before
         _delta_str = f"+{_delta}" if _delta >= 0 else str(_delta)
-        print(f"  [PM] 최종 QC: {_pass_after}/{len(final_qc)} PASS (수정 전 {_pass_before} → 수정 후 {_pass_after}, Δ{_delta_str})")
+        print(f"  [PM] 최종 QC: {_qc_summary(final_qc)} (수정 전 {_pass_before} → 수정 후 {_pass_after}, Δ{_delta_str})")
         if _delta == 0:
             print("  [PM] ⚠ 자동 수정 효과 없음 — 수동 개입 필요")
         if final_fail:
@@ -1039,6 +1066,15 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
 
     # ── 기준선 저장 (최종 QC 결과 포함 — SD-14 다음 실행에서 회귀 감지에 사용) ──
     _save_baseline(curr_count, rank, pm_quality_checks())
+
+    # ── SA 구조 감사 통합 — CRITICAL 발견 시 issues에 추가 ───────────────
+    try:
+        _sa_findings = pm_system_audit()
+        _register_audit_findings(_sa_findings)
+        for _cf in [f for f in _sa_findings if f["severity"] == "CRITICAL"]:
+            issues.append(f"{_cf['sa_code']} {_cf['title']}: {_cf['detail'][:120]}")
+    except Exception as _sa_err:
+        issues.append(f"SA 구조 감사 오류: {_sa_err}")
 
     return len(issues) == 0, issues
 
@@ -1052,7 +1088,10 @@ def _derive_fix_scripts(issues: list[str]) -> tuple[set[str], list[str]]:
     manual: list[str] = []
     for iss in issues:
         codes = set(re.findall(r"SD-\d+", iss))
-        if codes & {"SD-1", "SD-6"}:
+        if codes & {"SD-6"}:
+            # SD-6: 시그널↔방향 불일치 → decision layer 문제
+            scripts |= {"run_decision_agent.py"}
+        if codes & {"SD-1"}:
             scripts |= {"run_analysis_agent_v2.py", "run_evaluator_agent_v2.py"}
         if codes & {"SD-2", "SD-3"}:
             scripts |= {"run_evaluator_agent_v2.py", "run_validation_agent.py"}
@@ -1065,6 +1104,408 @@ def _derive_fix_scripts(issues: list[str]) -> tuple[set[str], list[str]]:
         if codes & {"SD-7", "SD-10", "SD-11", "SD-12"}:
             manual.append(iss)
     return scripts, manual
+
+
+# ── REQ-034: pm_system_audit() — SA-1~SA-5 구조 감사 ─────────────────────────
+def pm_system_audit() -> list[dict]:
+    """SA-1~SA-5 정적 구조 감사 — 런타임 데이터 품질(SD)과 분리된 아키텍처 검사.
+
+    Returns list of findings: [{"sa_code", "severity", "title", "detail"}]
+    severity: CRITICAL / HIGH / MEDIUM / INFO
+    """
+    import ast as _ast_sa
+    import inspect as _insp_sa
+    from collections import Counter as _Cnt_sa
+
+    global _last_audit_findings
+    findings: list[dict] = []
+
+    # ── SA-1: run_decision_agent.py에서 CONTEMPORANEOUS 지수 직접 참조 탐지 ──
+    # 판단 기준: _CONTEMPORANEOUS 배제 집합 정의 라인은 허용. 그 외 직접 참조 = CRITICAL.
+    # (REQ-031 이후: _CONTEMPORANEOUS = {"KOSDAQ","NIKKEI225",...} 정의는 정상 패턴)
+    _da_path = AGENTS_DIR / "run_decision_agent.py"
+    sa1_hits: list[str] = []
+    if _da_path.exists():
+        try:
+            _da_lines = _da_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+            for _lno, _line in enumerate(_da_lines, 1):
+                # 배제 집합 정의 라인 또는 배제 집합 참조 라인은 건너뜀
+                if "_CONTEMPORANEOUS" in _line:
+                    continue
+                for _idx in CONTEMPORANEOUS_INDICES:
+                    if f'"{_idx}"' in _line or f"'{_idx}'" in _line:
+                        sa1_hits.append(f"L{_lno}:'{_idx}'")
+        except Exception as _e1:
+            sa1_hits.append(f"파싱 오류: {_e1}")
+
+    if sa1_hits:
+        findings.append({
+            "sa_code":  "SA-1",
+            "severity": "CRITICAL",
+            "title":    "CONTEMPORANEOUS 역입력 탐지",
+            "detail":   (
+                f"run_decision_agent.py에서 동행 지수 {len(sa1_hits)}개 직접 참조: "
+                f"{sa1_hits[:6]}"
+            ),
+        })
+    else:
+        findings.append({
+            "sa_code":  "SA-1",
+            "severity": "INFO",
+            "title":    "CONTEMPORANEOUS 역입력 없음",
+            "detail":   "run_decision_agent.py 동행 지수 직접 참조 없음",
+        })
+
+    # ── SA-2: 파이프라인 Agent 200줄 이상 함수 탐지 + run_pm_agent.py 총 라인 ──
+    sa2_large: list[str] = []
+    try:
+        for _script2, *_ in PIPELINE_STAGES:
+            _fp2 = AGENTS_DIR / _script2
+            if not _fp2.exists():
+                continue
+            try:
+                _src2 = _fp2.read_text(encoding="utf-8", errors="ignore")
+                _tree2 = _ast_sa.parse(_src2)
+                for _n2 in _ast_sa.walk(_tree2):
+                    if isinstance(_n2, (_ast_sa.FunctionDef, _ast_sa.AsyncFunctionDef)):
+                        _sz2 = getattr(_n2, "end_lineno", _n2.lineno) - _n2.lineno + 1
+                        if _sz2 >= 200:
+                            sa2_large.append(f"{_script2}:{_n2.name}() {_sz2}L")
+            except Exception:
+                pass
+        _pm_lines2 = sum(1 for _ in Path(__file__).open(encoding="utf-8", errors="ignore"))
+        findings.append({
+            "sa_code":  "SA-2",
+            "severity": "MEDIUM",
+            "title":    "대형 함수 탐지",
+            "detail":   (
+                f"≥200줄 함수 {len(sa2_large)}개: {sa2_large[:5]}"
+                f" | run_pm_agent.py 총 {_pm_lines2}줄"
+            ),
+        })
+    except Exception as _e2:
+        findings.append({
+            "sa_code":  "SA-2", "severity": "MEDIUM",
+            "title":    "SA-2 분석 오류", "detail": str(_e2),
+        })
+
+    # ── SA-3: pm_quality_checks() 소스에서 중복 필드 .get() 탐지 ──────────
+    try:
+        _qc_src3 = _insp_sa.getsource(pm_quality_checks)
+        _field_re3 = re.compile(r'(?:\bsig\b|\bdata\b|\bd\b|\bdecision\b)\.get\(\s*["\']([^"\']+)["\']\s*\)')
+        _fields3 = _field_re3.findall(_qc_src3)
+        _dups3 = [f"'{k}'×{v}" for k, v in _Cnt_sa(_fields3).items() if v >= 2]
+        if _dups3:
+            findings.append({
+                "sa_code":  "SA-3",
+                "severity": "MEDIUM",
+                "title":    "중복 필드 읽기 탐지",
+                "detail":   f"pm_quality_checks() 중복 .get() 필드: {_dups3}",
+            })
+        else:
+            findings.append({
+                "sa_code":  "SA-3",
+                "severity": "INFO",
+                "title":    "중복 필드 읽기 없음",
+                "detail":   f"pm_quality_checks() 필드 접근 {len(_fields3)}개, 중복 없음",
+            })
+    except Exception as _e3:
+        findings.append({
+            "sa_code":  "SA-3", "severity": "INFO",
+            "title":    "SA-3 분석 오류", "detail": str(_e3),
+        })
+
+    # ── SA-4: _derive_fix_scripts() SD→script 매핑 테이블 추출 ────────────
+    try:
+        _fix_src4 = _insp_sa.getsource(_derive_fix_scripts)
+        _map4: list[str] = []
+        _cur_codes4: str | None = None
+        for _line4 in _fix_src4.splitlines():
+            _cm4 = re.search(r'codes\s*&\s*\{([^}]+)\}', _line4)
+            if _cm4:
+                _cur_codes4 = _cm4.group(1).replace('"', '').replace("'", '').strip()
+            _sm4 = re.search(r'scripts\s*\|=\s*\{([^}]+)\}', _line4)
+            if _sm4 and _cur_codes4:
+                _sc4 = _sm4.group(1).replace('"', '').replace("'", '').strip()
+                _map4.append(f"[{_cur_codes4}] → [{_sc4}]")
+                _cur_codes4 = None
+        findings.append({
+            "sa_code":  "SA-4",
+            "severity": "INFO",
+            "title":    "_derive_fix_scripts SD→script 매핑",
+            "detail":   f"{len(_map4)}개 매핑: {_map4}",
+        })
+    except Exception as _e4:
+        findings.append({
+            "sa_code":  "SA-4", "severity": "INFO",
+            "title":    "SA-4 분석 오류", "detail": str(_e4),
+        })
+
+    # ── SA-5: fix_stages 엔트리 중 PIPELINE_STAGES 미등록 항목 탐지 ────────
+    try:
+        _stage_scripts5 = {s for s, *_ in PIPELINE_STAGES}
+        _qc5 = pm_quality_checks()
+        _all_fix5: set[str] = set()
+        for _c5 in _qc5:
+            for _s5 in _c5.get("fix_stages", []):
+                _all_fix5.add(_s5)
+        _unregistered5 = _all_fix5 - _stage_scripts5
+        if _unregistered5:
+            findings.append({
+                "sa_code":  "SA-5",
+                "severity": "HIGH",
+                "title":    "fix_stages PIPELINE_STAGES 미등록",
+                "detail":   f"미등록 항목 {len(_unregistered5)}개: {sorted(_unregistered5)}",
+            })
+        else:
+            findings.append({
+                "sa_code":  "SA-5",
+                "severity": "INFO",
+                "title":    "fix_stages 모두 등록됨",
+                "detail":   (
+                    f"fix_stages {len(_all_fix5)}개 항목 PIPELINE_STAGES 등록 확인"
+                ),
+            })
+    except Exception as _e5:
+        findings.append({
+            "sa_code":  "SA-5", "severity": "INFO",
+            "title":    "SA-5 분석 오류", "detail": str(_e5),
+        })
+
+    # ── SA-6: stop_hook.py Telegram 메시지 품질 검사 ─────────────────────────
+    _sh_path6 = AGENTS_DIR.parent / ".claude" / "hooks" / "stop_hook.py"
+    if not _sh_path6.exists():
+        findings.append({
+            "sa_code":  "SA-6",
+            "severity": "HIGH",
+            "title":    "stop_hook.py 없음",
+            "detail":   ".claude/hooks/stop_hook.py 파일 없음",
+        })
+    else:
+        try:
+            _sh_src6    = _sh_path6.read_text(encoding="utf-8", errors="ignore")
+            _sa6_issues: list[str] = []
+
+            # TQ-1: type="text" 블록 필터링 여부
+            # "type" == "text" 또는 block_type == "text" 또는 .get("type") == "text" 패턴 허용
+            if not re.search(
+                r"""["']type["']\s*==\s*["']text["']"""
+                r"""|block_type\s*==\s*["']text["']"""
+                r"""|\.get\(["']type["']\).*==.*["']text["']""",
+                _sh_src6
+            ):
+                _sa6_issues.append("TQ-1 type=text 필터 없음")
+
+            # TQ-2: 완료 보고 섹션(섹션 1~4) 추출 로직
+            if not re.search(r'섹션\s*1|_find.*section|section.*find', _sh_src6, re.IGNORECASE):
+                _sa6_issues.append("TQ-2 섹션1~4 추출 로직 없음")
+
+            # TQ-3: Markdown→HTML 변환 함수
+            if not re.search(r'_md_to_tg|re\.sub.*\\\*\\\*|md.*html', _sh_src6, re.IGNORECASE):
+                _sa6_issues.append("TQ-3 Markdown→HTML 변환 없음")
+
+            # TQ-4: _tg_send 호출 횟수 (함수 정의 제외, 실제 call 2회 이상 = 분리 전송)
+            _sh_call_lines6 = [l for l in _sh_src6.splitlines()
+                               if re.search(r'_tg_send\s*\(', l) and not l.strip().startswith('def ')]
+            if len(_sh_call_lines6) >= 2:
+                _sa6_issues.append(f"TQ-4 _tg_send {len(_sh_call_lines6)}회 분리 전송 (단일 통합 메시지 권장)")
+
+            # TQ-5: 터미널 출력 ↔ Telegram 동일성 보장
+            if not re.search(r'terminal|동일|sync|identical|strip.*html|html.*strip', _sh_src6, re.IGNORECASE):
+                _sa6_issues.append("TQ-5 터미널↔TG 내용 동일성 검증 없음")
+
+            if _sa6_issues:
+                _sev6 = "HIGH" if len(_sa6_issues) >= 3 else "MEDIUM"
+                findings.append({
+                    "sa_code":  "SA-6",
+                    "severity": _sev6,
+                    "title":    f"stop_hook.py TG 메시지 품질 이슈 {len(_sa6_issues)}개",
+                    "detail":   "; ".join(_sa6_issues),
+                })
+            else:
+                findings.append({
+                    "sa_code":  "SA-6",
+                    "severity": "INFO",
+                    "title":    "stop_hook.py TG 품질 이슈 없음",
+                    "detail":   "TQ-1~TQ-5 모두 통과",
+                })
+        except Exception as _e6:
+            findings.append({
+                "sa_code":  "SA-6", "severity": "MEDIUM",
+                "title":    "SA-6 분석 오류", "detail": str(_e6),
+            })
+
+    # ── SA-7: 데이터 파이프라인 산출물 품질 검증 ──────────────────────────────
+    try:
+        import json as _json_sa7
+        import pandas as _pd_sa7
+        import FinanceDataReader as _fdr_sa7
+
+        _fr_path7 = AGENTS_DIR.parent / "output" / "final_results.json"
+        if not _fr_path7.exists():
+            findings.append({
+                "sa_code": "SA-7", "severity": "MEDIUM",
+                "title": "final_results.json 없음",
+                "detail": "파이프라인 미실행 또는 출력 파일 누락",
+            })
+        else:
+            _fr7 = _json_sa7.loads(_fr_path7.read_text(encoding="utf-8"))
+            _ksp7 = _fr7.get("kospi_analysis", {}).get("contribution_top5", [])
+            _sp7  = _fr7.get("sp500_analysis", {}).get("contribution_top5", [])
+            _sa7_issues: list[str] = []
+
+            # SA-7a: 시총 0원 종목
+            for _label7, _top5_7 in [("KOSPI", _ksp7), ("SP500", _sp7)]:
+                _zero_mc7 = [r.get("name", "?") for r in _top5_7
+                             if (r.get("market_cap_b") or 0) == 0
+                             and (r.get("market_cap_start_b") or 0) == 0]
+                if _zero_mc7:
+                    _sa7_issues.append(
+                        f"SA-7a {_label7} 시총 0원 종목 {len(_zero_mc7)}개: {_zero_mc7}"
+                    )
+
+            # SA-7b: 마이너스 수익률 종목이 기여 Top5에 포함
+            for _label7, _top5_7 in [("KOSPI", _ksp7), ("SP500", _sp7)]:
+                _neg7 = [r.get("name", "?") for r in _top5_7
+                         if (r.get("stock_return_pct") or 0) < 0]
+                if _neg7:
+                    _sa7_issues.append(
+                        f"SA-7b {_label7} 마이너스 수익률 종목 {len(_neg7)}개: {_neg7}"
+                    )
+
+            # SA-7c: KOSPI 시총 Top3가 기여 Top5에 부재 + 시총 비율 50x 초과
+            if _ksp7:
+                try:
+                    _listing7  = _fdr_sa7.StockListing("KOSPI")
+                    _mc_col7   = next((c for c in _listing7.columns if "Marcap" in c), None)
+                    _code_col7 = next((c for c in _listing7.columns if "Code" in c), None)
+                    _name_col7 = next((c for c in _listing7.columns if "Name" in c), None)
+                    if _mc_col7 and _code_col7:
+                        _listing7[_mc_col7] = _pd_sa7.to_numeric(
+                            _listing7[_mc_col7], errors="coerce"
+                        )
+                        _listing7 = _listing7.dropna(subset=[_mc_col7]).sort_values(
+                            _mc_col7, ascending=False
+                        )
+                        _top5_tickers7 = {r.get("ticker", "") for r in _ksp7}
+                        _top5_max_mc7  = max(
+                            r.get("market_cap_b", 0) for r in _ksp7
+                        )
+                        _absent7: list[str] = []
+                        for _, _row7 in _listing7.head(3).iterrows():
+                            _t7  = str(_row7[_code_col7]).zfill(6) + ".KS"
+                            _n7  = _row7[_name_col7]
+                            _mc_b7 = float(_row7[_mc_col7]) / 1350 / 1e9  # USD billions
+                            if _t7 not in _top5_tickers7 and _mc_b7 > _top5_max_mc7 * 30:
+                                _absent7.append(
+                                    f"{_n7}({_t7}) 시총={_mc_b7:.0f}B vs Top5최대={_top5_max_mc7:.1f}B"
+                                    f" ({_mc_b7/_top5_max_mc7:.0f}x)"
+                                )
+                        if _absent7:
+                            _sa7_issues.append(
+                                "SA-7c KOSPI 대형주 기여 누락 — 시총 30x 이상 종목이 "
+                                f"기여 Top5 부재: {'; '.join(_absent7)}"
+                            )
+                except Exception as _e7c:
+                    _sa7_issues.append(f"SA-7c 대형주 검증 오류: {_e7c}")
+
+            if _sa7_issues:
+                _sev7 = "CRITICAL" if any("SA-7c" in i for i in _sa7_issues) else "HIGH"
+                findings.append({
+                    "sa_code":  "SA-7",
+                    "severity": _sev7,
+                    "title":    f"데이터 품질 이슈 {len(_sa7_issues)}개",
+                    "detail":   " | ".join(_sa7_issues),
+                })
+            else:
+                findings.append({
+                    "sa_code":  "SA-7",
+                    "severity": "INFO",
+                    "title":    "데이터 품질 이슈 없음",
+                    "detail":   "SA-7a/b/c 모두 통과",
+                })
+    except Exception as _e7:
+        findings.append({
+            "sa_code": "SA-7", "severity": "MEDIUM",
+            "title": "SA-7 분석 오류", "detail": str(_e7),
+        })
+
+    # 결과 캐시 저장
+    _last_audit_findings = findings
+
+    _sev_icon = {"CRITICAL": "🚨", "HIGH": "⚠️", "MEDIUM": "📋", "INFO": "ℹ️"}
+    for _f in findings:
+        _icon = _sev_icon.get(_f["severity"], "")
+        print(f"  [SA] {_icon} {_f['sa_code']} [{_f['severity']}] "
+              f"{_f['title']}: {_f['detail'][:90]}")
+
+    return findings
+
+
+# ── REQ-035: _register_audit_findings() — SA 결과 → pending_requests 자동 등록 ──
+def _register_audit_findings(findings: list[dict]) -> None:
+    """SA findings를 pending_requests.json에 등록 (중복 제외).
+
+    CRITICAL → 즉시 등록 + Telegram 알림
+    HIGH → 등록만
+    MEDIUM → backlog으로 등록
+    INFO → 등록 안 함
+    """
+    data = _load_pending()
+    all_items = data.get("completed", []) + data.get("pending", [])
+
+    registered: list[str] = []
+    for f in findings:
+        sev = f["severity"]
+        if sev == "INFO":
+            continue
+
+        sa_code = f["sa_code"]  # e.g. "SA-1"
+
+        # 중복 체크: 기존 항목에 SA 코드 포함 여부
+        existing = None
+        for item in all_items:
+            _itxt = json.dumps(item, ensure_ascii=False)
+            if sa_code in _itxt:
+                existing = item
+                break
+
+        # SA-1 특별: "CONTEMPORANEOUS" 또는 "역입력" 키워드로도 dedup
+        if sa_code == "SA-1" and existing is None:
+            for item in all_items:
+                _itxt2 = json.dumps(item, ensure_ascii=False)
+                if "CONTEMPORANEOUS" in _itxt2 or "역입력" in _itxt2:
+                    existing = item
+                    break
+
+        if existing:
+            print(f"  [SA] {sa_code} 기존 항목 발견 ({existing.get('id', '?')}) — 신규 등록 생략")
+            continue
+
+        # 새 항목 등록
+        req_id = f"REQ-{sa_code.replace('-', '')}"  # SA-1 → REQ-SA1
+        status = "pending" if sev in ("CRITICAL", "HIGH") else "backlog"
+        register_pending(
+            req_id=req_id,
+            request=f"[{sa_code} {sev}] {f['title']}",
+            status=status,
+            details=f['detail'],
+        )
+        registered.append(req_id)
+
+        # CRITICAL → 즉시 Telegram 알림
+        if sev == "CRITICAL":
+            _tg_send(
+                f"🚨 <b>[{sa_code} CRITICAL] {f['title']}</b>\n"
+                f"{f['detail'][:200]}\n"
+                f"<i>pending_requests에 {req_id} 자동 등록됨</i>"
+            )
+            print(f"  [SA] CRITICAL → Telegram 알림 + {req_id} 등록")
+
+    if registered:
+        print(f"  [SA] pending_requests 신규 등록: {registered}")
+    else:
+        print("  [SA] pending_requests 신규 등록 없음 (모두 기존 항목)")
 
 
 def _write_fix_request(issues: list[str]) -> None:
@@ -1150,18 +1591,38 @@ def _save_baseline(indicator_count: int, rank: list,
         json.dumps(baseline, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     print(f"[PM] 기준선 저장 (v2): {indicator_count}개 지표"
-          + (f" / QC {baseline.get('qc_pass_count')}/{baseline.get('qc_total')} PASS"
+          + (f" / QC {_qc_summary(qc_results)}"
              if qc_results is not None else ""))
+
+
+def _qc_summary(checks: list[dict]) -> str:
+    """'N/N PASS' 요약 문자열. SKIP 항목이 있으면 '(X SKIP 포함)' 접미사 추가."""
+    passed = [c for c in checks if c["pass"]]
+    skipped = [c for c in passed if "SKIP" in c.get("detail", "")]
+    base = f"{len(passed)}/{len(checks)} PASS"
+    if skipped:
+        names = ", ".join(c["check"].split()[0] for c in skipped)
+        base += f" ({names} SKIP 포함)"
+    return base
 
 
 def _tg_send_quality_report(checks: list[dict]) -> None:
     """품질 검증 결과 텔레그램 보고."""
-    passed = [c for c in checks if c["pass"]]
-    failed = [c for c in checks if not c["pass"]]
-    icon   = "✅" if not failed else "⚠"
-    lines  = [f"{icon} <b>PM Quality Check Results</b>",
-              f"통과: {len(passed)}/{len(checks)}",  ""]
+    passed  = [c for c in checks if c["pass"]]
+    skipped = [c for c in passed if "SKIP" in c.get("detail", "")]
+    failed  = [c for c in checks if not c["pass"]]
+    icon    = "✅" if not failed else "⚠"
+    summary = _qc_summary(checks)
+    lines   = [f"{icon} <b>PM Quality Check Results</b>",
+               f"통과: {summary}", ""]
+    if skipped:
+        lines.append(f"⏭ SKIP 항목 ({len(skipped)}개 — 선택 기능 미설정):")
+        for c in skipped:
+            lines.append(f"  ⏭ {c['check']}: {c['detail'][:80]}")
+        lines.append("")
     for c in checks:
+        if "SKIP" in c.get("detail", ""):
+            continue  # SKIP 항목은 위에서 이미 표시
         mark = "✅" if c["pass"] else "❌"
         lines.append(f"{mark} {c['check']}: {c['detail'][:80]}")
     _tg_send("\n".join(lines))
@@ -1390,10 +1851,11 @@ PIPELINE_STAGES = [
     ("run_validation_agent.py", "Validation Agent", 8,  120),
     ("run_decision_agent.py",   "Decision Agent",   9,  120),
     ("run_ui_agent.py",         "UI Agent",         10, 120),
-    ("generate_report_v2.py",   "Report",           11, 120),
-    ("run_audit_agent.py",      "Audit Agent",      12, 300),
+    ("run_narrative_agent.py",  "Narrative Agent",  11, 120),
+    ("generate_report_v2.py",   "Report",           12, 120),
+    ("run_audit_agent.py",      "Audit Agent",      13, 300),
 ]
-TOTAL_STEPS = 13  # 12 스테이지 + 1 최종 보고
+TOTAL_STEPS = 14  # 13 스테이지 + 1 최종 보고
 
 # ── 단계 간 데이터 의존성 맵 ─────────────────────────────────────
 # Key: 스크립트명, Value: 이 스크립트가 직접 의존하는 선행 스크립트 목록
@@ -1412,7 +1874,8 @@ STAGE_DEPS: dict[str, list[str]] = {
     "run_ui_agent.py":           ["run_decision_agent.py",
                                    "run_evaluator_agent_v2.py",
                                    "run_stock_agent_v2.py"],      # 의사결정 + 랭킹 + 종목 → 대시보드
-    "generate_report_v2.py":     ["run_ui_agent.py"],             # 대시보드 → 최종 리포트
+    "run_narrative_agent.py":    ["run_ui_agent.py"],             # final_results → 언어 컨텍스트
+    "generate_report_v2.py":     ["run_narrative_agent.py"],      # 언어 컨텍스트 → 최종 리포트
     "run_audit_agent.py":        ["generate_report_v2.py"],       # 최종 리포트 → 감사
 }
 
@@ -1761,6 +2224,20 @@ if __name__ == "__main__":
             f"⚠ <b>PM 자가진단 이슈 {len(diag_issues)}개</b>\n{diag_txt}\n"
             f"<i>자동 수정 완료 — fix_request.md 참조</i>"
         )
+
+    # ── 3단계-B: SA 구조 감사 결과 Telegram 전송 ─────────────────────
+    if _last_audit_findings:
+        _sev_icon_p = {"CRITICAL": "🚨", "HIGH": "⚠️", "MEDIUM": "📋", "INFO": "ℹ️"}
+        _crit_p = [f for f in _last_audit_findings if f["severity"] == "CRITICAL"]
+        _sa_lines_p = [
+            f"  {_sev_icon_p.get(f['severity'], '')} {f['sa_code']} [{f['severity']}] {f['title']}"
+            for f in _last_audit_findings
+        ]
+        _sa_header_p = (
+            f"🚨 <b>SA 구조 감사 — CRITICAL {len(_crit_p)}건 발견</b>"
+            if _crit_p else "📋 <b>SA 구조 감사 결과</b>"
+        )
+        _tg_send(f"{_sa_header_p}\n" + "\n".join(_sa_lines_p))
 
     # ── 4단계: pm_quality_checks — 12개 품질 기준 ─────────────────
     print("\n[PM] pm_quality_checks 실행 중...")

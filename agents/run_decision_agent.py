@@ -9,10 +9,50 @@ PM Condition E: 데이터 기반 BUY/SELL/HOLD 신호 + 신뢰도 + 근거 자�
   - 진입/청산 트리거 조건 명시
   - 리스크 팩터 자동 식별
 """
+import utf8_setup  # noqa: F401
 
 import json
 from pathlib import Path
 from datetime import datetime
+
+
+_CONTEMPORANEOUS = {"NASDAQ100", "DOW", "KOSDAQ", "NIKKEI225"}
+
+
+def compute_kospi_score(ind_sigs: list, ranking: list) -> float:
+    """KOSPI 독립 시그널 스코어 (0~100).
+
+    REQ-031: SP500 bull_boost(KOSDAQ/NIKKEI225) 없이 각 지표의 kospi_granger_sig +
+    kospi_signed_r을 직접 사용해 독립적으로 KOSPI 시그널 산출.
+    동행 지수(_CONTEMPORANEOUS)는 배제.
+    """
+    rank_map = {r["indicator"]: r for r in ranking}
+    weighted_sum = 0.0
+    total_weight  = 0.0
+
+    for sig in ind_sigs:
+        ind = sig.get("indicator", "")
+        if ind in _CONTEMPORANEOUS:
+            continue
+        rank = rank_map.get(ind)
+        if not rank:
+            continue
+        z       = sig.get("z_score", 0.0) or 0.0
+        ksp_r   = rank.get("kospi_signed_r", 0.0) or 0.0
+        granger = rank.get("kospi_granger_sig", False)
+        w       = rank.get("combined_weight", 0.0) or 0.0
+        if w <= 0 or ksp_r == 0:
+            continue
+        direction  = 1 if ksp_r > 0 else -1
+        # z는 이미 [-2,2] 클리핑됨. sign(kospi_r) * z / 2.0 — SP500 signal 공식과 동일
+        ksp_signal = direction * z / 2.0
+        eff_w      = w * (1.5 if granger else 1.0)  # Granger 인과 지표 1.5x 가중
+        weighted_sum  += ksp_signal * eff_w
+        total_weight  += eff_w
+
+    if total_weight <= 0:
+        return 50.0
+    return round(max(0.0, min(100.0, 50.0 + (weighted_sum / total_weight) * 50.0)), 1)
 
 
 def compute_decision(signal: dict, ranking: list, stock_sp500: dict, stock_kospi: dict) -> dict:
@@ -40,30 +80,24 @@ def compute_decision(signal: dict, ranking: list, stock_sp500: dict, stock_kospi
         sp500_action = "HOLD"
         sp500_strength = "중립"
 
-    # KOSPI (코스피는 별도 시그널 없이 SP500 시그널 + 상관도로 추론)
-    # KOSDAQ z-score 활용
-    kosdaq_sig = next((s for s in ind_sigs if s["indicator"] == "KOSDAQ"), None)
-    nikkei_sig = next((s for s in ind_sigs if s["indicator"] == "NIKKEI225"), None)
-    kospi_bull_boost = 0
-    if kosdaq_sig and kosdaq_sig.get("bullish"):
-        kospi_bull_boost = 5
-    if nikkei_sig and nikkei_sig.get("bullish"):
-        kospi_bull_boost += 3
-
-    kospi_score = min(100, score + kospi_bull_boost)
-    if kospi_score >= 68 and consensus_ratio >= 0.55:
-        kospi_action = "BUY"
+    # KOSPI — 독립 시그널 (REQ-031)
+    # KOSDAQ/NIKKEI225 bull_boost 완전 제거.
+    # 각 지표의 kospi_granger_sig + kospi_signed_r을 집계해 독립 스코어 산출.
+    kospi_score = compute_kospi_score(ind_sigs, ranking)
+    if kospi_score >= 68:
+        kospi_action   = "BUY"
         kospi_strength = "강" if kospi_score >= 78 else "중"
     elif kospi_score <= 35:
-        kospi_action = "SELL/AVOID"
+        kospi_action   = "SELL/AVOID"
         kospi_strength = "강" if kospi_score <= 25 else "중"
     else:
-        kospi_action = "HOLD"
+        kospi_action   = "HOLD"
         kospi_strength = "중립"
 
     # ── 신뢰도 계산 ──────────────────────────────────────────────────────────
     # 기준: 시그널 합의도 40% + 스코어 극단성 30% + 강한 지표 수 30%
-    consensus_conf  = consensus_ratio * 100 if sp500_action != "HOLD" else (1 - abs(consensus_ratio - 0.5) * 2) * 100
+    # HOLD: 중립(ratio=0.5)일수록 확신도 낮음 — "모르겠다"가 최고 확신이 되는 역설 방지
+    consensus_conf  = consensus_ratio * 100 if sp500_action != "HOLD" else abs(consensus_ratio - 0.5) * 2 * 100
     score_conf      = abs(score - 50) / 50 * 100
     strong_sigs     = sum(1 for s in ind_sigs if abs(s.get("z_score", 0)) >= 1.5)
     strength_conf   = min(strong_sigs / max(total, 1) * 100, 100)
@@ -139,11 +173,14 @@ def compute_decision(signal: dict, ranking: list, stock_sp500: dict, stock_kospi
         return "hold"
 
     sp_conf  = confidence
-    ksp_conf = min(confidence + 5, 95)
+    # KOSPI 신뢰도: kospi_score 극단성 반영 (KOSPI 독립 스코어 기반)
+    ksp_extremity = abs(kospi_score - 50) / 50 * 100
+    ksp_conf = round(min((confidence * 0.6 + ksp_extremity * 0.4), 95), 1)
 
     return {
         "computed_at": datetime.now().isoformat(),
         "composite_score": score,
+        "kospi_composite_score": kospi_score,  # REQ-031: KOSPI 독립 스코어
         "direction": direction,
         "sp500": {
             "action":           sp500_action,
