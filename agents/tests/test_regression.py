@@ -548,6 +548,82 @@ def test_T21_compute_kospi_score_independent():
         f"T21 FAIL: CONTEMPORANEOUS만 있으면 50.0 기대, got {score_no_valid}"
     )
 
-    # SP500 score와 독립: kospi_signed_r 방향이 다른 경우 다른 결과 나와야 함
-    # (SP500 기반이면 같은 z_score로 같은 방향이지만, KOSPI r이 다르면 달라야)
-    print(f"\n  T21 INFO: compute_kospi_score PASS, score={score_with_contemporaneous_excluded}")
+
+# ════════════════════════════════════════════════════════════════
+# T22: FIX-E _parse_stdin — JSONL/JSON object 양형식 파싱 검증
+#      (2026-06-12: Claude Code stdin이 raw JSONL이면 json.loads 실패 →
+#       transcript=[] → ALL SKIP. JSONL 폴백으로 수정)
+# ════════════════════════════════════════════════════════════════
+def test_T22_parse_stdin_jsonl_fallback():
+    """_parse_stdin이 raw JSONL(1줄=1 JSON)과 JSON object 양형식을 모두 파싱한다."""
+    entries = [
+        {"type": "user",      "message": {"role": "user",      "content": "Level 10 task"}},
+        {"type": "assistant", "message": {"role": "assistant",  "content": [{"type": "text", "text": "21/21 PASS"}]}},
+    ]
+
+    # Case A: JSON object format
+    json_obj_raw = json.dumps({"session_id": "test", "stop_hook_active": False, "transcript": entries})
+    hi_a, fmt_a = sh._parse_stdin(json_obj_raw)
+    assert fmt_a == "json_object", f"T22 FAIL: 예상 json_object, got {fmt_a}"
+    assert hi_a.get("transcript") == entries, "T22 FAIL: json_object transcript 불일치"
+
+    # Case B: raw JSONL format (1 JSON per line)
+    jsonl_raw = "\n".join(json.dumps(e) for e in entries)
+    hi_b, fmt_b = sh._parse_stdin(jsonl_raw)
+    assert fmt_b == "jsonl", f"T22 FAIL: 예상 jsonl, got {fmt_b}"
+    assert len(hi_b.get("transcript", [])) == len(entries), (
+        f"T22 FAIL: JSONL 항목 수 {len(hi_b.get('transcript',[]))} ≠ {len(entries)}"
+    )
+
+    # Case C: empty input
+    hi_c, fmt_c = sh._parse_stdin("")
+    assert fmt_c == "empty", f"T22 FAIL: 빈 입력 예상 empty, got {fmt_c}"
+    assert hi_c == {}, f"T22 FAIL: 빈 입력 hook_input 예상 {{}}, got {hi_c}"
+
+    # Case D: JSONL 파싱 후 _last_messages가 올바른 role 추출
+    lu, la, rc = sh._last_messages(hi_b["transcript"])
+    assert lu.strip() == "Level 10 task", f"T22 FAIL: last_user={lu!r}"
+    assert "21/21 PASS" in la, f"T22 FAIL: last_asst={la!r}"
+
+
+# ════════════════════════════════════════════════════════════════
+# T23: FIX-E 생산 JSONL 셀프테스트 — Check2 SKIP 방지
+#      (2026-06-12: 실제 세션 JSONL 파일로 셀프테스트 시 Check2≠SKIP)
+# ════════════════════════════════════════════════════════════════
+def test_T23_production_jsonl_check2_not_skip():
+    """실제 세션 JSONL 파일로 selftest 실행 시 Check2가 SKIP이 아닌지 확인한다.
+    Level 언급이 있는 세션 JSONL이 있을 때만 실행.
+    """
+    import subprocess, glob
+
+    projects_dir = Path.home() / ".claude" / "projects" / "C--Users-JY-Hwang-Desktop-AI-Projects-AI-Analyzer"
+    if not projects_dir.exists():
+        import pytest; pytest.skip("프로젝트 디렉토리 없음")
+
+    # 가장 최근 수정된 JSONL 파일 선택
+    jsonl_files = sorted(projects_dir.glob("*.jsonl"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if not jsonl_files:
+        import pytest; pytest.skip("JSONL 파일 없음")
+
+    target = jsonl_files[0]
+
+    # 해당 파일에 "Level" 언급이 있는지 확인 (없으면 SKIP이 정상)
+    raw = target.read_text(encoding="utf-8", errors="replace")
+    import re
+    if not re.search(r"(?:레벨|Level)\s*(?:[789]|10)", raw, re.I):
+        import pytest; pytest.skip("Level 7+ 언급 없는 파일 — SKIP이 정상")
+
+    result = subprocess.run(
+        [sys.executable, str(BASE / ".claude" / "hooks" / "stop_hook.py"),
+         "--selftest", str(target)],
+        capture_output=True, encoding="utf-8", errors="replace",
+        timeout=30,
+    )
+
+    # Check2=SKIP이면 FAIL (task_hint 빈 값도 FAIL)
+    assert "Check2=SKIP" not in result.stdout, (
+        f"T23 FAIL: 실제 JSONL 파일로 Check2=SKIP 발생\n{result.stdout[-400:]}"
+    )
+    assert "task_hint='(작업 내용 없음)'" not in result.stdout, (
+        f"T23 FAIL: task_hint 빈 값\n{result.stdout[-400:]}"
+    )

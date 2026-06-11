@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Claude Code Stop Hook  v4 (2026-06-11)
+Claude Code Stop Hook  v5 (2026-06-12)
   1. 자가 검증 3개 체크 (Evidence / 정적분석전용 / CLAUDE.md 업데이트)
   2. 작업 완료 전체 보고 + 체크 결과 Telegram 전송 (4096자 분할)
   3. --selftest 모드: 실제 transcript 파일로 3개 체크 검증
@@ -27,8 +27,16 @@ Claude Code Stop Hook  v4 (2026-06-11)
           → _normalize_msg() 헬퍼로 두 가지 형식 모두 지원:
              (a) 클린 형식: {role, content} 직접 (selftest/합성 트랜스크립트)
              (b) JSONL 형식: {type, message: {role, content}, ...} (실제 Claude Code)
+  FIX-E (2026-06-12): stdin JSONL 폴백 — Claude Code가 raw JSONL(1줄=1 JSON)로
+          stdin을 전달하는 경우 json.loads(raw)가 JSONDecodeError를 발생시켜
+          except Exception: hook_input={} 로 조용히 실패 → transcript=[] →
+          Check1/Check2=SKIP, task_hint="(작업 내용 없음)".
+          수정: json.loads 실패 시 줄 단위 JSONL 파싱 폴백.
+          추가: stdin_debug.txt에 raw 앞 600자 덤프 (형식 확인용).
+          _selftest()도 동일 JSONL 폴백 적용.
 
 입력: JSON via stdin  {"session_id": str, "stop_hook_active": bool, "transcript": [...]}
+      또는 raw JSONL (1줄=1 JSON) — FIX-E로 양형식 모두 지원
 """
 
 import json
@@ -71,7 +79,6 @@ def _tg_send(token: str, chat_id: str, text: str,
     chunks: list[str] = []
     remaining = text
     while len(remaining) > max_len:
-        # 자연스러운 줄바꿈 지점 탐색
         split_at = remaining.rfind("\n", 0, max_len - 40)
         if split_at < max_len // 2:
             split_at = max_len - 40
@@ -90,7 +97,6 @@ def _tg_send(token: str, chat_id: str, text: str,
             "disable_web_page_preview": "true",
         }
         try:
-            # surrogate 문자 제거 후 인코딩
             safe_payload = {k: v.encode("utf-8", errors="replace").decode("utf-8")
                             for k, v in payload.items()}
             data = urllib.parse.urlencode(safe_payload).encode("utf-8")
@@ -133,7 +139,6 @@ def _normalize_msg(msg: dict) -> tuple[str, str]:
 
     FIX-D (2026-06-11): 실제 Claude Code가 hook stdin에 전달하는 transcript는
     각 항목이 JSONL 형식 {type, message: {role, content}, ...} 이다.
-    기존 코드는 최상위 msg.get("role","") 로 role을 찾아 항상 ""를 반환했다.
 
     지원 형식:
       (a) JSONL 형식 (실제 Claude Code 트랜스크립트):
@@ -151,9 +156,7 @@ def _last_messages(transcript: list) -> tuple[str, str, str]:
     recent_level_ctx: 최근 user 메시지 중 '레벨/Level 7+' 언급이 있는 가장 최근 것.
 
     FIX-A (2026-06-11): 공백/개행 전용 user 메시지를 truthy로 처리하지 않음.
-      .strip() 기준으로 "실질 내용 있음"을 판단한다.
     FIX-B (2026-06-11): recent_level_ctx 스캔에서 빈 메시지를 카운트 제외.
-      빈 메시지 건너뜀 + 한도 20개로 상향.
     FIX-C (2026-06-11): 영어 'Level' 및 한국어 '레벨' 모두 인식.
     FIX-D (2026-06-11): JSONL 형식 지원 — _normalize_msg() 경유.
     """
@@ -165,11 +168,8 @@ def _last_messages(transcript: list) -> tuple[str, str, str]:
             last_asst = text
         elif role == "user" and not last_user.strip():
             last_user = text
-        # FIX-A: .strip() 기준으로 "둘 다 실질 내용 있음"을 판단
         if last_user.strip() and last_asst.strip():
             break
-    # FIX-B: 최근 레벨 컨텍스트 탐색 — 빈 메시지 건너뜀, 실질 user 최대 20개
-    # FIX-C: 영어 'Level' 및 한국어 '레벨' 모두 인식
     scanned = 0
     for msg in reversed(transcript):
         role, _ = _normalize_msg(msg)
@@ -178,7 +178,7 @@ def _last_messages(transcript: list) -> tuple[str, str, str]:
         _, content = _normalize_msg(msg)
         text = _extract_text_only(content) if isinstance(content, list) else str(content)
         if not text.strip():
-            continue  # 빈 메시지는 카운트 없이 건너뜀
+            continue
         if re.search(r"(?:레벨|Level)\s*([789]|10)", text, re.I):
             recent_level_ctx = text
             break
@@ -187,22 +187,55 @@ def _last_messages(transcript: list) -> tuple[str, str, str]:
             break
     return last_user, last_asst, recent_level_ctx
 
+# ── FIX-E: JSONL 줄 단위 파싱 헬퍼 ──────────────────────────────────────────
+
+def _parse_stdin(raw: str) -> tuple[dict, str]:
+    """stdin raw 문자열을 파싱. (hook_input, format_tag) 반환.
+
+    FIX-E (2026-06-12): Claude Code가 raw JSONL 형식(1줄=1 JSON)으로 stdin을
+    전달하는 경우 json.loads(raw)가 JSONDecodeError를 발생시켜 hook_input={}
+    로 조용히 실패한다. 폴백으로 줄 단위 JSONL 파싱을 시도한다.
+
+    반환:
+      hook_input: {"transcript": [...], ...} 형태의 dict
+      format_tag: "json_object" | "jsonl" | "empty" | "error"
+    """
+    if not raw.strip():
+        return {}, "empty"
+    try:
+        obj = json.loads(raw)
+        return obj, "json_object"
+    except json.JSONDecodeError:
+        pass
+    except Exception:
+        return {}, "error"
+
+    # JSONL 폴백: 줄 단위로 파싱
+    entries = []
+    for line in raw.strip().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            entries.append(json.loads(line))
+        except json.JSONDecodeError:
+            pass
+    if entries:
+        return {"transcript": entries}, "jsonl"
+    return {}, "error"
+
 # ── TQ-2: 섹션 1~4 완료 보고 섹션 추출 ─────────────────────────────────────
 
 def _find_completion_section(text: str) -> str:
     """완료 보고(섹션 1~4) 시작점을 찾아 해당 부분부터 반환."""
-    # "### 섹션 1" / "섹션 1." / "섹션1:" 패턴
     m = re.search(r'(?m)^#{0,4}\s*섹션\s*1[\s\.:]', text)
     if m:
         return text[m.start():]
-    # 보고 형식 키워드로 탐색
     m2 = re.search(r'(?m)^.{0,20}요청\s*vs\s*결과|^.{0,20}Request\s*vs', text)
     if m2:
         return text[m2.start():]
-    # 표 형식 (| 항목 | 상태 |)이 처음 나오는 줄
     m3 = re.search(r'(?m)^\|.+\|\s*$', text)
     if m3:
-        # 그 줄의 10줄 전부터
         start = max(0, text.rfind('\n', 0, m3.start() - 1, ) - 200)
         return text[start:]
     return text
@@ -211,25 +244,17 @@ def _find_completion_section(text: str) -> str:
 
 def _md_to_tg_html(text: str) -> str:
     """Markdown 서식 → Telegram HTML 변환."""
-    # 1. HTML 이스케이프
     text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-    # 2. ### Header → <b>Header</b>
     text = re.sub(r'(?m)^#{1,4}\s+(.+)$', r'<b>\1</b>', text)
-    # 3. **bold** → <b>bold</b>
     text = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', text, flags=re.DOTALL)
-    # 4. `code` → <code>code</code>
     text = re.sub(r'`([^`\n]+)`', r'<code>\1</code>', text)
-    # 5. 마크다운 테이블 구분선 제거 (|---|---|)
     text = re.sub(r'(?m)^\|[-| :]+\|\s*$\n?', '', text)
-    # 6. 연속 빈줄 3개 이상 → 2개
     text = re.sub(r'\n{3,}', '\n\n', text)
     return text.strip()
 
 def _html_to_plain(html: str) -> str:
     """HTML 태그 제거 → 터미널 출력용 plain text."""
-    # 태그 제거
     plain = re.sub(r'<[^>]+>', '', html)
-    # HTML 엔티티 복원
     plain = plain.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
     return plain
 
@@ -271,7 +296,6 @@ _EXECUTION_RE = [
 
 def check_static_only(last_user: str, last_asst: str,
                       recent_level_ctx: str = "") -> tuple[str, str]:
-    # FIX-C (2026-06-11): 영어 'Level' 및 한국어 '레벨' 모두 인식
     combined = (recent_level_ctx or "") + "\n" + last_user + "\n" + last_asst
     m = re.search(r"(?:레벨|Level)\s*([789]|10)", combined, re.I)
     if not m:
@@ -283,7 +307,6 @@ def check_static_only(last_user: str, last_asst: str,
         return "WARN", f"레벨 {level} — 정적 분석 언급 있고 실행 로그 없음"
     if has_exec:
         return "PASS", f"레벨 {level} — 실행 Evidence 확인"
-    # 실행 Evidence 미확인 — 정적/실행 모두 미탐지 → 확인 불가 WARN
     return "WARN", f"레벨 {level} — 실행 Evidence 미확인 (동적 테스트/exit code 없음)"
 
 # ── Check 3: CLAUDE.md 재발 패턴 섹션 업데이트 확인 ──────────────────────────
@@ -322,7 +345,6 @@ def check_claude_md() -> tuple[str, str]:
 def _sync_verify(html_msg: str, terminal_text: str) -> tuple[bool, str]:
     """HTML 메시지와 터미널 plain text의 핵심 내용 동일성 확인."""
     html_plain = _html_to_plain(html_msg)
-    # 체크 결과 키워드 (PASS/WARN/FAIL/SKIP) 위치 비교
     keywords   = re.findall(r'\b(?:PASS|WARN|FAIL|SKIP)\b', html_plain)
     term_kws   = re.findall(r'\b(?:PASS|WARN|FAIL|SKIP)\b', terminal_text)
     match      = sorted(keywords) == sorted(term_kws)
@@ -338,28 +360,23 @@ def _sync_verify(html_msg: str, terminal_text: str) -> tuple[bool, str]:
 def _selftest(transcript_file: Path) -> int:
     """--selftest: 실제 transcript 파일로 3개 체크가 의도대로 작동하는지 검증.
 
-    통과 기준 (FIX-A/B/C/D 적용 후):
-      - Check2: SKIP이 아닌 WARN 또는 PASS (레벨 7+ 인식)
-      - task_hint: '(작업 내용 없음)' 아닌 실제 내용 포함
-      - Check1: PASS 또는 WARN (FAIL은 허용 안 함)
-
-    FIX-D (2026-06-11): selftest_transcript.json이 실제 JSONL 형식을 사용해야
-    진짜 hook 동작을 검증할 수 있다. 클린 형식({role,content})도 여전히 지원.
+    FIX-E (2026-06-12): JSONL 파일(1줄=1 JSON)도 지원.
+      json.loads(raw) 실패 시 줄 단위 파싱 폴백.
     """
     if not transcript_file.exists():
         print(f"[SELFTEST] 파일 없음: {transcript_file}", file=sys.stderr)
         return 1
 
     raw = transcript_file.read_text(encoding="utf-8")
-    data = json.loads(raw)
-    transcript = data if isinstance(data, list) else data.get("transcript", [])
+    hook_input, fmt = _parse_stdin(raw)
+    transcript = hook_input if isinstance(hook_input, list) else hook_input.get("transcript", [])
+    print(f"[SELFTEST] 파일: {transcript_file.name} (형식: {fmt}, 항목: {len(transcript)}개)")
 
     lu, la, rc = _last_messages(transcript)
     c1_st, c1_det = check_evidence(la)
     c2_st, c2_det = check_static_only(lu, la, rc)
     task_hint = (lu[:70].replace("\n", " ").strip() or "(작업 내용 없음)")
 
-    print(f"[SELFTEST] 파일: {transcript_file.name}")
     print(f"[SELFTEST] last_user (first 80): {lu[:80]!r}")
     print(f"[SELFTEST] recent_ctx (first 80): {rc[:80]!r}")
     print(f"[SELFTEST] task_hint: {task_hint!r}")
@@ -368,9 +385,9 @@ def _selftest(transcript_file: Path) -> int:
 
     fails = []
     if c2_st == "SKIP":
-        fails.append("Check2=SKIP (레벨 7+ 미인식 — FIX-A/B/C/D 미적용)")
+        fails.append("Check2=SKIP (레벨 7+ 미인식 — FIX-A/B/C/D/E 미적용)")
     if task_hint == "(작업 내용 없음)":
-        fails.append("task_hint='(작업 내용 없음)' (last_user 빈 문자열 — FIX-A/D 미적용)")
+        fails.append("task_hint='(작업 내용 없음)' (last_user 빈 문자열)")
     if c1_st == "FAIL":
         fails.append("Check1=FAIL (Evidence 없음)")
 
@@ -402,21 +419,35 @@ def main() -> None:
         sys.exit(_selftest(tf))
 
     # stdin 읽기 — UTF-8 명시 (Windows cp949 기본값 방지)
+    raw = ""
     try:
         if hasattr(sys.stdin, "buffer"):
             raw = sys.stdin.buffer.read().decode("utf-8", errors="replace")
         else:
             raw = sys.stdin.read()
-        hook_input = json.loads(raw) if raw.strip() else {}
     except Exception:
-        hook_input = {}
+        raw = ""
+
+    # FIX-E: stdin 덤프 — 실제 형식 확인용 (첫 600자)
+    try:
+        _debug_path = BASE_DIR / ".claude" / "hooks" / "stdin_debug.txt"
+        _debug_path.write_text(
+            f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] len={len(raw)}\n"
+            + (raw[:600] if raw else "(empty)"),
+            encoding="utf-8"
+        )
+    except Exception:
+        pass
+
+    # FIX-E: JSON object 우선, JSONL 폴백
+    hook_input, stdin_fmt = _parse_stdin(raw)
 
     # 무한루프 방지
     if hook_input.get("stop_hook_active"):
         sys.exit(0)
 
     transcript                          = hook_input.get("transcript", [])
-    last_user, last_asst, recent_lvl_ctx = _last_messages(transcript)  # TQ-1: type=text only
+    last_user, last_asst, recent_lvl_ctx = _last_messages(transcript)
     env                  = _load_env()
     tg_token             = env.get("TELEGRAM_BOT_TOKEN", "")
     tg_chat              = env.get("TELEGRAM_CHAT_ID", "")
@@ -436,7 +467,6 @@ def main() -> None:
 
     # ── TQ-2: 완료 보고 섹션 추출 ────────────────────────────────────
     completion_text = _find_completion_section(last_asst)
-    # 2500자 제한 + 생략 표시
     if len(completion_text) > 2500:
         completion_text = completion_text[:2500] + "\n... (이하 생략)"
 
@@ -447,7 +477,7 @@ def main() -> None:
     # ── 체크 결과 HTML 섹션 ───────────────────────────────────────────
     check_html = (
         f"\n{'─'*20}\n"
-        f"🔍 <b>자가 검증 체크</b>\n\n"
+        f"🔍 <b>자가 검증 체크</b>  <i>stdin:{stdin_fmt} t={len(transcript)}</i>\n\n"
         f"{ICON[c1_st]} <b>체크1 Evidence</b>: <code>{c1_st}</code>\n"
         f"   {_esc(c1_det)}\n\n"
         f"{ICON[c2_st]} <b>체크2 정적분석</b>: <code>{c2_st}</code>\n"
@@ -473,15 +503,14 @@ def main() -> None:
     terminal_text = _html_to_plain(combined_html)
     sync_ok, sync_detail = _sync_verify(combined_html, terminal_text)
 
-    # 터미널 출력 (HTML 태그 없이)
     print(f"\n[STOP_HOOK] {now_str}")
-    print(terminal_text[:1200])   # 터미널은 최대 1200자 미리보기
+    print(terminal_text[:1200])
     if len(terminal_text) > 1200:
         print(f"  ... ({len(terminal_text) - 1200}자 이하 생략)")
     print(f"\n[SYNC] {sync_detail}")
-    print(f"[STOP_HOOK] HTML={len(combined_html)}자, TG분할기준={4096}자")
+    print(f"[STOP_HOOK] stdin={stdin_fmt} transcript={len(transcript)}항목, HTML={len(combined_html)}자")
 
-    # ── Telegram 전송 (단일 통합 메시지) ─────────────────────────────
+    # ── Telegram 전송 ─────────────────────────────────────────────────
     if tg_token and tg_chat:
         ok, tot = _tg_send(tg_token, tg_chat, combined_html, parse_mode="HTML")
         print(f"[STOP_HOOK] Telegram 전송: {ok}/{tot}청크 성공")
