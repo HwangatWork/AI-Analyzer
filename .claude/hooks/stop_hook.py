@@ -446,8 +446,30 @@ def main() -> None:
     if hook_input.get("stop_hook_active"):
         sys.exit(0)
 
-    transcript                          = hook_input.get("transcript", [])
-    last_user, last_asst, recent_lvl_ctx = _last_messages(transcript)
+    # FIX-F: Claude Code Stop hook sends transcript_path + last_assistant_message,
+    # NOT a "transcript" array.  hook_input.get("transcript", []) always returns [].
+    # Fix 1 — Check1: read last_assistant_message directly (already extracted by Claude Code)
+    last_asst = hook_input.get("last_assistant_message", "")
+    # Fix 2 — Check2: read transcript_path file to get last_user + recent_lvl_ctx
+    transcript = []
+    last_user = recent_lvl_ctx = ""
+    _tp = hook_input.get("transcript_path", "")
+    if _tp:
+        try:
+            _tp_file = Path(_tp)
+            if _tp_file.exists():
+                _tp_entries: list[dict] = []
+                for _l in _tp_file.read_text(encoding="utf-8", errors="replace").splitlines():
+                    _l = _l.strip()
+                    if _l:
+                        try:
+                            _tp_entries.append(json.loads(_l))
+                        except json.JSONDecodeError:
+                            pass
+                transcript = _tp_entries
+                last_user, _, recent_lvl_ctx = _last_messages(_tp_entries)
+        except Exception:
+            pass
     env                  = _load_env()
     tg_token             = env.get("TELEGRAM_BOT_TOKEN", "")
     tg_chat              = env.get("TELEGRAM_CHAT_ID", "")

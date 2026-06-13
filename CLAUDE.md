@@ -56,3 +56,11 @@ caught by `except Exception: hook_input = {}` → `transcript = []` → Check1/C
 Fix: `_parse_stdin()` — try `json.loads` first, fall back to line-by-line JSONL parsing.
 New field in Telegram: `stdin:jsonl|json_object|empty` confirms which path fired.
 Never silence a `json.loads` failure in hook code without a JSONL fallback.
+
+**FIX-F (2026-06-13): stop_hook hook_input has no "transcript" array**
+DO NOT call `hook_input.get("transcript", [])`.
+Claude Code Stop hook sends `transcript_path` + `last_assistant_message`, NOT a transcript array.
+`hook_input.get("transcript", [])` always returns `[]` → `_last_messages([])` → all checks SKIP.
+Fix: Read `hook_input["last_assistant_message"]` for Check1 (Evidence).
+     Open and parse the JSONL file at `hook_input["transcript_path"]` for Check2 (level scan).
+(confirmed production 2026-06-12, stdin_debug.txt verified)
