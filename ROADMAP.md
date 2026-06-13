@@ -433,3 +433,4 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 - [ ] ctd_weights.json + ctd_bridge.json v4 스키마로 업데이트
 - [ ] CTD 웹앱에서 정상 표시 확인
 - [ ] Telegram 보고 + git push
+<!-- STOP: connecting-dots-ctd 별도 저장소 — AI-Analyzer에서 실행 불가 (2026-06-13) -->
