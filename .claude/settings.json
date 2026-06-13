@@ -1,0 +1,22 @@
+{
+    "permissions":  {
+                        "defaultMode":  "bypassPermissions",
+                        "allow":  [
+                                      "Bash(*)",
+                                      "Write(*)",
+                                      "Read(*)"
+                                  ]
+                    },
+    "hooks": {
+        "Stop": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "python \"C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\.claude\\hooks\\stop_hook.py\""
+                    }
+                ]
+            }
+        ]
+    }
+}
