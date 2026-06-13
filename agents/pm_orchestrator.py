@@ -621,6 +621,95 @@ def _sa9_agent_spec_audit() -> dict:
     }
 
 
+_DC_INJECT_MARKER = "# ── Done Criteria (auto-injected by SA-9)"
+
+_DC_BLOCK_TMPL = """\n    {marker} ──────────────────────────────
+    import sys as _sa9_sys, os as _sa9_os
+    from pathlib import Path as _sa9_P
+    _sa9_out = str(_sa9_P(__file__).parent.parent / "{out_rel}")
+    _sa9_sz  = _sa9_os.path.getsize(_sa9_out) if _sa9_os.path.exists(_sa9_out) else -1
+    _sa9_err = (
+        f"DC-1 FAIL: {{_sa9_out}} not found"  if not _sa9_os.path.exists(_sa9_out) else
+        f"DC-2 FAIL: empty"                    if _sa9_sz == 0                      else
+        f"DC-3 FAIL: {{_sa9_sz}}B < 100B"     if _sa9_sz < 100                     else None
+    )
+    if _sa9_err:
+        print(f"[DONE CRITERIA] {{_sa9_err}}", file=_sa9_sys.stderr)
+        print(f"DONE_CRITERIA: FAIL — {{_sa9_err}}")
+        _sa9_sys.exit(1)
+    print(f"[DONE CRITERIA] {{_sa9_out}} — DC-1~DC-3 PASS")
+    print("DONE_CRITERIA: PASS")
+"""
+
+# Pattern A → check collection report (single-file proxy for parquet batch)
+# Pattern B → check primary JSON/HTML output
+_SA9_INJECT_TARGETS: dict[str, str] = {
+    "run_data_agent_v2.py":      "data/collection_report_v2.json",
+    "run_analysis_agent_v2.py":  "data/processed/analysis_results.json",
+    "run_stock_agent_v2.py":     "data/processed/stock_results.json",
+    "run_evaluator_agent_v2.py": "data/processed/evaluation_results.json",
+    "run_news_agent.py":         "output/news_report.json",
+    "run_sector_agent.py":       "output/sector_analysis.json",
+    "run_ui_agent.py":           "output/final_results.json",
+}
+
+
+def _sa9_inject_done_criteria() -> dict:
+    """SA-9 확장: PIPELINE agents/*.py에 표준 Done Criteria 블록 자동 주입.
+
+    - 이미 'DONE_CRITERIA: PASS' 보유한 파일 → skip
+    - run_news_agent.py (sys.exit(0) 종료) → exit 직전에 삽입
+    - 나머지 → 파일 끝에 추가 (main 블록 내부)
+    - 주입 실패 시 즉시 revert
+    - NEVER_MODIFY: refresh_data / pm_orchestrator / pm_utils / utf8_setup / tests/
+    """
+    injected: list[str] = []
+    skipped:  list[str] = []
+    failed:   list[str] = []
+
+    for fname, out_rel in _SA9_INJECT_TARGETS.items():
+        fpath = AGENTS_DIR / fname
+        if not fpath.exists():
+            skipped.append(f"{fname}(없음)")
+            continue
+
+        text = fpath.read_text(encoding="utf-8")
+
+        if "DONE_CRITERIA: PASS" in text or _DC_INJECT_MARKER in text:
+            skipped.append(f"{fname}(DC보유)")
+            continue
+
+        dc_block = _DC_BLOCK_TMPL.format(marker=_DC_INJECT_MARKER, out_rel=out_rel)
+        backup   = text
+
+        try:
+            # run_news_agent ends with sys.exit(0) — insert before it
+            if fname == "run_news_agent.py" and "    sys.exit(0)" in text:
+                last_idx = text.rfind("    sys.exit(0)")
+                new_text = text[:last_idx] + dc_block + "\n    sys.exit(0)\n"
+            else:
+                new_text = text.rstrip() + "\n" + dc_block
+            fpath.write_text(new_text, encoding="utf-8")
+            injected.append(fname)
+            print(f"  [SA-9x] {fname}: DC 블록 주입 완료 → {out_rel}")
+        except Exception as _e9:
+            try:
+                fpath.write_text(backup, encoding="utf-8")
+            except Exception:
+                pass
+            failed.append(f"{fname}:{_e9}")
+            print(f"  [SA-9x] {fname}: 주입 실패 → revert — {_e9}")
+
+    n_inj = len(injected)
+    n_skp = len(skipped)
+    sev   = "MEDIUM" if n_inj else "INFO"
+    title = (f"SA-9x DC 블록 주입 — {n_inj}개 주입" if n_inj
+             else "SA-9x DC 블록 전원 보유 (주입 불필요)")
+    detail = (f"주입: {injected} | 스킵: {skipped}"
+              + (f" | 실패: {failed}" if failed else ""))
+    return {"sa_code": "SA-9x", "severity": sev, "title": title, "detail": detail}
+
+
 def pm_system_audit() -> list[dict]:
     """SA-1~SA-9 정적 구조 감사 — 런타임 데이터 품질(SD)과 분리된 아키텍처 검사.
 
@@ -819,6 +908,9 @@ def pm_system_audit() -> list[dict]:
 
     # ── SA-9: .claude/agents/*.md 6-섹션 명세 완비 감사 ────────────────────
     findings.append(_sa9_agent_spec_audit())
+
+    # ── SA-9x: agents/*.py Done Criteria 블록 자동 주입 ─────────────────────
+    findings.append(_sa9_inject_done_criteria())
 
     # SA 감사 결과 캐시 갱신 (mutable list — 참조 무효화 방지)
     _last_audit_findings.clear()

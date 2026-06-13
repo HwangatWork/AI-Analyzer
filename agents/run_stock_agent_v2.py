@@ -869,3 +869,20 @@ if __name__ == "__main__":
         print(f"  → 전 항목 통과 ({len(done_criteria)}/{len(done_criteria)})")
 
     print(f"Stock Agent v3 완료 (KOSPI {ksp_res['analyzed_count']}개 / S&P500 {sp_res['analyzed_count']}개 분석)")
+
+    # ── Done Criteria (auto-injected by SA-9) ──────────────────────────────
+    import sys as _sa9_sys, os as _sa9_os
+    from pathlib import Path as _sa9_P
+    _sa9_out = str(_sa9_P(__file__).parent.parent / "data/processed/stock_results.json")
+    _sa9_sz  = _sa9_os.path.getsize(_sa9_out) if _sa9_os.path.exists(_sa9_out) else -1
+    _sa9_err = (
+        f"DC-1 FAIL: {_sa9_out} not found"  if not _sa9_os.path.exists(_sa9_out) else
+        f"DC-2 FAIL: empty"                    if _sa9_sz == 0                      else
+        f"DC-3 FAIL: {_sa9_sz}B < 100B"     if _sa9_sz < 100                     else None
+    )
+    if _sa9_err:
+        print(f"[DONE CRITERIA] {_sa9_err}", file=_sa9_sys.stderr)
+        print(f"DONE_CRITERIA: FAIL — {_sa9_err}")
+        _sa9_sys.exit(1)
+    print(f"[DONE CRITERIA] {_sa9_out} — DC-1~DC-3 PASS")
+    print("DONE_CRITERIA: PASS")
