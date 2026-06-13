@@ -5,12 +5,10 @@ PM Agent — thin wrapper (run_pm_agent.py)
     파이프라인 조율, APPROVE/HOLD 최종 판단, pending_requests 갱신
   역할 2 (Meta-Audit/.claude/agents/meta-audit-agent.md):
     pm_self_diagnosis() — SD-1~20 자가진단, report_quality_check() 보고서 레벨 평가
-
   실제 구현:
     pm_utils.py       — I/O 헬퍼, Telegram, subprocess
     pm_quality.py     — pm_quality_checks(), 기준선 관리, 이슈 도출
     pm_orchestrator.py — 파이프라인, validate_results, pm_system_audit
-
 Done Criteria (PM-1~PM-6):
   PM-1: 전체 파이프라인 단계 실행 (exit 0)
   PM-2: 6가지 자체검증 기준 모두 통과
@@ -18,12 +16,10 @@ Done Criteria (PM-1~PM-6):
   PM-4: 각 단계 완료 시 Telegram 진행 보고
   PM-5: 모든 기준 통과 시 Notion 페이지 업데이트
   PM-6: 최종 결과 Telegram 전송 (성공 or 실패 원인 포함)
-
 실행:
   python agents/run_pm_agent.py [--skip-data]
   --skip-data : Data Agent(오래 걸림) 건너뜀 — 이미 수집된 데이터 재사용
 """
-
 import io
 import json
 import sys

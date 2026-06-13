@@ -178,46 +178,10 @@ def export_csv(final_ranking: list, signal: dict, stock: dict):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Condition C: HTML Dashboard (v4 — UX 서브 에이전트 오케스트레이션)
+# Condition C: HTML Dashboard helpers (≤50L each for SA-2)
 # ─────────────────────────────────────────────────────────────────────────────
-def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, generated_at, sector_data=None):
-    sp500 = {
-        "contribution_top5": stock.get("f09_sp500_contribution_top5", []),
-        "beneficiary_top5":  stock.get("f11_sp500_beneficiary_top5",  []),
-    }
-    kospi = {
-        "contribution_top5": stock.get("f10_kospi_contribution_top5", []),
-        "beneficiary_top5":  stock.get("f12_kospi_beneficiary_top5",  []),
-    }
-
-    # 각 UX 에이전트가 섹션 HTML 반환
-    signal_html     = generate_signal_section(signal)
-    stocks_html     = generate_stocks_section(sp500, kospi)
-    indicators_html = generate_indicators_section(final_ranking, data_quality, meta)
-
-    # 신규: 의사결정 + 내러티브 + 섹터 + Looker Studio
-    decision        = compute_decision(signal, final_ranking, sp500, kospi)
-    decision_html   = generate_decision_section(decision)
-    narrative       = generate_narrative(signal, decision, final_ranking, sp500, kospi, meta)
-    narrative_html  = generate_narrative_section(narrative)
-    sector_html     = generate_sector_section(sector_data or {})
-    sheets_result   = upload_to_sheets()
-    sheets_html     = generate_sheets_section(sheets_result)
-
-    score     = signal.get("score", 50)
-    direction = signal.get("direction", "neutral")
-    dir_ko    = {"risk-on": "위험 선호", "neutral": "중립", "risk-off": "위험 회피"}.get(direction, direction)
-    dir_color = {"risk-on": "#22c55e", "neutral": "#f59e0b", "risk-off": "#ef4444"}.get(direction, "#64748b")
-    period    = meta.get("period", {})
-    coll_rate = meta.get("collection_rate", "")
-
-    html = f"""<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Analyzer v5 — Market Intelligence Dashboard</title>
-<style>
+def _css_theme(dir_color: str) -> str:
+    return f"""
   :root {{
     --bg:      #0b1120;
     --surface: #1e293b;
@@ -235,11 +199,8 @@ def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, ge
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
     background: var(--bg); color: var(--text); min-height:100vh;
   }}
-
-  /* ── Header ── */
   .header {{
-    background: #0f172a;
-    border-bottom: 1px solid #1e293b;
+    background: #0f172a; border-bottom: 1px solid #1e293b;
     padding: 14px 24px;
     display: flex; align-items:center; justify-content:space-between;
     position: sticky; top:0; z-index:100;
@@ -249,86 +210,83 @@ def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, ge
   .signal-pill {{
     padding: 4px 12px; border-radius: 20px; font-size:0.8rem; font-weight:700;
     background: {dir_color}22; color: {dir_color}; border: 1px solid {dir_color}44;
-  }}
+  }}"""
 
-  /* ── Nav Tabs ── */
-  .nav-tabs {{
-    background: #0f172a;
-    border-bottom: 1px solid #1e293b;
-    padding: 0 24px;
-    display: flex; gap:0;
-  }}
-  .nav-tab {{
+
+def _css_nav_layout() -> str:
+    return """
+  .nav-tabs {
+    background: #0f172a; border-bottom: 1px solid #1e293b;
+    padding: 0 24px; display: flex; gap:0;
+  }
+  .nav-tab {
     padding: 10px 18px; font-size:0.82rem; font-weight:500;
     color: var(--muted); border:none; background:none; cursor:pointer;
     border-bottom: 2px solid transparent; transition: all 0.15s;
-  }}
-  .nav-tab:hover  {{ color: var(--text); }}
-  .nav-tab.active {{ color: var(--blue); border-bottom-color: var(--blue); }}
-
-  /* ── Layout ── */
-  .main {{ max-width: 1280px; margin: 0 auto; padding: 20px 24px; }}
-  .card {{
+  }
+  .nav-tab:hover  { color: var(--text); }
+  .nav-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .main { max-width: 1280px; margin: 0 auto; padding: 20px 24px; }
+  .card {
     background: var(--surface); border-radius:10px;
     padding: 18px; border: 1px solid #263248;
-  }}
-  .grid-2 {{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }}
-  .grid-3 {{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }}
-  .section-title {{
+  }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+  .section-title {
     font-size:1rem; font-weight:700; color:#94a3b8;
-    margin: 0 0 14px; padding-bottom:8px;
-    border-bottom: 1px solid #1e293b;
-  }}
-  .subsection-title {{
-    font-size:0.85rem; font-weight:600; color:#64748b;
-    margin-bottom:10px;
-  }}
-  section {{ margin-bottom: 28px; }}
+    margin: 0 0 14px; padding-bottom:8px; border-bottom: 1px solid #1e293b;
+  }
+  .subsection-title { font-size:0.85rem; font-weight:600; color:#64748b; margin-bottom:10px; }
+  section { margin-bottom: 28px; }
+  .page { display:none; }
+  .page.active { display:block; }"""
 
-  /* ── Stock Cards ── */
-  .stock-grid {{ display:flex; flex-direction:column; gap:8px; }}
-  .stock-card {{
+
+def _css_components() -> str:
+    return """
+  .stock-grid { display:flex; flex-direction:column; gap:8px; }
+  .stock-card {
     background: #0f172a; border-radius:8px; padding:12px;
     border: 1px solid #1e293b; transition: border-color 0.15s;
-  }}
-  .stock-card:hover {{ border-color: #334155; }}
-
-  /* ── KV rows ── */
-  .kv {{
+  }
+  .stock-card:hover { border-color: #334155; }
+  .kv {
     display:flex; justify-content:space-between;
-    font-size:0.75rem; padding:2px 0;
-    border-bottom: 1px solid #0f172a;
+    font-size:0.75rem; padding:2px 0; border-bottom: 1px solid #0f172a;
     color: var(--muted);
-  }}
-  .kv:last-child {{ border-bottom: none; }}
-  .kv span:last-child {{ font-weight:600; color: var(--text); }}
-
-  /* ── Tabs (stocks section) ── */
-  .tab-bar {{ display:flex; gap:6px; }}
-  .tab {{
+  }
+  .kv:last-child { border-bottom: none; }
+  .kv span:last-child { font-weight:600; color: var(--text); }
+  .tab-bar { display:flex; gap:6px; }
+  .tab {
     padding: 5px 14px; border-radius:6px; font-size:0.78rem; font-weight:600;
     border: 1px solid #334155; background: #0f172a; color: var(--muted); cursor:pointer;
-  }}
-  .tab.active {{ background: #1e3a5f; color: var(--blue); border-color: var(--blue); }}
+  }
+  .tab.active { background: #1e3a5f; color: var(--blue); border-color: var(--blue); }
+  @media (max-width: 768px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .main { padding: 12px 14px; }
+    .header { padding: 10px 14px; }
+    .nav-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0 12px; }
+    .nav-tab { white-space: nowrap; flex-shrink: 0; padding: 10px 12px; font-size:0.78rem; }
+    .header-meta { display: none; }
+  }"""
 
-  /* ── Page sections visibility ── */
-  .page {{ display:none; }}
-  .page.active {{ display:block; }}
 
-  /* ── Responsive ── */
-  @media (max-width: 768px) {{
-    .grid-2, .grid-3 {{ grid-template-columns: 1fr; }}
-    .main {{ padding: 12px 14px; }}
-    .header {{ padding: 10px 14px; }}
-    .nav-tabs {{ overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0 12px; }}
-    .nav-tab {{ white-space: nowrap; flex-shrink: 0; padding: 10px 12px; font-size:0.78rem; }}
-    .header-meta {{ display: none; }}
-  }}
+def _html_head(dir_color: str) -> str:
+    css = _css_theme(dir_color) + _css_nav_layout() + _css_components()
+    return f"""<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Analyzer v5 — Market Intelligence Dashboard</title>
+<style>{css}
 </style>
-</head>
-<body>
+</head>"""
 
-<!-- ── Header ─────────────────────────────────────────────────── -->
+
+def _html_header_bar(score, dir_ko, dir_color, period, coll_rate, generated_at) -> str:
+    return f"""<!-- ── Header ─────────────────────────────────────────────────── -->
 <header class="header">
   <div>
     <div class="header-title">AI Analyzer v5</div>
@@ -342,9 +300,11 @@ def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, ge
     <span class="signal-pill">{score} · {dir_ko}</span>
     <a href="indicator_ranking.csv" style="font-size:0.72rem;color:var(--blue);text-decoration:none">↓ CSV</a>
   </div>
-</header>
+</header>"""
 
-<!-- ── Nav ─────────────────────────────────────────────────────── -->
+
+def _html_nav() -> str:
+    return """<!-- ── Nav ─────────────────────────────────────────────────────── -->
 <nav class="nav-tabs">
   <button class="nav-tab active" onclick="showPage('decision')">📊 매수/매도</button>
   <button class="nav-tab" onclick="showPage('narrative')">🤖 AI 리포트</button>
@@ -353,39 +313,26 @@ def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, ge
   <button class="nav-tab" onclick="showPage('sector')">산업 딥다이브</button>
   <button class="nav-tab" onclick="showPage('indicators')">지표 랭킹</button>
   <button class="nav-tab" onclick="showPage('looker')">📈 Looker Studio</button>
-</nav>
+</nav>"""
 
-<!-- ── Main ────────────────────────────────────────────────────── -->
+
+def _html_main_section(decision_html, narrative_html, signal_html, stocks_html,
+                        sector_html, indicators_html, sheets_html) -> str:
+    return f"""<!-- ── Main ────────────────────────────────────────────────────── -->
 <main class="main">
-  <div id="page-decision" class="page active">
-    {decision_html}
-  </div>
-  <div id="page-narrative" class="page">
-    {narrative_html}
-  </div>
-  <div id="page-signal" class="page">
-    {signal_html}
-  </div>
-  <div id="page-stocks" class="page">
-    {stocks_html}
-  </div>
-  <div id="page-sector" class="page">
-    {sector_html}
-  </div>
-  <div id="page-indicators" class="page">
-    {indicators_html}
-  </div>
-  <div id="page-looker" class="page">
-    {sheets_html}
-  </div>
+  <div id="page-decision" class="page active">{decision_html}</div>
+  <div id="page-narrative" class="page">{narrative_html}</div>
+  <div id="page-signal" class="page">{signal_html}</div>
+  <div id="page-stocks" class="page">{stocks_html}</div>
+  <div id="page-sector" class="page">{sector_html}</div>
+  <div id="page-indicators" class="page">{indicators_html}</div>
+  <div id="page-looker" class="page">{sheets_html}</div>
 </main>
-
 <footer style="text-align:center;padding:16px;font-size:0.7rem;color:#334155;border-top:1px solid #1e293b">
   AI Analyzer v5 &nbsp;|&nbsp; Data: FinanceDataReader · FRED · alternative.me · Yahoo Finance &nbsp;|&nbsp;
   p&lt;0.05 통계적 유의 기준 &nbsp;|&nbsp;
   <a href="https://hwangatwork.github.io/AI-Analyzer/" style="color:#475569">hwangatwork.github.io/AI-Analyzer</a>
 </footer>
-
 <script>
   function showPage(name) {{
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -399,9 +346,52 @@ def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, ge
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     event.target.classList.add('active');
   }}
-</script>
-</body>
-</html>"""
+</script>"""
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Condition C: HTML Dashboard (v4 — UX 서브 에이전트 오케스트레이션)
+# ─────────────────────────────────────────────────────────────────────────────
+def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, generated_at, sector_data=None):
+    sp500 = {
+        "contribution_top5": stock.get("f09_sp500_contribution_top5", []),
+        "beneficiary_top5":  stock.get("f11_sp500_beneficiary_top5",  []),
+    }
+    kospi = {
+        "contribution_top5": stock.get("f10_kospi_contribution_top5", []),
+        "beneficiary_top5":  stock.get("f12_kospi_beneficiary_top5",  []),
+    }
+
+    signal_html     = generate_signal_section(signal)
+    stocks_html     = generate_stocks_section(sp500, kospi)
+    indicators_html = generate_indicators_section(final_ranking, data_quality, meta)
+    decision        = compute_decision(signal, final_ranking, sp500, kospi)
+    decision_html   = generate_decision_section(decision)
+    narrative       = generate_narrative(signal, decision, final_ranking, sp500, kospi, meta)
+    narrative_html  = generate_narrative_section(narrative)
+    sector_html     = generate_sector_section(sector_data or {})
+    sheets_result   = upload_to_sheets()
+    sheets_html     = generate_sheets_section(sheets_result)
+
+    score     = signal.get("score", 50)
+    direction = signal.get("direction", "neutral")
+    dir_ko    = {"risk-on": "위험 선호", "neutral": "중립", "risk-off": "위험 회피"}.get(direction, direction)
+    dir_color = {"risk-on": "#22c55e", "neutral": "#f59e0b", "risk-off": "#ef4444"}.get(direction, "#64748b")
+    period    = meta.get("period", {})
+    coll_rate = meta.get("collection_rate", "")
+
+    html = (
+        "<!DOCTYPE html>\n<html lang=\"ko\">\n"
+        + _html_head(dir_color)
+        + "\n<body>\n"
+        + _html_header_bar(score, dir_ko, dir_color, period, coll_rate, generated_at)
+        + "\n"
+        + _html_nav()
+        + "\n"
+        + _html_main_section(decision_html, narrative_html, signal_html, stocks_html,
+                              sector_html, indicators_html, sheets_html)
+        + "\n</body>\n</html>"
+    )
 
     html_path = OUTPUT_DIR / "dashboard.html"
     html_path.write_text(html, encoding="utf-8")

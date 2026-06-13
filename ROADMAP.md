@@ -389,11 +389,11 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 
 ### REQ-SA2: run_ui_agent.py 대형 함수 분리
 
-- [ ] generate_html_dashboard() 226줄을 50줄 이하 단위로 분리
-- [ ] 분리 후 기존 출력(dashboard.html, final_results.json) 동일 확인
-- [ ] 회귀 47/47 PASS 유지
-- [ ] SA-2 감사 결과 INFO로 전환 확인
-- [ ] Telegram 보고 + git push
+- [x] generate_html_dashboard() 226줄을 50줄 이하 단위로 분리 (최대 44줄, 헬퍼 7개)
+- [x] 분리 후 기존 출력(dashboard.html, final_results.json) 동일 확인
+- [x] 회귀 48/48 PASS 유지
+- [x] SA-2 감사 결과 INFO로 전환 확인 (9/9 INFO)
+- [x] Telegram 보고 + git push
 
 ---
 
