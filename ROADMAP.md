@@ -333,3 +333,27 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 | REQ-003 | Google Sheets 자동화 | waiting_credentials |
 | REQ-004 | Notion 연동 | waiting_credentials |
 | REQ-FUTURE-001 | 코스피100→코스피200 유니버스 확장 | backlog |
+
+---
+
+## Phase 6: PM Agent 중심 자율 실행 시스템 전환
+
+### Phase 6-1: SA-9 확장 — agents/*.py Done Criteria 자동 주입
+
+- [ ] SA9-T1: 현황 감사 — `agents/*.py` 중 `_verify_done_criteria()` 없는 파일 목록 + 출력 파일 패턴 파악. Telegram 보고 후 대기.
+- [ ] SA9-T2: 패턴 분류 — 각 agent를 Pattern A(파일출력/parquet·csv), Pattern B(JSON출력), Pattern C(사이드이펙트)로 분류. Telegram 보고 후 대기.
+- [ ] SA9-T3: `_sa9_inject_done_criteria()` 구현 — pm_orchestrator.py SA-9에 주입 로직 추가. NEVER modify: `refresh_data.py` / `pm_orchestrator.py` 자체 / `pm_utils.py` / `utf8_setup.py` / `tests/`. 주입 실패 시 즉시 revert. 회귀 34/34 PASS 확인.
+- [ ] SA9-T4: 회귀 테스트 추가 — `tests/test_sa9_injection.py` (5개). 34/34 PASS.
+- [ ] SA9-T5: SA-9 첫 확장 실행 — 13개 에이전트 주입 결과 + 패턴별 분류 Telegram 보고.
+
+### Phase 6-2: `.claude/agents/*.md` Input/Output Contract 내용 검증
+
+- [ ] SA-9 다음 파이프라인 실행 후 AUTO-GENERATED 섹션 실제 코드와 대조 검증
+
+### Phase 6-3: PM Agent 오케스트레이션 전환
+
+- [ ] Group A/B/C/D 병렬 실행 구조로 전환
+
+### Phase 6-4: failure_memory.json 연결
+
+- [ ] 패턴 기억 레이어 + 재시도 로직
