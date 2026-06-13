@@ -442,8 +442,69 @@ def _register_audit_findings(findings: list[dict]) -> None:
         print("  [SA] pending_requests 신규 등록 없음 (모두 기존 항목)")
 
 
+def _sa8_regression_health(agents_dir: Path) -> dict:
+    """SA-8: 회귀 테스트 스위트 자체 건강도 감사 (구조 감사, 데이터 품질과 무관).
+
+    T-count:     test 함수 ≥ 23개
+    T-vacuous:   assert True / assert [] == [] 패턴 0건
+    T-import:    핵심 모듈 3개 이상 참조 (stop_hook/decision_agent/compute_kospi/pm_quality)
+    T-freshness: 테스트 파일이 소스보다 14일 이상 뒤처지지 않음
+    """
+    import re as _re8
+
+    test_path = agents_dir / "tests" / "test_regression.py"
+    if not test_path.exists():
+        return {"sa_code": "SA-8", "severity": "HIGH",
+                "title": "SA-8 회귀 테스트 파일 없음",
+                "detail": f"{test_path} 파일 없음"}
+    try:
+        src = test_path.read_text(encoding="utf-8", errors="ignore")
+    except Exception as _e8:
+        return {"sa_code": "SA-8", "severity": "HIGH",
+                "title": "SA-8 회귀 테스트 읽기 실패",
+                "detail": str(_e8)[:120]}
+
+    issues: list[str] = []
+    parts:  list[str] = []
+
+    fn_count = len(_re8.findall(r"^def (test_\w+)", src, _re8.MULTILINE))
+    if fn_count < 23:
+        issues.append(f"T-count {fn_count}<23")
+    parts.append(f"T-count={fn_count}")
+
+    vacuous = [l for l in src.splitlines()
+               if _re8.search(r"\bassert True\b", l) or "assert [] ==" in l]
+    if vacuous:
+        issues.append(f"T-vacuous {len(vacuous)}건")
+    parts.append(f"T-vacuous={len(vacuous)}")
+
+    _core = ["stop_hook", "decision_agent", "compute_kospi", "pm_quality"]
+    refs = sum(1 for m in _core if m in src)
+    if refs < 3:
+        issues.append(f"T-import {refs}<3")
+    parts.append(f"T-import={refs}/{len(_core)}")
+
+    test_mtime = test_path.stat().st_mtime
+    _src_files = ["pm_orchestrator.py", "pm_quality.py", "run_pm_agent.py",
+                  "run_decision_agent.py", "run_validation_agent.py"]
+    _mtimes = [p.stat().st_mtime for p in (agents_dir / f for f in _src_files) if p.exists()]
+    lag_days = max(0.0, (max(_mtimes) - test_mtime) / 86400) if _mtimes else 0.0
+    if lag_days > 14:
+        issues.append(f"T-freshness lag={lag_days:.0f}일>14")
+    parts.append(f"T-freshness={lag_days:.0f}일")
+
+    detail = " | ".join(parts)
+    if issues:
+        return {"sa_code": "SA-8", "severity": "MEDIUM",
+                "title": f"SA-8 회귀 테스트 건강도 이슈 {len(issues)}건",
+                "detail": f"{' | '.join(issues)} ({detail})"}
+    return {"sa_code": "SA-8", "severity": "INFO",
+            "title": "SA-8 회귀 테스트 스위트 건강도 정상",
+            "detail": detail}
+
+
 def pm_system_audit() -> list[dict]:
-    """SA-1~SA-5 정적 구조 감사 — 런타임 데이터 품질(SD)과 분리된 아키텍처 검사.
+    """SA-1~SA-8 정적 구조 감사 — 런타임 데이터 품질(SD)과 분리된 아키텍처 검사.
 
     Returns list of findings: [{"sa_code", "severity", "title", "detail"}]
     severity: CRITICAL / HIGH / MEDIUM / INFO
@@ -634,6 +695,9 @@ def pm_system_audit() -> list[dict]:
             "title":    "stop_hook.py 없음",
             "detail":   f"{_sh_path} 파일 없음 — Stop Hook 비활성화 상태",
         })
+
+    # ── SA-8: 회귀 테스트 스위트 자체 건강도 감사 ──────────────────────────
+    findings.append(_sa8_regression_health(AGENTS_DIR))
 
     # SA 감사 결과 캐시 갱신 (mutable list — 참조 무효화 방지)
     _last_audit_findings.clear()

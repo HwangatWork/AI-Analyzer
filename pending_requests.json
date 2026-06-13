@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-11T08:00:00",
+  "updated": "2026-06-13T12:22:30",
   "completed": [
     {
       "id": "REQ-001",
@@ -47,26 +47,29 @@
   "pending": [
     {
       "id": "PHASE-5",
-      "status": "pending",
+      "status": "done",
       "request": "자율 개선 루프 완성 [레벨 10]",
-      "details": "SA-1~7 자동 실행, SA-8 테스트 건강도 감사, 주 1회 자동 감사 리포트, 6-Layer 52/60+",
+      "details": "SA-1~8 자동 실행, SA-8 테스트 건강도 감사, --weekly-audit 플래그, SA-6/7 bridge, 6-Layer 62/62 PASS. Gate 5 통과 2026-06-13",
       "created_at": "2026-06-11T02:24:35",
+      "completed_at": "2026-06-13T12:30:00",
       "priority": "medium"
     },
     {
       "id": "PHASE-4",
-      "status": "pending",
+      "status": "done",
       "request": "Agent Team 단계 전환 [레벨 9]",
-      "details": "narrative→검증 트리오→data/stock→나머지 전환, 전환 전후 출력 동일성 확인",
+      "details": "Decision/Narrative/Validation/Audit 4개 에이전트 INPUT_CONTRACT + DONE_CRITERIA 전환 완료. 각 diff=0. Gate 4 통과 2026-06-13",
       "created_at": "2026-06-11T02:24:35",
+      "completed_at": "2026-06-13T10:00:00",
       "priority": "medium"
     },
     {
       "id": "PHASE-3",
-      "status": "pending",
+      "status": "done",
       "request": "run_pm_agent.py 책임 분리 [레벨 9]",
-      "details": "pm_orchestrator.py + pm_quality.py + pm_utils.py 분리, REQ-SA2 실행, 각 800줄 이하",
+      "details": "pm_orchestrator.py + pm_quality.py + pm_utils.py 분리 완료. 각 800줄 이하. Gate 3 통과 2026-06-13",
       "created_at": "2026-06-11T02:24:35",
+      "completed_at": "2026-06-13T09:00:00",
       "priority": "medium"
     },
     {
@@ -304,6 +307,12 @@
       "request": "[SA-2 MEDIUM] 대형 함수 탐지",
       "status": "backlog",
       "details": "≥200줄 함수 1개: ['run_ui_agent.py:generate_html_dashboard() 227L'] | run_pm_agent.py 총 2121줄"
+    },
+    {
+      "id": "REQ-SA4",
+      "request": "[SA-4 HIGH] Done Criteria 미정의 Agent",
+      "status": "pending",
+      "details": "Done Criteria 없음: ['refresh_data.py']"
     }
   ]
 }

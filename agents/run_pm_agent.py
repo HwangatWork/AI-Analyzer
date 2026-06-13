@@ -572,6 +572,85 @@ def _run_done_criteria() -> None:
 
 
 # ══════════════════════════════════════════════════════════════
+# 주간 감사 리포트
+# ══════════════════════════════════════════════════════════════
+
+def _weekly_audit_report(qc_results: list | None = None) -> None:
+    """주간 전체 시스템 감사 리포트 — SA-1~SA-8 + 6-Layer 점수 + 미결 이슈 Telegram 전송."""
+    import re as _re_w
+
+    sa_findings = list(_last_audit_findings)
+    if not sa_findings:
+        sa_findings = pm_system_audit()
+    if qc_results is None:
+        qc_results = pm_quality_checks()
+
+    audit_path = PROC_DIR / "audit_report.json"
+    audit_data: dict = {}
+    if audit_path.exists():
+        try:
+            audit_data = json.loads(audit_path.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    a_summ   = audit_data.get("summary", {})
+    a_total  = a_summ.get("total", 0)
+    a_passed = a_summ.get("passed", 0)
+    a_status = audit_data.get("audit_status", "UNKNOWN")
+
+    layer_map: dict[str, dict] = {}
+    for f in audit_data.get("findings", []):
+        lyr = f.get("layer", "?").split("_")[0]
+        layer_map.setdefault(lyr, {"p": 0, "t": 0})
+        layer_map[lyr]["t"] += 1
+        if f.get("passed"):
+            layer_map[lyr]["p"] += 1
+    layer_lines = "\n".join(
+        f"  {lyr}: {v['p']}/{v['t']}" for lyr, v in sorted(layer_map.items())
+    ) if layer_map else "  (감사 리포트 없음)"
+
+    pending_data = _load_pending()
+    open_issues  = [p for p in pending_data.get("pending", [])
+                    if p.get("status") not in ("done", "waiting_credentials", "backlog")]
+
+    test_path = AGENTS_DIR / "tests" / "test_regression.py"
+    t_count   = 0
+    if test_path.exists():
+        t_count = len(_re_w.findall(
+            r"^def test_",
+            test_path.read_text(encoding="utf-8", errors="ignore"),
+            _re_w.MULTILINE
+        ))
+
+    qc_pass  = sum(1 for q in qc_results if q["pass"])
+    qc_total = len(qc_results)
+
+    gate5_ok   = a_passed >= 52
+    gate5_icon = "✅" if gate5_ok else "⚠️"
+
+    sa_detail_lines = "\n".join(
+        f"  {f['sa_code']} [{f['severity']}] {f['title']}"
+        for f in sa_findings
+    ) if sa_findings else "  (SA 감사 미실행)"
+
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+    msg = (
+        f"<b>📊 주간 시스템 감사 리포트 — {now_str}</b>\n\n"
+        f"<b>파이프라인 QC:</b> {qc_pass}/{qc_total} PASS\n\n"
+        f"<b>SA-1~SA-8 구조 감사:</b>\n"
+        f"{sa_detail_lines}\n\n"
+        f"<b>6-Layer 재감사 점수:</b>\n"
+        f"  총 {a_passed}/{a_total} PASS | {a_status}\n"
+        f"{layer_lines}\n\n"
+        f"<b>미결 이슈:</b> {len(open_issues)}건\n"
+        f"<b>회귀 테스트:</b> {t_count}개\n\n"
+        f"<b>Gate 5 조건 (52/60+):</b> {a_passed}/{a_total} {gate5_icon}"
+    )
+    print(f"\n[PM] 주간 감사 리포트 전송 중...")
+    _tg_send(msg)
+    print(f"[PM] 주간 감사 리포트 완료 — 6-Layer: {a_passed}/{a_total}, Gate5: {gate5_icon}")
+
+
+# ══════════════════════════════════════════════════════════════
 # main
 # ══════════════════════════════════════════════════════════════
 
@@ -581,6 +660,10 @@ if __name__ == "__main__":
 
     if "--done-criteria" in args:
         _run_done_criteria()
+        sys.exit(0)
+
+    if "--weekly-audit" in args:
+        _weekly_audit_report()
         sys.exit(0)
 
     start_time = time.time()
@@ -666,6 +749,18 @@ if __name__ == "__main__":
     qc_failed   = [c for c in qc_results if not c["pass"]]
     qc_all_pass = len(qc_failed) == 0
 
+    # SA-6/SA-7 quality failures → structured audit registration (closes the loop)
+    _sa_qc_bridge = [
+        {"sa_code": qc["check"].split(" ")[0],
+         "severity": "HIGH",
+         "title": qc["check"],
+         "detail": str(qc.get("detail", ""))}
+        for qc in qc_failed
+        if qc["check"].split(" ")[0] in ("SA-6", "SA-7")
+    ]
+    if _sa_qc_bridge:
+        _register_audit_findings(_sa_qc_bridge)
+
     _tg_send_quality_report(qc_results)
 
     print(f"[PM] pm_quality_checks: {len(qc_results) - len(qc_failed)}/{len(qc_results)} PASS")
@@ -701,4 +796,9 @@ if __name__ == "__main__":
 
     exit_code = 0 if all_passed else 1
     print(f"\n[PM] ══ 완료 ({elapsed/60:.1f}분) | exit={exit_code} ══")
+
+    # 일요일 자동 주간 감사 (--weekly-audit 플래그와 동일 함수)
+    if datetime.now().weekday() == 6:
+        _weekly_audit_report(qc_results=qc_results)
+
     sys.exit(exit_code)

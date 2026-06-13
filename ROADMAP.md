@@ -276,19 +276,22 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 
 ## Phase 5: 자율 개선 루프 완성 [레벨 10]
 
-**상태**: `[ ]` 미완료
+**상태**: `[x]` 완료 (2026-06-13)
 
 **목적**: 사람 개입 없이 발견-등록-수정-검증 폐쇄 루프 전환.
 
 ### 구현 내용
-- SA-1~SA-7 매 파이프라인 실행 후 자동 실행 고정
-- SA-8 신규: 회귀 테스트 스위트 자체 건강도 감사
-- 주 1회 전체 시스템 감사 리포트 자동 전송
+- SA-1~SA-8 매 파이프라인 실행 후 자동 실행 고정 (pm_orchestrator.pm_system_audit)
+- SA-8 신규: 회귀 테스트 스위트 자체 건강도 감사 (T-count/T-vacuous/T-import/T-freshness)
+- SA-6/SA-7 bridge: pm_quality FAIL → pending_requests.json 자동 등록 (폐쇄 루프 완성)
+- `_weekly_audit_report()` + `--weekly-audit` CLI 플래그 + 일요일 자동 트리거
+- `test_sd14_regression.py` pytest 호환 리팩터 (24/24 PASS)
 
 ### 게이트 5
-- [ ] 파이프라인 → SA 자동 실행 → 이슈 등록 → TG 보고 (사람 개입 없이 1사이클)
-- [ ] 6-Layer 재감사 점수 52/60 이상
-- [ ] 전체 사이클 로그 + 6-Layer 점수표 Telegram 전송
+- [x] 파이프라인 → SA 자동 실행 → 이슈 등록 → TG 보고 (사람 개입 없이 1사이클)
+  - 증거: REQ-SA4 삭제 후 `--skip-data` 실행 → `[SA] pending_requests 신규 등록: ['REQ-SA4']` 로그 확인
+- [x] 6-Layer 재감사 점수 52/60 이상 — **62/62** PASS (L1:12/12, L2:12/12, L3:17/17, L4:8/8, L5:5/5, L_방법론:8/8)
+- [x] 전체 사이클 로그 + 6-Layer 점수표 Telegram 전송 — `--weekly-audit` 플래그로 확인
 
 ## 완료 현황
 
@@ -299,4 +302,4 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 | Phase 2 | **완료** | ✅ 통과 | 2026-06-11 |
 | Phase 3 | **완료** | ✅ 통과 | 2026-06-13 |
 | Phase 4 | **완료** | ✅ 통과 | 2026-06-13 |
-| Phase 5 | 미완료 | - | - |
+| Phase 5 | **완료** | ✅ 통과 | 2026-06-13 |
