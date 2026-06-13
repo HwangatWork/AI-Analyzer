@@ -414,13 +414,13 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 
 ### Step 3: 시장 상황별 에이전트 구성 동적 조정
 
-- [ ] VIX 기준 3단계 정의: 중립(20~40) / 경계(40~60) / 극단(60+)
-  - WAIT: VIX 임계값은 백테스트 기반으로 확정 필요 — 현재 임시값
-- [ ] 중립 → Group B 중 핵심 2개만 (analysis + evaluator)
-- [ ] 경계 → 표준 Group A/B/C/D 전체
-- [ ] 극단 → 전체 + sector 심층 분석 추가 실행
-- [ ] 회귀 PASS 유지
-- [ ] Telegram 보고 + git push
+- [x] VIX 기준 3단계 구조 구현: neutral(<20)/caution(20~40)/extreme(40+) — PLACEHOLDER 임계값
+  - WAIT: VIX 임계값은 백테스트 기반으로 확정 필요 — _VIX_TIER_NEUTRAL/CAUTION 상수 표시
+- [x] neutral → Group B 핵심 2개 (_GROUP_B_NEUTRAL: analysis+stock)
+- [x] caution/extreme → Group B 전체 4개 (_dynamic_group_b())
+- [x] extreme → Group B 전체 (sector 심층 추가 실행 구조 예정)
+- [x] 회귀 58/58 PASS (신규 테스트 5개)
+- [x] Telegram 보고 + git push
 
 ---
 

@@ -125,6 +125,39 @@ EXECUTION_GROUPS: list[tuple[str, bool, list[str]]] = [
     ]),
 ]
 
+# ── Phase 9: VIX 동적 스케일링 구조 (임계값 PLACEHOLDER — 백테스트 확정 필요) ──
+_VIX_TIER_NEUTRAL = 20.0   # VIX < 20: 저변동성 → Group B 핵심 2개만
+_VIX_TIER_CAUTION = 40.0   # VIX 20~40: 경계 → 표준 전체
+# VIX >= _VIX_TIER_CAUTION: extreme → 표준 전체 + sector 심층 (별도 실행 예정)
+_GROUP_B_NEUTRAL: list[str] = [
+    "run_analysis_agent_v2.py",
+    "run_stock_agent_v2.py",
+]
+
+
+def _get_vix_tier() -> str:
+    """현재 VIX 수준 → 'neutral' | 'caution' | 'extreme'. 데이터 없으면 'caution' 반환."""
+    try:
+        import pandas as _pd
+        _vix_path = BASE_DIR / "data" / "raw" / "VIX.parquet"
+        if not _vix_path.exists():
+            return "caution"
+        df = _pd.read_parquet(_vix_path)
+        latest = float(df.sort_values("date").iloc[-1]["value"])
+        if latest < _VIX_TIER_NEUTRAL:
+            return "neutral"
+        if latest < _VIX_TIER_CAUTION:
+            return "caution"
+        return "extreme"
+    except Exception:
+        return "caution"
+
+
+def _dynamic_group_b(tier: str) -> list[str]:
+    """VIX 티어 → Group B 실행 스크립트 목록. neutral=핵심2, caution/extreme=전체."""
+    _all_b = next(scripts for name, _, scripts in EXECUTION_GROUPS if name == "B")
+    return _GROUP_B_NEUTRAL if tier == "neutral" else list(_all_b)
+
 
 def _run_group_parallel(
     scripts: list[str],
@@ -483,8 +516,14 @@ def run_full_pipeline(skip_data: bool = False) -> list[tuple[str, bool]]:
     script_map = {s: (lbl, sn, to) for s, lbl, sn, to in PIPELINE_STAGES}
     results: list[tuple[str, bool]] = []
 
+    # ── Phase 9: VIX 동적 스케일링 ─────────────────────────────────────────
+    _vix_tier = _get_vix_tier()
+    print(f"[PM] VIX 티어: {_vix_tier} (임계값 PLACEHOLDER — 백테스트 확정 전)")
+
     for group_name, is_parallel, group_scripts in EXECUTION_GROUPS:
         if is_parallel:
+            # Group B: VIX 티어에 따라 실행 스크립트 동적 조정
+            group_scripts = _dynamic_group_b(_vix_tier)
             # ── Group B: 입력 계약 pre-check (경고만, 스레드 생성 전) ──────────
             for s in group_scripts:
                 if s not in script_map:
