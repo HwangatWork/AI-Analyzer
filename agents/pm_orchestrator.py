@@ -368,6 +368,113 @@ def _check_repeat_failures(_path: "Path | None" = None) -> dict:
 
 
 # ══════════════════════════════════════════════════════════════
+# Phase 6-3b: .md Input/Output Contract 참조 — 사전/사후 검증
+# ══════════════════════════════════════════════════════════════
+
+# script filename → .claude/agents/ .md stem 매핑
+_SCRIPT_TO_MD_STEM: dict[str, str] = {
+    "run_analysis_agent_v2.py":  "analysis-agent",
+    "run_audit_agent.py":        "audit-agent",
+    "run_data_agent_v2.py":      "data-agent",
+    "run_decision_agent.py":     "decision-agent",
+    "run_evaluator_agent_v2.py": "evaluator-agent",
+    "run_pm_agent.py":           "meta-audit-agent",
+    "run_narrative_agent.py":    "narrative-agent",
+    "run_news_agent.py":         "news-agent",
+    "run_telegram_agent.py":     "report-agent",
+    "run_sector_agent.py":       "sector-agent",
+    "run_stock_agent_v2.py":     "stock-agent",
+    "run_ui_agent.py":           "ui-agent",
+    "run_validation_agent.py":   "validation-agent",
+}
+
+_CLAUDE_AGENTS_DIR: Path = BASE_DIR / ".claude" / "agents"
+
+# Regex to extract concrete (non-wildcard) data/ or output/ paths from backticks
+_PATH_RE = re.compile(r"`([^`<>\n]+)`")
+
+
+def _extract_checkable_paths(text: str) -> list[str]:
+    """backtick-quoted 경로 중 data/ 또는 output/ 시작하는 구체 경로만 반환.
+    와일드카드(<>)·env 파일·커맨드 제외."""
+    paths = []
+    for m in _PATH_RE.finditer(text):
+        p = m.group(1).strip()
+        if p.startswith("data/") or p.startswith("output/"):
+            paths.append(p)
+    return paths
+
+
+def _load_agent_spec(script_name: str) -> dict:
+    """Read .claude/agents/{stem}.md and extract input_contract, output_contract,
+    done_criteria, forbidden. Returns empty dict if .md not found — never crashes."""
+    stem = _SCRIPT_TO_MD_STEM.get(script_name)
+    if not stem:
+        return {}
+    md_path = _CLAUDE_AGENTS_DIR / f"{stem}.md"
+    if not md_path.exists():
+        return {}
+    try:
+        raw = md_path.read_text(encoding="utf-8", errors="ignore")
+
+        def _section(header_re: str) -> str:
+            # [^\n]* matches any suffix on the header line (e.g. " (Output Contract)")
+            m = re.search(header_re + r"[^\n]*\n(.*?)(?=\n##|\Z)", raw,
+                          re.DOTALL | re.MULTILINE)
+            return m.group(1) if m else ""
+
+        in_txt  = _section(r"##\s+입력\s+계약")
+        out_txt = _section(r"##\s+출력\s+계약")
+        dc_txt  = _section(r"##\s+완료\s+기준")
+        fb_txt  = _section(r"##\s+금지\s+행위")
+
+        return {
+            "input_contract":  _extract_checkable_paths(in_txt),
+            "output_contract": _extract_checkable_paths(out_txt),
+            "done_criteria": [
+                ln.strip().lstrip("- ").strip()
+                for ln in dc_txt.splitlines()
+                if re.match(r"\s*-\s+DC-\d", ln)
+            ],
+            "forbidden": [
+                ln.strip().lstrip("- ").strip()
+                for ln in fb_txt.splitlines()
+                if ln.strip().startswith("-") and ln.strip() != "-"
+            ],
+        }
+    except Exception:
+        return {}
+
+
+def _verify_input_contract(spec: dict, agent_name: str) -> tuple[bool, str]:
+    """실행 전 입력 파일 존재 확인. 미충족 → WARNING (파이프라인 중단 없음)."""
+    if not spec:
+        return True, "spec 없음 — skip"
+    missing = [
+        p for p in spec.get("input_contract", [])
+        if not (BASE_DIR / p).exists()
+    ]
+    if missing:
+        return False, f"입력 파일 없음: {missing}"
+    return True, "입력 계약 OK"
+
+
+def _verify_output_contract(spec: dict, agent_name: str) -> tuple[bool, str]:
+    """실행 후 출력 파일 존재 + 최소 크기(100B) 확인.
+    미충족 → failure_memory 기록 (파이프라인 중단 없음)."""
+    if not spec:
+        return True, "spec 없음 — skip"
+    _MIN_SIZE = 100
+    for p in spec.get("output_contract", []):
+        fp = BASE_DIR / p
+        if not fp.exists():
+            return False, f"출력 파일 없음: {p}"
+        if fp.stat().st_size < _MIN_SIZE:
+            return False, f"출력 파일 너무 작음: {p} ({fp.stat().st_size}B < {_MIN_SIZE}B)"
+    return True, "출력 계약 OK"
+
+
+# ══════════════════════════════════════════════════════════════
 # 파이프라인 실행
 # ══════════════════════════════════════════════════════════════
 
@@ -378,8 +485,29 @@ def run_full_pipeline(skip_data: bool = False) -> list[tuple[str, bool]]:
 
     for group_name, is_parallel, group_scripts in EXECUTION_GROUPS:
         if is_parallel:
+            # ── Group B: 입력 계약 pre-check (경고만, 스레드 생성 전) ──────────
+            for s in group_scripts:
+                if s not in script_map:
+                    continue
+                spec = _load_agent_spec(s)
+                ic_ok, ic_reason = _verify_input_contract(spec, s)
+                if not ic_ok:
+                    print(f"[PM] IC WARN {s}: {ic_reason}")
+                    _tg_send(f"⚠ <b>입력 계약 경고</b> [{s}]\n{ic_reason}")
+
             print(f"[PM] Group {group_name} 병렬 실행: {group_scripts}")
             group_results, all_ok = _run_group_parallel(group_scripts, script_map)
+
+            # ── Group B: 출력 계약 post-check ─────────────────────────────────
+            for s in group_scripts:
+                if s not in script_map:
+                    continue
+                spec = _load_agent_spec(s)
+                oc_ok, oc_reason = _verify_output_contract(spec, s)
+                if not oc_ok:
+                    _record_failure(s, "dc_fail", oc_reason)
+                    print(f"[PM] OC FAIL {s}: {oc_reason}")
+
             results.extend(group_results)
             if not all_ok:
                 print(f"[PM] Group {group_name} 실패 항목 있음 — 파이프라인 중단")
@@ -393,6 +521,14 @@ def run_full_pipeline(skip_data: bool = False) -> list[tuple[str, bool]]:
                     _tg_step(sn, TOTAL_STEPS, lbl, "건너뜀 (기존 데이터 사용)")
                     results.append((lbl, True))
                     continue
+                # ── 입력 계약 pre-check (경고만, 실행 차단 없음) ──────────────
+                spec = _load_agent_spec(script)
+                ic_ok, ic_reason = _verify_input_contract(spec, script)
+                if not ic_ok:
+                    lbl_warn = script_map.get(script, (script,))[0]
+                    print(f"[PM] IC WARN {lbl_warn}: {ic_reason}")
+                    _tg_send(f"⚠ <b>입력 계약 경고</b> [{lbl_warn}]\n{ic_reason}")
+
                 lbl, sn, to = script_map[script]
                 ok, out = _run(script, lbl, to)
                 short = out.strip().splitlines()[-1][:150] if out.strip() else ""
@@ -400,6 +536,11 @@ def run_full_pipeline(skip_data: bool = False) -> list[tuple[str, bool]]:
                 results.append((lbl, ok))
                 if ok:
                     _record_success(script)
+                    # ── 출력 계약 post-check ──────────────────────────────────
+                    oc_ok, oc_reason = _verify_output_contract(spec, script)
+                    if not oc_ok:
+                        _record_failure(script, "dc_fail", oc_reason)
+                        print(f"[PM] OC FAIL {lbl}: {oc_reason}")
                 else:
                     _record_failure(script, _failure_type(out), out[-300:])
                     print(f"[PM] {lbl} 실패 — 파이프라인 중단")

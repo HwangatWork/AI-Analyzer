@@ -357,6 +357,14 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 ### Phase 6-3: PM Agent 오케스트레이션 전환
 
 - [x] Group A/B/C/D 병렬 실행 구조로 전환 (2026-06-13)
+- [x] .md Input/Output Contract 참조 로직 구현 (Phase 6-3b, 2026-06-13)
+  - _SCRIPT_TO_MD_STEM 상수: script→.md stem 역방향 매핑
+  - _load_agent_spec(): .md 섹션 파서 (fault-tolerant, 빈 dict fallback)
+  - _verify_input_contract(): 실행 전 입력 파일 확인 (WARNING만, 비차단)
+  - _verify_output_contract(): 실행 후 출력 파일 확인 (failure_memory 기록)
+  - run_full_pipeline() 순차/병렬 양쪽 통합
+  - 회귀 테스트 5개 추가 (test_phase63b_md_reference.py)
+  - Regression: 47 PASS, 1 SKIP, 0 FAIL
   - EXECUTION_GROUPS 상수 추가 (A/B/C/D)
   - _run_group_parallel(): ThreadPoolExecutor, max_workers=len(Group B)
   - run_full_pipeline(): Group B(analysis+stock+news+sector) 병렬 실행
