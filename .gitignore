@@ -32,6 +32,9 @@ desktop.ini
 .vscode/settings.json
 .idea/
 
+# Phase 4 baseline snapshots (pre/post conversion diffs, not for versioning)
+output/phase4_baseline/
+
 # Keep output/ in git (dashboard, reports)
 !output/
 !output/dashboard.html
