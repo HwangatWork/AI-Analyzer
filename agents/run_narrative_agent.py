@@ -12,6 +12,7 @@ Done Criteria (NA-1~NA-3):
   NA-2: narrative_context.json 저장 완료 (signal/decision/ranking/stocks 필드)
   NA-3: 컨텍스트 내 실제 수치 존재 (signal.score, 지표 Z-score 등)
 """
+import utf8_setup  # noqa: F401
 
 import json
 import sys
@@ -24,6 +25,24 @@ def _load_json(p: Path) -> dict:
         return json.loads(p.read_text(encoding="utf-8"))
     except Exception:
         return {}
+
+
+def _check_inputs(out_dir: Path) -> None:
+    """Input contract: validate required files exist and have expected structure."""
+    fr = out_dir / "final_results.json"
+    if not fr.exists():
+        print(f"INPUT_CONTRACT FAIL — final_results.json not found: {fr}")
+        sys.exit(1)
+    try:
+        data = json.loads(fr.read_bytes().decode("utf-8"))
+    except Exception as e:
+        print(f"INPUT_CONTRACT FAIL — final_results.json parse error: {e}")
+        sys.exit(1)
+    for key in ("market_signal", "indicator_weight_ranking"):
+        if key not in data:
+            print(f"INPUT_CONTRACT FAIL — missing key in final_results.json: '{key}'")
+            sys.exit(1)
+    print(f"INPUT_CONTRACT PASS — final_results.json ({fr.stat().st_size}B) keys ok")
 
 
 def build_narrative_context(results: dict) -> dict:
@@ -290,27 +309,12 @@ if __name__ == "__main__":
     print("Narrative Agent — 데이터 준비 (AI API 없음)")
     print("=" * 60)
 
-    # NA-1: final_results.json 존재 확인
+    _check_inputs(OUT_DIR)
+
     results_path = OUT_DIR / "final_results.json"
     results = _load_json(results_path)
-
-    fails = []
-
-    if not results:
-        fails.append("NA-1 final_results.json 없음 또는 빈 파일")
-        print(f"[FAIL] {fails[0]}")
-        sys.exit(1)
-
-    required_sections = ["market_signal", "indicator_weight_ranking"]
-    for sec in required_sections:
-        if sec not in results:
-            fails.append(f"NA-1 final_results.json에 '{sec}' 섹션 없음")
-
-    if fails:
-        print(f"[FAIL] {fails}")
-        sys.exit(1)
-
     print("  ✓ NA-1 final_results.json 로드 성공")
+    fails = []
 
     # 컨텍스트 구축
     ctx = build_narrative_context(results)
@@ -334,22 +338,23 @@ if __name__ == "__main__":
         encoding="utf-8"
     )
 
-    # 필수 필드 확인
+    # NA-2: file on disk + required fields
+    if not ctx_path.exists() or ctx_path.stat().st_size < 100:
+        fails.append(f"NA-2 narrative_context.json not saved or too small")
     for field in ("signal", "decision", "top5_ranking", "sp500", "kospi"):
         if field not in ctx:
             fails.append(f"NA-2 context에 '{field}' 필드 없음")
 
     if fails:
-        print(f"[FAIL] {fails}")
+        print("DONE_CRITERIA: FAIL — " + " | ".join(fails))
         sys.exit(1)
 
-    print(f"  ✓ NA-2 narrative_context.json 저장 완료")
+    print(f"  ✓ NA-2 narrative_context.json saved ({ctx_path.stat().st_size}B)")
 
     print("\n=== Done Criteria ===")
     print("  ✓ NA-1 final_results.json 로드 PASS")
     print("  ✓ NA-2 narrative_context.json 저장 PASS")
     print("  ✓ NA-3 실제 수치 포함 PASS")
-    print("\n[PASS] NA-1~NA-3 전항목 통과")
     print(f"\n컨텍스트 요약:")
     print(f"  분석 기간: {ctx['analysis_period']['start']} ~ {ctx['analysis_period']['end']}")
     print(f"  시그널: {score}/100 ({ctx['signal']['direction']})")
@@ -357,4 +362,5 @@ if __name__ == "__main__":
     print(f"  SP500: {ctx['decision']['sp500']['action']} ({ctx['decision']['sp500']['confidence_pct']}%)")
     print(f"  KOSPI:  {ctx['decision']['kospi']['action']} ({ctx['decision']['kospi']['confidence_pct']}%)")
     print(f"  가중치 Top1: {ctx['top5_ranking'][0]['indicator'] if ctx['top5_ranking'] else 'N/A'}")
-    print(f"\n→ 다음 단계: Claude Code 서브에이전트가 narrative_context.json 읽고 FINAL_REPORT.md 생성")
+    print(f"\n-> 다음 단계: Claude Code 서브에이전트가 narrative_context.json 읽고 FINAL_REPORT.md 생성")
+    print("DONE_CRITERIA: PASS")

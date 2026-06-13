@@ -23,9 +23,11 @@ Done Criteria (자체검증 의무):
 
 실행 위치: Evaluator Agent 완료 후, UI Agent 실행 전
 """
+import utf8_setup  # noqa: F401
 
 import json
 import math
+import sys
 import numpy as np
 import pandas as pd
 import FinanceDataReader as fdr
@@ -464,6 +466,21 @@ def print_report(vr: ValidationResult):
 # Main
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _check_inputs(proc_dir: Path) -> None:
+    """Input contract: validate required inputs exist before running validation."""
+    for fname in ("stock_results.json", "evaluation_results.json"):
+        p = proc_dir / fname
+        if not p.exists():
+            print(f"INPUT_CONTRACT FAIL — {fname} not found: {p}")
+            sys.exit(1)
+        try:
+            json.loads(p.read_bytes().decode("utf-8"))
+        except Exception as e:
+            print(f"INPUT_CONTRACT FAIL — {fname} parse error: {e}")
+            sys.exit(1)
+    print(f"INPUT_CONTRACT PASS — stock_results.json + evaluation_results.json ok")
+
+
 def run_validation() -> tuple[ValidationResult, dict]:
     """전체 검증 실행. 결과와 저장용 dict 반환."""
     vr = ValidationResult()
@@ -603,19 +620,38 @@ if __name__ == "__main__":
     print("  L4: 방법론    L5: 파이프라인일관성  L6: UX검증")
     print("=" * 65)
 
+    _check_inputs(PROC_DIR)
+
     vr, report = run_validation()
     print_report(vr)
 
     summary = report["summary"]
-    print(f"검증 리포트 저장: {PROC_DIR / 'validation_report.json'}")
+    report_path = PROC_DIR / "validation_report.json"
+    print(f"검증 리포트 저장: {report_path}")
     print(f"상태: {report['pipeline_status']} "
           f"({summary['passed']}/{summary['total']} PASS, "
           f"CRITICAL {summary['failed_critical']}개)")
 
-    # CRITICAL 실패 시 exit code 1 (파이프라인 차단)
+    # Done Criteria checks
+    dc_fails = []
+    if not report_path.exists() or report_path.stat().st_size < 100:
+        dc_fails.append("VA-0 validation_report.json not saved or too small")
+    if "pipeline_status" not in report:
+        dc_fails.append("VA-2 pipeline_status field missing")
+    layers = {c["layer"].split("_")[0] for c in report.get("checks", [])}
+    if len(layers) < 6:
+        dc_fails.append(f"VA-3 expected 6 layers, got {len(layers)}: {sorted(layers)}")
+
     if report["pipeline_status"] == "BLOCKED":
-        print("\n⛔ CRITICAL 실패 항목을 수정하고 재실행하십시오.")
+        crit_count = summary["failed_critical"]
+        print(f"DONE_CRITERIA: FAIL — CRITICAL {crit_count}개 실패")
         exit(1)
-    else:
-        print("\n✅ 검증 완료 — UI Agent 실행 가능")
-        exit(0)
+    if dc_fails:
+        print("DONE_CRITERIA: FAIL — " + " | ".join(dc_fails))
+        exit(1)
+
+    print(f"  VA-0 validation_report.json saved ({report_path.stat().st_size}B)")
+    print(f"  VA-2 pipeline_status: {report['pipeline_status']}")
+    print(f"  VA-3 layers ran: {len(layers)} ({sorted(layers)})")
+    print("DONE_CRITERIA: PASS")
+    exit(0)

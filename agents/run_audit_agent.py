@@ -19,6 +19,7 @@ Audit Agent — Agent 자체검증(Done Criteria) 체계 메타 감사
   AA-3: 교차 스키마 계약 불일치 0건
   AA-4: 논리적 trivial 조건(항상 True) 미탐지 0건
 """
+import utf8_setup  # noqa: F401
 
 import ast
 import re
@@ -656,6 +657,19 @@ def audit_methodology(ar: AuditResult):
 # Main
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _check_inputs(agents_dir: Path, out_dir: Path) -> None:
+    """Input contract: validate required agent files and final_results.json exist."""
+    missing = [f for f in AUDIT_TARGETS if not (agents_dir / f).exists()]
+    if missing:
+        print(f"INPUT_CONTRACT FAIL — audit target files not found: {missing}")
+        sys.exit(1)
+    fr = out_dir / "final_results.json"
+    if not fr.exists():
+        print(f"INPUT_CONTRACT FAIL — final_results.json not found: {fr}")
+        sys.exit(1)
+    print(f"INPUT_CONTRACT PASS — {len(AUDIT_TARGETS)} target files + final_results.json ok")
+
+
 def run_audit() -> tuple[AuditResult, dict]:
     ar = AuditResult()
 
@@ -695,6 +709,8 @@ if __name__ == "__main__":
     print("  L4: Sabotage  L5: 교차일관성  L6: 방법론")
     print("=" * 68)
 
+    _check_inputs(AGENTS_DIR, OUT_DIR)
+
     ar, report = run_audit()
     print_audit_report(ar)
 
@@ -703,8 +719,11 @@ if __name__ == "__main__":
     print(f"상태: {report['audit_status']} ({s['passed']}/{s['total']} PASS, CRITICAL {s['failed_critical']}개)")
 
     # ── Audit Agent 자체 Done Criteria 검증 ──────────────────────────────────
+    audit_report_path = PROC_DIR / "audit_report.json"
     print("\n[자체검증] Audit Agent Done Criteria 점검...")
     done_criteria = {
+        f"AA-0 audit_report.json saved ({audit_report_path.stat().st_size}B, total_checks={s['total']})":
+            audit_report_path.exists() and audit_report_path.stat().st_size >= 100 and s["total"] > 0,
         "AA-1 전체 Agent L1 감사 완료": all(
             any(f["code"] == "CE1" and spec["display_name"] in f["target"]
                 for f in ar.findings)
@@ -727,13 +746,17 @@ if __name__ == "__main__":
 
     if aa_fail:
         print(f"\n  [경고] Audit Agent 자체 기준 미충족: {aa_fail}")
+        print("DONE_CRITERIA: FAIL — " + " | ".join(aa_fail))
         exit(1)
     else:
-        print(f"  → 전 항목 통과 (4/4)")
+        n_criteria = len(done_criteria)
+        print(f"  → 전 항목 통과 ({n_criteria}/{n_criteria})")
 
     if report["audit_status"] == "FAIL":
-        print("\n⛔ CRITICAL 감사 실패 — 해당 Agent의 Done Criteria를 수정하십시오.")
+        crit_count = s["failed_critical"]
+        print(f"DONE_CRITERIA: FAIL — CRITICAL {crit_count}개 감사 실패")
         exit(1)
     else:
-        print("\n✅ 감사 완료 — 모든 Agent 자체검증 체계 정상")
+        print("\n감사 완료 — 모든 Agent 자체검증 체계 정상")
+        print("DONE_CRITERIA: PASS")
         exit(0)

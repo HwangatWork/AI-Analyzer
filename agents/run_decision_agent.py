@@ -12,8 +12,27 @@ PM Condition E: 데이터 기반 BUY/SELL/HOLD 신호 + 신뢰도 + 근거 자�
 import utf8_setup  # noqa: F401
 
 import json
+import sys
 from pathlib import Path
 from datetime import datetime
+
+
+def _check_inputs(out_dir: Path) -> None:
+    """Input contract: validate required files exist and have expected structure."""
+    fr = out_dir / "final_results.json"
+    if not fr.exists():
+        print(f"INPUT_CONTRACT FAIL — final_results.json not found: {fr}")
+        sys.exit(1)
+    try:
+        data = json.loads(fr.read_bytes().decode("utf-8"))
+    except Exception as e:
+        print(f"INPUT_CONTRACT FAIL — final_results.json parse error: {e}")
+        sys.exit(1)
+    for key in ("market_signal", "indicator_weight_ranking"):
+        if key not in data:
+            print(f"INPUT_CONTRACT FAIL — missing key in final_results.json: '{key}'")
+            sys.exit(1)
+    print(f"INPUT_CONTRACT PASS — final_results.json ({fr.stat().st_size}B) keys ok")
 
 
 _CONTEMPORANEOUS = {"NASDAQ100", "DOW", "KOSDAQ", "NIKKEI225"}
@@ -330,11 +349,12 @@ def generate_decision_section(decision: dict) -> str:
 
 
 if __name__ == "__main__":
-    import sys
     sys.path.insert(0, str(Path(__file__).parent.parent / "agents"))
     BASE_DIR = Path(__file__).parent.parent
     PROC_DIR = BASE_DIR / "data" / "processed"
     OUT_DIR  = BASE_DIR / "output"
+
+    _check_inputs(OUT_DIR)
 
     final = json.loads((OUT_DIR / "final_results.json").read_bytes().decode("utf-8"))
     signal = final.get("market_signal", {})
@@ -354,6 +374,11 @@ if __name__ == "__main__":
 
     # ── Done Criteria 자체검증 ────────────────────────────────────
     fails = []
+    # DE-0: output file exists on disk with meaningful content
+    if not dec_path.exists():
+        fails.append(f"DE-0 decision.json not saved: {dec_path}")
+    elif dec_path.stat().st_size < 100:
+        fails.append(f"DE-0 decision.json too small: {dec_path.stat().st_size}B")
     for market, key in [("SP500", "sp500"), ("KOSPI", "kospi")]:
         d = decision.get(key, {})
         action = d.get("action", "")
@@ -369,6 +394,8 @@ if __name__ == "__main__":
     if fails:
         for f in fails:
             print(f"  ✗ {f}")
-        print("[FAIL] Decision Agent Done Criteria 미충족")
+        print("DONE_CRITERIA: FAIL — " + " | ".join(fails))
         sys.exit(1)
+    print(f"  ✓ DE-0 decision.json saved ({dec_path.stat().st_size}B)")
     print("  ✓ DE-1~3 BUY/SELL/HOLD + 신뢰도 + 포지션 전항목 PASS")
+    print("DONE_CRITERIA: PASS")
