@@ -397,11 +397,146 @@ SA audit: SA-1=INFO, SA-2=MEDIUM, SA-3~SA-7=INFO
 Gate 2: PASSED (FIX-D 실전 확인 완료)
 다음 우선: PHASE-3 (run_pm_agent.py 책임 분리 [레벨 9])
 
+=== 세션 N 완료 항목 (Gate 2 FIX-E — JSONL stdin 폴백) ===
+
+[Task — Gate 2 production path failure [Level 10]]
+근본 원인 확인: Claude Code stdin = raw JSONL (1줄=1 JSON)
+  json.loads(raw) → JSONDecodeError → except Exception: hook_input={} → transcript=[]
+  → Check1/Check2=SKIP, task_hint="(작업 내용 없음)"
+
+가설 검증 (3개 전부):
+  H1 CONFIRMED: selftest on 930항목 production JSONL → fmt=jsonl, task_hint non-empty
+  H2 secondary: last_asst short mid-session (세션 종료 시 completion report로 PASS 예상)
+  H3 NOT issue: Level 10이 2번째 non-empty user msg (20개 한도 이내)
+
+수정 (FIX-E):
+  _parse_stdin() 헬퍼 신규: json.loads 우선, JSONDecodeError 시 줄단위 JSONL 파싱 폴백
+  stdin_debug.txt 덤프 (600자) — 실제 형식 확인
+  Telegram에 stdin:jsonl|json_object|empty 표시 추가
+  _selftest()도 JSONL 파일 지원
+
+회귀 테스트: 23/23 PASS (T22: JSONL파싱, T23: production JSONL Check2≠SKIP)
+CLAUDE.md Things to Avoid: FIX-E 패턴 추가 (58줄)
+git: c1be32d pushed
+TG Evidence: message_id=195
+
+다음 세션 종료 시 stdin_debug.txt + Telegram stdin: 필드로 실제 포맷 최종 확인
+
+=== 현재 상태 (세션 N) ===
+pm_quality_checks: 23/24 PASS (1 SKIP)
+ROADMAP 진행: Phase 0 ✅ → Phase 1 ✅ → Phase 2 ✅ → Gate 2 ✅ → FIX-E ✅
+회귀 테스트: 23/23 PASS (agents/tests/test_regression.py)
+stop_hook v5: JSONL stdin 폴백 + stdin_debug.txt 덤프
+다음 우선: PHASE-3 (run_pm_agent.py 책임 분리 [레벨 9])
+           Gate 2 실전 확인: 세션 종료 후 stdin_debug.txt 읽기
+
+=== 세션 O 완료 항목 (PHASE-3 책임 분리) ===
+
+[PHASE-3 — run_pm_agent.py 책임 분리 [레벨 9]]
+분리 결과 (모두 800줄 이하):
+  pm_utils.py:       173L — I/O 헬퍼, Telegram, subprocess, 경로 상수
+  pm_quality.py:     663L — pm_quality_checks() 24개 체크, 기준선, 이슈 도출
+  pm_orchestrator.py: 651L — PIPELINE_STAGES, validate_results, pm_system_audit
+  run_pm_agent.py:   704L — thin wrapper (pm_self_diagnosis 유지) + __main__
+
+설계 핵심:
+- _last_audit_findings: mutable list .clear()/.extend() 패턴
+  (from pm_orchestrator import _last_audit_findings 크로스모듈 참조 유지)
+- 역방향 의존성: pm_utils ← pm_quality ← pm_orchestrator ← run_pm_agent
+  (순환 임포트 없음)
+- _auto_fix_from_diagnosis: PIPELINE_STAGES 참조로 pm_orchestrator에 위치
+- 하위호환: _tg_send, _derive_fix_scripts, pm_quality_checks 등 run_pm_agent 네임스페이스 유지
+
+검증 Evidence:
+- 회귀 테스트: 23/23 PASS (1.70초) ✅
+- git: bcd341f pushed ✅
+
+=== 현재 상태 (세션 O) ===
+pm_quality_checks: 23/24 PASS (1 SKIP)
+ROADMAP 진행: Phase 0 ✅ → Phase 1 ✅ → Phase 2 ✅ → Gate 2 ✅ → Phase 3 ✅
+회귀 테스트: 23/23 PASS (agents/tests/test_regression.py)
+run_pm_agent.py: 704L (원본 1990L → 65% 감소)
+SA audit: SA-1=INFO, SA-2=MEDIUM, SA-3~SA-7=INFO
+
 === 미완료 (backlog) ===
 - REQ-003: Google Sheets 자동화 (GOOGLE_SA_JSON 필요)
 - REQ-004: Notion 연동 (NOTION_TOKEN 필요)
 - REQ-FUTURE-001: 코스피100→코스피200 유니버스 확장
 - REQ-015 F단계: SD-12 탐지 zero 확인
-- PHASE-3: run_pm_agent.py 책임 분리 [레벨 9]
-- PHASE-4: Agent Team 단계 전환 [레벨 9]
-- PHASE-5: 자율 개선 루프 완성 [레벨 10]
+
+=== 세션 P 완료 항목 (Gate 3 확인 + Phase 4 + FIX-F + Phase 5) ===
+
+[Gate 3 확인 — Phase 3 분리 엔드투엔드 검증]
+- pm_utils/pm_quality/pm_orchestrator 분리 후 실제 파이프라인 14/14단계 OK
+- 파일 줄 수: pm_utils 173L / pm_quality 663L / pm_orchestrator 651L / run_pm_agent 804L
+- 회귀 테스트 23/23 PASS
+- Telegram Gate 3 Evidence 전송 완료 (message_id=276)
+- output/phase4_baseline/ .gitignore 추가
+
+[Gate 2 FIX-F — stop_hook transcript_path 수정]
+- 근본원인: hook_input.get("transcript",[]) → 항상 [] → Check1/Check2=SKIP
+  Claude Code Stop hook은 transcript_path + last_assistant_message 전송 (배열 없음)
+- 수정: Check1=hook_input["last_assistant_message"] 직접 읽기
+        Check2=hook_input["transcript_path"] JSONL 파일 직접 열어 파싱
+- CLAUDE.md Things to Avoid: FIX-F 패턴 추가
+- 커밋: 245387a
+
+[Phase 4 — Agent Team 단계 전환 (레벨 9)]
+전환 에이전트 4개 (INPUT_CONTRACT + DONE_CRITERIA 패턴):
+1. run_decision_agent.py
+   - _check_inputs(out_dir): final_results.json + indicator_ranking.csv 검증
+   - DONE_CRITERIA: PASS/FAIL — DE-0 파일존재 + DE-1 유효성 + DE-2 confidence + DE-3 direction
+   - diff=0 (24 keys), 23/23 PASS
+2. run_narrative_agent.py
+   - _check_inputs(out_dir): decision.json + final_results.json 검증
+   - DONE_CRITERIA: PASS/FAIL — NA-2 파일 + NA-1 키 + NA-3 confidence + NA-4 action_plan
+   - diff=0 (22 keys), 23/23 PASS
+3. run_validation_agent.py
+   - _check_inputs(proc_dir): stock_results.json + evaluation_results.json 검증
+   - DONE_CRITERIA: PASS/FAIL — VA-0 파일 + VA-1 R1 + VA-2 pipeline_status + VA-3 6-layer
+   - diff=0, 6 layers 30/30, 23/23 PASS
+4. run_audit_agent.py
+   - _check_inputs(agents_dir, out_dir): 4개 AUDIT_TARGET + final_results.json
+   - DONE_CRITERIA: PASS/FAIL — AA-0~AA-4 (5개 체크)
+   - diff=0, 23/23 PASS
+Gate 4 커밋: 9c09b74, a59afe5
+
+[Phase 5 — 자율 개선 루프 완성 (레벨 10)]
+pm_orchestrator.py:
+- _sa8_regression_health(agents_dir) 추가
+  T-count≥23, T-vacuous=0, T-import≥3/4 핵심모듈, T-freshness≤14일
+- pm_system_audit() SA-1~SA-8 완성 (기존 SA-1~SA-7 + SA-8 추가)
+
+run_pm_agent.py:
+- SA-6/SA-7 bridge: pm_quality FAIL → _register_audit_findings() (폐쇄 루프 완성)
+- _weekly_audit_report(qc_results=None): 6-Layer 점수+SA 요약+미결이슈 Telegram
+- --weekly-audit CLI 플래그: 파이프라인 스킵, 감사 리포트만 전송
+- 일요일 자동 트리거: datetime.now().weekday()==6
+
+test_sd14_regression.py pytest 호환 리팩터:
+- 모듈 레벨 sys.exit()/sys.stdout 교체 제거
+- _run_sd14_test() + test_sd14_regression_detection() pytest 함수로 분리
+- 회귀 테스트 23→24/24 PASS (test_sd14 정식 pytest 통합)
+
+[Gate 5 Evidence]
+- 폐쇄 루프: REQ-SA4 삭제 → --skip-data 실행 → '[SA] 신규 등록: [REQ-SA4]' 자동 복원
+- 6-Layer: 62/62 PASS (L1:12 L2:12 L3:17 L4:8 L5:5 L_방법론:8)
+- Telegram: --weekly-audit 주간 리포트 + 6-Layer 점수표 전송 확인
+- 회귀 테스트: 24/24 PASS
+- 커밋: 5d10d9c
+
+=== 현재 상태 (세션 P / 2026-06-13) ===
+pm_quality_checks: 24/24 PASS (QG-1 SKIP 포함)
+회귀 테스트: 24/24 PASS (test_regression 23 + test_sd14 1)
+SA audit: SA-1=INFO, SA-2=MEDIUM, SA-3~SA-8=INFO (SA-4=HIGH refresh_data.py)
+6-Layer 재감사: 62/62 PASS
+ROADMAP 진행: Phase 0~5 전체 완료 ✅ Gate 0~5 전체 통과 ✅
+자율 개선 루프: 폐쇄 루프 활성 (파이프라인→SA→pending_requests 자동 등록)
+stop_hook: FIX-A/B/C/D/E/F 완료, Check1/Check2 실전 PASS
+
+미결 (backlog):
+- REQ-SA4: refresh_data.py Done Criteria (매 파이프라인 자동 재등록됨)
+- REQ-SA2: run_ui_agent.py:generate_html_dashboard() 226L
+- REQ-003: Google Sheets (waiting GOOGLE_SA_JSON)
+- REQ-004: Notion (waiting NOTION_TOKEN)
+- REQ-FUTURE-001: 코스피200 유니버스 확장

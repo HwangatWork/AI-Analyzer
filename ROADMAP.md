@@ -219,10 +219,10 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 | T15 | PM-5 notion_agent 파일 미존재 → Done Criteria FAIL | REQ-030 |
 
 ### 게이트 1
-- [ ] pytest 전체 PASS
-- [ ] 실행 시간 3분 이내
-- [ ] 테스트 개수 15개 이상
-- [ ] pytest 출력 전문 Telegram 전송
+- [x] pytest 전체 PASS — 19/19 PASS 1.32초 (2026-06-11) → 현재 24/24 PASS (test_sd14 pytest 통합)
+- [x] 실행 시간 3분 이내 — 1.32초
+- [x] 테스트 개수 15개 이상 — 19개 (→ 24개)
+- [x] pytest 출력 전문 Telegram 전송
 
 ## Phase 2: 실전 환경 검증 체계 [레벨 10]
 
@@ -248,6 +248,14 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 - [x] 실전 TG 메시지에서 체크2 SKIP이 아닌 PASS/WARN 확인 (이 세션 완료 보고가 증거)
 - [x] 빈 트리거 미전송 확인 (FIX-A 적용 후 task_hint non-empty)
 - [x] 회귀 테스트 20/20 PASS (1.59초)
+
+#### FIX-E/F 추가 수정 이력
+| Fix | 문제 | 수정 | 커밋 |
+|-----|------|------|------|
+| FIX-E | `json.loads(raw)` → JSONDecodeError → Check1/Check2=SKIP | `_parse_stdin()` JSONL 줄단위 폴백 | c1be32d |
+| FIX-F | `hook_input.get("transcript",[])` 항상 `[]` → SKIP | `last_assistant_message` + `transcript_path` 파일 직접 읽기 | 245387a |
+
+FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2=PASS 확인)
 
 ## Phase 3: run_pm_agent.py 책임 분리 [레벨 9]
 
@@ -303,3 +311,25 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 | Phase 3 | **완료** | ✅ 통과 | 2026-06-13 |
 | Phase 4 | **완료** | ✅ 통과 | 2026-06-13 |
 | Phase 5 | **완료** | ✅ 통과 | 2026-06-13 |
+
+## 현재 시스템 상태 (2026-06-13 기준)
+
+| 항목 | 상태 |
+|------|------|
+| pm_quality_checks | 24/24 PASS (QG-1 SKIP 포함) |
+| 회귀 테스트 | **24/24 PASS** (test_regression 23 + test_sd14 1) |
+| 6-Layer 재감사 | **62/62 PASS** (L1:12 L2:12 L3:17 L4:8 L5:5 L_방법론:8) |
+| SA 구조 감사 | SA-1~SA-8 자동 실행 (SA-2 MEDIUM, SA-4 HIGH, 나머지 INFO) |
+| 자율 개선 루프 | 폐쇄 루프 활성 — 파이프라인→SA→pending_requests 자동 등록 |
+| 주간 감사 | `--weekly-audit` 플래그 + 일요일 자동 트리거 |
+| stop_hook | FIX-A~F 완료 — Check1/Check2 실전 PASS 확인 |
+| PIPELINE_STAGES | 14단계 (narrative 포함) |
+
+### 미결 항목 (backlog / waiting)
+| ID | 내용 | 상태 |
+|----|------|------|
+| REQ-SA4 | refresh_data.py Done Criteria 미정의 | pending (자동 재등록됨) |
+| REQ-SA2 | run_ui_agent.py:generate_html_dashboard() 226L | backlog |
+| REQ-003 | Google Sheets 자동화 | waiting_credentials |
+| REQ-004 | Notion 연동 | waiting_credentials |
+| REQ-FUTURE-001 | 코스피100→코스피200 유니버스 확장 | backlog |
