@@ -348,7 +348,11 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 
 ### Phase 6-2: `.claude/agents/*.md` Input/Output Contract 내용 검증
 
-- [ ] SA-9 다음 파이프라인 실행 후 AUTO-GENERATED 섹션 실제 코드와 대조 검증
+- [x] SA-9 다음 파이프라인 실행 후 AUTO-GENERATED 섹션 실제 코드와 대조 검증
+  - 11개 .md 파일 전수 감사 완료 (2026-06-13)
+  - CRITICAL 4개 수정: narrative/sector/audit/data-agent
+  - 나머지 7개 수정: analysis/decision/evaluator/report/stock/ui/validation-agent
+  - Input/Output Contract 모두 실제 .py 코드 기준으로 정정
 
 ### Phase 6-3: PM Agent 오케스트레이션 전환
 

@@ -10,10 +10,15 @@ tools: Read, Bash, Write
 - dashboard.html과 CSV 3종을 생성한다.
 
 ## 입력 계약 (Input Contract)
-- 모든 분석/검증/의사결정 산출물
+- `data/processed/analysis_results.json`
+- `data/processed/stock_results.json`
+- `data/processed/evaluation_results.json`
+- `output/sector_analysis.json` (optional — 없으면 섹터 탭 비활성)
 
 ## 출력 계약 (Output Contract)
-- `output/dashboard.html`, CSV 3종
+- `output/dashboard.html`
+- `output/final_results.json` — 파이프라인 최종 통합 결과
+- `output/indicator_ranking.csv`, `output/market_signals.csv`, `output/stock_analysis.csv`
 - UX-1~UX-7 자체검증
 
 ## 허용 행위 (Allowed Actions)

@@ -12,7 +12,8 @@ tools: Read, Bash, Write
 - 자기참조 지표(BBAND/MA50/MA200/RSI14 등)를 랭킹에서 제외한다.
 
 ## 입력 계약 (Input Contract)
-- data-agent가 수집한 29개 지표 시계열
+- `data/raw/<INDICATOR>.parquet` — 29개 지표별 파일 (RAW_DIR / "{name}.parquet")
+- `feature_list.json` — 분석 대상 지표 목록
 
 ## 출력 계약 (Output Contract)
 - `data/processed/analysis_results.json`

@@ -11,7 +11,7 @@ tools: Read, Bash, Write
 - 신뢰도에 따라 알림 발송 여부를 게이팅한다.
 
 ## 입력 계약 (Input Contract)
-- 복합 시그널 점수, 신뢰도
+- `output/final_results.json` — score / direction / composite_signal 등 필수 키 포함
 
 ## 출력 계약 (Output Contract)
 - `output/decision.json` (CI 파이프라인 포함)

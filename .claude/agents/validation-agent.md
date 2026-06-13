@@ -11,10 +11,14 @@ tools: Read, Bash
 - 통과 시에만 UI Agent 실행을 허용한다.
 
 ## 입력 계약 (Input Contract)
-- 직전 모든 에이전트 산출물
+- `data/processed/stock_results.json`
+- `data/processed/evaluation_results.json`
+- `output/final_results.json` (P3 — PM 조건 점검)
+- `output/sector_analysis.json` (P4 — Sector Agent 완료 확인)
 
 ## 출력 계약 (Output Contract)
-- N/30 PASS 결과
+- `data/processed/validation_report.json` — 30개 체크리스트 전체 결과
+- N/30 PASS 결과 stdout
 - FAIL 항목 특정 + 원인
 
 ## 허용 행위 (Allowed Actions)

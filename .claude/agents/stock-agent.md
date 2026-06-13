@@ -11,8 +11,9 @@ tools: Read, Bash, Write
 - KOSPI는 USD 환산, 동일기업 복수 클래스 중복 제거.
 
 ## 입력 계약 (Input Contract)
-- S&P500 구성종목 (FDR), KOSPI 시총 상위 (pykrx)
-- 분석 기간 1년
+- S&P500 구성종목: `fdr.StockListing('S&P500')` → 실패 시 Wikipedia 스크래핑 fallback
+- KOSPI 시총 상위: `fdr.StockListing('KOSPI')` → 실패 시 pykrx 보조 → 내장 폴백 목록
+- 분석 기간 1년 (yfinance 배치 다운로드)
 
 ## 출력 계약 (Output Contract)
 - `data/processed/stock_results.json`

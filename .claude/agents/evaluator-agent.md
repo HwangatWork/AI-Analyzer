@@ -11,7 +11,9 @@ tools: Read, Bash, Write
 - 신뢰도 70점 미만 지표를 자동 제외한다.
 
 ## 입력 계약 (Input Contract)
-- analysis-agent 산출물
+- `data/processed/analysis_results.json` — 지표 가중치·랭킹 (필수)
+- `data/processed/stock_results.json` — 종목 분석 결과 (fallback: 없으면 skip)
+- `data/raw/<INDICATOR>.parquet` — ADF 정류성 검정용 원시 데이터
 
 ## 출력 계약 (Output Contract)
 - `data/processed/evaluation_results.json`

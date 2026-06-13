@@ -10,10 +10,13 @@ tools: Read, Bash
 - 최종 산출물을 텔레그램/Notion/GH Pages로 전달한다.
 
 ## 입력 계약 (Input Contract)
-- 모든 최종 산출물, decision.json (신뢰도 게이트)
+- `output/final_results.json` — 점수·방향·랭킹 (TG-5 필수 파싱)
+- `output/decision.json` — 신뢰도 게이트 (action / confidence_tier)
+- `data/processed/validation_report.json` — 체크리스트 결과 요약
 
 ## 출력 계약 (Output Contract)
-- 전송 message_id 등 Evidence
+- 텔레그램 전송 message_id (Evidence)
+- `data/processed/telegram_log.json` — 최근 500건 전송 로그 (중복 방지 MD5 캐시)
 
 ## 허용 행위 (Allowed Actions)
 - 텔레그램/Notion 전송, GH Pages 배포

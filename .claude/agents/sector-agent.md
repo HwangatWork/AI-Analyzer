@@ -10,7 +10,8 @@ tools: Read, Bash, Write
 - 주요 산업 섹터별 종목 그룹을 분석한다.
 
 ## 입력 계약 (Input Contract)
-- stock-agent 산출물, 섹터 분류 기준
+- FDR API (동적 섹터 종목 데이터)
+- SECTORS_FALLBACK (하드코딩 폴백, 동적 실패 시 한정 사용)
 
 ## 출력 계약 (Output Contract)
 - `output/sector_analysis.json`
