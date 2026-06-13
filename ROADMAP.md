@@ -434,3 +434,13 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 - [ ] CTD 웹앱에서 정상 표시 확인
 - [ ] Telegram 보고 + git push
 <!-- STOP: connecting-dots-ctd 별도 저장소 — AI-Analyzer에서 실행 불가 (2026-06-13) -->
+
+---
+
+## Phase 11: Task() 서브에이전트 전환 (조건부)
+
+- [ ] Claude Code에서 Task tool이 서브에이전트 세션에 실제 제공되는지 확인
+- [ ] 확인 시 orchestrator.md tools에 Task 재추가
+- [ ] orchestrator가 worker를 Task()로 spawn하도록 프롬프트 수정
+- [ ] 병렬 실행 검증 (ThreadPoolExecutor → 진정한 서브에이전트 병렬)
+- [ ] WAIT: Task tool 환경 지원 확인 전까지 대기
