@@ -16,7 +16,7 @@ Read other files just-in-time, only when the task requires them.
 ## Tech Stack
 - Python 3.x, GitHub Actions (14-stage pipeline), Telegram Bot API
 - Test: pytest — run with `python -m pytest agents/tests/ -v`
-- Regression baseline: 29/29 PASS minimum. Never merge below this.
+- Regression baseline: 34/34 PASS minimum. Never merge below this.
 
 ## Testing Commands
 - Full regression: `python -m pytest agents/tests/ -v`

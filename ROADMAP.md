@@ -317,7 +317,7 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 | 항목 | 상태 |
 |------|------|
 | pm_quality_checks | 24/24 PASS (QG-1 SKIP 포함) |
-| 회귀 테스트 | **29/29 PASS** (test_regression 23 + test_sd14 1 + test_req_sa4 5) |
+| 회귀 테스트 | **34/34 PASS** (test_regression 23 + test_sd14 1 + test_req_sa4 5 + test_sa9_injection 5) |
 | 6-Layer 재감사 | **62/62 PASS** (L1:12 L2:12 L3:17 L4:8 L5:5 L_방법론:8) |
 | SA 구조 감사 | SA-1~**SA-9** 자동 실행 (SA-9 신규: 에이전트 명세 완비 감사, 나머지 INFO) |
 | 자율 개선 루프 | 폐쇄 루프 활성 — 파이프라인→SA→pending_requests 자동 등록 |
@@ -340,11 +340,11 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 
 ### Phase 6-1: SA-9 확장 — agents/*.py Done Criteria 자동 주입
 
-- [ ] SA9-T1: 현황 감사 — `agents/*.py` 중 `_verify_done_criteria()` 없는 파일 목록 + 출력 파일 패턴 파악. Telegram 보고 후 대기.
-- [ ] SA9-T2: 패턴 분류 — 각 agent를 Pattern A(파일출력/parquet·csv), Pattern B(JSON출력), Pattern C(사이드이펙트)로 분류. Telegram 보고 후 대기.
-- [ ] SA9-T3: `_sa9_inject_done_criteria()` 구현 — pm_orchestrator.py SA-9에 주입 로직 추가. NEVER modify: `refresh_data.py` / `pm_orchestrator.py` 자체 / `pm_utils.py` / `utf8_setup.py` / `tests/`. 주입 실패 시 즉시 revert. 회귀 34/34 PASS 확인.
-- [ ] SA9-T4: 회귀 테스트 추가 — `tests/test_sa9_injection.py` (5개). 34/34 PASS.
-- [ ] SA9-T5: SA-9 첫 확장 실행 — 13개 에이전트 주입 결과 + 패턴별 분류 Telegram 보고.
+- [x] SA9-T1: 현황 감사 — `agents/*.py` 중 `_verify_done_criteria()` 없는 파일 목록 + 출력 파일 패턴 파악. Telegram 보고 후 대기.
+- [x] SA9-T2: 패턴 분류 — 각 agent를 Pattern A(파일출력/parquet·csv), Pattern B(JSON출력), Pattern C(사이드이펙트)로 분류. Telegram 보고 후 대기.
+- [x] SA9-T3: `_sa9_inject_done_criteria()` 구현 — pm_orchestrator.py SA-9에 주입 로직 추가. 7개 주입 완료. 회귀 29/29 PASS.
+- [x] SA9-T4: 회귀 테스트 추가 — `tests/test_sa9_injection.py` (5개). **34/34 PASS**.
+- [x] SA9-T5: SA-9 첫 확장 실행 — 11개 에이전트 전원 DC 보유 확인. SA-9x 멱등성 PASS. Telegram 보고 완료.
 
 ### Phase 6-2: `.claude/agents/*.md` Input/Output Contract 내용 검증
 
