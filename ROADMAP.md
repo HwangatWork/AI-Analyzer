@@ -382,3 +382,54 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
   - pm_system_audit() SA-FM: count>=3 미해결 패턴 → Telegram 경고
   - 회귀 테스트 5개 추가 (test_phase64_memory.py)
   - Regression: 42 PASS, 1 SKIP, 0 FAIL
+
+---
+
+## Phase 7: 코드 품질 개선
+
+### REQ-SA2: run_ui_agent.py 대형 함수 분리
+
+- [ ] generate_html_dashboard() 226줄을 50줄 이하 단위로 분리
+- [ ] 분리 후 기존 출력(dashboard.html, final_results.json) 동일 확인
+- [ ] 회귀 47/47 PASS 유지
+- [ ] SA-2 감사 결과 INFO로 전환 확인
+- [ ] Telegram 보고 + git push
+
+---
+
+## Phase 8: 분석 품질 자동화
+
+### Step 2: LLM-as-Judge 도입
+
+- [ ] Narrative Agent 리포트 품질 자동 스코어링 (Sonnet, 5점 척도)
+- [ ] Decision Agent 추론 논리 일관성 자동 체크
+- [ ] 3점 미만 → pm_quality WARN 자동 등록
+- [ ] pm_quality_checks에 QN-1(narrative), QD-1(decision) 항목 추가
+- [ ] 회귀 PASS 유지 + 신규 테스트 추가
+- [ ] Telegram 보고 + git push
+
+---
+
+## Phase 9: 동적 노력 스케일링
+
+### Step 3: 시장 상황별 에이전트 구성 동적 조정
+
+- [ ] VIX 기준 3단계 정의: 중립(20~40) / 경계(40~60) / 극단(60+)
+  - WAIT: VIX 임계값은 백테스트 기반으로 확정 필요 — 현재 임시값
+- [ ] 중립 → Group B 중 핵심 2개만 (analysis + evaluator)
+- [ ] 경계 → 표준 Group A/B/C/D 전체
+- [ ] 극단 → 전체 + sector 심층 분석 추가 실행
+- [ ] 회귀 PASS 유지
+- [ ] Telegram 보고 + git push
+
+---
+
+## Phase 10: CTD 브리지 연결
+
+### ctd_bridge.json v4 스키마 업데이트
+
+- [ ] 현재 브리지 파일 스키마 확인 (구버전: BBAND #1)
+- [ ] 현재 시스템 스키마 확인 (현재: VIX #1)
+- [ ] ctd_weights.json + ctd_bridge.json v4 스키마로 업데이트
+- [ ] CTD 웹앱에서 정상 표시 확인
+- [ ] Telegram 보고 + git push
