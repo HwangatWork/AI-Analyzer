@@ -366,4 +366,11 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 
 ### Phase 6-4: failure_memory.json 연결
 
-- [ ] 패턴 기억 레이어 + 재시도 로직
+- [x] 패턴 기억 레이어 + 재시도 로직 (2026-06-13)
+  - failure_memory.json: project root, {"patterns": [...]} 스키마
+  - _load_failure_memory / _record_failure / _record_success / _check_repeat_failures
+  - run_full_pipeline() 실패 시 자동 기록, 성공 시 resolved=true
+  - _run_group_parallel() (Group B)에도 동일 기록 연결
+  - pm_system_audit() SA-FM: count>=3 미해결 패턴 → Telegram 경고
+  - 회귀 테스트 5개 추가 (test_phase64_memory.py)
+  - Regression: 42 PASS, 1 SKIP, 0 FAIL

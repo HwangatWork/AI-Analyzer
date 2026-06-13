@@ -16,7 +16,7 @@ Read other files just-in-time, only when the task requires them.
 ## Tech Stack
 - Python 3.x, GitHub Actions (14-stage pipeline), Telegram Bot API
 - Test: pytest — run with `python -m pytest agents/tests/ -v`
-- Regression baseline: 34/34 PASS minimum. Never merge below this.
+- Regression baseline: 42/42 PASS minimum (T23=SKIP 허용). Never merge below this.
 
 ## Testing Commands
 - Full regression: `python -m pytest agents/tests/ -v`
@@ -60,6 +60,12 @@ caught by `except Exception: hook_input = {}` → `transcript = []` → Check1/C
 Fix: `_parse_stdin()` — try `json.loads` first, fall back to line-by-line JSONL parsing.
 New field in Telegram: `stdin:jsonl|json_object|empty` confirms which path fired.
 Never silence a `json.loads` failure in hook code without a JSONL fallback.
+
+**failure_memory.json pattern (Phase 6-4):**
+Location: project root. Schema: `{"patterns": [{"agent", "failure_type", "count", "first_seen", "last_seen", "last_error", "resolved"}]}`.
+failure_type values: `timeout` / `dc_fail` / `crash`. count >= 3 + resolved=false → SA-FM HIGH + Telegram alert.
+Functions: `_load_failure_memory()`, `_record_failure()`, `_record_success()`, `_check_repeat_failures()` in pm_orchestrator.py.
+Never block the pipeline on failure_memory I/O errors — all writes are try/except guarded.
 
 **FIX-F (2026-06-13): stop_hook hook_input has no "transcript" array**
 DO NOT call `hook_input.get("transcript", [])`.

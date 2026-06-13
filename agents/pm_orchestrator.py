@@ -149,7 +149,10 @@ def _run_group_parallel(
             short = out.strip().splitlines()[-1][:150] if out.strip() else ""
             _tg_step(sn, TOTAL_STEPS, lbl, short if ok else f"⚠ 오류: {short}")
             results.append((lbl, ok))
-            if not ok:
+            if ok:
+                _record_success(s)
+            else:
+                _record_failure(s, _failure_type(out), out[-300:])
                 all_ok = False
     return results, all_ok
 
@@ -261,6 +264,110 @@ def validate_results() -> list[tuple[Criterion, str]]:
 
 
 # ══════════════════════════════════════════════════════════════
+# Phase 6-4: failure_memory.json — 세션 간 실패 이력 영속화
+# ══════════════════════════════════════════════════════════════
+
+FAILURE_MEMORY_PATH: Path = BASE_DIR / "failure_memory.json"
+
+
+def _load_failure_memory(_path: "Path | None" = None) -> dict:
+    """failure_memory.json 읽기. 없거나 파싱 실패 시 빈 구조 반환."""
+    path = _path or FAILURE_MEMORY_PATH
+    try:
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return {"patterns": []}
+
+
+def _failure_type(out: str) -> str:
+    if "TimeoutExpired" in out:
+        return "timeout"
+    if "DONE_CRITERIA: FAIL" in out:
+        return "dc_fail"
+    return "crash"
+
+
+def _record_failure(agent: str, failure_type: str, error_msg: str,
+                    _path: "Path | None" = None) -> None:
+    """실패 기록. 동일 agent+type이면 count 증가. 파이프라인 중단 없이 동작."""
+    path = _path or FAILURE_MEMORY_PATH
+    mem  = _load_failure_memory(path)
+    today = datetime.now().strftime("%Y-%m-%d")
+    for p in mem["patterns"]:
+        if p["agent"] == agent and p["failure_type"] == failure_type:
+            p["count"]      += 1
+            p["last_seen"]   = today
+            p["last_error"]  = error_msg[:200]
+            p["resolved"]    = False
+            break
+    else:
+        mem["patterns"].append({
+            "agent":        agent,
+            "failure_type": failure_type,
+            "count":        1,
+            "first_seen":   today,
+            "last_seen":    today,
+            "last_error":   error_msg[:200],
+            "resolved":     False,
+        })
+    try:
+        path.write_text(json.dumps(mem, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception as e:
+        print(f"[PM] failure_memory 기록 실패 (파이프라인 유지): {e}")
+
+
+def _record_success(agent: str, _path: "Path | None" = None) -> None:
+    """성공 시 해당 agent의 모든 미해결 패턴을 resolved=true로 업데이트."""
+    path = _path or FAILURE_MEMORY_PATH
+    mem  = _load_failure_memory(path)
+    changed = any(not p["resolved"] for p in mem["patterns"] if p["agent"] == agent)
+    if not changed:
+        return
+    for p in mem["patterns"]:
+        if p["agent"] == agent:
+            p["resolved"] = True
+    try:
+        path.write_text(json.dumps(mem, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception as e:
+        print(f"[PM] failure_memory 성공 기록 실패 (파이프라인 유지): {e}")
+
+
+def _check_repeat_failures(_path: "Path | None" = None) -> dict:
+    """count >= 3인 미해결 패턴 탐지 → Telegram 경고. SA finding dict 반환."""
+    path   = _path or FAILURE_MEMORY_PATH
+    mem    = _load_failure_memory(path)
+    repeat = [
+        p for p in mem["patterns"]
+        if p.get("count", 0) >= 3 and not p.get("resolved", False)
+    ]
+    if repeat:
+        items = "\n".join(
+            f"  - {p['agent']} ({p['failure_type']}): {p['count']}회 실패"
+            for p in repeat
+        )
+        _tg_send(
+            f"⚠ <b>PM Agent 반복 실패 경고</b>\n"
+            f"3회 이상 미해결 실패:\n{items}\n\n"
+            f"<i>수동 점검 권장</i>"
+        )
+        return {
+            "sa_code":  "SA-FM",
+            "severity": "HIGH",
+            "title":    f"반복 실패 패턴 {len(repeat)}개 탐지",
+            "detail":   "; ".join(f"{p['agent']}x{p['count']}" for p in repeat),
+        }
+    total = len(mem["patterns"])
+    return {
+        "sa_code":  "SA-FM",
+        "severity": "INFO",
+        "title":    f"반복 실패 없음 (총 {total}개 패턴)",
+        "detail":   "failure_memory.json — count<3 또는 전원 resolved",
+    }
+
+
+# ══════════════════════════════════════════════════════════════
 # 파이프라인 실행
 # ══════════════════════════════════════════════════════════════
 
@@ -291,7 +398,10 @@ def run_full_pipeline(skip_data: bool = False) -> list[tuple[str, bool]]:
                 short = out.strip().splitlines()[-1][:150] if out.strip() else ""
                 _tg_step(sn, TOTAL_STEPS, lbl, short if ok else f"⚠ 오류: {short}")
                 results.append((lbl, ok))
-                if not ok:
+                if ok:
+                    _record_success(script)
+                else:
+                    _record_failure(script, _failure_type(out), out[-300:])
                     print(f"[PM] {lbl} 실패 — 파이프라인 중단")
                     failed = True
                     break
@@ -985,6 +1095,9 @@ def pm_system_audit() -> list[dict]:
 
     # ── SA-9x: agents/*.py Done Criteria 블록 자동 주입 ─────────────────────
     findings.append(_sa9_inject_done_criteria())
+
+    # ── SA-FM: failure_memory.json 반복 실패 패턴 탐지 ───────────────────────
+    findings.append(_check_repeat_failures())
 
     # SA 감사 결과 캐시 갱신 (mutable list — 참조 무효화 방지)
     _last_audit_findings.clear()
