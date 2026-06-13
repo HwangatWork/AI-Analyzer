@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-13T12:22:30",
+  "updated": "2026-06-13T16:10:21",
   "completed": [
     {
       "id": "REQ-001",
@@ -313,6 +313,90 @@
       "request": "[SA-4 HIGH] Done Criteria 미정의 Agent",
       "status": "pending",
       "details": "Done Criteria 없음: ['refresh_data.py']"
+    },
+    {
+      "id": "REQ-SA9-analysis-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: analysis-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution', 'Done Criteria']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
+    },
+    {
+      "id": "REQ-SA9-audit-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: audit-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution', 'Done Criteria']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
+    },
+    {
+      "id": "REQ-SA9-data-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: data-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
+    },
+    {
+      "id": "REQ-SA9-decision-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: decision-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution', 'Done Criteria']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
+    },
+    {
+      "id": "REQ-SA9-evaluator-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: evaluator-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution', 'Done Criteria']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
+    },
+    {
+      "id": "REQ-SA9-meta-audit-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: meta-audit-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution', 'Done Criteria']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
+    },
+    {
+      "id": "REQ-SA9-narrative-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: narrative-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution', 'Done Criteria']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
+    },
+    {
+      "id": "REQ-SA9-news-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: news-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution', 'Done Criteria']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
+    },
+    {
+      "id": "REQ-SA9-orchestrator",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: orchestrator.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution', 'Done Criteria']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
+    },
+    {
+      "id": "REQ-SA9-report-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: report-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution', 'Done Criteria']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
+    },
+    {
+      "id": "REQ-SA9-sector-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: sector-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution', 'Done Criteria']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
+    },
+    {
+      "id": "REQ-SA9-stock-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: stock-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution', 'Done Criteria']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
+    },
+    {
+      "id": "REQ-SA9-ui-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: ui-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution', 'Done Criteria']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
+    },
+    {
+      "id": "REQ-SA9-validation-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: validation-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Role', 'Execution', 'Done Criteria']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
     }
   ]
 }

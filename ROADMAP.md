@@ -317,9 +317,9 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 | 항목 | 상태 |
 |------|------|
 | pm_quality_checks | 24/24 PASS (QG-1 SKIP 포함) |
-| 회귀 테스트 | **24/24 PASS** (test_regression 23 + test_sd14 1) |
+| 회귀 테스트 | **29/29 PASS** (test_regression 23 + test_sd14 1 + test_req_sa4 5) |
 | 6-Layer 재감사 | **62/62 PASS** (L1:12 L2:12 L3:17 L4:8 L5:5 L_방법론:8) |
-| SA 구조 감사 | SA-1~SA-8 자동 실행 (SA-2 MEDIUM, SA-4 HIGH, 나머지 INFO) |
+| SA 구조 감사 | SA-1~**SA-9** 자동 실행 (SA-9 신규: 에이전트 명세 완비 감사, 나머지 INFO) |
 | 자율 개선 루프 | 폐쇄 루프 활성 — 파이프라인→SA→pending_requests 자동 등록 |
 | 주간 감사 | `--weekly-audit` 플래그 + 일요일 자동 트리거 |
 | stop_hook | FIX-A~F 완료 — Check1/Check2 실전 PASS 확인 |
@@ -328,7 +328,7 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 ### 미결 항목 (backlog / waiting)
 | ID | 내용 | 상태 |
 |----|------|------|
-| REQ-SA4 | refresh_data.py Done Criteria 미정의 | pending (자동 재등록됨) |
+| REQ-SA4 | refresh_data.py Done Criteria 구현 완료 (DC-1~DC-5) | **완료** (2026-06-13) |
 | REQ-SA2 | run_ui_agent.py:generate_html_dashboard() 226L | backlog |
 | REQ-003 | Google Sheets 자동화 | waiting_credentials |
 | REQ-004 | Notion 연동 | waiting_credentials |

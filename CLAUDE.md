@@ -15,11 +15,11 @@ Read other files just-in-time, only when the task requires them.
 
 ## Tech Stack
 - Python 3.x, GitHub Actions (14-stage pipeline), Telegram Bot API
-- Test: pytest — run with `python -m pytest tests/ -v`
-- Regression baseline: 21/21 PASS minimum. Never merge below this.
+- Test: pytest — run with `python -m pytest agents/tests/ -v`
+- Regression baseline: 29/29 PASS minimum. Never merge below this.
 
 ## Testing Commands
-- Full regression: `python -m pytest tests/ -v`
+- Full regression: `python -m pytest agents/tests/ -v`
 - Stop hook selftest: `python stop_hook.py --selftest`
 - Quality checks: run pm_quality_checks (24 checks; Google Sheets = optional SKIP)
 
@@ -38,6 +38,10 @@ numeric/log Evidence sent to Telegram. No exceptions.
 - File creation ≠ done. Every agent must contain a self-verification block.
 - Self-verification failure → exit(1) → pipeline blocked.
 - New agent without a Done Criteria block → reject in code review.
+- Standard pattern (ref: `agents/refresh_data.py:_verify_done_criteria`):
+  - DC-1: output file exists; DC-2: not empty; DC-3: row count ≥ min;
+  - DC-4: newest row ≤ 7 days old; DC-5: no partial failure flag.
+  - Print `DONE_CRITERIA: PASS` or `DONE_CRITERIA: FAIL — …` then `sys.exit(1)`.
 
 ## Filter Rules
 ```python
