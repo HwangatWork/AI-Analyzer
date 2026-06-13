@@ -607,11 +607,17 @@ def test_T23_production_jsonl_check2_not_skip():
 
     target = jsonl_files[0]
 
-    # 해당 파일에 "Level" 언급이 있는지 확인 (없으면 SKIP이 정상)
     raw = target.read_text(encoding="utf-8", errors="replace")
-    import re
-    if not re.search(r"(?:레벨|Level)\s*(?:[789]|10)", raw, re.I):
-        import pytest; pytest.skip("Level 7+ 언급 없는 파일 — SKIP이 정상")
+
+    # _last_messages와 동일 기준: 최근 20개 user 메시지 중 Level 7+ 있어야 Check2 비-SKIP
+    import sys as _sys
+    _sys.path.insert(0, str(BASE / ".claude" / "hooks"))
+    from stop_hook import _parse_stdin, _last_messages
+    _hook_input, _ = _parse_stdin(raw)
+    _transcript = _hook_input if isinstance(_hook_input, list) else _hook_input.get("transcript", [])
+    _, _, _recent_ctx = _last_messages(_transcript)
+    if not _recent_ctx:
+        import pytest; pytest.skip("최근 20개 user 메시지에 Level 7+ 없음 — Check2=SKIP이 정상")
 
     result = subprocess.run(
         [sys.executable, str(BASE / ".claude" / "hooks" / "stop_hook.py"),

@@ -356,7 +356,13 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 
 ### Phase 6-3: PM Agent 오케스트레이션 전환
 
-- [ ] Group A/B/C/D 병렬 실행 구조로 전환
+- [x] Group A/B/C/D 병렬 실행 구조로 전환 (2026-06-13)
+  - EXECUTION_GROUPS 상수 추가 (A/B/C/D)
+  - _run_group_parallel(): ThreadPoolExecutor, max_workers=len(Group B)
+  - run_full_pipeline(): Group B(analysis+stock+news+sector) 병렬 실행
+  - 회귀 테스트 4개 추가 (test_phase63_groups.py)
+  - T23 skip 조건 수정 (_last_messages 동일 기준으로 정합)
+  - Regression: 37 PASS, 1 SKIP, 0 FAIL
 
 ### Phase 6-4: failure_memory.json 연결
 

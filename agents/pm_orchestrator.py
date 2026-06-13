@@ -4,6 +4,7 @@ PM Agent — 파이프라인 조율 + 구조 감사 (pm_orchestrator.py)
 PIPELINE_STAGES, validate_results, auto_fix, final_report, pm_system_audit.
 """
 
+import concurrent.futures
 import json
 import re
 from datetime import datetime
@@ -96,6 +97,61 @@ STAGE_DEPS: dict[str, list[str]] = {
     "generate_report_v2.py":     ["run_narrative_agent.py"],
     "run_audit_agent.py":        ["generate_report_v2.py"],
 }
+
+# ── Phase 6-3: Group A/B/C/D 병렬 실행 구조 ──────────────────────────────
+# (group_name, is_parallel, [scripts])
+# Group B만 병렬; A·C·D는 STAGE_DEPS에 따라 순차 실행.
+EXECUTION_GROUPS: list[tuple[str, bool, list[str]]] = [
+    ("A", False, [
+        "run_data_agent_v2.py",
+        "refresh_data.py",
+    ]),
+    ("B", True, [
+        "run_analysis_agent_v2.py",
+        "run_stock_agent_v2.py",
+        "run_news_agent.py",
+        "run_sector_agent.py",
+    ]),
+    ("C", False, [
+        "run_evaluator_agent_v2.py",
+        "run_validation_agent.py",
+        "run_decision_agent.py",
+    ]),
+    ("D", False, [
+        "run_ui_agent.py",
+        "run_narrative_agent.py",
+        "generate_report_v2.py",
+        "run_audit_agent.py",
+    ]),
+]
+
+
+def _run_group_parallel(
+    scripts: list[str],
+    script_map: dict[str, tuple[str, int, int]],
+) -> tuple[list[tuple[str, bool]], bool]:
+    """Group B 스크립트들을 ThreadPoolExecutor로 병렬 실행.
+
+    Returns (results_list, all_ok).
+    전체 실행 후 결과 집계 — 한 스크립트 실패가 다른 스크립트를 중단하지 않는다.
+    """
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(scripts)) as ex:
+        future_to_script = {
+            ex.submit(_run, s, script_map[s][0], script_map[s][2]): s
+            for s in scripts if s in script_map
+        }
+        results: list[tuple[str, bool]] = []
+        all_ok = True
+        for future in concurrent.futures.as_completed(future_to_script):
+            s = future_to_script[future]
+            lbl, sn, _ = script_map[s]
+            ok, out = future.result()
+            short = out.strip().splitlines()[-1][:150] if out.strip() else ""
+            _tg_step(sn, TOTAL_STEPS, lbl, short if ok else f"⚠ 오류: {short}")
+            results.append((lbl, ok))
+            if not ok:
+                all_ok = False
+    return results, all_ok
 
 
 def _get_dependents(failed_scripts: set[str]) -> list[str]:
@@ -209,21 +265,39 @@ def validate_results() -> list[tuple[Criterion, str]]:
 # ══════════════════════════════════════════════════════════════
 
 def run_full_pipeline(skip_data: bool = False) -> list[tuple[str, bool]]:
-    """전체 파이프라인 실행. 각 단계 완료 시 Telegram 보고."""
-    results = []
-    for script, label, step_n, timeout in PIPELINE_STAGES:
-        if skip_data and script in ("run_data_agent_v2.py", "refresh_data.py"):
-            print(f"[PM] 건너뜀 (--skip-data): {script}")
-            _tg_step(step_n, TOTAL_STEPS, label, "건너뜀 (기존 데이터 사용)")
-            results.append((label, True))
-            continue
-        ok, out = _run(script, label, timeout)
-        short = out.strip().splitlines()[-1][:150] if out.strip() else ""
-        _tg_step(step_n, TOTAL_STEPS, label, short if ok else f"⚠ 오류: {short}")
-        results.append((label, ok))
-        if not ok:
-            print(f"[PM] {label} 실패 — 파이프라인 중단")
-            break
+    """전체 파이프라인 실행 (Group A→D). Group B는 병렬, 나머지는 순차."""
+    script_map = {s: (lbl, sn, to) for s, lbl, sn, to in PIPELINE_STAGES}
+    results: list[tuple[str, bool]] = []
+
+    for group_name, is_parallel, group_scripts in EXECUTION_GROUPS:
+        if is_parallel:
+            print(f"[PM] Group {group_name} 병렬 실행: {group_scripts}")
+            group_results, all_ok = _run_group_parallel(group_scripts, script_map)
+            results.extend(group_results)
+            if not all_ok:
+                print(f"[PM] Group {group_name} 실패 항목 있음 — 파이프라인 중단")
+                break
+        else:
+            failed = False
+            for script in group_scripts:
+                if skip_data and script in ("run_data_agent_v2.py", "refresh_data.py"):
+                    lbl, sn, _ = script_map[script]
+                    print(f"[PM] 건너뜀 (--skip-data): {script}")
+                    _tg_step(sn, TOTAL_STEPS, lbl, "건너뜀 (기존 데이터 사용)")
+                    results.append((lbl, True))
+                    continue
+                lbl, sn, to = script_map[script]
+                ok, out = _run(script, lbl, to)
+                short = out.strip().splitlines()[-1][:150] if out.strip() else ""
+                _tg_step(sn, TOTAL_STEPS, lbl, short if ok else f"⚠ 오류: {short}")
+                results.append((lbl, ok))
+                if not ok:
+                    print(f"[PM] {lbl} 실패 — 파이프라인 중단")
+                    failed = True
+                    break
+            if failed:
+                break
+
     return results
 
 
