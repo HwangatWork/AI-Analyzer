@@ -87,6 +87,69 @@ def report_quality_check() -> list[str]:
 
 
 # ══════════════════════════════════════════════════════════════
+# LLM-as-Judge 헬퍼 (Phase 8) — ANTHROPIC_API_KEY 없으면 SKIP
+# ══════════════════════════════════════════════════════════════
+
+def _llm_score_narrative(text: str) -> tuple[int, str]:
+    """Claude Sonnet으로 내러티브 품질 1-5 스코어링. API 키 없으면 (0, 'SKIP')."""
+    import os, re as _re
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        return 0, "SKIP"
+    try:
+        import anthropic
+        client = anthropic.Anthropic()
+        prompt = (
+            "다음 시장 분석 리포트의 품질을 1-5점으로 평가하세요.\n"
+            "기준: 한국어 전문성, 실행 가능한 액션플랜, 시장 분석 깊이, 논리 일관성, 데이터 근거.\n\n"
+            f"리포트:\n{text[:3000]}\n\n"
+            "형식: SCORE: [1-5]\nREASON: [한 문장]"
+        )
+        resp = client.messages.create(
+            model="claude-sonnet-4-6", max_tokens=80,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        out = resp.content[0].text
+        score = int(_re.search(r"SCORE:\s*(\d)", out).group(1)) if _re.search(r"SCORE:\s*(\d)", out) else 3
+        reason = (_re.search(r"REASON:\s*(.+)", out) or type("", (), {"group": lambda s, n: out[:60]})()).group(1)
+        return score, str(reason).strip()
+    except ImportError:
+        return 0, "anthropic 미설치"
+    except Exception as e:
+        return 0, f"API 오류: {str(e)[:50]}"
+
+
+def _llm_score_decision(decision: dict) -> tuple[int, str]:
+    """Claude Sonnet으로 의사결정 추론 일관성 1-5 스코어링. API 키 없으면 (0, 'SKIP')."""
+    import os, re as _re
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        return 0, "SKIP"
+    try:
+        import anthropic
+        client = anthropic.Anthropic()
+        sp = decision.get("sp500", {}); ksp = decision.get("kospi", {})
+        prompt = (
+            "다음 투자 의사결정의 논리 일관성을 1-5점으로 평가하세요.\n"
+            "기준: 시그널 점수와 방향 일치, 이유 논리성, 근거 구체성.\n\n"
+            f"SP500: {sp.get('action','?')} — {str(sp.get('reason',''))[:150]}\n"
+            f"KOSPI: {ksp.get('action','?')} — {str(ksp.get('reason',''))[:150]}\n"
+            f"시그널 점수: {decision.get('signal_score','?')}\n\n"
+            "형식: SCORE: [1-5]\nREASON: [한 문장]"
+        )
+        resp = client.messages.create(
+            model="claude-sonnet-4-6", max_tokens=80,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        out = resp.content[0].text
+        score = int(_re.search(r"SCORE:\s*(\d)", out).group(1)) if _re.search(r"SCORE:\s*(\d)", out) else 3
+        reason = (_re.search(r"REASON:\s*(.+)", out) or type("", (), {"group": lambda s, n: out[:60]})()).group(1)
+        return score, str(reason).strip()
+    except ImportError:
+        return 0, "anthropic 미설치"
+    except Exception as e:
+        return 0, f"API 오류: {str(e)[:50]}"
+
+
+# ══════════════════════════════════════════════════════════════
 # pm_quality_checks — 전체 품질 기준 검증 함수
 # ══════════════════════════════════════════════════════════════
 
@@ -509,6 +572,62 @@ def pm_quality_checks() -> list[dict]:
         "pass":  qh1_ok,
         "detail": qh1_detail,
         "fix_stages": ["run_sector_agent.py", "generate_report_v2.py"],
+    })
+
+    # ── QN-1: LLM-as-Judge 내러티브 품질 스코어 (Phase 8) ────────
+    import os as _osN
+    narrative_ctx = OUT_DIR / "narrative_context.json"
+    _narr_text = ""
+    if narrative_ctx.exists():
+        try:
+            _nd = json.loads(narrative_ctx.read_text(encoding="utf-8"))
+            _narr_text = str(_nd.get("narrative", "") or _nd.get("report", "") or _nd)[:4000]
+        except Exception:
+            pass
+    if not _osN.getenv("ANTHROPIC_API_KEY"):
+        qn1_pass, qn1_detail = True, "SKIP — ANTHROPIC_API_KEY 미설정"
+    elif not _narr_text:
+        qn1_pass, qn1_detail = True, "SKIP — narrative_context.json 없음"
+    else:
+        _score_n, _reason_n = _llm_score_narrative(_narr_text)
+        if _score_n >= 3:
+            qn1_pass, qn1_detail = True, f"OK — score={_score_n}/5: {_reason_n[:60]}"
+        else:
+            qn1_pass = True  # WARN: advisory, does not block pipeline
+            qn1_detail = f"WARN — score={_score_n}/5 (<3): {_reason_n[:60]}"
+            register_pending("QN-1-warn", "QN-1 내러티브 품질 점수 < 3 — 리포트 재생성 검토")
+    results.append({
+        "check": "QN-1 LLM 내러티브 품질 스코어",
+        "pass":  qn1_pass,
+        "detail": qn1_detail,
+        "fix_stages": ["run_narrative_agent.py"],
+    })
+
+    # ── QR-1: LLM-as-Judge 의사결정 추론 일관성 (Phase 8) ────────
+    decision_f = OUT_DIR / "decision.json"
+    _dec_data: dict = {}
+    if decision_f.exists():
+        try:
+            _dec_data = json.loads(decision_f.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    if not _osN.getenv("ANTHROPIC_API_KEY"):
+        qr1_pass, qr1_detail = True, "SKIP — ANTHROPIC_API_KEY 미설정"
+    elif not _dec_data:
+        qr1_pass, qr1_detail = True, "SKIP — decision.json 없음"
+    else:
+        _score_r, _reason_r = _llm_score_decision(_dec_data)
+        if _score_r >= 3:
+            qr1_pass, qr1_detail = True, f"OK — score={_score_r}/5: {_reason_r[:60]}"
+        else:
+            qr1_pass = True  # WARN: advisory
+            qr1_detail = f"WARN — score={_score_r}/5 (<3): {_reason_r[:60]}"
+            register_pending("QR-1-warn", "QR-1 의사결정 추론 일관성 점수 < 3 — 의사결정 로직 점검")
+    results.append({
+        "check": "QR-1 LLM 의사결정 추론 일관성",
+        "pass":  qr1_pass,
+        "detail": qr1_detail,
+        "fix_stages": ["run_decision_agent.py"],
     })
 
     return results

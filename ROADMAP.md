@@ -401,12 +401,12 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 
 ### Step 2: LLM-as-Judge 도입
 
-- [ ] Narrative Agent 리포트 품질 자동 스코어링 (Sonnet, 5점 척도)
-- [ ] Decision Agent 추론 논리 일관성 자동 체크
-- [ ] 3점 미만 → pm_quality WARN 자동 등록
-- [ ] pm_quality_checks에 QN-1(narrative), QD-1(decision) 항목 추가
-- [ ] 회귀 PASS 유지 + 신규 테스트 추가
-- [ ] Telegram 보고 + git push
+- [x] Narrative Agent 리포트 품질 자동 스코어링 (claude-sonnet-4-6, 5점 척도) → QN-1
+- [x] Decision Agent 추론 논리 일관성 자동 체크 → QR-1 (QD-1 명칭 충돌로 QR-1 사용)
+- [x] 3점 미만 → pm_quality WARN 자동 등록 (register_pending)
+- [x] pm_quality_checks에 QN-1(narrative), QR-1(decision) 항목 추가 (총 26개 체크)
+- [x] 회귀 53/53 PASS + 신규 테스트 5개 추가
+- [x] Telegram 보고 + git push
 
 ---
 
