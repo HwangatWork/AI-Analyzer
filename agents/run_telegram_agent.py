@@ -17,6 +17,7 @@ Done Criteria (TG-1~TG-5):
   --done-criteria: 자체 검증
 """
 
+import io
 import json
 import os
 import sys
@@ -24,6 +25,11 @@ import urllib.request
 import urllib.error
 from datetime import datetime
 from pathlib import Path
+
+# Windows cp949 환경에서 한글 UnicodeEncodeError 방지
+if hasattr(sys.stdout, "buffer") and sys.stdout.encoding.lower().replace("-", "") not in ("utf8",):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 # dotenv 로드
 try:
@@ -349,6 +355,23 @@ def run_check():
     prev  = _last_sent_score()
 
     print(f"[Telegram] 현재 점수={score:.1f}, 이전 점수={prev}")
+
+    # 신뢰도 50% 미만이면 BUY/SELL 알림 차단 (confidence_tier=hold)
+    _decision_file = OUT_DIR / "decision.json"
+    if _decision_file.exists():
+        try:
+            _dec     = json.loads(_decision_file.read_text(encoding="utf-8"))
+            _sp_conf  = (_dec.get("sp500",  {}) or {}).get("confidence_pct", 100.0)
+            _ksp_conf = (_dec.get("kospi",  {}) or {}).get("confidence_pct", 100.0)
+            _min_conf = min(_sp_conf, _ksp_conf)
+            if _min_conf < 50.0:
+                print(
+                    f"[Telegram] 신뢰도 {_min_conf:.1f}% < 50% — BUY/SELL 알림 차단 (confidence_tier=hold)"
+                )
+                _append_log("score_snapshot", f"{score:.1f} [알림 차단: 신뢰도 {_min_conf:.1f}%]", None)
+                return False
+        except Exception:
+            pass
 
     alert_sent = False
 

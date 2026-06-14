@@ -64,6 +64,15 @@ _TODAY_MARKET_RE = re.compile(
     r'\btoday[\'s]?[^a-zA-Z0-9]*(?:s&?p|sp\s*500|stock\s+market|market|nasdaq)',
     re.IGNORECASE,
 )
+# NQ-2 보완: "Stock market today:" / "Stock Market on June 12" / "Markets News, Date"
+# _TODAY_MARKET_RE는 today가 먼저 나와야 하는 패턴만 잡음 — 역순 및 날짜 기반 패턴 누락
+_MARKET_RECAP_RE = re.compile(
+    r'(?:'
+    r'stock\s+market\s+(?:today|on\s+\w)'  # "Stock market today:" / "Stock Market on June..."
+    r'|markets?\s+news[,\s]'               # "Markets News, June 11, 2026"
+    r')',
+    re.IGNORECASE,
+)
 
 # ── FOMC 확정 일정 (연준 홈페이지 확인 기준, 연도별 dict) ─────
 # 발표일 = 회의 2일차, statement + press conference
@@ -363,7 +372,8 @@ def build_causes_v2(news: dict, market: dict) -> list:
             seen_titles.add(dedup)
 
             # NQ-2 필터: 예측성/현황 기사 — 원인→결과 구조 추출 불가
-            if _PREDICTIVE_TITLE_RE.search(title) or _TODAY_MARKET_RE.search(title):
+            if (_PREDICTIVE_TITLE_RE.search(title) or _TODAY_MARKET_RE.search(title)
+                    or _MARKET_RECAP_RE.search(title)):
                 print(f"    [skip-predictive] {title[:55]}...")
                 continue
 

@@ -3,6 +3,8 @@
 UX Stocks Agent — 종목 분석 시각화 섹션 생성
 담당: SP500/KOSPI 기여·수혜 Top5 카드, 수익률 바, 데이터 소스 뱃지
 """
+import utf8_setup  # noqa: F401
+
 
 
 def _stock_card(s: dict, rank: int, market: str) -> str:

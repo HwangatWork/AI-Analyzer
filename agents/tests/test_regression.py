@@ -633,3 +633,91 @@ def test_T23_production_jsonl_check2_not_skip():
     assert "task_hint='(작업 내용 없음)'" not in result.stdout, (
         f"T23 FAIL: task_hint 빈 값\n{result.stdout[-400:]}"
     )
+
+
+# ════════════════════════════════════════════════════════════════
+# T24: REQ-032 _MARKET_RECAP_RE — 시황 요약 기사 제목 필터 패턴
+#      (2026-06-14: "Stock market today:", "Stock Market on June 12",
+#       "Markets News, Date" 3패턴이 _TODAY_MARKET_RE를 우회하는 버그)
+# ════════════════════════════════════════════════════════════════
+def test_T24_market_recap_re_filter():
+    """_MARKET_RECAP_RE가 시황 요약 기사 제목을 정확히 필터링한다."""
+    sys.path.insert(0, str(AGENTS))
+    import run_news_agent as nw
+
+    # 차단돼야 하는 제목 (_MARKET_RECAP_RE가 잡아야 함)
+    blocked_titles = [
+        "Stock market today: Dow, S&P 500, Nasdaq futures rise",
+        "Stock Market on June 12, 2026: Dow, S&P 500, Nasdaq close higher",
+        "Markets News, June 11, 2026: U.S. Stocks Jump",
+        "Markets News, June 14: Tech leads gains",
+    ]
+
+    # 차단되면 안 되는 제목 (오탐 방지)
+    allowed_titles = [
+        "Fed raises rates by 0.25% — growth stocks fall",
+        "AI chip demand drives NVIDIA earnings beat",
+        "CPI data shows inflation cooling for third month",
+    ]
+
+    for title in blocked_titles:
+        assert nw._MARKET_RECAP_RE.search(title), (
+            f"T24 FAIL: 시황 요약 제목이 필터에 안 걸림: {title!r}\n"
+            "REQ-032 회귀 — _MARKET_RECAP_RE 패턴 확인 필요"
+        )
+
+    for title in allowed_titles:
+        assert not nw._MARKET_RECAP_RE.search(title), (
+            f"T24 FAIL: 정상 기사 제목이 오탐: {title!r}"
+        )
+
+
+# ════════════════════════════════════════════════════════════════
+# T25: REQ-033 INDIVIDUAL_NET in _CONTEMPORANEOUS — 동행 수급 지표 배제
+#      (2026-06-14: weekly_flow + kospi_lead_lag=0 = 동행 지표인데 Top5 재등장)
+# ════════════════════════════════════════════════════════════════
+def test_T25_individual_net_in_contemporaneous():
+    """INDIVIDUAL_NET이 evaluator와 pm_quality 양쪽의 _CONTEMPORANEOUS 집합에 포함된다."""
+    sys.path.insert(0, str(AGENTS))
+    import run_evaluator_agent_v2 as ev
+    import pm_quality as pq
+
+    assert "INDIVIDUAL_NET" in ev._CONTEMPORANEOUS, (
+        "T25 FAIL: run_evaluator_agent_v2._CONTEMPORANEOUS에 INDIVIDUAL_NET 없음\n"
+        "REQ-033 회귀 — weekly_flow lead_lag=0 지표가 랭킹에 재등장할 수 있음"
+    )
+    assert "INDIVIDUAL_NET" in pq.CONTEMPORANEOUS_INDICES, (
+        "T25 FAIL: pm_quality.CONTEMPORANEOUS_INDICES에 INDIVIDUAL_NET 없음\n"
+        "REQ-033 회귀 — IQ-1 pm_quality 검사가 INDIVIDUAL_NET을 허용함"
+    )
+    # 두 집합이 동기화돼 있어야 함 (evaluator와 quality 검사 기준 일치)
+    assert ev._CONTEMPORANEOUS == pq.CONTEMPORANEOUS_INDICES, (
+        f"T25 FAIL: evaluator와 pm_quality의 동행지수 집합 불일치\n"
+        f"  evaluator: {ev._CONTEMPORANEOUS}\n"
+        f"  pm_quality: {pq.CONTEMPORANEOUS_INDICES}"
+    )
+
+
+# ════════════════════════════════════════════════════════════════
+# T26: REQ-034 EV-1 임계값 ≥10 — 데이터 수집 목표(22)와 혼동 방지
+#      (2026-06-14: EV-1이 ≥5로 너무 낮아 구조적 최대치(18) 대비 무의미)
+# ════════════════════════════════════════════════════════════════
+def test_T26_ev1_threshold_ge10():
+    """run_evaluator_agent_v2.py의 EV-1 Done Criteria가 ≥10 임계값을 사용한다."""
+    ev_path = AGENTS / "run_evaluator_agent_v2.py"
+    content = ev_path.read_text(encoding="utf-8")
+
+    # ≥10 코드가 있어야 함
+    assert ">= 10" in content or ">=10" in content, (
+        "T26 FAIL: EV-1 임계값 >= 10이 코드에 없음\n"
+        "REQ-034 회귀 — EV-1이 >=5로 되돌아갔을 가능성"
+    )
+
+    # ≥5만 있고 ≥10이 없는 경우를 추가 탐지
+    # (">= 5"가 EV-1 맥락에서 단독으로 쓰이면 회귀)
+    # EV-1 관련 라인에서 임계값 확인
+    for line in content.splitlines():
+        if "EV-1" in line and ("final_ranking" in line or "유효 지표" in line):
+            assert ">= 10" in line or ">=10" in line, (
+                f"T26 FAIL: EV-1 라인에 >=10이 없음: {line.strip()!r}"
+            )

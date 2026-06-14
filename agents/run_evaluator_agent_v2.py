@@ -115,7 +115,9 @@ _SELF_REFERENTIAL = {
 
 # IQ-1: 동행지수 — 지수와 공동이동하므로 인과관계 불명확, 랭킹 완전 제외
 # (S&P500/KOSPI와 같이 움직이는 지수를 "S&P500 영향 지표"로 쓰는 것은 순환논리)
-_CONTEMPORANEOUS = {"NASDAQ100", "DOW", "KOSDAQ", "NIKKEI225"}
+# INDIVIDUAL_NET: weekly_flow + kospi_lead_lag=0 → 동행주 수급 (같은 주 KOSPI 반응),
+#   선행 지표로 쓸 수 없음 (주 중 데이터 마감 전에는 알 수 없음)
+_CONTEMPORANEOUS = {"NASDAQ100", "DOW", "KOSDAQ", "NIKKEI225", "INDIVIDUAL_NET"}
 
 
 def filter_ranking(ranking: list) -> tuple[list, list]:
@@ -339,8 +341,10 @@ if __name__ == "__main__":
     # ── Evaluator Done Criteria 자체검증 ──────────────────────────────────────
     # 방법론 검증: contribution_score / beneficiary_score 공식 적용 여부
     print("\n[자체검증] Evaluator Done Criteria 점검...")
+    # 구조적 최대치: 29 - 5(자기참조) - 5(동행, INDIVIDUAL_NET 포함) - 1(PUT_CALL) = 18
+    # 데이터 수집 목표(22/29)와 구별 — 평가 통과 목표는 ≥10 (통계 유의 + 비동행)
     done_criteria = {
-        "EV-1 유효 지표 ≥5개":          len(final_ranking) >= 5,
+        "EV-1 유효 지표 ≥10개":         len(final_ranking) >= 10,
         "EV-2 통계 유의 SP500 ≥1개":    sp_sig_cnt >= 1,
         "EV-3 통계 유의 KOSPI ≥1개":    ksp_sig_cnt >= 1,
         "EV-4 신뢰도 점수 산출 완료":    len(conf_results) > 0,

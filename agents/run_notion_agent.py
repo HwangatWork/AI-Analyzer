@@ -11,6 +11,7 @@ Done Criteria (N-1~N-4):
   python agents/run_notion_agent.py
   python agents/run_notion_agent.py --done-criteria
 """
+import utf8_setup  # noqa: F401
 
 import json
 import os

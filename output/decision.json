@@ -1,42 +1,58 @@
 {
-  "computed_at": "2026-06-11T06:41:37.188769",
-  "composite_score": 40.0,
+  "computed_at": "2026-06-13T23:13:00.577786",
+  "composite_score": 54.6,
+  "kospi_composite_score": 54.3,
   "direction": "neutral",
   "sp500": {
-    "action": "SELL/AVOID",
-    "strength": "중",
-    "confidence_pct": 22.9,
+    "action": "HOLD",
+    "strength": "중립",
+    "confidence_pct": 12.8,
     "confidence_tier": "hold",
-    "position_size_pct": 15,
-    "position_note": "신뢰도 낮음 — 소량 또는 관망",
+    "position_size_pct": 0,
+    "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
     "entry_triggers": [
+      "INDIVIDUAL_NET 강세 (Z=-2.00) — 252일 평균 대비 2.0σ 이상",
       "INSTITUTION_NET 강세 (Z=+2.00) — 252일 평균 대비 2.0σ 이상",
+      "FOREIGN_NET 강세 (Z=+1.62) — 252일 평균 대비 1.6σ 이상",
       "HY_SPREAD 축소 → 신용 리스크 감소, 위험자산 선호"
     ],
-    "exit_triggers": [
-      "US10Y 약세 (Z=+2.00) — 하방 압력",
-      "VIX 상승 → 시장 공포 증가, 포지션 축소 고려"
-    ],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+107%) / Nvidia (+46%)"
+    "exit_triggers": [],
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+107%) / Nvidia (+45%)"
   },
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 27.9,
+    "confidence_pct": 11.1,
     "confidence_tier": "hold",
     "position_size_pct": 0,
-    "position_note": "신뢰도 낮음 — 소량 또는 관망",
-    "top_stocks_hint": "삼성전자 (+438%) / SK하이닉스 (+867%)"
+    "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
+    "top_stocks_hint": "삼성전자 (+453%) / SK하이닉스 (+813%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
-    "미국 10년물 금리 상승 (Z=+2.00) → 할인율 부담",
+    "미국 10년물 금리 상승 (Z=+1.39) → 할인율 부담",
     "볼린저밴드 하단 근접 → 변동성 확대 국면"
   ],
   "signal_summary": {
-    "bullish": 4,
-    "bearish": 9,
+    "bullish": 6,
+    "bearish": 7,
     "total": 13,
-    "consensus_ratio": 0.308
-  }
+    "consensus_ratio": 0.462
+  },
+  "reasoning": "복합 시그널 스코어 54.6(SP500)/54.3(KOSPI)으로 50 중립 부근에 정체해 있으며, 13개 지표 중 강세 6개·약세 7개로 합의도(46.2%)가 방향성 임계값(60%)에 미달해 BUY 차단된다. 리스크온 신호(HY_SPREAD 정상, VIX 중립, 외국인+기관 동반순매수, T10Y2Y 양전환)와 리스크오프 신호(WTI=95 고유가, DXY=120 달러강세, CNN F&G=13 극도공포, FOMC D-4 불확실성)가 거의 동등하게 맞서고 있어 시장 방향이 명확하지 않다. Granger 유의 지표가 전체 26개 중 VIX·BBAND 2개뿐으로 통계적 선행 인과 증거가 제한적이며, VIX=17.68(기관 헤지 낮음)과 CNN F&G=13(개인 극도공포) 간 괴리는 역발상 상승 잠재력을 시사하지만 FOMC 결과 이전에는 방향성을 확정할 수 없다. 신뢰도 12.8%(SP500)/11.1%(KOSPI) 모두 50% 게이트에 미달해 BUY/SELL 알림 발송이 차단되며, HOLD 상태가 정당하다.",
+  "signal_conflicts": [
+    "VIX=17.68(중립/기관 헤지 낮음) vs CNN F&G=13(극도공포/개인 심리 붕괴) — 측정 대상 차이에서 기인하나 상충 해석 유발",
+    "뉴스 감성 RISK-ON(코스피 +4.63% 당일 급등) vs 지표 합의도 46.2%(약세 우세) — 단기 모멘텀과 구조적 시그널 간 시차",
+    "DXY=120 달러강세: SP500 분석은 역상관(-0.286) 악재로, KOSPI 주식 분석은 자동차 수출 수혜로 동시 해석 — 섹터별 영향 상이",
+    "외국인+기관 동반순매수(수급 긍정) vs 개인 -4.3조 순매도(패닉 신호) — 수급 주체 간 대립"
+  ],
+  "risk_flags": [
+    "FOMC D-4 (2026-06-17) — 금리 동결 여부가 성장주·반도체 방향성 분수령",
+    "DXY=120.08 달러강세 — FRED DTWEXBGS 기준 역사적 상한 돌파, KOSPI 외국인 이탈 가속 위험",
+    "CNN F&G=13 극도공포 — 역발상 반등 잠재력이나 VIX 20 돌파 시 실질 리스크오프 전환 가능",
+    "WTI=95 고유가 — FOMC 앞두고 인플레이션 재점화, 연준 추가 긴축 빌미 제공 가능",
+    "Granger 유의 지표 2개뿐 — 통계적 선행력 제한으로 신호 신뢰도 구조적 한계"
+  ],
+  "position_guidance": "방어적",
+  "decision_confidence": "LOW"
 }

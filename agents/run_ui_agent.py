@@ -160,13 +160,29 @@ def export_csv(final_ranking: list, signal: dict, stock: dict):
         "rank": r.get("rank"), "indicator": r.get("indicator"),
         "ind_type": r.get("ind_type"),
         "sp500_signed_r": r.get("sp500_signed_r"), "sp500_significant": r.get("sp500_significant"),
+        "sp500_granger_sig": r.get("sp500_granger_sig"), "sp500_granger_p": r.get("sp500_granger_p"),
         "kospi_signed_r": r.get("kospi_signed_r"), "kospi_significant": r.get("kospi_significant"),
+        "kospi_granger_sig": r.get("kospi_granger_sig"), "kospi_granger_p": r.get("kospi_granger_p"),
         "combined_weight": r.get("combined_weight"),
+        "direction_label": ("bullish" if (r.get("sp500_signed_r") or 0) > 0 else "bearish"),
     } for r in final_ranking]).to_csv(OUTPUT_DIR / "indicator_ranking.csv", index=False, encoding="utf-8-sig")
 
     sig_rows = signal.get("indicator_signals", [])
     if sig_rows:
-        pd.DataFrame(sig_rows).to_csv(OUTPUT_DIR / "market_signals.csv", index=False, encoding="utf-8-sig")
+        composite_score = signal.get("score", None)
+        composite_dir   = signal.get("direction", "unknown")
+        computed_at     = signal.get("computed_at", "")
+        bullish_count   = signal.get("bullish_count", 0)
+        bearish_count   = signal.get("bearish_count", 0)
+        methodology     = signal.get("methodology", "")
+        df_sig = pd.DataFrame(sig_rows)
+        df_sig["composite_score"]  = composite_score
+        df_sig["composite_direction"] = composite_dir
+        df_sig["composite_computed_at"] = computed_at
+        df_sig["total_bullish"]   = bullish_count
+        df_sig["total_bearish"]   = bearish_count
+        df_sig["methodology"]     = methodology
+        df_sig.to_csv(OUTPUT_DIR / "market_signals.csv", index=False, encoding="utf-8-sig")
 
     all_stocks = (
         [{"market": "SP500", **s} for s in stock.get("f09_sp500_contribution_top5", [])] +
