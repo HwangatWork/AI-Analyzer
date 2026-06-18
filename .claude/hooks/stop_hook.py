@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Claude Code Stop Hook  v5 (2026-06-12)
-  1. 자가 검증 3개 체크 (Evidence / 정적분석전용 / CLAUDE.md 업데이트)
+Claude Code Stop Hook  v6 (2026-06-19)
+  1. 자가 검증 6개 체크:
+       Check1 Evidence / Check2 정적분석전용 / Check3 CLAUDE.md 업데이트
+       Check4 환경 일관성 감사 / Check5 API키 등록 추적 / Check6 운영 위생
   2. 작업 완료 전체 보고 + 체크 결과 Telegram 전송 (4096자 분할)
-  3. --selftest 모드: 실제 transcript 파일로 3개 체크 검증
+  3. --selftest 모드: 실제 transcript 파일로 6개 체크 검증
 
 개선 (TQ-1~TQ-5 해결):
   TQ-1: type="text" 블록만 추출 (tool_use/tool_result 제외)
@@ -355,6 +357,98 @@ def _sync_verify(html_msg: str, terminal_text: str) -> tuple[bool, str]:
     )
     return match, detail
 
+# ── Check 4: 환경 일관성 감사 ────────────────────────────────────────────────
+
+def check_env_consistency() -> tuple[str, str]:
+    """scripts/audit_env_secrets.py 실행 — .env / workflow YAML 일관성 검증."""
+    audit_script = BASE_DIR / "scripts" / "audit_env_secrets.py"
+    if not audit_script.exists():
+        return "SKIP", "scripts/audit_env_secrets.py 없음"
+    try:
+        result = subprocess.run(
+            [sys.executable, "-X", "utf8", str(audit_script), "--no-gh"],
+            capture_output=True, timeout=15,
+            cwd=str(BASE_DIR), encoding="utf-8", errors="replace",
+        )
+        out = (result.stdout or "") + (result.stderr or "")
+        lines = [l.strip() for l in out.splitlines() if l.strip()]
+        last_line = lines[-1] if lines else ""
+        if "AUDIT: PASS" in out:
+            return "PASS", ".env / workflow 환경 일관성 OK"
+        if "AUDIT: WARN" in out:
+            issues = [l for l in lines if l.startswith(("WARN", "INFO"))]
+            return "WARN", "; ".join(issues[:2]) or last_line
+        if result.returncode != 0 or "AUDIT: FAIL" in out:
+            issues = [l for l in lines if l.startswith("FAIL")]
+            return "FAIL", "; ".join(issues[:2]) or last_line
+        return "PASS", "감사 통과"
+    except Exception as e:
+        return "WARN", f"감사 실행 오류: {e}"
+
+
+# ── Check 5: 세션 내 API 키 등록 추적 ────────────────────────────────────────
+
+_API_KEY_GIVEN_RE = re.compile(
+    r'(?:인증키|api[_\s]?key)[^\n]{0,80}[A-Z0-9]{8,}',
+    re.IGNORECASE,
+)
+_GH_SECRET_SET_RE = re.compile(
+    r'gh\s+secret\s+set|github.*secret.*등록',
+    re.IGNORECASE,
+)
+
+def check_api_key_lifecycle(transcript: list, last_asst: str) -> tuple[str, str]:
+    """세션 내 API 키 제공 감지 → gh secret set 여부 확인 (OL-1 자동 검증)."""
+    user_texts: list[str] = []
+    for msg in transcript:
+        role, content = _normalize_msg(msg)
+        if role == "user":
+            text = _extract_text_only(content) if isinstance(content, list) else str(content)
+            user_texts.append(text)
+    combined_user = "\n".join(user_texts)
+    if not _API_KEY_GIVEN_RE.search(combined_user):
+        return "SKIP", "세션 내 API 키 제공 없음"
+    if _GH_SECRET_SET_RE.search(last_asst):
+        return "PASS", "API 키 제공 + gh secret set 실행 확인"
+    return "WARN", "API 키 제공 감지 — gh secret set 기록 없음 (OL-1 확인 필요)"
+
+
+# ── Check 6: 운영 위생 감사 ───────────────────────────────────────────────────
+
+def check_operational_hygiene() -> tuple[str, str]:
+    """pending_requests.json — 자격증명 방치(14d+) + 진행중 태스크 감지."""
+    pending_file = BASE_DIR / "pending_requests.json"
+    if not pending_file.exists():
+        return "SKIP", "pending_requests.json 없음"
+    try:
+        data = json.loads(pending_file.read_text(encoding="utf-8"))
+        now = datetime.utcnow()
+        stale_creds: list[str] = []
+        in_progress: list[str] = []
+        for item in data.get("pending", []):
+            status = item.get("status", "")
+            req_id = item.get("id", "?")
+            if status == "waiting_credentials":
+                created = item.get("created_at", "")
+                if created:
+                    try:
+                        age = (now - datetime.fromisoformat(created)).days
+                        if age >= 14:
+                            stale_creds.append(f"{req_id}({age}d)")
+                    except Exception:
+                        pass
+            elif status == "in_progress":
+                in_progress.append(req_id)
+        msgs: list[str] = []
+        if stale_creds:
+            msgs.append(f"자격증명 방치 {len(stale_creds)}개: {', '.join(stale_creds)}")
+        if in_progress:
+            msgs.append(f"진행중 태스크: {', '.join(in_progress)}")
+        return ("WARN", " | ".join(msgs)) if msgs else ("PASS", "운영 위생 OK")
+    except Exception as e:
+        return "WARN", f"pending 확인 오류: {e}"
+
+
 # ── selftest 모드 ────────────────────────────────────────────────────────────
 
 def _selftest(transcript_file: Path) -> int:
@@ -375,13 +469,21 @@ def _selftest(transcript_file: Path) -> int:
     lu, la, rc = _last_messages(transcript)
     c1_st, c1_det = check_evidence(la)
     c2_st, c2_det = check_static_only(lu, la, rc)
+    c3_st, c3_det = check_claude_md()
+    c4_st, c4_det = check_env_consistency()
+    c5_st, c5_det = check_api_key_lifecycle(transcript, la)
+    c6_st, c6_det = check_operational_hygiene()
     task_hint = (lu[:70].replace("\n", " ").strip() or "(작업 내용 없음)")
 
     print(f"[SELFTEST] last_user (first 80): {lu[:80]!r}")
     print(f"[SELFTEST] recent_ctx (first 80): {rc[:80]!r}")
     print(f"[SELFTEST] task_hint: {task_hint!r}")
-    print(f"[SELFTEST] Check1: {c1_st} — {c1_det}")
-    print(f"[SELFTEST] Check2: {c2_st} — {c2_det}")
+    print(f"[SELFTEST] Check1 Evidence: {c1_st} — {c1_det}")
+    print(f"[SELFTEST] Check2 정적분석: {c2_st} — {c2_det}")
+    print(f"[SELFTEST] Check3 CLAUDE.md: {c3_st} — {c3_det}")
+    print(f"[SELFTEST] Check4 환경감사: {c4_st} — {c4_det}")
+    print(f"[SELFTEST] Check5 API키등록: {c5_st} — {c5_det}")
+    print(f"[SELFTEST] Check6 운영위생: {c6_st} — {c6_det}")
 
     fails = []
     if c2_st == "SKIP":
@@ -390,6 +492,8 @@ def _selftest(transcript_file: Path) -> int:
         fails.append("task_hint='(작업 내용 없음)' (last_user 빈 문자열)")
     if c1_st == "FAIL":
         fails.append("Check1=FAIL (Evidence 없음)")
+    if c4_st == "FAIL":
+        fails.append(f"Check4=FAIL (환경 불일치: {c4_det})")
 
     if fails:
         print(f"\n[SELFTEST] FAIL ({len(fails)}개 문제)")
@@ -397,8 +501,8 @@ def _selftest(transcript_file: Path) -> int:
             print(f"  - {f}")
         return 1
 
-    print(f"\n[SELFTEST] PASS — 3개 체크 의도대로 작동")
-    print(f"  Check1={c1_st}, Check2={c2_st} (not SKIP), task_hint non-empty")
+    print(f"\n[SELFTEST] PASS — 6개 체크 의도대로 작동")
+    print(f"  Check1={c1_st}, Check2={c2_st} (not SKIP), Check4={c4_st} (not FAIL), task_hint non-empty")
     return 0
 
 
@@ -479,13 +583,19 @@ def main() -> None:
     def _esc(s: str) -> str:
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
-    # ── 3개 체크 실행 ─────────────────────────────────────────────────
+    # ── 6개 체크 실행 ─────────────────────────────────────────────────
     c1_st, c1_det = check_evidence(last_asst)
     c2_st, c2_det = check_static_only(last_user, last_asst, recent_lvl_ctx)
     c3_st, c3_det = check_claude_md()
+    c4_st, c4_det = check_env_consistency()
+    c5_st, c5_det = check_api_key_lifecycle(transcript, last_asst)
+    c6_st, c6_det = check_operational_hygiene()
 
-    warns_fails = [(s, d) for s, d in [(c1_st, c1_det), (c2_st, c2_det), (c3_st, c3_det)]
-                   if s in ("WARN", "FAIL")]
+    all_checks = [
+        (c1_st, c1_det), (c2_st, c2_det), (c3_st, c3_det),
+        (c4_st, c4_det), (c5_st, c5_det), (c6_st, c6_det),
+    ]
+    warns_fails = [(s, d) for s, d in all_checks if s in ("WARN", "FAIL")]
 
     # ── TQ-2: 완료 보고 섹션 추출 ────────────────────────────────────
     completion_text = _find_completion_section(last_asst)
@@ -505,7 +615,13 @@ def main() -> None:
         f"{ICON[c2_st]} <b>체크2 정적분석</b>: <code>{c2_st}</code>\n"
         f"   {_esc(c2_det)}\n\n"
         f"{ICON[c3_st]} <b>체크3 CLAUDE.md</b>: <code>{c3_st}</code>\n"
-        f"   {_esc(c3_det)}"
+        f"   {_esc(c3_det)}\n\n"
+        f"{ICON[c4_st]} <b>체크4 환경감사</b>: <code>{c4_st}</code>\n"
+        f"   {_esc(c4_det)}\n\n"
+        f"{ICON[c5_st]} <b>체크5 API키등록</b>: <code>{c5_st}</code>\n"
+        f"   {_esc(c5_det)}\n\n"
+        f"{ICON[c6_st]} <b>체크6 운영위생</b>: <code>{c6_st}</code>\n"
+        f"   {_esc(c6_det)}"
     )
     if warns_fails:
         items     = "\n".join(f"• {ICON.get(s,'?')} {_esc(d)}" for s, d in warns_fails)

@@ -574,6 +574,36 @@ def pm_quality_checks() -> list[dict]:
         "fix_stages": ["run_sector_agent.py", "generate_report_v2.py"],
     })
 
+    # ── QG-2: waiting_credentials 방치 경보 ─────────────────────
+    _stale_days_limit = 14
+    _today = datetime.utcnow()
+    _stale_creds: list[str] = []
+    try:
+        _pd = _load_pending()
+        for _item in _pd.get("pending", []):
+            if _item.get("status") == "waiting_credentials":
+                _created = _item.get("created_at", "")
+                if _created:
+                    try:
+                        _age = (_today - datetime.fromisoformat(_created)).days
+                        if _age >= _stale_days_limit:
+                            _stale_creds.append(f"{_item['id']} ({_age}일 대기)")
+                    except Exception:
+                        pass
+    except Exception:
+        pass
+    if _stale_creds:
+        qg2_pass = True  # advisory only, does not block pipeline
+        qg2_detail = f"WARN — {len(_stale_creds)}개 자격증명 {_stale_days_limit}일 초과 대기: {', '.join(_stale_creds)}"
+    else:
+        qg2_pass, qg2_detail = True, f"OK — 방치된 자격증명 없음 ({_stale_days_limit}일 기준)"
+    results.append({
+        "check":      "QG-2 waiting_credentials 방치 감지",
+        "pass":       qg2_pass,
+        "detail":     qg2_detail,
+        "fix_stages": [],
+    })
+
     # ── QN-1: LLM-as-Judge 내러티브 품질 스코어 (Phase 8) ────────
     import os as _osN
     narrative_ctx = OUT_DIR / "narrative_context.json"

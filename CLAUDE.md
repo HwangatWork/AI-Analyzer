@@ -50,6 +50,36 @@ _CONTEMPORANEOUS = {"NASDAQ100", "DOW", "KOSDAQ", "NIKKEI225"}
 _SELF_REFERENTIAL = {"RSI14", "MA50", "RSI_SIGNAL", "BETA", "MA_SIGNAL"}
 ```
 
+## API Key Registration Protocol (OL-1)
+
+When the user provides ANY API key or credential string — immediately do ALL three before anything else:
+1. Add to `.env`
+2. `gh secret set KEY_NAME --body "value"` (GitHub Actions Secret)
+3. Add to `env:` block in `.github/workflows/deploy-dashboard.yml`
+4. Run `python scripts/audit_env_secrets.py` to verify all three environments match
+
+**Never stop at step 1.** Root cause: ECOS_API_KEY was `.env`-only → CI used mock data for 11+ hours.
+
+## New Data Source Checklist (OL-3)
+
+When integrating any external API (ECOS, KITA, FRED, KRX, etc.):
+- [ ] API key added to `.env`
+- [ ] API key added to GitHub Secrets (`gh secret set`)
+- [ ] Env var added to workflow `env:` block
+- [ ] Mock fallback implemented (no key → `is_mock=True`, graceful degradation)
+- [ ] Config entry in `config.yaml` (stat code, endpoint, parameters)
+- [ ] `python scripts/audit_env_secrets.py` passes
+
+## RCA Completion Requirements (OL-2)
+
+An RCA is not done until:
+1. Root cause stated (one sentence, specific)
+2. CLAUDE.md rule added or updated (code change, not verbal promise)
+3. Memory saved to `~/.claude/projects/.../memory/operational_lessons.md`
+4. Verification script run (audit_env_secrets.py or equivalent)
+
+Verbal-only RCA = Level 1. All four steps = Level 6+.
+
 ## Things to Avoid
 
 **FIX-E (2026-06-12): stop_hook stdin JSONL silent failure**

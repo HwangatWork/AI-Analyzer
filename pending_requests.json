@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-14T10:09:14",
+  "updated": "2026-06-19T08:42:24",
   "completed": [
     {
       "id": "REQ-001",
@@ -104,12 +104,14 @@
       "id": "REQ-003",
       "request": "Google Sheets 완전 자동화",
       "status": "waiting_credentials",
+      "created_at": "2026-06-08T13:00:00",
       "details": "GOOGLE_SA_JSON 서비스 계정 경로 .env에 추가 필요"
     },
     {
       "id": "REQ-004",
       "request": "Notion 연동 활성화",
       "status": "waiting_credentials",
+      "created_at": "2026-06-08T13:00:00",
       "details": "NOTION_TOKEN .env에 추가 필요. Page ID: 3781a4c7-30d8-81f9-bf7d-db6541a23fcf"
     },
     {
@@ -423,6 +425,15 @@
       "completed_at": "2026-06-13T23:30:00",
       "priority": "low",
       "details": "데이터 수집 목표(DC-6 ≥22/29)와 평가 통과 목표 혼동. 구조적 제외: 5(자기참조)+5(동행, INDIVIDUAL_NET 포함)+1(PUT_CALL)=11 영구 제외 → 최대 18개 통과 가능. 현재 실적 12~13개(통계 유의 기준). EV-1 Done Criteria ≥5→≥10 (run_evaluator_agent_v2.py L342). 22개 목표는 data_agent DC-6 기준이며 evaluator 출력과 무관"
+    },
+    {
+      "id": "REQ-KITA-001",
+      "request": "KITA API 반도체 수출 달러 금액 연동 (반도체 index→달러 변환 해법)",
+      "status": "in_progress",
+      "priority": "medium",
+      "created_at": "2026-06-19T09:00:00",
+      "details": "ECOS 403Y001/30911AA는 수출금액지수(2020=100)이지 달러금액이 아님. KITA(한국무역협회 stat.kita.net)가 HS코드별 달러금액 제공. 진행상황: stat.kita.net/stat/idb/peri/TradePeriodApi.do 및 stat.kita.net/openApi.do 에 WebFetch 시도 → 404. 다음 단계: stat.kita.net 정확한 API 등록 URL 및 엔드포인트 재확인 필요. 반도체 HS코드: 8542(집적회로), 8541(반도체 소자).",
+      "next_step": "1. stat.kita.net 직접 접속해 OpenAPI 신청 경로 확인. 2. API 키 발급 후 즉시 .env + GitHub Secrets + workflow env: 3곳 등록(OL-1 규칙). 3. agents/semiconductor_monitor/data_fetcher.py에 fetch_kita_export() 추가."
     },
     {
       "id": "QN-1-warn",
