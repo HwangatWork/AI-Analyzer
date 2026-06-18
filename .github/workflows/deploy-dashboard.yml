@@ -12,7 +12,7 @@ on:
       - '.github/workflows/deploy-dashboard.yml'
   workflow_dispatch:
   schedule:
-    - cron: '0 22 * * 0'  # 매주 월요일 07:00 KST
+    - cron: '10 0 * * *'  # 매일 09:10 KST (00:10 UTC)
 
 concurrency:
   group: pages
@@ -46,6 +46,7 @@ jobs:
           TELEGRAM_CHAT_ID:      ${{ secrets.TELEGRAM_CHAT_ID }}
           KRX_ID:                ${{ secrets.KRX_ID }}
           KRX_PW:                ${{ secrets.KRX_PW }}
+          ECOS_API_KEY:          ${{ secrets.ECOS_API_KEY }}
         run: |
           python -X utf8 agents/run_data_agent_v2.py
           python -X utf8 agents/run_analysis_agent_v2.py
@@ -61,7 +62,7 @@ jobs:
           git config user.name "AI Analyzer Bot"
           git config user.email "bot@ai-analyzer"
           git add output/ feature_list.json claude-progress.txt
-          git diff --staged --quiet || git commit -m "chore: weekly pipeline run $(date +'%Y-%m-%d')"
+          git diff --staged --quiet || git commit -m "chore: daily pipeline run $(date +'%Y-%m-%d')"
           git pull --rebase origin HEAD || true
           git push origin HEAD
 
