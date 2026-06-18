@@ -1,0 +1,26 @@
+# semiconductor_monitor/config.yaml
+#
+# PM Agent 결정 사항:
+#   [D1] Option B: ECOS 단독 수집 (RSS 없음)
+#        이유: ECOS는 구조화된 월별 공식 데이터, RSS는 비정형 텍스트로 노이즈 많음
+#   [D3] ±10% MoM 초과 시만 알림
+#        이유: 월별 데이터 특성상 매번 알림은 과도함
+
+ecos:
+  base_url: "https://ecos.bok.or.kr/api"
+  stat_code: "403Y001"   # 수출금액지수 (2020=100)
+  item_code: "30911AA"   # 반도체 수출금액지수
+  cycle: "M"             # 월별
+  lookback_months: 12    # 최근 12개월
+
+scheduler:
+  poll_days: [1, 2, 3, 4, 5]   # 매월 1~5일 집중 폴링
+  poll_hour: 9                  # 오전 9시
+  retry_max: 3
+  retry_backoff_base: 2         # 지수 백오프 기반 (초)
+
+alert:
+  threshold_pct: 10.0   # [D3] ±10% MoM 초과 시만 알림
+
+output:
+  json_path: "output/semiconductor_export.json"   # UI가 읽는 경로

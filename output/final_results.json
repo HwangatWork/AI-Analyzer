@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-06-13T23:27:14.062989",
+    "generated_at": "2026-06-19T08:09:41.094902",
     "version": "4.0",
     "period": {
       "start": "2025-06-13",
@@ -9,33 +9,24 @@
     "total_indicators_collected": 28,
     "total_indicators_possible": 29,
     "collection_rate": "28/29 (96.6%)",
-    "total_indicators_analyzed": 13,
-    "total_indicators_in_final": 13,
+    "total_indicators_analyzed": 12,
+    "total_indicators_in_final": 12,
     "excluded_low_confidence": [
       "PUT_CALL",
-      "FED_ASSETS",
-      "MA200"
+      "MA200",
+      "FED_ASSETS"
     ],
-    "data_reference_date": "2026-06-13"
+    "data_reference_date": "2026-06-19"
   },
   "market_signal": {
-    "score": 51.1,
+    "score": 45.8,
     "direction": "neutral",
-    "bullish_count": 5,
+    "bullish_count": 4,
     "bearish_count": 8,
-    "total_signals": 13,
-    "computed_at": "2026-06-13T23:27:14.062989",
+    "total_signals": 12,
+    "computed_at": "2026-06-19T08:09:41.094902",
     "methodology": "Z-score based composite: each indicator's latest value vs 252-day rolling mean/std, sign-adjusted by its SP500 Pearson correlation, weighted by combined_weight. Score = 50 + weighted_sum * 50. Risk-on>65, risk-off<35.",
     "indicator_signals": [
-      {
-        "indicator": "INDIVIDUAL_NET",
-        "weight": 0.2393,
-        "last_value": -43174.4921,
-        "z_score": -2.0,
-        "signal": 1.0,
-        "bullish": true,
-        "sp500_r": -0.0823
-      },
       {
         "indicator": "INSTITUTION_NET",
         "weight": 0.0393,
@@ -202,20 +193,6 @@
       "kospi_granger_sig": true,
       "kospi_granger_p": 0.010483,
       "combined_weight": 0.2416
-    },
-    {
-      "rank": 5,
-      "indicator": "INDIVIDUAL_NET",
-      "ind_type": "weekly_flow",
-      "sp500_signed_r": -0.0823,
-      "sp500_significant": false,
-      "sp500_granger_sig": false,
-      "sp500_granger_p": 0.225428,
-      "kospi_signed_r": -0.3965,
-      "kospi_significant": true,
-      "kospi_granger_sig": true,
-      "kospi_granger_p": 0.001768,
-      "combined_weight": 0.2393
     },
     {
       "rank": 6,
@@ -1075,7 +1052,7 @@
   },
   "ctd_readiness": {
     "ready": true,
-    "reason": "유효 지표 13개 - 충분",
+    "reason": "유효 지표 12개 - 충분",
     "min_required": 5,
     "action": "MVP 연동 가능"
   }

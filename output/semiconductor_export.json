@@ -1,0 +1,74 @@
+{
+  "last_updated": "202605",
+  "unit": "지수(2020=100)",
+  "is_mock": false,
+  "data": [
+    {
+      "period": "202506",
+      "value": 179.41,
+      "label": "2025-06"
+    },
+    {
+      "period": "202507",
+      "value": 176.12,
+      "label": "2025-07"
+    },
+    {
+      "period": "202508",
+      "value": 180.7,
+      "label": "2025-08"
+    },
+    {
+      "period": "202509",
+      "value": 199.15,
+      "label": "2025-09"
+    },
+    {
+      "period": "202510",
+      "value": 188.28,
+      "label": "2025-10"
+    },
+    {
+      "period": "202511",
+      "value": 206.7,
+      "label": "2025-11"
+    },
+    {
+      "period": "202512",
+      "value": 250.13,
+      "label": "2025-12"
+    },
+    {
+      "period": "202601",
+      "value": 247.58,
+      "label": "2026-01"
+    },
+    {
+      "period": "202602",
+      "value": 303.84,
+      "label": "2026-02"
+    },
+    {
+      "period": "202603",
+      "value": 397.63,
+      "label": "2026-03"
+    },
+    {
+      "period": "202604",
+      "value": 385.98,
+      "label": "2026-04"
+    },
+    {
+      "period": "202605",
+      "value": 450.34,
+      "label": "2026-05"
+    }
+  ],
+  "summary": {
+    "latest_month": "202605",
+    "latest_value": 450.34,
+    "mom_change_pct": 16.67,
+    "yoy_change_pct": 151.01,
+    "export_share_pct": 18.4
+  }
+}

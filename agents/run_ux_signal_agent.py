@@ -6,6 +6,65 @@ UX Signal Agent — 시장 시그널 시각화 섹션 생성
 import utf8_setup  # noqa: F401
 
 
+def _build_semi_chart(data_points: list) -> str:
+    """
+    data_points: [{"period": "202401", "value": 10234.5, "label": "2024-01"}, ...]
+    최근 12개월 데이터 기준 SVG 라인 차트 생성
+    """
+    pts = data_points[-12:] if len(data_points) > 12 else data_points
+    if len(pts) < 2:
+        return '<div style="color:#475569;text-align:center;padding:40px">데이터 부족</div>'
+
+    W, H = 560, 160
+    PAD = {"top": 20, "right": 20, "bottom": 30, "left": 60}
+
+    values = [p["value"] for p in pts]
+    v_min, v_max = min(values), max(values)
+    v_range = (v_max - v_min) or 1
+
+    def px(i): return PAD["left"] + i * (W - PAD["left"] - PAD["right"]) / max(len(pts) - 1, 1)
+    def py(v): return PAD["top"] + (1 - (v - v_min) / v_range) * (H - PAD["top"] - PAD["bottom"])
+
+    # 격자선 (3개)
+    grid = ""
+    for frac in [0.0, 0.5, 1.0]:
+        v = v_min + frac * v_range
+        y = py(v)
+        grid += f'<line x1="{PAD["left"]}" y1="{y:.1f}" x2="{W - PAD["right"]}" y2="{y:.1f}" stroke="#1e293b" stroke-width="1"/>'
+        grid += f'<text x="{PAD["left"] - 4}" y="{y + 4:.1f}" fill="#475569" font-size="9" text-anchor="end">{v / 100:.0f}억$</text>'
+
+    # 라인 패스
+    coords = [(px(i), py(pts[i]["value"])) for i in range(len(pts))]
+    path_d = "M " + " L ".join(f"{x:.1f} {y:.1f}" for x, y in coords)
+
+    # 포인트 + 레이블
+    circles = ""
+    for i, (x, y) in enumerate(coords):
+        pt = pts[i]
+        v_bn = pt["value"] / 100
+        # MoM 변화율
+        if i > 0:
+            mom = (pt["value"] - pts[i - 1]["value"]) / pts[i - 1]["value"] * 100
+            mom_color = "#22c55e" if mom >= 0 else "#ef4444"
+            mom_txt = f'{mom:+.0f}%'
+            circles += f'<text x="{x:.1f}" y="{y - 14:.1f}" fill="{mom_color}" font-size="8" text-anchor="middle">{mom_txt}</text>'
+        circles += f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="#3b82f6" stroke="#1e2736" stroke-width="1.5"/>'
+        # 수치 (짝수 인덱스만 표시, 겹침 방지)
+        if i % 2 == 0 or i == len(pts) - 1:
+            circles += f'<text x="{x:.1f}" y="{y + 18:.1f}" fill="#64748b" font-size="8" text-anchor="middle">{v_bn:.0f}</text>'
+        # X축 레이블 (월)
+        label = pt.get("label", pt["period"])[-5:]  # "2024-01" → "-01" or keep month
+        if i % 3 == 0 or i == len(pts) - 1:
+            circles += f'<text x="{x:.1f}" y="{H:.1f}" fill="#475569" font-size="8" text-anchor="middle">{label}</text>'
+
+    return f'''<svg viewBox="0 0 {W} {H + 10}" style="width:100%;max-height:200px">
+  <rect width="{W}" height="{H}" rx="6" fill="#0f172a"/>
+  {grid}
+  <path d="{path_d}" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round"/>
+  {circles}
+</svg>'''
+
+
 def generate_signal_section(signal: dict) -> str:
     score     = max(0, min(100, int(signal.get("score", 50) or 50)))
     direction = signal.get("direction", "neutral")
@@ -42,6 +101,9 @@ def generate_signal_section(signal: dict) -> str:
     nx = cx + nl * math.cos(rad)
     ny = cy - nl * math.sin(rad)
 
+    # ── [개선 3] 복합 Z-Score 계산 ────────────────────────────────────────
+    composite_z = sum(s.get("z_score", 0) * s.get("weight", 0) for s in ind_sigs)
+
     gauge_svg = f"""
     <svg viewBox="0 0 200 112" style="width:100%;max-width:260px;display:block;margin:0 auto">
       <defs>
@@ -71,33 +133,158 @@ def generate_signal_section(signal: dict) -> str:
             text-anchor="middle" font-family="system-ui">{score}</text>
     </svg>"""
 
-    # ── Z-Score 수평 바 차트 ────────────────────────────────────────────────
+    # ── [개선 3] 게이지 하단 범위 레이블 + 복합 Z-Score 뱃지 ────────────────
+    gauge_footer = f"""
+      <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:#475569;margin-top:4px;padding:0 8px">
+        <span>위험회피</span><span>중립</span><span>위험선호</span>
+      </div>
+      <div style="font-size:0.75rem;color:#94a3b8;margin-top:4px;text-align:center">복합 Z <span style="color:{dir_color};font-weight:700">{composite_z:+.2f}</span></div>"""
+
+    # ── [개선 1] Z-Score 상위 3개 지표 강조 ──────────────────────────────────
+    # abs(z_score) 기준 내림차순 정렬
+    sorted_sigs = sorted(ind_sigs, key=lambda s: abs(s.get("z_score", 0)), reverse=True)
+
     max_z = 2.0
     bar_rows = ""
-    for s in ind_sigs:
-        z      = s.get("z_score", 0)
-        bull   = s.get("bullish", False)
-        ind    = s.get("indicator", "")
-        sig_v  = s.get("signal", 0)
-        w      = s.get("weight", 0)
-        cl     = "#22c55e" if bull else "#ef4444"
-        pct    = abs(z) / max_z * 50  # 최대 50% width (절반 기준)
-        arrow  = "▲" if bull else "▼"
+    for rank, s in enumerate(sorted_sigs):
+        is_top3  = rank < 3
+        z        = s.get("z_score", 0)
+        bull     = s.get("bullish", False)
+        ind      = s.get("indicator", "")
+        sig_v    = s.get("signal", 0)
+        w        = s.get("weight", 0)
+        cl       = "#22c55e" if bull else "#ef4444"
+        pct      = abs(z) / max_z * 50  # 최대 50% width (절반 기준)
+        arrow    = "▲" if bull else "▼"
+        star     = "★ " if is_top3 else ""
+
         # 바: 중앙선 기준, 강세=우측, 약세=좌측
         if bull:
             bar_style = f"margin-left:50%;width:{pct:.1f}%;background:{cl}"
         else:
-            bar_style = f"margin-left:{50-pct:.1f}%;width:{pct:.1f}%;background:{cl}"
+            bar_style = f"margin-left:{50 - pct:.1f}%;width:{pct:.1f}%;background:{cl}"
+
+        # top3 행 강조 스타일
+        if is_top3:
+            row_style = f"display:grid;grid-template-columns:100px 1fr 60px;gap:6px;align-items:center;padding:3px 0;border-bottom:1px solid #1e293b;border-left:3px solid {cl};padding-left:5px;background:rgba(255,255,255,0.03)"
+            ind_style = f"font-size:0.78rem;color:#e2e8f0;font-weight:700;text-align:right;padding-right:8px"
+        else:
+            row_style = "display:grid;grid-template-columns:100px 1fr 60px;gap:6px;align-items:center;padding:3px 0;border-bottom:1px solid #1e293b"
+            ind_style = "font-size:0.78rem;color:#cbd5e1;text-align:right;padding-right:8px"
 
         bar_rows += f"""
-        <div style="display:grid;grid-template-columns:100px 1fr 60px;gap:6px;align-items:center;padding:3px 0;border-bottom:1px solid #1e293b">
-          <div style="font-size:0.78rem;color:#cbd5e1;text-align:right;padding-right:8px">{ind}</div>
+        <div style="{row_style}">
+          <div style="{ind_style}">{star}{ind}</div>
           <div style="position:relative;height:12px;background:#0f172a;border-radius:6px;overflow:hidden">
             <div style="position:absolute;top:50%;transform:translateY(-50%);left:49.5%;width:1px;height:100%;background:#334155"></div>
             <div style="position:absolute;top:2px;height:8px;border-radius:4px;{bar_style};opacity:0.9"></div>
           </div>
           <div style="font-size:0.76rem;color:{cl};text-align:center">{arrow} {z:+.2f}</div>
         </div>"""
+
+    # ── [개선 2] 강세/약세 카드에 Top 시그널명 표시 ──────────────────────────
+    bullish_names_list = [s.get("indicator", "") for s in sorted_sigs if s.get("bullish", False)][:3]
+    bearish_names_list = [s.get("indicator", "") for s in sorted_sigs if not s.get("bullish", True)][:3]
+
+    # bullish=False인 것만 약세로 추출 (bullish 키가 없으면 제외)
+    bearish_names_list = [s.get("indicator", "") for s in sorted_sigs if s.get("bullish") is False][:3]
+
+    bullish_names_html = ""
+    if bullish_names_list:
+        bullish_names_html = f"""<div style="font-size:0.65rem;color:#94a3b8;margin-top:4px;line-height:1.6">{' · '.join(bullish_names_list)}</div>"""
+
+    bearish_names_html = ""
+    if bearish_names_list:
+        bearish_names_html = f"""<div style="font-size:0.65rem;color:#94a3b8;margin-top:4px;line-height:1.6">{' · '.join(bearish_names_list)}</div>"""
+
+    # ── [개선 4] 반도체 수출 섹션 데이터 로딩 ────────────────────────────────
+    import json
+    from pathlib import Path
+
+    BASE_DIR = Path(__file__).parent.parent
+    semi_path = BASE_DIR / "output" / "semiconductor_export.json"
+    semi_data = {}
+    if semi_path.exists():
+        try:
+            semi_data = json.loads(semi_path.read_text(encoding="utf-8"))
+        except Exception:
+            semi_data = {}
+
+    # 반도체 수출 섹션 HTML 구성
+    if not semi_data:
+        # 스켈레톤 UI
+        semiconductor_section = """
+<section id="semiconductor-export" style="margin-top:24px">
+  <h2 class="section-title">반도체 수출 동향</h2>
+  <div style="background:#1e293b;border-radius:12px;padding:24px;animation:pulse 2s infinite">
+    <div style="height:12px;background:#334155;border-radius:4px;margin-bottom:12px;width:60%"></div>
+    <div style="height:200px;background:#0f172a;border-radius:8px;margin-bottom:12px"></div>
+    <div style="height:12px;background:#334155;border-radius:4px;width:80%"></div>
+    <div style="font-size:0.75rem;color:#475569;text-align:center;margin-top:12px">
+      반도체 수출 데이터 준비 중... (ECOS API 또는 config.yaml 설정 필요)
+    </div>
+  </div>
+</section>"""
+    else:
+        # 실제 데이터로 섹션 구성
+        data_points = semi_data.get("data", [])
+        is_mock = semi_data.get("is_mock", False)
+        unit = semi_data.get("unit", "지수(2020=100)")
+
+        # 최신 데이터 포인트
+        latest = data_points[-1] if data_points else {}
+        prev   = data_points[-2] if len(data_points) >= 2 else {}
+        year_ago = data_points[-13] if len(data_points) >= 13 else {}
+
+        latest_value = latest.get("value", 0)
+        latest_month = latest.get("label", latest.get("period", "N/A"))
+
+        # summary에서 직접 읽기 (재계산보다 정확)
+        summary = semi_data.get("summary", {})
+        mom_change = summary.get("mom_change_pct") or (
+            (latest_value - prev["value"]) / prev["value"] * 100
+            if prev and prev.get("value", 0) else 0.0
+        )
+        yoy_change = summary.get("yoy_change_pct") or (
+            (latest_value - year_ago["value"]) / year_ago["value"] * 100
+            if year_ago and year_ago.get("value", 0) else 0.0
+        )
+        mom_color = "#22c55e" if mom_change >= 0 else "#ef4444"
+        yoy_color = "#22c55e" if yoy_change >= 0 else "#ef4444"
+
+        # 전체 수출 비중
+        export_share = summary.get("export_share_pct", 0.0)
+
+        chart_html = _build_semi_chart(data_points)
+
+        semiconductor_section = f"""
+<section id="semiconductor-export" style="margin-top:24px">
+  <div class="card" style="padding:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 class="section-title" style="margin:0">반도체 수출 동향</h2>
+      <span style="font-size:0.72rem;color:#475569">최신: {latest_month} · {'모의 데이터' if is_mock else '실시간'}</span>
+    </div>
+    {chart_html}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+      <div class="card" style="padding:12px;text-align:center">
+        <div style="font-size:1.4rem;font-weight:800;color:#3b82f6">{latest_value:.1f}</div>
+        <div style="font-size:0.7rem;color:#64748b">수출금액지수 ({unit})</div>
+      </div>
+      <div class="card" style="padding:12px;text-align:center">
+        <div style="font-size:1.4rem;font-weight:800;color:{mom_color}">{mom_change:+.1f}%</div>
+        <div style="font-size:0.7rem;color:#64748b">전월 대비</div>
+      </div>
+      <div class="card" style="padding:12px;text-align:center">
+        <div style="font-size:1.4rem;font-weight:800;color:{yoy_color}">{yoy_change:+.1f}%</div>
+        <div style="font-size:0.7rem;color:#64748b">전년 대비</div>
+      </div>
+      <div class="card" style="padding:12px;text-align:center">
+        <div style="font-size:1.4rem;font-weight:800;color:#94a3b8">{export_share:.1f}%</div>
+        <div style="font-size:0.7rem;color:#64748b">전체 수출 비중</div>
+      </div>
+    </div>
+  </div>
+</section>"""
 
     return f"""
 <!-- ═══ SIGNAL SECTION ═══ -->
@@ -112,6 +299,7 @@ def generate_signal_section(signal: dict) -> str:
         <div style="font-size:0.85rem;font-weight:700;color:{dir_color}">{dir_ko}</div>
         <div style="font-size:0.72rem;color:#475569;margin-top:2px">기준일 {computed}</div>
       </div>
+      {gauge_footer}
     </div>
 
     <!-- Z-Score 바 차트 -->
@@ -126,10 +314,12 @@ def generate_signal_section(signal: dict) -> str:
       <div class="stat-block" style="background:#0f172a;border-radius:8px;padding:12px;text-align:center">
         <div style="font-size:2rem;font-weight:800;color:#22c55e">{bullish}</div>
         <div style="font-size:0.75rem;color:#64748b">강세 신호</div>
+        {bullish_names_html}
       </div>
       <div class="stat-block" style="background:#0f172a;border-radius:8px;padding:12px;text-align:center">
         <div style="font-size:2rem;font-weight:800;color:#ef4444">{bearish}</div>
         <div style="font-size:0.75rem;color:#64748b">약세 신호</div>
+        {bearish_names_html}
       </div>
       <div class="stat-block" style="background:#0f172a;border-radius:8px;padding:12px;text-align:center">
         <div style="font-size:1.4rem;font-weight:700;color:#94a3b8">{total}</div>
@@ -138,7 +328,8 @@ def generate_signal_section(signal: dict) -> str:
       <div style="font-size:0.68rem;color:#334155;line-height:1.4;margin-top:4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical">{method if method else "방법론 미기재"}</div>
     </div>
   </div>
-</section>"""
+</section>
+{semiconductor_section}"""
 
 
 if __name__ == "__main__":
@@ -171,13 +362,18 @@ if __name__ == "__main__":
         fails.append(f"UX-S2 direction 유효하지 않음: {signal.get('direction','')}")
     if len(html) < 200:
         fails.append("UX-S3 signal HTML 생성 실패 (200자 미만)")
+    if "semiconductor-export" not in html:
+        fails.append("UX-S4 반도체 섹션 id 누락 (semiconductor-export)")
+    has_top3 = ("★" in html) or ("border-left:3px solid" in html) or ("border-left: 3px solid" in html)
+    if not has_top3:
+        fails.append("UX-S5 top3 강조 요소 누락 (★ 또는 border-left)")
 
     print("=== Done Criteria ===")
-    for code in ["UX-S1", "UX-S2", "UX-S3"]:
+    for code in ["UX-S1", "UX-S2", "UX-S3", "UX-S4", "UX-S5"]:
         fail_item = next((f for f in fails if code in f), None)
         print(f"  {'✗' if fail_item else '✓'} {fail_item or code + ' PASS'}")
 
     if fails:
         print(f"\n[FAIL] {fails}")
         sys.exit(1)
-    print("\n[PASS] UX-S1~UX-S3 통과")
+    print("\n[PASS] UX-S1~UX-S5 통과")
