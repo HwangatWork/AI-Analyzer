@@ -1,0 +1,107 @@
+{
+  "agent": "data_agent_v2",
+  "generated_at": "2026-06-13",
+  "collection_summary": {
+    "total_indicators": 29,
+    "collected_ok": 28,
+    "failed": 1,
+    "failed_list": ["PUT_CALL"],
+    "failed_reason": {
+      "PUT_CALL": "공개 API 없음 - CBOE 직접 접근 필요 (영구 수집불가 처리)"
+    },
+    "collection_rate": "28/29 (96.6%)"
+  },
+  "done_criteria": {
+    "DC1_F01_시장지수_6of6": true,
+    "DC2_F02_매크로_6of6": true,
+    "DC3_F03_심리_VIX핵심4개+": true,
+    "DC4_F04_기술_핵심4개+6개+": true,
+    "DC5_F05_수급_3of3": true,
+    "DC6_전체_22개이상": true,
+    "SA9_DC1_report_존재": true,
+    "SA9_DC2_비어있지않음": true,
+    "SA9_DC3_100B이상": true,
+    "exit_code": 0,
+    "result": "PASS"
+  },
+  "key_indicators": {
+    "VIX": {
+      "latest_value": 17.68,
+      "range_check": "OK",
+      "range": [10, 80],
+      "interpretation": "중립 구간 (공포 아님)"
+    },
+    "HY_SPREAD": {
+      "latest_value": 2.78,
+      "range_check": "OK",
+      "range": [2, 20],
+      "interpretation": "정상 수준 (2.76~2.80 보합)"
+    },
+    "DXY": {
+      "latest_value": 120.08,
+      "range_check": "WARN",
+      "range": [80, 120],
+      "interpretation": "상한값 소폭 초과 (FRED:DTWEXBGS 광의지수 기준, 5월 이후 119대에서 120 돌파 — 달러 강세 추세)"
+    },
+    "T10Y2Y": {
+      "latest_value": 0.39,
+      "range_check": "OK",
+      "range": [-3, 5],
+      "interpretation": "장단기 금리차 양전환 유지 (역전 해소 국면)"
+    },
+    "CNN_FG": {
+      "latest_value": 13.0,
+      "interpretation": "극도의 공포 (Extreme Fear, <30)"
+    },
+    "RSI14": {
+      "latest_value": 47.19,
+      "interpretation": "중립 구간"
+    },
+    "MA_SIGNAL": {
+      "latest_value": 1.0,
+      "interpretation": "골든크로스 (50MA > 200MA, 매수 신호)"
+    },
+    "WTI": {
+      "latest_value": 95.00,
+      "interpretation": "유가 95달러 수준 (고유가 구간)"
+    },
+    "FOREIGN_NET": {
+      "latest_value_억원": 22040.9,
+      "interpretation": "외국인 순매수"
+    },
+    "INSTITUTION_NET": {
+      "latest_value_억원": 22869.8,
+      "interpretation": "기관 순매수"
+    },
+    "INDIVIDUAL_NET": {
+      "latest_value_억원": -43174.5,
+      "interpretation": "개인 순매도 (외국인·기관 vs 개인 대립 구도)"
+    }
+  },
+  "anomalies": [
+    {
+      "indicator": "DXY",
+      "value": 120.08,
+      "note": "점검 기준 상한(120) 소폭 초과. FRED DTWEXBGS(무역가중지수)는 체계상 120을 초과 가능. 수치 자체는 정상 데이터이나 달러 강세 이상값으로 기록."
+    },
+    {
+      "indicator": "CNN_FG",
+      "value": 13.0,
+      "note": "극도의 공포 수준 (13/100). 시장 심리 위험 신호."
+    },
+    {
+      "indicator": "WTI",
+      "value": 95.0,
+      "note": "유가 95달러 — 최근 고유가 구간 진입. 인플레이션 우려 잠재."
+    }
+  ],
+  "quality_verdict": "CAUTION",
+  "quality_verdict_reason": "수집률 96.6%(28/29)로 기술적 수집은 양호하나, CNN_FG=13(극도공포)+DXY 상한 초과+WTI 고유가 조합으로 시장 리스크 신호 감지. 분석 에이전트는 이 세 지표를 주시해야 함.",
+  "notes_for_downstream": [
+    "PUT_CALL은 영구 수집불가 지표 — 분석에서 제외하거나 CNN_FG로 대체 고려",
+    "DXY=120.08은 정상 데이터지만 달러 강세 국면 → 신흥국/KOSPI 영향 분석 필요",
+    "CNN_FG=13 극도공포 상태 — VIX=17.68과의 괴리 확인 필요 (심리 vs 실제 변동성)",
+    "외국인+기관 동반 순매수 vs 개인 순매도 — 수급 신호 분석 시 방향성 명확",
+    "T10Y2Y=0.39 양전환 — 경기침체 신호 완화, 정상화 진행 중"
+  ]
+}

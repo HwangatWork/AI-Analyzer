@@ -1,0 +1,42 @@
+{
+  "collected_at": "2026-06-13T23:05:55.822673",
+  "top_driver": "FOMC 금리 결정(2026-06-17) 대기 및 미중 무역 긴장 완화 기대 — 코스피 +4.63% 급등이 글로벌 위험선호 재개의 핵심 신호",
+  "sentiment": "RISK-ON",
+  "sentiment_reason": "S&P500 +0.50%, 다우 +0.70%, 코스피 +4.63% 동반 상승으로 위험자산 선호 심리가 뚜렷하게 재개됐으며 특히 코스피의 급등은 신흥국 RISK-ON 확산을 시사한다",
+  "sector_focus": ["테크/반도체 (성장주 FOMC 대기)", "금융 (금리 경로 민감)", "글로벌 무역 연관 소재·산업재"],
+  "upcoming_events": [
+    {
+      "date": "2026-06-17",
+      "event": "FOMC 금리 결정 발표",
+      "days_away": 4,
+      "significance": "금리 동결 여부, 성장주·반도체 방향성 분수령"
+    },
+    {
+      "date": "2026-06-26",
+      "event": "PCE 물가 (2026년 5월 데이터) 발표",
+      "days_away": 13,
+      "significance": "Fed 선호 물가 지표, 인플레 방향성 가늠"
+    },
+    {
+      "date": "2026-07-03",
+      "event": "비농업 고용(NFP) (2026년 6월 데이터) 발표",
+      "days_away": 20,
+      "significance": "강한 고용은 금리 인하 기대 후퇴, 약한 고용은 경기 우려"
+    },
+    {
+      "date": "2026-07-08",
+      "event": "CPI (2026년 6월 데이터) 발표",
+      "days_away": 25,
+      "significance": "인플레 둔화 확인 시 금리 우려 완화, 상회 시 매도 압력"
+    }
+  ],
+  "article_count": 25,
+  "valid_causes": 0,
+  "data_quality_note": "NQ-2 경고: 수집된 원인 3개 모두 기사 제목 패턴(Stock market today / Stock Market on / Markets News,)이 원인 위치에 그대로 삽입됨. 본문 fetch 성공 후 실질 원인 추출 실패로 fallback 발생. 시장 움직임은 수치 기반으로 유효하나 원인 텍스트는 재수집 필요.",
+  "market_snapshot": {
+    "SP500": {"close": 7431.46, "change_pct": 0.50},
+    "NASDAQ": {"close": 25888.84, "change_pct": 0.31},
+    "DOW": {"close": 51202.26, "change_pct": 0.70},
+    "KOSPI": {"close": 8123.62, "change_pct": 4.63}
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "agent": "sector_agent",
+  "generated_at": "2026-06-13T23:13:22",
+  "context": {
+    "market_sentiment": "RISK-ON",
+    "kospi_daily": "+4.63%",
+    "sp500_daily": "+0.50%",
+    "dxy": 120.08,
+    "wti": 95.0,
+    "t10y2y": 0.39,
+    "fomc_days_remaining": 4
+  },
+  "sector_rankings": [
+    {
+      "rank": 1,
+      "name": "반도체/AI",
+      "avg_return_1y": 225.4,
+      "avg_return_1m": 3.7,
+      "count": 10,
+      "theme": "AI 수요 급증, HBM 메모리 사이클, 파운드리 확장",
+      "key_risk": "재고 조정, 중국 제재 리스크, 설비투자 과잉",
+      "top_performers": [
+        {"name": "SK하이닉스", "ticker": "000660.KS", "return_1y": 943.7, "return_1m": 17.17},
+        {"name": "삼성전자", "ticker": "005930.KS", "return_1y": 461.9, "return_1m": 15.59},
+        {"name": "AMD", "ticker": "AMD", "return_1y": 334.6, "return_1m": 14.83},
+        {"name": "한미반도체", "ticker": "042700.KS", "return_1y": 330.8, "return_1m": -4.37}
+      ],
+      "laggards": [
+        {"name": "Adobe Inc.", "ticker": "ADBE", "return_1y": -48.93, "return_1m": -13.58},
+        {"name": "Accenture", "ticker": "ACN", "return_1y": -46.14, "return_1m": 6.66}
+      ]
+    },
+    {
+      "rank": 2,
+      "name": "AI/플랫폼",
+      "avg_return_1y": 62.9,
+      "avg_return_1m": -0.5,
+      "count": 10,
+      "theme": "클라우드 AI 서비스 수요, LLM 상용화, 광고 회복",
+      "key_risk": "규제 리스크, AI 투자 수익성 불확실, 경쟁 심화",
+      "top_performers": [
+        {"name": "Alphabet (GOOGL)", "ticker": "GOOGL", "return_1y": 118.4, "return_1m": -10.61},
+        {"name": "Alphabet (GOOG)", "ticker": "GOOG", "return_1y": 115.6, "return_1m": -10.19},
+        {"name": "NAVER", "ticker": "035420.KS", "return_1y": 29.2, "return_1m": 21.08}
+      ],
+      "laggards": [
+        {"name": "크래프톤", "ticker": "259960.KS", "return_1y": -36.46, "return_1m": -14.59},
+        {"name": "Adobe Inc.", "ticker": "ADBE", "return_1y": -48.93, "return_1m": -13.58}
+      ]
+    },
+    {
+      "rank": 3,
+      "name": "에너지/원자재",
+      "avg_return_1y": 57.1,
+      "avg_return_1m": -4.1,
+      "count": 10,
+      "theme": "에너지 전환, 원자력 르네상스, AI 데이터센터 전력 수요",
+      "key_risk": "유가 변동성, 정책 리스크, 금리 민감도",
+      "top_performers": [
+        {"name": "두산에너빌리티", "ticker": "034020.KS", "return_1y": 197.4, "return_1m": -25.88},
+        {"name": "APA Corporation", "ticker": "APA", "return_1y": 112.2, "return_1m": 0.14},
+        {"name": "S-Oil", "ticker": "010950.KS", "return_1y": 111.4, "return_1m": -2.54}
+      ],
+      "laggards": [
+        {"name": "American Water Works", "ticker": "AWK", "return_1y": -3.13, "return_1m": -0.83},
+        {"name": "Air Products", "ticker": "APD", "return_1y": 6.52, "return_1m": -8.03}
+      ]
+    }
+  ],
+  "analysis": {
+    "leader_sectors_top3": {
+      "1_반도체/AI": {
+        "avg_1y": 225.4,
+        "reason": "SK하이닉스(+944%), 삼성전자(+462%), AMD(+335%) 주도. HBM 수요 폭발 + AI 인프라 투자 사이클이 핵심 드라이버. RISK-ON 환경에서 고베타 성장주 집중 수혜."
+      },
+      "2_AI_플랫폼": {
+        "avg_1y": 62.9,
+        "reason": "Alphabet(+118%), NAVER(+29%) 견인. LLM 상용화 + 광고 수익 회복이 동력. 1M 평균 -0.5%로 단기 모멘텀 다소 둔화."
+      },
+      "3_에너지_원자재": {
+        "avg_1y": 57.1,
+        "reason": "WTI=95 고유가 반영 — APA(+112%), S-Oil(+111%). 두산에너빌리티(+197%)는 원자력 르네상스 + AI 데이터센터 전력 수요 복합 테마. 단, 1M=-4.1%로 최근 차익실현 조짐."
+      }
+    },
+    "lagger_sectors": {
+      "sectors": ["AI/플랫폼 내 SaaS 하위 종목", "IT 서비스/컨설팅"],
+      "detail": "Adobe(-49%), Accenture(-46%), 크래프톤(-36%) — 범용 SaaS/IT 서비스 및 게임은 AI 투자 수익성 불확실 + 고금리 부담 지속으로 자금 이탈. DXY=120 달러강세도 한국 비수출 플랫폼(카카오 +9%)에 부담."
+    },
+    "economic_cycle": {
+      "phase": "Late-Cycle",
+      "rationale": "T10Y2Y=+0.39 양전환(침체 완화 신호)이나 WTI=95 고유가 + DXY=120 달러강세 + FOMC D-4 금리 불확실성 조합은 전형적 Late-Cycle 특성. 반도체 같은 고베타 사이클주가 리드하는 구간이며, 방어주/유틸리티는 에너지 테마 수혜 제외 시 상대적 부진."
+    },
+    "rotation_theme": "AI 인프라 하드웨어(반도체/메모리) → AI 플랫폼 소프트웨어(LLM/클라우드) → 에너지 인프라(원자력/전력)로의 순차적 로테이션이 진행 중이며, WTI 고유가가 에너지 섹터의 독립적 수익성을 지지.",
+    "consistency_with_analysis_agent": {
+      "verdict": "일치",
+      "detail": "오케스트레이터 전달 컨텍스트(S&P500 리더: GOOGL/NVDA/AAPL, KOSPI 리더: 삼성전기/SK하이닉스)와 섹터 분석 결과가 정합. 반도체/AI 섹터 압도적 1위(avg_1y=225.4%)는 AI 테마 지배를 확인. 에너지 섹터 WTI 반영도 일치. 단, 1M 기준 에너지 섹터 -4.1%는 최근 단기 피로감 주의 필요."
+    },
+    "risk_on_confirmation": "CONFIRMED — 고베타 성장주(반도체) 압도적 아웃퍼폼, 방어주(유틸리티 일부) 상대적 부진으로 RISK-ON 확인."
+  },
+  "done_criteria": "PASS"
+}

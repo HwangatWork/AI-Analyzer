@@ -1,0 +1,142 @@
+{
+  "SP500": {
+    "status": "ok",
+    "rows": 505,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\SP500.parquet"
+  },
+  "NASDAQ100": {
+    "status": "ok",
+    "rows": 505,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\NASDAQ100.parquet"
+  },
+  "DOW": {
+    "status": "ok",
+    "rows": 505,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\DOW.parquet"
+  },
+  "KOSPI": {
+    "status": "ok",
+    "rows": 487,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\KOSPI.parquet"
+  },
+  "KOSDAQ": {
+    "status": "ok",
+    "rows": 487,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\KOSDAQ.parquet"
+  },
+  "NIKKEI225": {
+    "status": "ok",
+    "rows": 490,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\NIKKEI225.parquet"
+  },
+  "US10Y": {
+    "status": "ok",
+    "rows": 24,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\US10Y.parquet"
+  },
+  "DXY": {
+    "status": "ok",
+    "rows": 498,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\DXY.parquet"
+  },
+  "WTI": {
+    "status": "ok",
+    "rows": 496,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\WTI.parquet"
+  },
+  "FED_ASSETS": {
+    "status": "ok",
+    "rows": 105,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\FED_ASSETS.parquet"
+  },
+  "T10Y2Y": {
+    "status": "ok",
+    "rows": 502,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\T10Y2Y.parquet"
+  },
+  "HY_SPREAD": {
+    "status": "ok",
+    "rows": 528,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\HY_SPREAD.parquet"
+  },
+  "VIX": {
+    "status": "ok",
+    "rows": 506,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\VIX.parquet"
+  },
+  "SKEW": {
+    "status": "ok",
+    "rows": 496,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\SKEW.parquet"
+  },
+  "PUT_CALL": {
+    "status": "FAILED",
+    "reason": "DataFrame이 비어 있음"
+  },
+  "CNN_FG": {
+    "status": "FAILED",
+    "reason": "CNN API: Expecting value: line 1 column 1 (char 0)"
+  },
+  "MARKET_MOMENTUM": {
+    "status": "ok",
+    "rows": 254,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\MARKET_MOMENTUM.parquet"
+  },
+  "MARKET_STRENGTH": {
+    "status": "ok",
+    "rows": 491,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\MARKET_STRENGTH.parquet"
+  },
+  "RSI14": {
+    "status": "ok",
+    "rows": 491,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\RSI14.parquet"
+  },
+  "RSI_SIGNAL": {
+    "status": "ok",
+    "rows": 505,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\RSI_SIGNAL.parquet"
+  },
+  "MA50": {
+    "status": "ok",
+    "rows": 456,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\MA50.parquet"
+  },
+  "MA200": {
+    "status": "ok",
+    "rows": 306,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\MA200.parquet"
+  },
+  "MA_SIGNAL": {
+    "status": "ok",
+    "rows": 505,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\MA_SIGNAL.parquet"
+  },
+  "BETA": {
+    "status": "ok",
+    "rows": 412,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\BETA.parquet"
+  },
+  "BBAND": {
+    "status": "ok",
+    "rows": 486,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\BBAND.parquet"
+  },
+  "STOCH_RSI": {
+    "status": "ok",
+    "rows": 478,
+    "path": "C:\\Users\\JY Hwang\\Desktop\\AI Projects\\AI Analyzer\\data\\raw\\STOCH_RSI.parquet"
+  },
+  "FOREIGN_NET": {
+    "status": "FAILED",
+    "reason": "pykrx: "
+  },
+  "INSTITUTION_NET": {
+    "status": "FAILED",
+    "reason": "pykrx: "
+  },
+  "INDIVIDUAL_NET": {
+    "status": "FAILED",
+    "reason": "pykrx: "
+  }
+}

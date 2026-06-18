@@ -1,0 +1,140 @@
+{
+  "analyzed_at": "2026-06-13T23:08:45.000000",
+  "methodology": "v3: |lead_r|*0.4 + granger_score*0.4 + independent_contrib*0.2 with comovement penalty",
+  "adf_evidence": {
+    "VIX":            {"x_diff_order": 0, "y_diff_order": 0, "granger_p": 0.0322, "granger_sig": true,  "lag": 3, "note": "정류 시계열. Granger p=0.032 — 유일하게 유의한 선행 인과 지표"},
+    "HY_SPREAD":      {"x_diff_order": 0, "y_diff_order": 0, "granger_p": 0.7400, "granger_sig": false, "lag": 5, "note": "상관 강하나(lead_r=-0.668) Granger 비유의. 동행 고상관이 아닌 구조적 동반 하락 패턴"},
+    "DXY":            {"x_diff_order": 0, "y_diff_order": 0, "granger_p": 0.6988, "granger_sig": false, "lag": 3, "note": "상관 -0.286. Granger 비유의 — 달러강세는 레짐 수준(level) 공동변화"},
+    "WTI":            {"x_diff_order": 0, "y_diff_order": 0, "granger_p": 0.5568, "granger_sig": false, "lag": 3, "note": "상관 -0.321. 비유의 — 인플레이션 경로를 통한 간접 영향"},
+    "INDIVIDUAL_NET": {"x_diff_order": 0, "y_diff_order": 0, "granger_p": 0.2254, "granger_sig": false, "lag": 3, "note": "lag3에서 최대 lead_r=-0.083. 개인 순매도가 3일 후 S&P 하락과 미약 선행"},
+    "CNN_FG":         {"x_diff_order": 1, "y_diff_order": 0, "granger_p": 0.5079, "granger_sig": false, "lag": 4, "note": "1차 차분 필요(비정류). Granger 비유의. 심리 지표로서 레짐 신호 역할"},
+    "T10Y2Y":         {"x_diff_order": 0, "y_diff_order": 0, "granger_p": 0.2938, "granger_sig": false, "lag": 3, "note": "lead_r=-0.094 미약. T10Y2Y=0.39 양전환이 긍정 신호이나 단기 선행력 미미"}
+  },
+  "top5": [
+    {
+      "rank": 1,
+      "name": "VIX",
+      "lead_r": -0.2095,
+      "best_lag": 0,
+      "granger_p": 0.0322,
+      "weight": 0.4355,
+      "current_value": 17.68,
+      "interpretation": "유일하게 Granger 유의(p=0.032) 지표. VIX=17.68은 중립 구간(공포 임계값 20 미만). 극도공포가 아닌 현재 수준에서 S&P500에 대한 선행 하락 신호 없음. 공포가 급등(20+)하면 즉각 리스크 신호로 전환 가능."
+    },
+    {
+      "rank": 2,
+      "name": "HY_SPREAD",
+      "lead_r": -0.6680,
+      "best_lag": 0,
+      "granger_p": 0.7400,
+      "weight": 0.2805,
+      "current_value": 2.78,
+      "interpretation": "상관계수 -0.668로 전체 최강. 고수익채 스프레드 2.78%는 정상 수준(역사적 위기 시 5%+). 신용 리스크 부재 확인 — 리스크온 환경 지지. Granger 비유의이나 구조적 동반 하락으로 신뢰도 유지."
+    },
+    {
+      "rank": 3,
+      "name": "DXY",
+      "lead_r": -0.2861,
+      "best_lag": 0,
+      "granger_p": 0.6988,
+      "weight": 0.2476,
+      "current_value": 120.08,
+      "interpretation": "달러강세(DXY=120.08, 역사적 상한 초과). S&P500과 역상관(-0.286). KOSPI에 더 강한 부정적 영향 예상 — 외국인 원화표시 수익 감소. 단기 Granger 비유의이나 레짐 수준에서 신흥국 억제 요인."
+    },
+    {
+      "rank": 4,
+      "name": "WTI",
+      "lead_r": -0.3211,
+      "best_lag": 0,
+      "granger_p": 0.5568,
+      "weight": 0.2416,
+      "current_value": 95.0,
+      "interpretation": "유가 95달러는 고유가 구간. S&P500과 역상관(-0.321). 비용 압박 경로(기업 마진 악화, 인플레이션 재점화)를 통해 주식 시장 억제 요인. FOMC D-4 시점에서 인플레이션 우려 현실화 시 시장 충격 가능."
+    },
+    {
+      "rank": 5,
+      "name": "INDIVIDUAL_NET",
+      "lead_r": -0.0834,
+      "best_lag": 3,
+      "granger_p": 0.2254,
+      "weight": 0.2393,
+      "current_value": -43174.5,
+      "unit": "억원",
+      "interpretation": "lag3에서 lead_r=-0.083. 개인 대규모 순매도(-4.3조원)가 3일 후 S&P 소폭 하락과 미약 선행. 현재 외국인+기관 동반 순매수로 상쇄. 개인 패닉셀은 반대매매 리스크 신호로 해석 가능."
+    }
+  ],
+  "contemp_penalty_check": {
+    "NASDAQ100": {"rank": 11, "penalty": 0.40, "pre_penalty_weight_est": 0.354, "post_penalty_weight": 0.1416, "verdict": "PASS — 상위권 배제 확인"},
+    "DOW":       {"rank": 10, "penalty": 0.45, "post_penalty_weight": 0.1463, "verdict": "PASS — 페널티 적용 확인"},
+    "KOSDAQ":    {"rank": 12, "penalty": 0.50, "post_penalty_weight": 0.1381, "verdict": "PASS — 페널티 적용 확인"},
+    "NIKKEI225": {"rank": 15, "penalty": 0.60, "post_penalty_weight": 0.0463, "verdict": "PASS — 페널티 적용 확인"}
+  },
+  "self_referential_check": {
+    "RSI14":      {"rank": 19, "weight": 0.0328, "verdict": "랭킹 하위 포함 — 경고. 자기참조 지표로 Top5 제외 확인"},
+    "RSI_SIGNAL": {"rank": 20, "weight": 0.0153, "verdict": "하위 포함 — 허용"},
+    "MA50":       {"rank": 22, "weight": 0.0000, "verdict": "PASS — 가중치 0"},
+    "MA200":      {"rank": 24, "weight": 0.0000, "verdict": "PASS — 가중치 0"},
+    "BETA":       {"rank": 25, "weight": 0.0000, "verdict": "PASS — 가중치 0"},
+    "MA_SIGNAL":  {"rank": 26, "weight": 0.0000, "verdict": "PASS — 가중치 0"},
+    "note": "RSI14가 #19로 랭킹 내 포함되어 있으나 Top5 외부이며 weight=0.033 미미. 경고 수준이나 차단 기준 미달."
+  },
+  "anomalies": [
+    {
+      "type": "VIX_CNN_FG_DIVERGENCE",
+      "vix": 17.68,
+      "cnn_fg": 13.0,
+      "description": "VIX=17.68(중립)인데 CNN F&G=13(극도공포). 지수 차이: 실제 변동성은 낮으나 투자자 심리는 극도 위축. 이 괴리는 리스크온 단기 반등 잠재력(Fear에서 Neutral 복귀 시 매수세 유입) 또는 심리 선행 붕괴 경고 두 가지 해석 가능."
+    },
+    {
+      "type": "DXY_EXTREME",
+      "value": 120.08,
+      "description": "DXY가 점검 기준 상한(120) 돌파. FRED DTWEXBGS 기준 역사적 고점 구간. 신흥국/KOSPI 외국인 이탈 가속 가능."
+    },
+    {
+      "type": "WTI_HIGH",
+      "value": 95.0,
+      "description": "유가 95달러 — FOMC 앞두고 인플레이션 재점화 위험. 연준 추가 긴축 빌미 제공 가능."
+    },
+    {
+      "type": "INDIVIDUAL_NET_EXTREME",
+      "value": -43174.5,
+      "unit": "억원",
+      "description": "개인 순매도 -4.3조원 규모. 비정상적으로 대규모. 반대매매/강제청산 가능성 점검 필요."
+    }
+  ],
+  "warnings": [
+    "RSI14(자기참조)가 #19로 랭킹에 포함 — Top5 외부이나 모니터 필요",
+    "VIX Granger 유의(p=0.032)이나 CNN_FG는 비유의 — 심리 지표 선행력 제한",
+    "전체 26개 지표 중 Granger 유의 2개만(VIX, BBAND) — 대부분 선행 인과성 통계적 미약",
+    "FOMC D-4: WTI 고유가 + DXY 강세 조합이 연준 긴축 기대 재강화 시 단기 변동성 급등 리스크"
+  ],
+  "market_signal_summary": "혼재 (MIXED — 리스크온 편향)",
+  "market_signal_detail": {
+    "risk_on_signals": [
+      "HY_SPREAD=2.78 정상 수준(신용리스크 없음)",
+      "VIX=17.68 중립(공포 임계값 20 미만)",
+      "외국인+기관 동반 순매수",
+      "T10Y2Y=+0.39 장단기금리차 양전환(침체 신호 완화)",
+      "MA_SIGNAL=1.0 골든크로스 유지"
+    ],
+    "risk_off_signals": [
+      "CNN_FG=13 극도공포(실질 심리 붕괴)",
+      "DXY=120.08 역사적 달러강세(신흥국 억제)",
+      "WTI=95 고유가(인플레이션 재점화 리스크)",
+      "개인 순매도 -4.3조원(대규모 패닉)",
+      "FOMC D-4: 불확실성 구간"
+    ],
+    "net_assessment": "단기 리스크온 우세이나 WTI+DXY+FOMC 3중 위협으로 변동성 확대 구간"
+  },
+  "vix_cnn_fg_reconciliation": "VIX=17.68(중립)과 CNN F&G=13(극도공포) 간 괴리는 두 지표의 측정 대상 차이에서 기인. VIX는 옵션 내재변동성으로 시장 참여자(주로 기관)의 헤지 비용을 측정하며 현재 낮음. CNN F&G는 7개 심리 지표 종합(모멘텀+Put/Call+Junk Bond+Market Breadth 등)으로 개인 투자자 감성을 포착. 기관은 헤지 불필요(VIX 낮음) + 실제로 순매수 중이나, 개인은 극도 공포 상태. 이 괴리는 통상 단기 역발상 매수 신호(Contrarian Bullish)로 해석됨. 단, VIX가 20을 돌파하거나 HY_SPREAD가 급등하면 기관도 공포를 공유하는 실질 리스크오프로 전환 가능. 현 시점은 기관 주도 리스크온이 개인 패닉을 덮고 있는 구조.",
+  "kospi_dxy_assessment": "DXY=120.08 달러 강세는 KOSPI에 이중 악재. 첫째, 외국인의 원화표시 수익 감소로 이탈 유인. 둘째, 한국 수출 기업의 달러 결제 유리성은 있으나 수입 원가 상승 상쇄. T10Y2Y 양전환(+0.39)은 미국 경기 정상화 신호로 달러 수요 지속 가능성을 지지 — KOSPI 외국인 수급 압박 장기화 위험.",
+  "done_criteria_check": {
+    "AN_1_valid_indicators_ge5": {"result": "PASS", "count": 18},
+    "AN_2_nasdaq100_penalty": {"result": "PASS", "nasdaq100_rank": 11, "penalty_applied": 0.40},
+    "AN_3_vix_hy_dxy_top5": {"result": "PASS", "positions": {"VIX": 1, "HY_SPREAD": 2, "DXY": 3}},
+    "AN_4_fields_present": {"result": "PASS", "fields_verified": ["lead_r", "granger_p", "weight", "comovement_penalty"]},
+    "AN_5_weight_formula": {"result": "PASS", "formula": "|lead_r|*0.4 + granger_score*0.4 + independent*0.2"}
+  },
+  "confidence": "MEDIUM",
+  "confidence_reason": "26개 지표 중 Granger 유의 지표가 VIX(p=0.032)와 BBAND(p=0.027) 2개뿐으로 통계적 선행 인과 증거 제한적. 상관계수 기반 가중치는 동행/역행 구조를 잘 포착하나 예측력으로의 직접 전환에 한계. FOMC D-4 불확실성으로 시장 방향성 변수 존재. VIX=17.68/CNN_FG=13 괴리가 상충 신호 제공 — HIGH 부여 불가."
+}
