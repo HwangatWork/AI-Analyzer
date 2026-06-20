@@ -54,7 +54,7 @@ _SELF_REFERENTIAL = {"RSI14", "MA50", "RSI_SIGNAL", "BETA", "MA_SIGNAL"}
 
 When the user provides ANY API key or credential string — immediately do ALL three before anything else:
 1. Add to `.env`
-2. `gh secret set KEY_NAME --body "value"` (GitHub Actions Secret)
+2. `gh secret set KEY_NAME < key_file.txt` (GitHub Actions Secret — 값 직접 노출 금지)
 3. Add to `env:` block in `.github/workflows/deploy-dashboard.yml`
 4. Run `python scripts/audit_env_secrets.py` to verify all three environments match
 
@@ -80,6 +80,23 @@ An RCA is not done until:
 
 Verbal-only RCA = Level 1. All four steps = Level 6+.
 
+## 보안 키 처리 규칙 (Do Not)
+
+- API 키, 토큰, 패스워드 등 민감한 값을 bash 명령 인자, echo, print로 출력 금지
+- 키값은 반드시 `.env` 파일에서만 읽어서 사용
+- `gh secret set` 실행 시 키값을 터미널에 직접 입력 금지.
+  반드시 파일 리다이렉션 사용:
+  ```
+  gh secret set KEY_NAME < key_file.txt
+  # 또는
+  cat .env | gh secret set KEY_NAME --env-file
+  ```
+- 검증 시 키 존재 여부만 확인 (값 출력 금지):
+  ```
+  gh secret list                                              # 이름만 표시
+  python -c "import os; print('OK' if os.getenv('KEY') else 'MISSING')"
+  ```
+
 ## Things to Avoid
 
 **FIX-E (2026-06-12): stop_hook stdin JSONL silent failure**
@@ -104,3 +121,8 @@ Claude Code Stop hook sends `transcript_path` + `last_assistant_message`, NOT a 
 Fix: Read `hook_input["last_assistant_message"]` for Check1 (Evidence).
      Open and parse the JSONL file at `hook_input["transcript_path"]` for Check2 (level scan).
 (confirmed production 2026-06-12, stdin_debug.txt verified)
+
+## AgentMemory Recall 규칙
+세션 시작 시 실행:
+  memory_smart_search("AI Analyzer pipeline ROADMAP")
+(project 필드는 전체 경로라 facet_query 미지원 — smart_search 방식 사용)
