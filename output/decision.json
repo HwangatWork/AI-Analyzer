@@ -1,35 +1,37 @@
 {
-  "computed_at": "2026-06-19T08:49:21.725419",
-  "composite_score": 45.8,
-  "kospi_composite_score": 45.5,
+  "computed_at": "2026-06-20T18:31:44.717764",
+  "composite_score": 49.2,
+  "kospi_composite_score": 49.4,
   "direction": "neutral",
   "sp500": {
     "action": "SELL/AVOID",
     "strength": "중",
-    "confidence_pct": 20.9,
+    "confidence_pct": 18.8,
     "confidence_tier": "hold",
     "position_size_pct": 15,
     "position_note": "신뢰도 낮음 — 소량 또는 관망",
     "entry_triggers": [
-      "INSTITUTION_NET 강세 (Z=+2.00) — 252일 평균 대비 2.0σ 이상",
-      "FOREIGN_NET 강세 (Z=+1.62) — 252일 평균 대비 1.6σ 이상",
+      "HY_SPREAD 강세 (Z=-1.78) — 252일 평균 대비 1.8σ 이상",
       "HY_SPREAD 축소 → 신용 리스크 감소, 위험자산 선호"
     ],
-    "exit_triggers": [],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+107%) / Nvidia (+45%)"
+    "exit_triggers": [
+      "US10Y 약세 (Z=+1.63) — 하방 압력"
+    ],
+    "top_stocks_hint": "Alphabet Inc. (Class C) (+120%) / Nvidia (+47%)"
   },
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 16.1,
+    "confidence_pct": 11.8,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "신뢰도 낮음 — 소량 또는 관망",
-    "top_stocks_hint": "삼성전자 (+453%) / SK하이닉스 (+813%)"
+    "top_stocks_hint": "삼성전자 (+512%) / SK하이닉스 (+991%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
-    "미국 10년물 금리 상승 (Z=+1.39) → 할인율 부담",
+    "미국 10년물 금리 상승 (Z=+1.63) → 할인율 부담",
+    "달러 강세 → 신흥국 자금 유출 위험 (KOSPI 주의)",
     "볼린저밴드 하단 근접 → 변동성 확대 국면"
   ],
   "signal_summary": {

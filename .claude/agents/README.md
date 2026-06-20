@@ -16,7 +16,7 @@ Level 10 Agent Team 구조. 대표님 제안 5개 → 14개로 확장.
 
 ## 에이전트 레이어
 
-- 오케스트레이션: orchestrator
+- 오케스트레이션: pm-agent
 - 데이터: data-agent, news-agent
 - 분석: analysis-agent, stock-agent, sector-agent
 - 검증: evaluator-agent, validation-agent, audit-agent
@@ -39,14 +39,14 @@ Level 10 Agent Team 구조. 대표님 제안 5개 → 14개로 확장.
 | 배포 | report-agent | — |
 | 명세-구현 점검 | audit-agent | — |
 | PM 자기점검 | meta-audit-agent | — |
-| 전체 조율·최종판단 | orchestrator | evaluator+validation+audit 3종 |
+| 전체 조율·최종판단 | pm-agent | evaluator+validation+audit 3종 |
 
 ## 설치 방법
 
 1. 프로젝트 루트에 `.claude/agents/` 디렉토리 생성
 2. 이 14개 .md 파일을 그 안에 복사
 3. Claude Code에서 `/agents` 실행 → 14개 인식 확인
-4. orchestrator부터 단계적으로 실제 호출 테스트
+4. pm-agent부터 단계적으로 실제 호출 테스트
 
 ## 전환 원칙 (한 번에 다 바꾸지 말 것)
 
