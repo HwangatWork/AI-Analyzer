@@ -88,19 +88,24 @@ def test_T_SEM_4_dc5_fail_stale_data(tmp_path):
 # ── T-SEM-5 ───────────────────────────────────────────────────────────────
 
 def test_T_SEM_5_required_columns(monkeypatch):
-    """T-SEM-5: fetch_customs_semiconductor() 반환 DataFrame 필수 컬럼 확인 (mock API)."""
+    """T-SEM-5: fetch_customs_semiconductor() 반환 DataFrame 필수 컬럼 확인 (mock XML API).
+
+    구현이 XML 파싱을 사용하므로 resp.text에 유효한 XML을 반환.
+    priodTitle='총계' 항목 포함 → 월별 합계로 인식됨.
+    """
     required_cols = {"date", "hs_code", "export_usd", "import_usd", "unit"}
 
-    mock_item = {
-        "prdtYm": "202501",
-        "expDlr": "12345.0",
-        "impDlr": "6789.0",
-    }
+    MOCK_XML = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        "<response><header><resultCode>00</resultCode><resultMsg>정상서비스.</resultMsg></header>"
+        "<body><items>"
+        "<item><expUsdAmt>12345</expUsdAmt><impUsdAmt>6789</impUsdAmt><priodTitle>총계</priodTitle></item>"
+        "</items></body></response>"
+    )
+
     mock_response = MagicMock()
     mock_response.raise_for_status = MagicMock()
-    mock_response.json.return_value = {
-        "items": {"item": [mock_item] * 12}
-    }
+    mock_response.text = MOCK_XML
 
     monkeypatch.setenv("CUSTOMS_API_KEY", "test_key_dummy")
 
