@@ -51,6 +51,7 @@ jobs:
           KRX_PW:                ${{ secrets.KRX_PW }}
           ECOS_API_KEY:          ${{ secrets.ECOS_API_KEY }}
           ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
+          CUSTOMS_API_KEY:       ${{ secrets.CUSTOMS_API_KEY }}
         run: |
           python -X utf8 agents/run_data_agent_v2.py
           python -X utf8 agents/run_analysis_agent_v2.py

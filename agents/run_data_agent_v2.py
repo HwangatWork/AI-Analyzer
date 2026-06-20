@@ -399,6 +399,153 @@ def collect_f05():
             fail(name, f"pykrx 예외: {str(e)[:60]}")
 
 
+# ── F06: 관세청 반도체 수출 실적 (CUSTOMS API) ────────────────────────────
+
+def _verify_semiconductor_dc(path: str) -> None:
+    """DC-1~DC-5 검증. 실패 시 sys.exit(1)."""
+    import sys as _dc_sys
+    errors = []
+    if not os.path.exists(path):
+        errors.append("DC-1 FAIL: file not found")
+    elif os.path.getsize(path) == 0:
+        errors.append("DC-2 FAIL: empty file")
+    else:
+        df = pd.read_parquet(path)
+        if len(df) < 12:
+            errors.append(f"DC-3 FAIL: only {len(df)} rows, need >= 12")
+        if "export_usd" in df.columns and df["export_usd"].sum() == 0:
+            errors.append("DC-4 FAIL: all export_usd values are zero")
+        if "date" in df.columns:
+            latest = pd.to_datetime(df["date"]).max()
+            age = (pd.Timestamp.now() - latest).days
+            if age > 45:
+                errors.append(f"DC-5 FAIL: newest row {age} days old (> 45)")
+    if errors:
+        for e in errors:
+            print(f"[SEMICONDUCTOR DC] {e}", file=_dc_sys.stderr)
+        print("DONE_CRITERIA: FAIL")
+        _dc_sys.exit(1)
+    print("DONE_CRITERIA: PASS — SEMICONDUCTOR_EXPORT")
+
+
+def fetch_customs_semiconductor() -> pd.DataFrame:
+    """
+    관세청 시도별 품목별 수출입실적(GW) API로 반도체 수출 실제 달러 금액 수집.
+
+    HS코드:
+      - 8542: 집적회로 (DRAM, HBM, Logic)
+      - 8541: 반도체 소자
+
+    Returns DataFrame columns: date (YYYY-MM-01), hs_code, export_usd, import_usd, unit
+
+    Done Criteria:
+      DC-1: data/raw/SEMICONDUCTOR_EXPORT.parquet exists
+      DC-2: file not empty
+      DC-3: row count >= 12
+      DC-4: export_usd non-zero
+      DC-5: newest row within 45 days
+    """
+    api_key = os.getenv("CUSTOMS_API_KEY", "").strip()
+    if not api_key:
+        print("[SEMICONDUCTOR] CUSTOMS_API_KEY 없음 — SKIP")
+        return pd.DataFrame()
+
+    BASE_URL = "https://apis.data.go.kr/1220000/ItemService/getItemSidoList"
+    HS_CODES = ["8542", "8541"]
+    results = []
+
+    for hs in HS_CODES:
+        params = {
+            "serviceKey": api_key,
+            "numOfRows": 100,
+            "pageNo": 1,
+            "type": "json",
+            "hsCd": hs,
+        }
+        try:
+            resp = httpx.get(BASE_URL, params=params, timeout=30)
+            resp.raise_for_status()
+            data = resp.json()
+            items = data.get("items", {}).get("item", [])
+            if isinstance(items, dict):  # single-item API returns dict, not list
+                items = [items]
+            for item in items:
+                date_str = str(item.get("prdtYm", "")).strip()
+                if not date_str or len(date_str) < 6:
+                    continue
+                try:
+                    date_val = pd.to_datetime(date_str + "01", format="%Y%m%d")
+                except Exception:
+                    continue
+                results.append({
+                    "date": date_val,
+                    "hs_code": hs,
+                    "export_usd": float(item.get("expDlr", 0) or 0),
+                    "import_usd": float(item.get("impDlr", 0) or 0),
+                    "unit": "USD_thousand",
+                })
+        except Exception as e:
+            print(f"[SEMICONDUCTOR] HS {hs} 수집 실패: {e}")
+            fail(f"SEMICONDUCTOR_{hs}", str(e)[:80])
+
+    if not results:
+        return pd.DataFrame()
+
+    df = pd.DataFrame(results)
+    df = df.sort_values("date").drop_duplicates(subset=["date", "hs_code"])
+    return df
+
+
+def collect_f06_semiconductor() -> None:
+    """F06: 관세청 반도체 수출 실적 (HS 8542/8541) 수집."""
+    print("\n[F06] 관세청 반도체 수출 실적 (HS 8542/8541)")
+
+    api_key = os.getenv("CUSTOMS_API_KEY", "").strip()
+    if not api_key:
+        print("  CUSTOMS_API_KEY 없음 — F06 SKIP")
+        RESULTS["SEMICONDUCTOR_EXPORT"] = {"status": "SKIP", "reason": "CUSTOMS_API_KEY 미설정"}
+        return
+
+    # 필드명 검증 테스트 호출 (numOfRows=3) — Task 2 요구사항
+    BASE_URL = "https://apis.data.go.kr/1220000/ItemService/getItemSidoList"
+    try:
+        test_resp = httpx.get(BASE_URL, params={
+            "serviceKey": api_key, "numOfRows": 3, "pageNo": 1,
+            "type": "json", "hsCd": "8542",
+        }, timeout=30)
+        test_resp.raise_for_status()
+        test_data = test_resp.json()
+        print(f"  [TEST] 응답 최상위 키: {list(test_data.keys())}")
+        items_raw = test_data.get("items", {})
+        sample = items_raw.get("item", [{}])
+        if isinstance(sample, list) and sample:
+            sample = sample[0]
+        if isinstance(sample, dict):
+            print(f"  [TEST] 실제 item 필드명: {list(sample.keys())}")
+        else:
+            print(f"  [TEST] item 형태: {type(sample)} — {str(sample)[:200]}")
+    except Exception as e:
+        print(f"  [TEST CALL FAIL] {e}")
+        fail("SEMICONDUCTOR_EXPORT", f"test call 실패: {str(e)[:80]}")
+        return
+
+    df = fetch_customs_semiconductor()
+    if df.empty:
+        fail("SEMICONDUCTOR_EXPORT", "빈 DataFrame — API 응답 없음 또는 필드명 불일치")
+        return
+
+    out_path = RAW_DIR / "SEMICONDUCTOR_EXPORT.parquet"
+    df.to_parquet(out_path, index=False)
+    RESULTS["SEMICONDUCTOR_EXPORT"] = {
+        "status": "ok", "rows": len(df), "source": "customs.data.go.kr:HS8542+8541"
+    }
+    print(f"  [OK] SEMICONDUCTOR_EXPORT: {len(df)}행")
+    print(f"  기간: {df['date'].min().strftime('%Y-%m')} ~ {df['date'].max().strftime('%Y-%m')}")
+    print(f"  HS코드: {df['hs_code'].unique().tolist()}")
+
+    _verify_semiconductor_dc(str(out_path))
+
+
 # ── 메인 ──────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -412,6 +559,7 @@ if __name__ == "__main__":
     collect_f03()
     collect_f04()
     collect_f05()
+    collect_f06_semiconductor()
 
     ok     = [k for k, v in RESULTS.items() if v["status"] == "ok"]
     failed = [k for k, v in RESULTS.items() if v["status"] == "FAILED"]

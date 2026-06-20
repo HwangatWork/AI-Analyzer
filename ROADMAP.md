@@ -437,6 +437,18 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 
 ---
 
+## REQ-KITA-001: 관세청 반도체 수출 실적 (실제 USD 금액)
+
+> 배경: ECOS 403Y001은 지수(2020=100) — 실제 달러 금액 아님. 관세청 API(HS 8542/8541)로 교체.
+
+- [x] Task 1 — 코딩 전 감사: ECOS=INDEX 확인, semiconductor_monitor 패키지 파악, data/raw/ 현황
+- [x] Task 2 — fetch_customs_semiconductor() 구현 (run_data_agent_v2.py, httpx, test call 포함)
+- [x] Task 3 — _verify_semiconductor_dc() Done Criteria DC-1~DC-5
+- [x] Task 4 — run_data_agent_v2.py 통합 (collect_f06_semiconductor, __main__ 블록 추가)
+- [?] Task 5 — CUSTOMS_API_KEY GitHub Actions Secret 등록 (키 .env 미등록 — 사용자 확인 필요)
+- [x] Task 6 — 회귀 테스트 5개 (T-SEM-1~T-SEM-5), 66/66 PASS
+- [ ] Gate — 실제 API 호출 + DC-1~DC-5 PASS + Telegram 완료 보고 (CUSTOMS_API_KEY 등록 후)
+
 ## Phase 11: Task() 서브에이전트 전환 (조건부)
 
 - [ ] Claude Code에서 Task tool이 서브에이전트 세션에 실제 제공되는지 확인
