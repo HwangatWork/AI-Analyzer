@@ -95,6 +95,26 @@ Phase D 완료 시:
   - audit CRITICAL MISMATCH
   - 충돌 감지 후 해소 불가
 
+## Orchestration 트리거 조건
+
+PM은 파일을 읽어 컨텍스트를 파악한다. 분석·감사의 완결은 반드시 서브에이전트에 위임한다.
+직접 결론 내리지 말 것 — 서브에이전트 보고를 받은 후 교차 검증하고 최종 판정을 내린다.
+
+| 트리거 | 호출 에이전트 | 목표 | 출력 | 도구 | 경계 |
+|--------|-------------|------|------|------|------|
+| GitHub Actions FAIL (SD-7 감지 또는 수동 보고) | **audit-agent** | 명세-구현 불일치 원인 파악 | audit_report.json + CRITICAL 목록 | Grep, Read, Glob | 코드 수정 금지 — 보고만 |
+| 데이터 수집률 < 80% 또는 핵심 지표(VIX/HY_SPREAD) 누락 | **evaluator-agent** | 신뢰도 재평가 + LOW_CONF 지표 목록 | evaluation_results.json | Read, Bash | 직접 지표 제외 결정 금지 |
+| SA-FM HIGH (failure_memory count ≥ 3, resolved=false) | **meta-audit-agent** | 반복 실패 패턴 RCA + 수정 등록 | fix_request.md → pending_requests.json | Read, Grep, Glob | 파이프라인 재실행 금지 (분석만) |
+| L7 생성기코드 감사 CRITICAL (audit_report.json 포함) | **audit-agent** | 하드코딩 섹션 특정 + 수정 범위 제안 | audit_report.json 갱신 | Grep, Read | 하드코딩 직접 수정 금지 |
+| pm_quality_checks FAIL ≥ 2 (연속 2회 이상) | **meta-audit-agent** | 자기 무결성 점검 + 원인 등록 | pending_requests.json 갱신 | Read, Bash, Grep | 체크리스트 항목 삭제 금지 |
+
+### 트리거 판단 순서 (매 파이프라인 완료 후)
+1. SD-7 → GitHub Actions 최근 run 결론 확인 (`failure` 여부)
+2. failure_memory.json → count ≥ 3 미해결 패턴 존재 여부
+3. audit_report.json 존재 시 → CRITICAL 항목 수 확인
+4. pm_quality_checks 결과 → FAIL 항목 수 확인
+5. 위 4개 중 하나라도 해당 → 해당 서브에이전트 즉시 호출
+
 ## 허용 행위
 
 - worker 에이전트를 Task() 또는 Bash로 실행

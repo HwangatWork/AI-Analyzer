@@ -985,6 +985,50 @@ def _sa9_agent_spec_audit() -> dict:
     }
 
 
+def _sa9_trigger_section_audit() -> dict:
+    """SA-9T: 트리거 대상 에이전트 MD에 ## 호출 조건 섹션 존재 여부 감사.
+
+    PM이 특정 조건에서 호출하는 에이전트 3종(audit/evaluator/meta-audit)에
+    ## 호출 조건 섹션이 없으면 MEDIUM 경고 + pending 등록.
+    """
+    trigger_agents = ["audit-agent", "evaluator-agent", "meta-audit-agent"]
+    claude_agents_dir = BASE_DIR / ".claude" / "agents"
+    missing_list: list[str] = []
+
+    for stem in trigger_agents:
+        md_path = claude_agents_dir / f"{stem}.md"
+        if not md_path.exists():
+            missing_list.append(f"{stem}.md (파일 없음)")
+            continue
+        content = md_path.read_text(encoding="utf-8", errors="ignore")
+        if "호출 조건" not in content:
+            missing_list.append(f"{stem}.md (## 호출 조건 섹션 없음)")
+            req_id = f"REQ-SA9T-{stem}"
+            data9t = _load_pending()
+            all9t = data9t.get("completed", []) + data9t.get("pending", [])
+            if not any(req_id in json.dumps(item) for item in all9t):
+                register_pending(
+                    req_id=req_id,
+                    request=f"[SA-9T MEDIUM] {stem}.md에 ## 호출 조건 섹션 추가 필요",
+                    status="backlog",
+                    details="PM 트리거 조건 섹션 없음 — pm-agent.md 트리거 테이블과 연동 필요",
+                )
+
+    if missing_list:
+        return {
+            "sa_code": "SA-9T",
+            "severity": "MEDIUM",
+            "title": f"SA-9T 트리거 섹션 누락 — {len(missing_list)}개",
+            "detail": ", ".join(missing_list),
+        }
+    return {
+        "sa_code": "SA-9T",
+        "severity": "INFO",
+        "title": "SA-9T 트리거 섹션 전체 완비 (3/3)",
+        "detail": f"{', '.join(trigger_agents)} 모두 ## 호출 조건 보유",
+    }
+
+
 _DC_INJECT_MARKER = "# ── Done Criteria (auto-injected by SA-9)"
 
 _DC_BLOCK_TMPL = """\n    {marker} ──────────────────────────────
@@ -1275,6 +1319,9 @@ def pm_system_audit() -> list[dict]:
 
     # ── SA-9x: agents/*.py Done Criteria 블록 자동 주입 ─────────────────────
     findings.append(_sa9_inject_done_criteria())
+
+    # ── SA-9T: 트리거 대상 에이전트 MD 호출 조건 섹션 감사 ─────────────────
+    findings.append(_sa9_trigger_section_audit())
 
     # ── SA-FM: failure_memory.json 반복 실패 패턴 탐지 ───────────────────────
     findings.append(_check_repeat_failures())

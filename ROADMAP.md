@@ -502,28 +502,28 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 - [x] 회귀 테스트 5개 추가 (T-CI-1~5, test_phase12_ci_fixes.py)
 - [x] Gate — 회귀 70/70 PASS (1 SKIP), GitHub Actions 재트리거 후 PASS 대기
 
-### Phase 12-2: pm-agent.md 트리거 조건 추가
+### Phase 12-2: pm-agent.md 트리거 조건 추가 (완료)
 
-선행조건: Phase 12-1 완료 후
-
-- [ ] pm-agent.md에 ## Orchestration 트리거 조건 섹션 추가:
+- [x] pm-agent.md에 ## Orchestration 트리거 조건 섹션 추가 (5행 트리거 테이블)
   - CI 실패 → audit-agent (목표/출력/도구/경계 4항목)
   - 데이터 품질 이상 → evaluator-agent
-  - 코드 품질 이상 → meta-audit-agent
-- [ ] PM은 컨텍스트 파악(파일 읽기) 가능, 분석 완결은 서브에이전트에 위임 원칙 명시
+  - SA-FM HIGH → meta-audit-agent
+  - L7 CRITICAL → audit-agent
+  - pm_quality FAIL ≥ 2 → meta-audit-agent
+- [x] PM 위임 원칙 명시: 컨텍스트 파악은 PM, 분석 완결은 서브에이전트에 위임
 
-### Phase 12-3: audit-agent, meta-audit-agent MD 호출 조건 추가
+### Phase 12-3: audit/evaluator/meta-audit-agent MD 호출 조건 추가 (완료)
 
-선행조건: Phase 12-2 완료 후
+- [x] audit-agent.md에 ## 호출 조건 섹션 추가 (4행 트리거 테이블 + PM 위임 원칙)
+- [x] meta-audit-agent.md에 ## 호출 조건 섹션 추가 (4행 트리거 테이블 + PM 위임 원칙)
+- [x] evaluator-agent.md에 ## 호출 조건 섹션 추가 (3행 트리거 테이블 + PM 위임 원칙)
 
-- [ ] audit-agent.md에 ## 호출 조건 섹션 추가 (언제 PM이 나를 호출하는가 / Output / 경계)
-- [ ] meta-audit-agent.md에 ## 호출 조건 섹션 추가 (동일 구조)
+### Phase 12-4: SA-9T — 트리거 조건 자동 감지 (완료)
 
-### Phase 12-4: SA-9 확장 — 트리거 조건 자동 감지
-
-선행조건: Phase 12-3 완료 후
-
-- [ ] SA-9가 각 에이전트 MD에 ## 호출 조건 섹션 존재 여부 자동 감사
+- [x] `_sa9_trigger_section_audit()` 구현 — audit/evaluator/meta-audit 3개 MD 감사
+- [x] 호출 조건 섹션 없으면 MEDIUM + pending 자동 등록
+- [x] 3/3 완비 시 INFO 반환 (현재 상태 확인 완료)
+- [x] `pm_system_audit()` SA-9T 호출 연결
 
 ### 실행 규칙
 - 12-1 최우선 (CI 깨진 상태)
