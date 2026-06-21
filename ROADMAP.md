@@ -317,7 +317,7 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 | 항목 | 상태 |
 |------|------|
 | pm_quality_checks | 24/24 PASS (QG-1 SKIP 포함) |
-| 회귀 테스트 | **34/34 PASS** (test_regression 23 + test_sd14 1 + test_req_sa4 5 + test_sa9_injection 5) |
+| 회귀 테스트 | **70/70 PASS** (1 SKIP) — Phase 12-1 T-CI-1~5 추가 누적 |
 | 6-Layer 재감사 | **62/62 PASS** (L1:12 L2:12 L3:17 L4:8 L5:5 L_방법론:8) |
 | SA 구조 감사 | SA-1~**SA-9** 자동 실행 (SA-9 신규: 에이전트 명세 완비 감사, 나머지 INFO) |
 | 자율 개선 루프 | 폐쇄 루프 활성 — 파이프라인→SA→pending_requests 자동 등록 |
@@ -495,11 +495,12 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 - CI 실패 (5b93fc5) 발생 — 수정 최우선
 - PM Agent 트리거 조건 미명시 문제 발견
 
-### Phase 12-1: CI 실패 수정 (최우선)
+### Phase 12-1: CI 실패 수정 (완료)
 
-- [ ] audit step env 블록 누락 수정 — Validate credential environment 스텝에 시크릿 6개 env: 블록 추가
-- [ ] SD-7 브랜치 필터 수정 — branch=main → branch=master (run_pm_agent.py L172)
-- [ ] Gate — GitHub Actions PASS, 회귀 66/66 유지
+- [x] audit step env 블록 누락 수정 — Validate credential environment 스텝에 시크릿 8개 env: 블록 추가
+- [x] SD-7 브랜치 필터 수정 — branch=main → branch=master (run_pm_agent.py L173)
+- [x] 회귀 테스트 5개 추가 (T-CI-1~5, test_phase12_ci_fixes.py)
+- [x] Gate — 회귀 70/70 PASS (1 SKIP), GitHub Actions 재트리거 후 PASS 대기
 
 ### Phase 12-2: pm-agent.md 트리거 조건 추가
 

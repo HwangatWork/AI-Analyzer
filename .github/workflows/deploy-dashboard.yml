@@ -40,6 +40,15 @@ jobs:
           pip install -r requirements.txt
 
       - name: Validate credential environment
+        env:
+          FRED_API_KEY:          ${{ secrets.FRED_API_KEY }}
+          TELEGRAM_BOT_TOKEN:    ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:      ${{ secrets.TELEGRAM_CHAT_ID }}
+          KRX_ID:                ${{ secrets.KRX_ID }}
+          KRX_PW:                ${{ secrets.KRX_PW }}
+          ECOS_API_KEY:          ${{ secrets.ECOS_API_KEY }}
+          ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
+          CUSTOMS_API_KEY:       ${{ secrets.CUSTOMS_API_KEY }}
         run: python -X utf8 scripts/audit_env_secrets.py --ci
 
       - name: Run pipeline

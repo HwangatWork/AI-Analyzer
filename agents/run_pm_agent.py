@@ -170,7 +170,7 @@ def pm_self_diagnosis() -> tuple[bool, list[str]]:
             _headers["Authorization"] = f"token {_gh_token}"
         _req = _urllib_req.Request(
             "https://api.github.com/repos/HwangatWork/AI-Analyzer/actions/runs"
-            "?per_page=10&branch=main",
+            "?per_page=10&branch=master",
             headers=_headers,
         )
         with _urllib_req.urlopen(_req, timeout=10) as _resp:
