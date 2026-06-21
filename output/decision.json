@@ -1,15 +1,15 @@
 {
-  "computed_at": "2026-06-20T18:31:44.717764",
-  "composite_score": 49.2,
-  "kospi_composite_score": 49.4,
+  "computed_at": "2026-06-21T15:56:03.929505",
+  "composite_score": 52.9,
+  "kospi_composite_score": 53.2,
   "direction": "neutral",
   "sp500": {
-    "action": "SELL/AVOID",
-    "strength": "중",
-    "confidence_pct": 18.8,
+    "action": "HOLD",
+    "strength": "중립",
+    "confidence_pct": 6.7,
     "confidence_tier": "hold",
-    "position_size_pct": 15,
-    "position_note": "신뢰도 낮음 — 소량 또는 관망",
+    "position_size_pct": 0,
+    "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
     "entry_triggers": [
       "HY_SPREAD 강세 (Z=-1.78) — 252일 평균 대비 1.8σ 이상",
       "HY_SPREAD 축소 → 신용 리스크 감소, 위험자산 선호"
@@ -22,11 +22,11 @@
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 11.8,
+    "confidence_pct": 6.6,
     "confidence_tier": "hold",
     "position_size_pct": 0,
-    "position_note": "신뢰도 낮음 — 소량 또는 관망",
-    "top_stocks_hint": "삼성전자 (+512%) / SK하이닉스 (+991%)"
+    "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
+    "top_stocks_hint": "SK하이닉스 (+975%) / 삼성전자 (+495%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
@@ -35,9 +35,9 @@
     "볼린저밴드 하단 근접 → 변동성 확대 국면"
   ],
   "signal_summary": {
-    "bullish": 4,
-    "bearish": 8,
+    "bullish": 6,
+    "bearish": 6,
     "total": 12,
-    "consensus_ratio": 0.333
+    "consensus_ratio": 0.5
   }
 }

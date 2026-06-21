@@ -518,12 +518,9 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 - [x] meta-audit-agent.md에 ## 호출 조건 섹션 추가 (4행 트리거 테이블 + PM 위임 원칙)
 - [x] evaluator-agent.md에 ## 호출 조건 섹션 추가 (3행 트리거 테이블 + PM 위임 원칙)
 
-### Phase 12-4: SA-9T — 트리거 조건 자동 감지 (완료)
+### Phase 12-4: SA-9 확장 — 트리거 조건 자동 감지
 
-- [x] `_sa9_trigger_section_audit()` 구현 — audit/evaluator/meta-audit 3개 MD 감사
-- [x] 호출 조건 섹션 없으면 MEDIUM + pending 자동 등록
-- [x] 3/3 완비 시 INFO 반환 (현재 상태 확인 완료)
-- [x] `pm_system_audit()` SA-9T 호출 연결
+- [ ] (취소됨) SA-9T 실용적 가치 낮음 — MD 섹션 존재 여부 자동 감사는 현 단계에서 불필요
 
 ### 실행 규칙
 - 12-1 최우선 (CI 깨진 상태)
