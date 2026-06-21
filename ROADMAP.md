@@ -449,10 +449,83 @@ FIX-F 확인 커밋: `5d10d9c` (Phase 5 파이프라인 실전 실행 시 Check2
 - [x] Task 6 — 회귀 테스트 5개 (T-SEM-1~T-SEM-5), 66/66 PASS
 - [x] Gate — 실제 API 호출 성공 (23행, 2024-07~2026-05) + DC-1~DC-5 PASS + Telegram 완료 보고 (2026-06-20)
 
-## Phase 11: Task() 서브에이전트 전환 (조건부)
+## Phase 11: Task() 서브에이전트 전환 (완료)
 
-- [ ] Claude Code에서 Task tool이 서브에이전트 세션에 실제 제공되는지 확인
-- [ ] 확인 시 orchestrator.md tools에 Task 재추가
-- [ ] orchestrator가 worker를 Task()로 spawn하도록 프롬프트 수정
-- [ ] 병렬 실행 검증 (ThreadPoolExecutor → 진정한 서브에이전트 병렬)
-- [ ] WAIT: Task tool 환경 지원 확인 전까지 대기
+- [x] Claude Code에서 Task tool이 서브에이전트 세션에 실제 제공되는지 확인
+- [x] 확인 시 orchestrator.md tools에 Task 재추가
+- [x] orchestrator가 worker를 Task()로 spawn하도록 프롬프트 수정
+- [x] 병렬 실행 검증 (ThreadPoolExecutor → 진정한 서브에이전트 병렬)
+- [x] 완료 (2026-06-13 실측 확인) — @agent-orchestrator로 9개 서브에이전트 실제 spawn 확인
+
+### 판단 기준 (2026-06-20 PM Agent 결정)
+- Spawn 적합: LLM 추론 필요 + 독립 에러 바운더리 필요 + timeout 300s 이상
+- Python 유지: 수식·통계·규칙 기반 계산, ext_api 라이브러리 직접 호출, ThreadPoolExecutor 병렬로 충분
+- 집계: Python 유지 11개 / Spawn 전환 권고 2개 (S11 Narrative, S13 Audit)
+
+## Phase 11-A: Narrative Agent Spawn 전환
+
+배경: run_narrative_agent.py L365 주석이 이미 "Claude Code 서브에이전트 수동 실행" 전제 —
+      자동 Spawn 전환이 설계 의도와 일치.
+선행조건: Phase 12-1 완료 후
+
+- [ ] Task 1 — run_narrative_agent.py L365 주석 확인 및 Spawn 진입점 정의
+- [ ] Task 2 — pm_orchestrator.py에 Group E 추가 (_run_group_spawn 함수 구현)
+- [ ] Task 3 — narrative_context.json → FINAL_REPORT.md 생성을 서브에이전트가 완전 자동 처리하도록 수정
+- [ ] Task 4 — _verify_output_contract() Spawn 완료 후에도 동일하게 실행 (계약 준수 감시)
+- [ ] Task 5 — failure_memory 연동: Spawn exit code → _record_failure()/_record_success() 호출
+- [ ] Gate — FINAL_REPORT.md 자동 생성 + 수치 포함 여부 검증 + 회귀 테스트 PASS
+
+## Phase 11-B: Audit Agent Spawn 전환 (선택)
+
+배경: 파이프라인 최종 게이트 — 감사 실패가 다른 단계에 오염되지 않도록 독립 격리 실행.
+선행조건: Phase 12-1 완료 후
+
+- [ ] Task 1 — run_audit_agent.py Spawn 진입점 정의 (audit_report.json 계약 명세)
+- [ ] Task 2 — pm_orchestrator.py Group E에 Audit 추가 (Phase 11-A 완료 후 병행)
+- [ ] Task 3 — Spawn 결과(APPROVE/HOLD)를 pm_orchestrator.py 최종 판정 로직에 자동 연결
+- [ ] Task 4 — failure_memory 연동 및 Telegram 보고 유지
+- [ ] Gate — audit_report.json 생성 + APPROVE/HOLD 자동 판정 전달 + 회귀 테스트 PASS
+
+---
+
+## Phase 12 — PM Agent Orchestration 개선
+
+### 배경
+- Phase 11 Task() 서브에이전트 전환 완료
+- CI 실패 (5b93fc5) 발생 — 수정 최우선
+- PM Agent 트리거 조건 미명시 문제 발견
+
+### Phase 12-1: CI 실패 수정 (최우선)
+
+- [ ] audit step env 블록 누락 수정 — Validate credential environment 스텝에 시크릿 6개 env: 블록 추가
+- [ ] SD-7 브랜치 필터 수정 — branch=main → branch=master (run_pm_agent.py L172)
+- [ ] Gate — GitHub Actions PASS, 회귀 66/66 유지
+
+### Phase 12-2: pm-agent.md 트리거 조건 추가
+
+선행조건: Phase 12-1 완료 후
+
+- [ ] pm-agent.md에 ## Orchestration 트리거 조건 섹션 추가:
+  - CI 실패 → audit-agent (목표/출력/도구/경계 4항목)
+  - 데이터 품질 이상 → evaluator-agent
+  - 코드 품질 이상 → meta-audit-agent
+- [ ] PM은 컨텍스트 파악(파일 읽기) 가능, 분석 완결은 서브에이전트에 위임 원칙 명시
+
+### Phase 12-3: audit-agent, meta-audit-agent MD 호출 조건 추가
+
+선행조건: Phase 12-2 완료 후
+
+- [ ] audit-agent.md에 ## 호출 조건 섹션 추가 (언제 PM이 나를 호출하는가 / Output / 경계)
+- [ ] meta-audit-agent.md에 ## 호출 조건 섹션 추가 (동일 구조)
+
+### Phase 12-4: SA-9 확장 — 트리거 조건 자동 감지
+
+선행조건: Phase 12-3 완료 후
+
+- [ ] SA-9가 각 에이전트 MD에 ## 호출 조건 섹션 존재 여부 자동 감사
+
+### 실행 규칙
+- 12-1 최우선 (CI 깨진 상태)
+- 12-2 → 12-3 → 12-4 순차 실행
+- 각 Phase 완료마다 PM Status Report
+- 회귀 66/66 유지 필수

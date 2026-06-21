@@ -654,6 +654,82 @@ def audit_methodology(ar: AuditResult):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# L7: 생성기 코드 존재 감사 — HTML 직접 편집 패턴 탐지
+# ─────────────────────────────────────────────────────────────────────────────
+
+# section id → generator 함수명 (값이 None이면 "알려진 생성 섹션"으로 WARNING 제외)
+_SECTION_GENERATOR_MAP: dict[str, str | None] = {
+    "semiconductor-export": "_html_semiconductor_section",
+    # 서브에이전트가 생성하는 알려진 섹션 — 직접 편집 아님
+    "decision":    None,  # generate_decision_section()
+    "narrative":   None,  # generate_narrative_section()
+    "signal":      None,  # generate_signal_section()
+    "stocks":      None,  # generate_stocks_section()
+    "sector":      None,  # generate_sector_section()
+    "indicators":  None,  # generate_indicators_section()
+    "looker":      None,  # generate_sheets_section()
+}
+
+
+def audit_generator_code_existence(ar: AuditResult):
+    """
+    dashboard.html의 각 <section id="..."> 에 대해
+    run_ui_agent.py에 대응 생성기 함수가 존재하는지 검증한다.
+
+    생성기 없이 section이 있다면 HTML 직접 편집(하드코딩) 패턴이므로
+    다음 파이프라인 실행 시 해당 섹션이 사라질 위험이 있다.
+    """
+    layer = "L7_생성기코드"
+
+    html_path = OUT_DIR / "dashboard.html"
+    ui_path   = AGENTS_DIR / "run_ui_agent.py"
+
+    if not html_path.exists():
+        ar.add(layer, "GC0", "dashboard.html 존재", False, "INFO", "파일 없음 — 생성기 감사 스킵")
+        return
+    if not ui_path.exists():
+        ar.add(layer, "GC0", "run_ui_agent.py 존재", False, "CRITICAL", "파일 없음")
+        return
+
+    html   = html_path.read_text(encoding="utf-8")
+    ui_src = ui_path.read_text(encoding="utf-8")
+
+    section_ids = re.findall(r'<section\s+id="([^"]+)"', html)
+
+    for sid in section_ids:
+        if sid not in _SECTION_GENERATOR_MAP:
+            continue
+        func = _SECTION_GENERATOR_MAP[sid]
+        if func is None:
+            # 알려진 서브에이전트 생성 섹션 — 검사 생략
+            continue
+        exists = func in ui_src
+        ar.add(
+            layer, "GC-1",
+            f"section#{sid} 생성기 함수 ({func})",
+            exists,
+            "CRITICAL" if not exists else "INFO",
+            (f"run_ui_agent.py에 {func}() 없음 — 직접 HTML 편집 패턴. "
+             f"다음 파이프라인 실행 시 섹션 소멸 위험.")
+            if not exists else "생성기 코드 확인됨",
+            f"run_ui_agent.py에 {func}() 추가 후 generate_html_dashboard()에 wire-in",
+        )
+
+    # 알려진 섹션 외 미매핑 section id 경고 (신규 직접 편집 조기 탐지)
+    # _SECTION_GENERATOR_MAP에 없는 id만 미등록으로 경고 (None 포함 모두 등록된 것은 OK)
+    unknown = [sid for sid in section_ids if sid not in _SECTION_GENERATOR_MAP]
+    if unknown:
+        ar.add(layer, "GC-2",
+               f"매핑 미등록 section id: {unknown}",
+               False, "WARNING",
+               f"section id {unknown}가 _SECTION_GENERATOR_MAP에 없음 — "
+               f"직접 HTML 편집 여부 확인 후 생성기 함수 추가 또는 알려진 섹션으로 등록",
+               "_SECTION_GENERATOR_MAP에 sid→함수명(또는 None) 추가")
+    else:
+        ar.add(layer, "GC-2", "미매핑 section id 없음", True, "INFO", "전체 매핑 확인됨")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Main
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -691,6 +767,9 @@ def run_audit() -> tuple[AuditResult, dict]:
     print("  [L6] 방법론 감사...")
     audit_methodology(ar)
 
+    print("  [L7] 생성기 코드 존재 감사...")
+    audit_generator_code_existence(ar)
+
     report = {
         "generated_at":  datetime.now().isoformat(),
         "summary":       ar.summary(),
@@ -706,7 +785,7 @@ if __name__ == "__main__":
     print("=" * 68)
     print("AUDIT AGENT — Agent 자체검증 체계 메타 감사")
     print("  L1: 코드존재  L2: 로직정확성  L3: 커버리지")
-    print("  L4: Sabotage  L5: 교차일관성  L6: 방법론")
+    print("  L4: Sabotage  L5: 교차일관성  L6: 방법론  L7: 생성기코드")
     print("=" * 68)
 
     _check_inputs(AGENTS_DIR, OUT_DIR)

@@ -290,6 +290,112 @@ def _css_components() -> str:
   }"""
 
 
+def _html_semiconductor_section() -> str:
+    """반도체 수출 동향 섹션 — SEMICONDUCTOR_EXPORT.parquet 동적 읽기."""
+    parquet_path = RAW_DIR / "SEMICONDUCTOR_EXPORT.parquet"
+    if not parquet_path.exists():
+        return ""
+    try:
+        df = pd.read_parquet(parquet_path)
+        df["date"] = pd.to_datetime(df["date"])
+        df = df.sort_values("date")
+        df["export_100m"] = df["export_usd"] / 100_000  # USD_thousand → 억달러
+
+        recent = df.tail(12).reset_index(drop=True)
+        latest = recent.iloc[-1]
+        latest_val  = latest["export_100m"]
+        latest_date = latest["date"].strftime("%Y-%m")
+
+        mom_str, mom_color = "N/A", "#94a3b8"
+        if len(recent) >= 2:
+            prev = recent.iloc[-2]["export_100m"]
+            if prev:
+                p = (latest_val - prev) / prev * 100
+                mom_str  = f"{p:+.1f}%"
+                mom_color = "#22c55e" if p >= 0 else "#ef4444"
+
+        yoy_str, yoy_color = "N/A", "#94a3b8"
+        target = latest["date"] - pd.DateOffset(months=12)
+        yoy_row = df[df["date"].dt.to_period("M") == target.to_period("M")]
+        if not yoy_row.empty:
+            yv = yoy_row.iloc[0]["export_100m"]
+            if yv:
+                p = (latest_val - yv) / yv * 100
+                yoy_str  = f"{p:+.1f}%"
+                yoy_color = "#22c55e" if p >= 0 else "#ef4444"
+
+        vals   = recent["export_100m"].tolist()
+        labels = [d.strftime("%y-%m") for d in recent["date"]]
+        W, H   = 560, 170
+        pl, pr, pt, pb = 60, 10, 20, 25
+        cw, ch = W - pl - pr, H - pt - pb
+        vmin   = min(vals) * 0.95
+        vmax   = max(vals) * 1.05
+        vr     = vmax - vmin or 1
+        n      = len(vals)
+
+        def xp(i): return pl + i * cw / (n - 1) if n > 1 else W / 2
+        def yp(v): return pt + ch * (1 - (v - vmin) / vr)
+
+        grid = ""
+        for gv in [vmin + vr * 0.5, vmax]:
+            gy = yp(gv)
+            grid += (f'<line x1="{pl}" y1="{gy:.1f}" x2="{W-pr}" y2="{gy:.1f}"'
+                     f' stroke="#1e293b" stroke-width="1"/>'
+                     f'<text x="{pl-4}" y="{gy+3:.1f}" fill="#475569"'
+                     f' font-size="9" text-anchor="end">{gv:.0f}</text>')
+
+        pts = [(xp(i), yp(v)) for i, v in enumerate(vals)]
+        d   = "M " + " L ".join(f"{x:.1f} {y:.1f}" for x, y in pts)
+
+        dots = ""
+        for i, (x, y) in enumerate(pts):
+            dots += (f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3" fill="#3b82f6"'
+                     f' stroke="#1e2736" stroke-width="1.5"/>'
+                     f'<text x="{x:.1f}" y="{H-5}" fill="#475569"'
+                     f' font-size="7" text-anchor="middle">{labels[i]}</text>')
+
+        lx, ly = pts[-1]
+        ann = (f'<text x="{lx:.1f}" y="{ly-8:.1f}" fill="#22c55e"'
+               f' font-size="8" text-anchor="middle">{latest_val:.0f}억</text>')
+
+        svg = (f'<svg viewBox="0 0 {W} {H}" style="width:100%;max-height:200px">'
+               f'<rect width="{W}" height="{H}" rx="6" fill="#0f172a"/>'
+               f'{grid}'
+               f'<path d="{d}" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round"/>'
+               f'{dots}{ann}</svg>')
+
+        return f"""<section id="semiconductor-export" style="margin-top:24px">
+  <div class="card" style="padding:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 class="section-title" style="margin:0">반도체 수출 동향 (관세청 실적)</h2>
+      <span style="font-size:0.72rem;color:#475569">최신: {latest_date} · SEMICONDUCTOR_EXPORT.parquet</span>
+    </div>
+    {svg}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+      <div class="card" style="padding:12px;text-align:center">
+        <div style="font-size:1.4rem;font-weight:800;color:#3b82f6">${latest_val:.0f}억</div>
+        <div style="font-size:0.7rem;color:#64748b">최근월 수출액 ({latest_date})</div>
+      </div>
+      <div class="card" style="padding:12px;text-align:center">
+        <div style="font-size:1.4rem;font-weight:800;color:{mom_color}">{mom_str}</div>
+        <div style="font-size:0.7rem;color:#64748b">전월 대비</div>
+      </div>
+      <div class="card" style="padding:12px;text-align:center">
+        <div style="font-size:1.4rem;font-weight:800;color:{yoy_color}">{yoy_str}</div>
+        <div style="font-size:0.7rem;color:#64748b">전년 대비</div>
+      </div>
+      <div class="card" style="padding:12px;text-align:center">
+        <div style="font-size:1.4rem;font-weight:800;color:#94a3b8">USD (FOB)</div>
+        <div style="font-size:0.7rem;color:#64748b">단위 · 억달러</div>
+      </div>
+    </div>
+  </div>
+</section>"""
+    except Exception as e:
+        return f'<section id="semiconductor-export"><!-- 데이터 로드 오류: {e} --></section>'
+
+
 def _html_head(dir_color: str) -> str:
     css = _css_theme(dir_color) + _css_nav_layout() + _css_components()
     return f"""<head>
@@ -333,12 +439,13 @@ def _html_nav() -> str:
 
 
 def _html_main_section(decision_html, narrative_html, signal_html, stocks_html,
-                        sector_html, indicators_html, sheets_html) -> str:
+                        sector_html, indicators_html, sheets_html,
+                        semiconductor_html: str = "") -> str:
     return f"""<!-- ── Main ────────────────────────────────────────────────────── -->
 <main class="main">
   <div id="page-decision" class="page active">{decision_html}</div>
   <div id="page-narrative" class="page">{narrative_html}</div>
-  <div id="page-signal" class="page">{signal_html}</div>
+  <div id="page-signal" class="page">{signal_html}{semiconductor_html}</div>
   <div id="page-stocks" class="page">{stocks_html}</div>
   <div id="page-sector" class="page">{sector_html}</div>
   <div id="page-indicators" class="page">{indicators_html}</div>
@@ -378,16 +485,17 @@ def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, ge
         "beneficiary_top5":  stock.get("f12_kospi_beneficiary_top5",  []),
     }
 
-    signal_html     = generate_signal_section(signal)
-    stocks_html     = generate_stocks_section(sp500, kospi)
-    indicators_html = generate_indicators_section(final_ranking, data_quality, meta)
-    decision        = compute_decision(signal, final_ranking, sp500, kospi)
-    decision_html   = generate_decision_section(decision)
-    narrative       = generate_narrative(signal, decision, final_ranking, sp500, kospi, meta)
-    narrative_html  = generate_narrative_section(narrative)
-    sector_html     = generate_sector_section(sector_data or {})
-    sheets_result   = upload_to_sheets()
-    sheets_html     = generate_sheets_section(sheets_result)
+    signal_html      = generate_signal_section(signal)
+    stocks_html      = generate_stocks_section(sp500, kospi)
+    indicators_html  = generate_indicators_section(final_ranking, data_quality, meta)
+    decision         = compute_decision(signal, final_ranking, sp500, kospi)
+    decision_html    = generate_decision_section(decision)
+    narrative        = generate_narrative(signal, decision, final_ranking, sp500, kospi, meta)
+    narrative_html   = generate_narrative_section(narrative)
+    sector_html      = generate_sector_section(sector_data or {})
+    sheets_result    = upload_to_sheets()
+    sheets_html      = generate_sheets_section(sheets_result)
+    semiconductor_html = _html_semiconductor_section()
 
     score     = signal.get("score", 50)
     direction = signal.get("direction", "neutral")
@@ -405,7 +513,8 @@ def generate_html_dashboard(final_ranking, signal, stock, data_quality, meta, ge
         + _html_nav()
         + "\n"
         + _html_main_section(decision_html, narrative_html, signal_html, stocks_html,
-                              sector_html, indicators_html, sheets_html)
+                              sector_html, indicators_html, sheets_html,
+                              semiconductor_html)
         + "\n</body>\n</html>"
     )
 

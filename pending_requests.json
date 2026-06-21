@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-19T08:42:24",
+  "updated": "2026-06-20T19:21:55",
   "completed": [
     {
       "id": "REQ-001",
@@ -438,6 +438,12 @@
     {
       "id": "QN-1-warn",
       "request": "QN-1 내러티브 품질 점수 < 3 — 리포트 재생성 검토",
+      "status": "pending",
+      "details": ""
+    },
+    {
+      "id": "QR-1-warn",
+      "request": "QR-1 의사결정 추론 일관성 점수 < 3 — 의사결정 로직 점검",
       "status": "pending",
       "details": ""
     }
