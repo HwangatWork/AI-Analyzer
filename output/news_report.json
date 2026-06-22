@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-06-20T18:25:44.937762",
-  "date": "2026-06-20",
+  "generated_at": "2026-06-22T05:41:23.736349",
+  "date": "2026-06-22",
   "movements": [
     "S&P500 7,500.58 (▲1.08%)",
     "나스닥 26,517.93 (▲1.91%)",
     "다우 51,564.70 (▲0.14%)",
-    "코스피 9,052.42 (▼0.13%)"
+    "코스피 9,105.28 (▲0.58%)"
   ],
   "causes": [
     "AI칩 섹터 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▲1.91%",
@@ -32,23 +32,23 @@
   "sources": [
     {
       "source": "Yahoo Finance",
-      "link": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxOYkRHUGF1b0hMYTROMXo0Q0pfLVpJSVNlSXFvSllmYUh0WnNwSGIwLVZVbnN5OEtrTFJXMXpQTWtWR3JUUkk2OUxlUHBuRDQ2LWxpUjBkYmdqM2duMHRZZEtfRDdKLVBZd3VNS3kwRUJGT0R2bVJNVy1MRHhIdm9mSlJ5bkZ6MjJKdFJRbUdUakZ3MV9MYzl6OHkzQ1JISDFlNzVDalJMSkxRejh2V2tfdmN3b042ZzUzelFRQWNxbVNqUzgtX3dhSEN2MU13amhWMGdDYUhEVkZBRUU?oc=5"
+      "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPdGJEWFNYcGZVc01vZE43a1htczYycklNQTNydkVYWkJLOVoyaFYtcWhBUF94b0RMRTdEeldURVQtZ2ZJXzczVE53MWNOQXlHT3Y2WUhOeG5jRlQ4eHItaUZUcVZLQnlFc3REZzVUb3hwdDF3dm50blBmX0piVTY2Wk9VbWFvNFZHeTQ4blhiVXlaNmdMSlQ1dXRR?oc=5"
     },
     {
       "source": "CNBC",
       "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE9KTnpsQTRpT1dTMHotblVRbHFZVUlWcmd4MXloSEZIaWRJQXllTXFsWDVWT1V0UW9KQWpmbDk5X1d5TVBIUks1ZF9BbGNCZl9UOVpFd0NVQmRjV1pKUGJkR0R5aW5ZeUJXd2RtWmVlMzBJUU1pWEZV0gF8QVVfeXFMTW9TUTNfSWR6N3NuNVI0TGc0eUMzOExVOGdWVkdPQ25NLUVuYnVMM2ZFWW5Xck1FMWpTdGhnNzdISHY5R3ZIWG9Td1lYa0ZlcmFaanBCTHZUd2VYLUx1M2xTTlJ4ZzVabHJsWWpyVmExY3c5dkNMODF1Vzg3TA?oc=5"
     },
     {
-      "source": "MarketWatch",
-      "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxNQ2hYS2RKLTJTRkhtVTN6VGtBcmdwOGNZdUdSc0FfSUY3dS11UExSUTRhdV8xLXJNVUkxRkJFRW9QdjlTRDZXS3hPY1NZcmVpOEdZdXo2ZTRieV9DUTVYY21nSnMtSEczSG1hYXE4Mlhfam1Qb0dzcXA0bUVPWHVQNkNpV0xyYjMzQ1lHc0ZfU1ZraUZOWEJXbHJLQy1jXzJ6cndOalB2SnhBN09xVWNPQzMxNDN1M0dQNEtKTkV2TnJWMnVvOXpvN2Q5a09FOUlv?oc=5"
-    },
-    {
       "source": "Benzinga",
       "link": "https://news.google.com/rss/articles/CBMinwJBVV95cUxOamltU2ljX0I3cmRxWHFNNXFTSWJLbEpjNHFjdWxZZ0Jyb00wTnpwbmFQdkt6QnplVS1WdldwUlNacTduczUyMUdZZTJYSXd2dkJJd0hHWjdGOTFmc2xWN25RclR0WUF2TlNUSU5UallGMloyVFdRRVNqSzBoenlsc3BLV3pQa2VBVUc5aGRMZ2pkcnh4Y1JCWFZpenlYWnBVZVNSbl9kNUpSQWJKTVUxdnYzZFVlU0VaQWhBeVpGeThQeFcwaEhwUWY3b1k4N2c5VGQwUXJfZTZ3M0JYWDIyS1FvUzNCRUVpdFNpT3FYMVpRSDlwYmVYLXhIWTlSWTRweFhlZnlHaVdvZ3lLQmFrMTRIN3NMdmxndUVGZU9lMA?oc=5"
     },
     {
-      "source": "The Times of India",
-      "link": "https://news.google.com/rss/articles/CBMioAJBVV95cUxPRHVLbU90bXc1T25YRjFTVEVfYXppUUFQam5KM2dGMHZBNG1yTnJTU0ZsTW5JNXdNakViS0R5aU05Qk5pY0tPN1RSTTZ4NzhGblc1V0hITV9SRjVGN0NkcDBNQXQ4QUNLbnpuNEs4SVBEX3BsdTVkRmUwWVNTMjBVN0NqWGpWa253TnFWQmtHQ1VpME4wU3YxX0tuTmZLWTRxVmg5WmpnNjVhUlNSMl9CeVRsOVZCZmdKUVNsWklNVlJuVDA0WUdWdEczZ041RjF2YmlheUZFRlZwOVIwZkNKQkp2alQtTXRrc2xyTU5rcGdXdmkxY3d1bDQtc2x2SEpyOUx3WVRVeVJPeTBIQnlaTE53UTl1dE1rU2lMUUgxNUfSAaYCQVVfeXFMTVNsQVhKZFVjX0lDNExOVG9hWGJTWngtaWZEZ3U4SHdsZ1F1eWpCX0RzWlhZUzZuWk5fZ0JMc1JXeWQ2OXhjdjJrbE9FWlRDTEZ1a095VUN1U2pwMHYxcFd1UnhEZ0cyZ0h4TU5QN1czWC1SMWxub0FfdzRwSTBhdnJUTEt5MlZ6cGpQeFU0LV9tY1Z4TVVFVHRHLXFuMHhpb1lOZzZqOWlRYmhKdUZqalo0RVBpS1NSQmJaQndOWndzMGMtaUVrb2RPYS1hYXJBTEV5SzcyOTJZQ3F2M2FJYlpVQXVqQzA0V3poMmQ0OWI3OUdjNDdETjQ5RDNyNGxkd2lxd0JRT015RXlEUjJyUnRwWUlnVTQ5dDhVendlQWs2YTU2NVBn?oc=5"
+      "source": "thestreet.com",
+      "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNeVpJbVlfZDFvbWgyWnlmRElVYTQ1V2FEenl6Rk9MX3lvRG9zcjQ0MjloYjVZd3BMQnZ2cjZWdlRmV0FUdWh0alJ0ck1laFlYcEN5R0tPc2piYWxjTlpDWGhKV3RGdW8tYVZNcGlkMGtkT2g2aXN5RFdaenozdTFaRE1zbmlLTnVlbzh4LUtfc0s3WkNHOFg1SnQzODAwemVGMUx5ejFLbGhxQldT?oc=5"
+    },
+    {
+      "source": "NBC News",
+      "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPdERIN3pDeThkLVR4YkNjUmF0WTlyR2RoZ0V4RzdxdDMxQlZJaEhPLXpBUXJ4VUsxZld1TTZ5Wk0xRXBMNHZ1dHBrbFVJM3FwQy1tUnZ4SU5VVTlxbldQcDZtNl9JRzdYUnRPaFR2TXAtWHJYWGZfUVRUWHVKRXAyVmlSMDFxcnRnRThlVGhkNURiVjhK?oc=5"
     }
   ],
   "market_raw": {
@@ -68,9 +68,9 @@
       "date": "2026-06-18"
     },
     "KOSPI": {
-      "close": 9052.42,
-      "change": -0.13,
-      "date": "2026-06-19"
+      "close": 9105.28,
+      "change": 0.58,
+      "date": "2026-06-22"
     }
   },
   "done_criteria": {
