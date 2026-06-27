@@ -127,12 +127,23 @@ def _llm_score_decision(decision: dict) -> tuple[int, str]:
         import anthropic
         client = anthropic.Anthropic()
         sp = decision.get("sp500", {}); ksp = decision.get("kospi", {})
+        # FIX-G (2026-06-23): 실제 decision.json 필드는 position_note/composite_score.
+        # reason/signal_score는 존재하지 않음 — 빈 prompt → 낮은 점수 강제. ([[operational-lessons]] OL-6)
+        sp_reason  = str(sp.get("position_note", "") or sp.get("reason", ""))[:150]
+        ksp_reason = str(ksp.get("position_note", "") or ksp.get("reason", ""))[:150]
+        sig_score  = decision.get("composite_score", decision.get("signal_score", "?"))
+        sp_entry   = (sp.get("entry_triggers") or [])[:2]
+        sp_exit    = (sp.get("exit_triggers") or [])[:2]
+        risks      = (decision.get("risk_factors") or [])[:3]
         prompt = (
             "다음 투자 의사결정의 논리 일관성을 1-5점으로 평가하세요.\n"
             "기준: 시그널 점수와 방향 일치, 이유 논리성, 근거 구체성.\n\n"
-            f"SP500: {sp.get('action','?')} — {str(sp.get('reason',''))[:150]}\n"
-            f"KOSPI: {ksp.get('action','?')} — {str(ksp.get('reason',''))[:150]}\n"
-            f"시그널 점수: {decision.get('signal_score','?')}\n\n"
+            f"SP500: {sp.get('action','?')} — {sp_reason}\n"
+            f"  진입 트리거: {sp_entry}\n"
+            f"  청산 트리거: {sp_exit}\n"
+            f"KOSPI: {ksp.get('action','?')} — {ksp_reason}\n"
+            f"시그널 점수: {sig_score}\n"
+            f"리스크 요인: {risks}\n\n"
             "형식: SCORE: [1-5]\nREASON: [한 문장]"
         )
         resp = client.messages.create(
@@ -606,19 +617,27 @@ def pm_quality_checks() -> list[dict]:
     })
 
     # ── QN-1: LLM-as-Judge 내러티브 품질 스코어 (Phase 8) ────────
+    # FIX-G (2026-06-23): narrative agent는 data-prep only이므로 narrative_context.json에
+    # narrative/report 키가 없음. 실제 prose는 FINAL_REPORT_v2.md에 있음. ([[operational-lessons]] OL-6)
     import os as _osN
     narrative_ctx = OUT_DIR / "narrative_context.json"
+    final_report  = OUT_DIR / "FINAL_REPORT_v2.md"
     _narr_text = ""
     if narrative_ctx.exists():
         try:
             _nd = json.loads(narrative_ctx.read_text(encoding="utf-8"))
-            _narr_text = str(_nd.get("narrative", "") or _nd.get("report", "") or _nd)[:4000]
+            _narr_text = str(_nd.get("narrative", "") or _nd.get("report", ""))[:4000]
+        except Exception:
+            pass
+    if not _narr_text and final_report.exists():
+        try:
+            _narr_text = final_report.read_text(encoding="utf-8")[:4000]
         except Exception:
             pass
     if not _osN.getenv("ANTHROPIC_API_KEY"):
         qn1_pass, qn1_detail = True, "SKIP — ANTHROPIC_API_KEY 미설정"
-    elif not _narr_text:
-        qn1_pass, qn1_detail = True, "SKIP — narrative_context.json 없음"
+    elif len(_narr_text) < 100:
+        qn1_pass, qn1_detail = True, "SKIP — 내러티브 prose 없음 (FINAL_REPORT_v2.md 미생성)"
     else:
         _score_n, _reason_n = _llm_score_narrative(_narr_text)
         if _score_n >= 3:
