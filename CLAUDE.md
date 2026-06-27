@@ -11,12 +11,13 @@ Three deliverables: indicator weight ranking / index contribution Top5 / benefic
 3. Read `claude-progress.txt` — previous session history
 4. Read `pending_requests.json` — select highest-priority incomplete item
 5. State current broken/working status in one sentence
+6. Phase 13+ 설계 파악 필요 시: `grep "^## Phase 1[2-9]\|^### Phase 13" ROADMAP.md` 로 시작 라인 찾아 해당 섹션부터 EOF까지 읽기. (매 세션 자동 전체 로드 아님 — 필요 시만)
 Read other files just-in-time, only when the task requires them.
 
 ## Tech Stack
 - Python 3.x, GitHub Actions (14-stage pipeline), Telegram Bot API
 - Test: pytest — run with `python -m pytest agents/tests/ -v`
-- Regression baseline: 47/47 PASS minimum (T23=SKIP 허용). Never merge below this.
+- Regression baseline: 77 PASS, 1 SKIP minimum (실측 2026-06-27, ~63초). Never merge below this. Push 전 반드시 로컬에서 `pytest agents/tests/ -v --tb=short -q -x` 실행 확인. (Phase 13-B-5에서 `regression_baseline.json` 신설 후 single source of truth 전환 예정)
 
 ## Testing Commands
 - Full regression: `python -m pytest agents/tests/ -v`
@@ -114,6 +115,15 @@ failure_type values: `timeout` / `dc_fail` / `crash`. count >= 3 + resolved=fals
 Functions: `_load_failure_memory()`, `_record_failure()`, `_record_success()`, `_check_repeat_failures()` in pm_orchestrator.py.
 Never block the pipeline on failure_memory I/O errors — all writes are try/except guarded.
 
+**FIX-G (2026-06-23): pm_quality reader vs. real agent output 계약 불일치**
+QN-1 (`agents/pm_quality.py:610-635`) 가 `narrative_context.json` 의 `narrative`/`report` 키를 읽지만,
+`run_narrative_agent.py` 는 data-prep only 단계라 그 키들을 쓰지 않음 (헤더 L3-L8 명시).
+QR-1 (`agents/pm_quality.py:121-145`) 도 `decision.json` 의 `reason`/`signal_score` 를 읽지만,
+실제 필드는 `position_note`/`composite_score`. 둘 다 매 실행마다 advisory WARN → `pending_requests.json` 자동 누적.
+Fix 패턴: 새 reader/QC 추가 전 `python -c "import json; print(list(json.load(open('output/<file>.json')).keys()))"` 로
+실제 키 검증 + writer agent 헤더 docstring 확인. 회귀 테스트는 합성 fixture가 아니라 실제 파이프라인 출력 사용.
+(메모리: [[operational-lessons]] OL-6)
+
 **FIX-F (2026-06-13): stop_hook hook_input has no "transcript" array**
 DO NOT call `hook_input.get("transcript", [])`.
 Claude Code Stop hook sends `transcript_path` + `last_assistant_message`, NOT a transcript array.
@@ -125,4 +135,5 @@ Fix: Read `hook_input["last_assistant_message"]` for Check1 (Evidence).
 ## AgentMemory Recall 규칙
 세션 시작 시 실행:
   memory_smart_search("AI Analyzer pipeline ROADMAP")
+  memory_smart_search("aprf-design-process")
 (project 필드는 전체 경로라 facet_query 미지원 — smart_search 방식 사용)
