@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-20T19:21:55",
+  "updated": "2026-06-28T01:11:35",
   "completed": [
     {
       "id": "REQ-001",
@@ -42,6 +42,13 @@
       "status": "done",
       "completed_at": "2026-06-11T07:25:00",
       "details": "compute_kospi_score(ind_sigs, ranking): kospi_granger_sig+kospi_signed_r 집계. KOSDAQ/NIKKEI225 bull_boost 제거. SA-1: CRITICAL→INFO. 21/21 PASS."
+    },
+    {
+      "id": "REQ-KITA-001",
+      "request": "KITA API 반도체 수출 달러 금액 연동 (반도체 index→달러 변환 해법)",
+      "status": "done",
+      "completed_at": "2026-06-20T00:00:00",
+      "details": "ROADMAP_HISTORY: Phase REQ-KITA-001 Gate 완료 (2026-06-20). API 호출 성공 23행 (2024-07~2026-05), DC-1~DC-5 PASS, Telegram 완료 보고."
     }
   ],
   "pending": [
@@ -427,25 +434,16 @@
       "details": "데이터 수집 목표(DC-6 ≥22/29)와 평가 통과 목표 혼동. 구조적 제외: 5(자기참조)+5(동행, INDIVIDUAL_NET 포함)+1(PUT_CALL)=11 영구 제외 → 최대 18개 통과 가능. 현재 실적 12~13개(통계 유의 기준). EV-1 Done Criteria ≥5→≥10 (run_evaluator_agent_v2.py L342). 22개 목표는 data_agent DC-6 기준이며 evaluator 출력과 무관"
     },
     {
-      "id": "REQ-KITA-001",
-      "request": "KITA API 반도체 수출 달러 금액 연동 (반도체 index→달러 변환 해법)",
-      "status": "in_progress",
-      "priority": "medium",
-      "created_at": "2026-06-19T09:00:00",
-      "details": "ECOS 403Y001/30911AA는 수출금액지수(2020=100)이지 달러금액이 아님. KITA(한국무역협회 stat.kita.net)가 HS코드별 달러금액 제공. 진행상황: stat.kita.net/stat/idb/peri/TradePeriodApi.do 및 stat.kita.net/openApi.do 에 WebFetch 시도 → 404. 다음 단계: stat.kita.net 정확한 API 등록 URL 및 엔드포인트 재확인 필요. 반도체 HS코드: 8542(집적회로), 8541(반도체 소자).",
-      "next_step": "1. stat.kita.net 직접 접속해 OpenAPI 신청 경로 확인. 2. API 키 발급 후 즉시 .env + GitHub Secrets + workflow env: 3곳 등록(OL-1 규칙). 3. agents/semiconductor_monitor/data_fetcher.py에 fetch_kita_export() 추가."
+      "id": "REQ-SA9T-evaluator-agent",
+      "request": "[SA-9T MEDIUM] evaluator-agent.md에 ## 호출 조건 섹션 추가 필요",
+      "status": "backlog",
+      "details": "PM 트리거 조건 섹션 없음 — pm-agent.md 트리거 테이블과 연동 필요"
     },
     {
-      "id": "QN-1-warn",
-      "request": "QN-1 내러티브 품질 점수 < 3 — 리포트 재생성 검토",
-      "status": "pending",
-      "details": ""
-    },
-    {
-      "id": "QR-1-warn",
-      "request": "QR-1 의사결정 추론 일관성 점수 < 3 — 의사결정 로직 점검",
-      "status": "pending",
-      "details": ""
+      "id": "REQ-SA9-pm-agent",
+      "request": "[SA-9 MEDIUM] 명세 자동 보완 검토: pm-agent.md",
+      "status": "backlog",
+      "details": "추가된 섹션: ['Input Contract', 'Output Contract', 'Execution', 'Done Criteria', 'Forbidden']. AUTO-GENERATED 태그로 표시됨 — 내용 검토 필요"
     }
   ]
 }
