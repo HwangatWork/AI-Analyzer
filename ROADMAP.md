@@ -154,10 +154,10 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
 
 #### Tasks (순서대로)
 
-- [ ] Phase 13-B-1: Schema 파일 2개 신설
+- [x] Phase 13-B-1: Schema 파일 2개 신설 (완료 2026-06-28, commit 4a83954)
   - `schemas/peer_review_response.schema.json`
   - `schemas/peer_review_concerns.schema.json`
-  - 완료 기준: DC-1 (pytest fixture로 schema 유효성 확인)
+  - 완료 기준: DC-1 (pytest fixture로 schema 유효성 확인) ✅ 88 PASS / 0 FAIL / 53초
 
 - [ ] Phase 13-B-2: Hook 4개 구현
   - `.claude/hooks/aprf_aggregate.py` (PostToolBatch)
