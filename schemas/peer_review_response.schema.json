@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-analyzer/schemas/peer_review_response.schema.json",
+  "title": "APRF Peer Review Response",
+  "description": "Schema for individual agent responses in Agent Peer Review Framework critique rounds.",
+  "type": "object",
+  "required": ["agent", "domain_relevance", "agreement", "urgency_vote", "reason"],
+  "additionalProperties": false,
+  "properties": {
+    "agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Agent identifier (e.g., news-agent, stock-agent)"
+    },
+    "domain_relevance": {
+      "enum": ["direct", "indirect", "none"],
+      "description": "Whether the proposal directly affects this agent's domain"
+    },
+    "agreement": {
+      "enum": ["agree", "partial", "disagree"],
+      "description": "Stance on PM's proposed approach"
+    },
+    "urgency_vote": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 99,
+      "description": "1-based index of most urgent item from PM proposal"
+    },
+    "addition": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "required": ["file", "change"],
+          "additionalProperties": false,
+          "properties": {
+            "file": {"type": "string", "minLength": 1},
+            "function": {"type": ["string", "null"]},
+            "change": {"type": "string", "minLength": 10}
+          }
+        }
+      ],
+      "description": "Optional concrete addition this agent proposes beyond PM's scope"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 600,
+      "description": "Free-text Korean reasoning, capped to keep responses focused"
+    }
+  }
+}

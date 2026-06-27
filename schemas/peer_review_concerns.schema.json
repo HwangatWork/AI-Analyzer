@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-analyzer/schemas/peer_review_concerns.schema.json",
+  "title": "APRF Per-Agent Peer Review Concerns",
+  "description": "Schema for the peer_review_concerns block embedded in each agent MD body. Used to inject domain-specific failure modes into peer review prompts.",
+  "type": "object",
+  "required": ["domain", "failure_modes", "verification_targets"],
+  "additionalProperties": false,
+  "properties": {
+    "domain": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Brief domain description for this agent"
+    },
+    "failure_modes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 10
+      },
+      "description": "Domain-specific failure modes that PM mtime+key validation cannot catch"
+    },
+    "verification_targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["file", "key", "check"],
+        "additionalProperties": false,
+        "properties": {
+          "file": {"type": "string", "minLength": 1},
+          "key": {"type": "string", "minLength": 1},
+          "check": {"type": "string", "minLength": 5}
+        }
+      },
+      "description": "Concrete first-line-defense verification checks per agent"
+    }
+  }
+}
