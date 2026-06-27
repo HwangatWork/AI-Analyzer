@@ -17,6 +17,19 @@
                     }
                 ]
             }
+        ],
+        "SubagentStop": [
+            {
+                "matcher": "^(data|analysis|evaluator|validation|decision|stock|sector|news|narrative|ui|report|audit|meta-audit)-agent$",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "python",
+                        "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/aprf_schema_check.py"],
+                        "timeout": 15
+                    }
+                ]
+            }
         ]
     }
 }
