@@ -177,9 +177,11 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
   - `.claude/settings.json` env 블록: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
   - 완료 기준: DC-2 재정의 — command 파일 존재 + .active lifecycle 검증
 
-- [ ] Phase 13-B-4: 13개 에이전트 MD 업데이트
-  - 각 MD에 "Peer Review Concerns" 섹션 추가 (body)
-  - 각 MD frontmatter에 `hooks.SubagentStop` 추가
+- [ ] Phase 13-B-4: 13개 에이전트 MD 업데이트 (**scope 제약: 2026-06-29 결정**)
+  - 각 MD에 `## Peer Review Concerns` **1 섹션만 추가** (body)
+  - 각 MD frontmatter에 `hooks.SubagentStop` 추가 — DC-4 settings.json 중앙 등록으로 대체됨, 불요
+  - **OWASP 체크리스트 / `## Contract` JSON 추가 금지** — Phase 14로 분리
+  - 근거: pm-agent (2026-06-29) catch — scope creep 회피, 단일 자율 블록 commits ≤ 3 보존
   - 완료 기준: DC-3, DC-8
 
 - [ ] Phase 13-B-5: 기존 파일 연동
@@ -195,6 +197,43 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
   - 전체 pytest PASS (실측 2026-06-27: 77 PASS / 1 SKIP / 63초, TF 신규 추가 후 78+ 목표)
   - dogfood run 1회 실행
   - 완료 기준: DC-6, DC-7 (위임)
+
+- [ ] **Phase 13-B-7: AI Harness Hardening** (신설 2026-06-29) — pm-agent 비판 + AI Harness v6.0 분야 재조사 후 도출된 critical gap 처리
+
+  **13-B-7-1: bypassPermissions deny list 추가** (Tier 1 즉시)
+  - settings.json deny 패턴 추가:
+    - `Bash(git push --force *)` / `Bash(git push -f *)` (force push 차단)
+    - `Bash(gh secret set *)` (secret 노출 차단)
+    - `Bash(rm -rf *)` (destructive 차단)
+    - `Write(.env)` (credential overwrite 차단)
+  - 완료 기준: settings.json git diff + pytest 108 PASS 유지
+  - 근거: AI Harness 원칙 6 (안전장치) + bypassPermissions 유지하면서 high-risk만 selective deny
+
+  **13-B-7-2: tf_schema_check.py 확장 — 실측 layer**
+  - agent별 `tools_used` / `runtime_sec` 측정 + 로그
+  - `output/peer_review/<session>/metrics/<agent>.json` 기록
+  - **강제는 다음 phase, 측정 먼저** (pm-agent: "강제 layer 먼저, contract 나중" 권고)
+  - 완료 기준: 13 agent dogfood 후 metrics 파일 13건 생성 확인
+  - 근거: 12-Metric Framework (Agent Behavior / Production Health 측정)
+
+  **13-B-7-3: 🔴 Level 8 동적 게이트 도입 (진짜 CRITICAL)**
+  - 배경: FIX-G + 라운드 14 *"DONE_CRITERIA: PASS 위장"* 실패 패턴 보유 = 우리 환경 입증 결함
+  - `regression_baseline.json` 에 DC별 evidence 필드 신설:
+    ```json
+    {
+      "dc_evidence": {
+        "DC-N": {"level_claimed": 8, "evidence_files": [...], "dynamic_test_log": "..."}
+      }
+    }
+    ```
+  - `pm_quality.py` QC-29 신설:
+    - DC Level ≥ 8 표기 + evidence 빈 경우 CRITICAL 알림
+    - Telegram 즉시 보고
+  - 기존 DC-1~11 backfill (evidence 수집 또는 N/A 명시)
+  - 완료 기준: pytest QC-29 회귀 5+ PASS + 모든 PASS 표기 DC의 evidence 보유
+  - 근거: AI Harness 원칙 2 (Runtime > design intent) + 메타 원칙 3 (Behavioral Contracts 강제)
+
+  **Phase 13-B-7 진행 순서**: 13-B-7-1 (5분, 즉시) → 13-B-7-3 (2시간, CRITICAL 다음) → 13-B-7-2 (1시간, 마지막)
 
 #### Done Criteria
 
