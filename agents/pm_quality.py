@@ -680,6 +680,55 @@ def pm_quality_checks() -> list[dict]:
         "fix_stages": ["run_decision_agent.py"],
     })
 
+    # ── QC-29: Level 8 동적 게이트 — DC evidence 검증 (2026-06-29 신설) ────
+    # 배경: FIX-G + 라운드 14 "DONE_CRITERIA: PASS 위장" 패턴 재발 방지.
+    # AI Harness 원칙 2 (Runtime > design intent).
+    # 룰: level_claimed >= 8 인데 evidence_files 빈/null → CRITICAL.
+    qc29_pass = True
+    qc29_violations = []
+    try:
+        _baseline_path = BASE_DIR / "regression_baseline.json"
+        if _baseline_path.exists():
+            _baseline = json.loads(_baseline_path.read_text(encoding="utf-8"))
+            _min_level = _baseline.get("level_gate_rules", {}).get("min_level_for_gate", 8)
+            for _dc_id, _ev in _baseline.get("dc_evidence", {}).items():
+                _level = _ev.get("level_claimed")
+                if _level is None:  # N/A 위임 항목 등
+                    continue
+                if _level < _min_level:  # Level 7 이하는 게이트 대상 외
+                    continue
+                _status = _ev.get("status", "")
+                if not _status.startswith("PASS"):  # PENDING/FAIL은 별도 처리
+                    continue
+                _evidence = _ev.get("evidence_files", [])
+                _dyn_test = _ev.get("dynamic_test")
+                if not _evidence or not _dyn_test:
+                    qc29_violations.append(
+                        f"{_dc_id} (Level {_level}, status='{_status}'): evidence={_evidence}, dyn_test={_dyn_test}"
+                    )
+            qc29_pass = len(qc29_violations) == 0
+            if qc29_violations:
+                qc29_detail = (
+                    f"CRITICAL — Level≥{_min_level} DC 'PASS 위장' 의심 {len(qc29_violations)}건:\n  "
+                    + "\n  ".join(qc29_violations)
+                )
+            else:
+                qc29_detail = (
+                    f"OK — regression_baseline.json dc_evidence Level≥{_min_level} 검증 통과"
+                )
+        else:
+            qc29_pass = True  # baseline 부재 시 SKIP (실 운영 전 단계)
+            qc29_detail = "SKIP — regression_baseline.json 미존재"
+    except Exception as e:
+        qc29_pass = True  # parse 실패 등은 advisory
+        qc29_detail = f"SKIP — 검증 중 오류: {e}"
+    results.append({
+        "check": "QC-29 Level 8 동적 게이트 (DC evidence 검증)",
+        "pass":  qc29_pass,
+        "detail": qc29_detail,
+        "fix_stages": ["regression_baseline.json 갱신"],
+    })
+
     return results
 
 

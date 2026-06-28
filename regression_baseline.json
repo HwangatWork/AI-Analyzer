@@ -1,0 +1,148 @@
+{
+  "schema_version": "1.0",
+  "last_updated": "2026-06-29",
+  "baseline": {
+    "pass_count": 108,
+    "skip_count": 0,
+    "fail_count": 0,
+    "wall_clock_sec_approx": 47,
+    "pytest_command": "python -m pytest agents/tests/ -v --tb=short -q",
+    "min_pass": 107,
+    "max_skip": 1,
+    "max_fail": 0,
+    "note": "T23 environment-dependent SKIP/PASS. 107+ floor accounts for T23 SKIP scenario."
+  },
+  "dc_evidence": {
+    "DC-1": {
+      "phase": "13-B-1",
+      "level_claimed": 8,
+      "status": "PASS",
+      "evidence_files": [
+        "schemas/peer_review_response.schema.json",
+        "schemas/peer_review_concerns.schema.json",
+        "agents/tests/test_tf_schemas.py"
+      ],
+      "dynamic_test": "pytest agents/tests/test_tf_schemas.py = 10 PASS",
+      "verified_at": "2026-06-28",
+      "verified_commit": "4a83954",
+      "note": "schema self-valid + accept/reject fixtures verified at runtime"
+    },
+    "DC-2": {
+      "phase": "13-B-3",
+      "level_claimed": 6,
+      "status": "PASS (static, dogfood pending DC-6)",
+      "evidence_files": [
+        ".claude/commands/tf-review.md",
+        "agents/tf_active.py",
+        "agents/tests/test_tf_review_command.py"
+      ],
+      "dynamic_test": "pytest agents/tests/test_tf_review_command.py = 7 PASS (file/lifecycle/keyword static)",
+      "verified_at": "2026-06-29",
+      "verified_commit": "7546578",
+      "note": "정직성 명시 — Level 8 dogfood는 DC-6 책무. C안 (slash command + tf_active helper) 채택"
+    },
+    "DC-3": {
+      "phase": "13-B-4",
+      "level_claimed": 6,
+      "status": "PENDING",
+      "evidence_files": [],
+      "dynamic_test": null,
+      "verified_at": null,
+      "verified_commit": null,
+      "note": "Phase 13-B-4 진행 후 13 agent MD에 '## Peer Review Concerns' 섹션 추가 + audit-agent grep 검증"
+    },
+    "DC-4": {
+      "phase": "13-B-2",
+      "level_claimed": 6,
+      "status": "PASS",
+      "evidence_files": [
+        ".claude/settings.json",
+        ".claude/hooks/tf_schema_check.py"
+      ],
+      "dynamic_test": "tf_schema_check selftest PASS + pytest test_tf_schema_check_hook.py = 5 PASS",
+      "verified_at": "2026-06-28",
+      "verified_commit": "392ed66",
+      "note": "SubagentStop matcher regex + 13 agent type 등록 검증"
+    },
+    "DC-5": {
+      "phase": "13-B-2",
+      "level_claimed": 7,
+      "status": "PASS",
+      "evidence_files": [
+        ".claude/hooks/tf_aggregate.py",
+        "agents/tests/test_tf_aggregate_hook.py"
+      ],
+      "dynamic_test": "tf_aggregate selftest PASS (4 fixed + 2 conditional sections) + pytest = 8 PASS",
+      "verified_at": "2026-06-28",
+      "verified_commit": "49f8821",
+      "note": "Meta-patterns / Minority Dissent conditional logic 검증"
+    },
+    "DC-6": {
+      "phase": "13-B-6",
+      "level_claimed": 5,
+      "status": "PASS (static only, dynamic pending dogfood)",
+      "evidence_files": [
+        "agents/tests/test_tf_review_command.py"
+      ],
+      "dynamic_test": "manual dogfood required — /tf-review <proposal> in Claude Code session",
+      "verified_at": "2026-06-29",
+      "verified_commit": "783ae43",
+      "note": "재정의 옵션 6a — 정적은 test_tf_review_command, 동적은 manual dogfood. 자동 회귀 불가."
+    },
+    "DC-7": {
+      "phase": "13-B-design",
+      "level_claimed": null,
+      "status": "N/A (위임)",
+      "evidence_files": [],
+      "dynamic_test": null,
+      "verified_at": "2026-06-28",
+      "verified_commit": "c20814f",
+      "note": "회귀 검증은 stop_hook / SA-8 / pm_quality_checks 에 위임. 별도 gate 없음 (결정 명시)."
+    },
+    "DC-8": {
+      "phase": "13-B-4",
+      "level_claimed": 6,
+      "status": "PENDING",
+      "evidence_files": [],
+      "dynamic_test": null,
+      "verified_at": null,
+      "verified_commit": null,
+      "note": "audit-agent grep gate — 13 MD에 '## Peer Review Concerns' 섹션 존재 검증"
+    },
+    "DC-9": {
+      "phase": "13-B-2",
+      "level_claimed": 7,
+      "status": "PENDING",
+      "evidence_files": [],
+      "dynamic_test": null,
+      "verified_at": null,
+      "verified_commit": null,
+      "note": "lesson_save.py SessionEnd hook 미존재 — Phase 13-B-2 잔여 hook 4/4"
+    },
+    "DC-10": {
+      "phase": "13-B-5",
+      "level_claimed": 6,
+      "status": "PENDING",
+      "evidence_files": [],
+      "dynamic_test": null,
+      "verified_at": null,
+      "verified_commit": null,
+      "note": "stop_hook.py Telegram digest TF 요약 미적용"
+    },
+    "DC-11": {
+      "phase": "13-B-5",
+      "level_claimed": 6,
+      "status": "PENDING",
+      "evidence_files": [],
+      "dynamic_test": null,
+      "verified_at": null,
+      "verified_commit": null,
+      "note": "pm_quality.py QC-27 미추가"
+    }
+  },
+  "level_gate_rules": {
+    "min_level_for_gate": 8,
+    "rule": "level_claimed >= 8 AND (evidence_files empty OR dynamic_test null) → CRITICAL",
+    "rationale": "FIX-G + 라운드 14 'PASS 위장' 패턴 재발 방지. AI Harness 원칙 — Runtime > design intent."
+  }
+}
