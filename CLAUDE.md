@@ -140,8 +140,9 @@ Fix: Read `hook_input["last_assistant_message"]` for Check1 (Evidence).
 (project 필드는 전체 경로라 facet_query 미지원 — smart_search 방식 사용)
 
 ## AgentMemory 운영 원칙
-- 신규 lesson 태그: `tf-design-process`
-- 기존 4 lesson 태그: `aprf-design-process` (legacy, 변경 불가)
+- TF 관련 신규 lesson 태그: `tf-design-process`
+- 기존 4 lesson 태그: `aprf-design-process` (legacy, 현재 알려진 호출로는 갱신 불가)
   이유: `memory_lesson_save`는 same-content 시 tag 갱신 없이
-  confidence만 strengthen — 시스템 한계 (2026-06-28 실측 확인)
+  confidence만 strengthen — 시스템 한계 (2026-06-28 1회 실측, N=1, 추가 워크어라운드 미검증)
+- 한계 우회: content 미세 변경 + 신규 tag → 신규 lesson 생성 (검증 필요)
 - lesson 저장 시 tag 필드에 `tf-design-process` 명시 필수
