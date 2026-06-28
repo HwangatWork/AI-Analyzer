@@ -28,3 +28,19 @@ def _block_pending_writes(monkeypatch):
             monkeypatch.setattr(pm_quality, "register_pending", lambda *a, **k: None)
     except ImportError:
         pass
+
+
+@pytest.fixture(autouse=True)
+def _block_telegram(monkeypatch):
+    """pm_utils._tg_send 내부 urllib.request.urlopen 무효화 → 4 호출 모듈
+    (pm_orchestrator/pm_quality/run_pm_agent/pm_utils) 의 `from pm_utils import _tg_send`
+    별도 binding + 간접 채널 (_tg_step/_quality_alert) 모두 자동 차단.
+
+    배경: audit-agent (2026-06-29) 가 catch — `monkeypatch.setattr(pm_utils, "_tg_send")`
+    는 import binding 격리로 차단 불가. 네트워크 레벨 mock이 단일 지점 해결.
+
+    예: test_T_64_4_check_repeat_failures_detects → _check_repeat_failures →
+        _tg_send → urllib.request.urlopen (이전: 실제 Telegram 발송, 이후: no-op).
+    """
+    import urllib.request
+    monkeypatch.setattr(urllib.request, "urlopen", lambda *a, **k: None)
