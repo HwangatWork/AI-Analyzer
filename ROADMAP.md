@@ -149,7 +149,7 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
 - (Hook schema 강제): SubagentStop hook exit 2 → schema 강제 (코드 retry 폐기)
 - (Hook aggregator): PostToolBatch hook + `additionalContext` → aggregator (별도 모듈 X)
 - (Memory loop): SessionEnd → `memory_lesson_save` → 다음 세션 자동 recall
-- (MD 분산): 각 에이전트 MD가 자기 SubagentStop hook 보유
+- (Hook 등록): SubagentStop hook은 `settings.json` regex matcher로 중앙 등록 (Anthropic 공식 지원 2가지 방식 — settings.json 중앙 / agent MD frontmatter 분산 — 중 전자 채택). 유지보수성 우선: hook path 변경 시 1줄 수정 vs 13 MD 수정.
 - (Windows 제약): TEAM 모드는 Phase 13-D로 분리
 - (Regression 위임): DC-7 삭제 → stop_hook.py / SA-8 / pm_quality_checks에 위임
 
@@ -198,7 +198,7 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
 - [ ] DC-1: schema fixture 유효성 확인
 - [ ] DC-2: `peer_review.py --dry-run` exits 0
 - [ ] DC-3: 13개 에이전트 MD "Peer Review Concerns" 섹션 존재 (audit-agent grep)
-- [ ] DC-4: 13개 에이전트 MD frontmatter `hooks.SubagentStop` 존재
+- [x] DC-4: SubagentStop hook 등록 ✅ (commit 392ed66) — `settings.json` regex matcher 방식 채택 (`^(data|analysis|...)-agent$`). Anthropic 공식 2가지 방식 (중앙/분산) 중 유지보수성 우선으로 중앙 등록. 분산(MD frontmatter)도 동등 지원이나 미채택.
 - [x] DC-5: `tf_aggregate.py` → aggregate.md 4섹션 생성 ✅ (commit 49f8821)
        주의: PostToolBatch는 matcher 미지원 → 모든 parallel batch에서 firing.
        `.active` 플래그 gate로 TF 외 호출 차단 + hook 내부 schema validation으로
