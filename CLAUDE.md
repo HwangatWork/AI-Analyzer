@@ -136,4 +136,7 @@ Fix: Read `hook_input["last_assistant_message"]` for Check1 (Evidence).
 세션 시작 시 실행:
   memory_smart_search("AI Analyzer pipeline ROADMAP")
   memory_smart_search("tf-design-process")
+  memory_smart_search("aprf-design-process")  # legacy tag (2026-06-27 저장된 4 lesson)
 (project 필드는 전체 경로라 facet_query 미지원 — smart_search 방식 사용)
+(주: memory_lesson_save는 same-content 시 confidence만 strengthen, tag 갱신 안 함.
+ 신규 lesson은 tf-design-process 사용. 기존 4 lesson 검색은 legacy aprf 쿼리 유지.)
