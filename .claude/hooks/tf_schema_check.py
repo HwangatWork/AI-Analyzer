@@ -40,10 +40,96 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _SCHEMA_PATH = _REPO_ROOT / "schemas" / "peer_review_response.schema.json"
 _ACTIVE_FLAG = _REPO_ROOT / "output" / "peer_review" / ".active"
+_OUTPUT_DIR = _REPO_ROOT / "output" / "peer_review"
 
 
 def _is_tf_active() -> bool:
     return _ACTIVE_FLAG.exists()
+
+
+# ── Phase 13-B-7-2: 실측 layer (강제 NOT, 측정만) ──────────────────────
+
+def _collect_metrics(hook_input: dict, schema_ok: bool, schema_err: str = "") -> dict:
+    """Collect agent execution metrics for AI Harness 12-Metric framework.
+    측정 only — 강제 차단 없음. 향후 Behavioral Contract 강제의 기반 데이터.
+    """
+    from datetime import datetime
+    metrics = {
+        "agent_type": hook_input.get("agent_type", "unknown"),
+        "agent_id": hook_input.get("agent_id", ""),
+        "session_id": hook_input.get("session_id", ""),
+        "timestamp_end": datetime.now().isoformat(timespec="seconds"),
+        "schema_ok": schema_ok,
+        "schema_err": schema_err[:200] if schema_err else "",
+        "tools_used": [],
+        "runtime_sec": None,
+    }
+    transcript_path = hook_input.get("transcript_path")
+    if not transcript_path or not Path(transcript_path).exists():
+        return metrics
+    tools = set()
+    timestamps = []
+    try:
+        with open(transcript_path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except Exception:
+                    continue
+                ts = obj.get("timestamp") or obj.get("created_at")
+                if ts:
+                    timestamps.append(ts)
+                msg = obj.get("message", obj)
+                content = msg.get("content", [])
+                if isinstance(content, list):
+                    for b in content:
+                        if isinstance(b, dict) and b.get("type") == "tool_use":
+                            tn = b.get("name")
+                            if tn:
+                                tools.add(tn)
+    except Exception:
+        return metrics
+    metrics["tools_used"] = sorted(tools)
+    if len(timestamps) >= 2:
+        try:
+            from datetime import datetime as _dt
+            t0 = _dt.fromisoformat(timestamps[0].replace("Z", "+00:00"))
+            t1 = _dt.fromisoformat(timestamps[-1].replace("Z", "+00:00"))
+            metrics["runtime_sec"] = round((t1 - t0).total_seconds(), 1)
+        except Exception:
+            pass
+    return metrics
+
+
+def _read_session_id_from_active() -> str:
+    """Read session ID from .active flag (written by /tf-review Step 1)."""
+    try:
+        return _ACTIVE_FLAG.read_text(encoding="utf-8").strip()
+    except Exception:
+        return ""
+
+
+def _write_metrics(metrics: dict) -> Path | None:
+    """Write metrics to output/peer_review/<session>/metrics/<agent>.json.
+    Fail-open: 어떤 IO 오류도 hook 실행 차단 안 함."""
+    session_id = _read_session_id_from_active()
+    if not session_id:
+        return None
+    try:
+        out_dir = _OUTPUT_DIR / session_id / "metrics"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        agent_type = metrics.get("agent_type") or "unknown"
+        out_path = out_dir / f"{agent_type}.json"
+        out_path.write_text(
+            json.dumps(metrics, ensure_ascii=False, indent=2),
+            encoding="utf-8"
+        )
+        return out_path
+    except Exception:
+        return None
 
 
 def _parse_stdin() -> dict:
@@ -222,6 +308,15 @@ def main() -> None:
         sys.exit(0)
 
     ok, err = _validate(payload, schema)
+
+    # Phase 13-B-7-2: 실측 layer — schema 결과와 무관하게 metrics 기록
+    # (강제 NOT, 측정만. fail-open IO).
+    try:
+        metrics = _collect_metrics(hook_input, schema_ok=ok, schema_err=err)
+        _write_metrics(metrics)
+    except Exception:
+        pass
+
     if ok:
         _emit_success(hook_input.get("agent_type", ""))
     else:
