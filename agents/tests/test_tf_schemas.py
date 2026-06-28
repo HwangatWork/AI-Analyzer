@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 """
-Phase 13-B-1 회귀 테스트: APRF schema 파일 유효성 (DC-1).
+Phase 13-B-1 회귀 테스트: TF schema 파일 유효성 (DC-1).
 
 Tests:
-T-APRF-S-1: response schema 자체가 valid JSON Schema (Draft 2020-12)
-T-APRF-S-2: response schema가 minimal valid fixture를 통과시킴
-T-APRF-S-3: response schema가 addition 포함 valid fixture를 통과시킴
-T-APRF-S-4: response schema가 필수 필드 누락 시 reject
-T-APRF-S-5: response schema가 reason 길이 < 20 시 reject
-T-APRF-S-6: response schema가 enum 위반 시 reject
-T-APRF-S-7: concerns schema 자체가 valid JSON Schema
-T-APRF-S-8: concerns schema가 valid fixture 통과
-T-APRF-S-9: concerns schema가 empty failure_modes reject
-T-APRF-S-10: concerns schema가 verification_target field 누락 reject
+T-TF-S-1: response schema 자체가 valid JSON Schema (Draft 2020-12)
+T-TF-S-2: response schema가 minimal valid fixture를 통과시킴
+T-TF-S-3: response schema가 addition 포함 valid fixture를 통과시킴
+T-TF-S-4: response schema가 필수 필드 누락 시 reject
+T-TF-S-5: response schema가 reason 길이 < 20 시 reject
+T-TF-S-6: response schema가 enum 위반 시 reject
+T-TF-S-7: concerns schema 자체가 valid JSON Schema
+T-TF-S-8: concerns schema가 valid fixture 통과
+T-TF-S-9: concerns schema가 empty failure_modes reject
+T-TF-S-10: concerns schema가 verification_target field 누락 reject
 """
 import json
 from pathlib import Path
@@ -30,12 +30,12 @@ def _load(name: str) -> dict:
 
 # ── Response schema ────────────────────────────────────────────────
 
-def test_T_APRF_S_1_response_schema_self_valid():
+def test_T_TF_S_1_response_schema_self_valid():
     schema = _load("peer_review_response.schema.json")
     Draft202012Validator.check_schema(schema)
 
 
-def test_T_APRF_S_2_response_accepts_minimal():
+def test_T_TF_S_2_response_accepts_minimal():
     schema = _load("peer_review_response.schema.json")
     fixture = {
         "agent": "news-agent",
@@ -47,7 +47,7 @@ def test_T_APRF_S_2_response_accepts_minimal():
     Draft202012Validator(schema).validate(fixture)
 
 
-def test_T_APRF_S_3_response_accepts_with_addition():
+def test_T_TF_S_3_response_accepts_with_addition():
     schema = _load("peer_review_response.schema.json")
     fixture = {
         "agent": "stock-agent",
@@ -64,7 +64,7 @@ def test_T_APRF_S_3_response_accepts_with_addition():
     Draft202012Validator(schema).validate(fixture)
 
 
-def test_T_APRF_S_4_response_rejects_missing_required():
+def test_T_TF_S_4_response_rejects_missing_required():
     schema = _load("peer_review_response.schema.json")
     fixture = {
         # missing "domain_relevance"
@@ -77,7 +77,7 @@ def test_T_APRF_S_4_response_rejects_missing_required():
         Draft202012Validator(schema).validate(fixture)
 
 
-def test_T_APRF_S_5_response_rejects_short_reason():
+def test_T_TF_S_5_response_rejects_short_reason():
     schema = _load("peer_review_response.schema.json")
     fixture = {
         "agent": "news-agent",
@@ -90,7 +90,7 @@ def test_T_APRF_S_5_response_rejects_short_reason():
         Draft202012Validator(schema).validate(fixture)
 
 
-def test_T_APRF_S_6_response_rejects_invalid_enum():
+def test_T_TF_S_6_response_rejects_invalid_enum():
     schema = _load("peer_review_response.schema.json")
     fixture = {
         "agent": "news-agent",
@@ -105,12 +105,12 @@ def test_T_APRF_S_6_response_rejects_invalid_enum():
 
 # ── Concerns schema ────────────────────────────────────────────────
 
-def test_T_APRF_S_7_concerns_schema_self_valid():
+def test_T_TF_S_7_concerns_schema_self_valid():
     schema = _load("peer_review_concerns.schema.json")
     Draft202012Validator.check_schema(schema)
 
 
-def test_T_APRF_S_8_concerns_accepts_valid():
+def test_T_TF_S_8_concerns_accepts_valid():
     schema = _load("peer_review_concerns.schema.json")
     fixture = {
         "domain": "news collection (Google RSS, body fetch)",
@@ -129,7 +129,7 @@ def test_T_APRF_S_8_concerns_accepts_valid():
     Draft202012Validator(schema).validate(fixture)
 
 
-def test_T_APRF_S_9_concerns_rejects_empty_failure_modes():
+def test_T_TF_S_9_concerns_rejects_empty_failure_modes():
     schema = _load("peer_review_concerns.schema.json")
     fixture = {
         "domain": "news collection",
@@ -146,7 +146,7 @@ def test_T_APRF_S_9_concerns_rejects_empty_failure_modes():
         Draft202012Validator(schema).validate(fixture)
 
 
-def test_T_APRF_S_10_concerns_rejects_missing_target_field():
+def test_T_TF_S_10_concerns_rejects_missing_target_field():
     schema = _load("peer_review_concerns.schema.json")
     fixture = {
         "domain": "news collection",

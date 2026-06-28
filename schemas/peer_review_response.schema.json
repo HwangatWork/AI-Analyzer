@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ai-analyzer/schemas/peer_review_response.schema.json",
-  "title": "APRF Peer Review Response",
+  "title": "TF Peer Review Response",
   "description": "Schema for individual agent responses in Agent Peer Review Framework critique rounds.",
   "type": "object",
   "required": ["agent", "domain_relevance", "agreement", "urgency_vote", "reason"],

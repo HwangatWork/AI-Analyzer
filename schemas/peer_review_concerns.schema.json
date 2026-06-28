@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ai-analyzer/schemas/peer_review_concerns.schema.json",
-  "title": "APRF Per-Agent Peer Review Concerns",
+  "title": "TF Per-Agent Peer Review Concerns",
   "description": "Schema for the peer_review_concerns block embedded in each agent MD body. Used to inject domain-specific failure modes into peer review prompts.",
   "type": "object",
   "required": ["domain", "failure_modes", "verification_targets"],

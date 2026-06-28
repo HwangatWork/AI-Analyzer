@@ -25,7 +25,7 @@
                     {
                         "type": "command",
                         "command": "python",
-                        "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/aprf_schema_check.py"],
+                        "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/tf_schema_check.py"],
                         "timeout": 15
                     }
                 ]

@@ -135,5 +135,5 @@ Fix: Read `hook_input["last_assistant_message"]` for Check1 (Evidence).
 ## AgentMemory Recall 규칙
 세션 시작 시 실행:
   memory_smart_search("AI Analyzer pipeline ROADMAP")
-  memory_smart_search("aprf-design-process")
+  memory_smart_search("tf-design-process")
 (project 필드는 전체 경로라 facet_query 미지원 — smart_search 방식 사용)

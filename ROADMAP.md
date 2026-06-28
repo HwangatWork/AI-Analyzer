@@ -1,7 +1,8 @@
 # AI Analyzer ROADMAP
 
 ## 현재 Active Phase
-- 🚧 Phase 13-B: APRF v3.4 구현 — 착수 대기 (설계 v3.4 확정 2026-06-27, 13-B-1부터 코딩 진입 가능)
+- 🚧 Phase 13-B: TF v3.4 구현 — 착수 대기 (설계 v3.4 확정 2026-06-27, 13-B-1부터 코딩 진입 가능)
+- 🆕 Phase 14-0-A1: Consensus Revision Tracker — Static Source Access Audit (mock-only, zero-network). 다음 단계 Phase 14-0-A2 정적 robots/terms 분석, Phase 14-0-B1 live policy audit (opt-in).
 - ⏸️ Phase 11-A: Narrative Spawn — 선행조건 ✅ (Phase 12-1 완료 2026-06-21, c40c7dc) / 우선순위: Phase 13-B 완료 후
 - ⏸️ Phase 11-B: Audit Spawn — 선행조건 ✅ (Phase 12-1 완료 2026-06-21, c40c7dc) / 우선순위: Phase 13-B 완료 후 (11-A와 병렬 가능)
 - 🗄️ Phase 10: CTD 브리지 — 별도 레포, 보류
@@ -130,10 +131,10 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 - [x] 시급성 재투표 결과: 신호 5 (3표 validation/ui/report) vs 신호 1 (2표 sector/meta-audit) vs 신호 3 (1표 audit)
 - [x] 사용자 결정: 5개 신호 진행은 보류, 프레임워크 아키텍처화 우선
 
-### Phase 13-B: APRF v3.4 구현
+### Phase 13-B: TF v3.4 구현
 
 #### 배경
-2026-06-27 8라운드 비판적 설계 리뷰로 확정된 APRF v3.4.
+2026-06-27 8라운드 비판적 설계 리뷰로 확정된 TF v3.4.
 PM Agent가 혼자 분석을 완결하는 패턴 방지.
 13개 에이전트가 서로 검토하는 구조.
 
@@ -160,10 +161,10 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
   - 완료 기준: DC-1 (pytest fixture로 schema 유효성 확인) ✅ 88 PASS / 0 FAIL / 53초
 
 - [ ] Phase 13-B-2: Hook 4개 구현
-  - `.claude/hooks/aprf_aggregate.py` (PostToolBatch)
-  - `.claude/hooks/aprf_schema_check.py` (SubagentStop)
-  - `.claude/hooks/aprf_debate_force.py` (TeammateIdle, TEAM 전용)
-  - `.claude/hooks/aprf_memory_writeback.py` (SessionEnd)
+  - `.claude/hooks/tf_aggregate.py` (PostToolBatch)
+  - `.claude/hooks/tf_schema_check.py` (SubagentStop)
+  - `.claude/hooks/tf_debate_force.py` (TeammateIdle, TEAM 전용)
+  - `.claude/hooks/tf_memory_writeback.py` (SessionEnd)
   - 모든 hook은 Python 스크립트로 통일 (.cmd/.bat 금지)
   - command + args exec form 사용 (Windows-safe)
   - 완료 기준: DC-4, DC-5
@@ -182,13 +183,13 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
   - `agents/pm_orchestrator.py`: `_invoke_peer_review()` 추가
   - `agents/pm_quality.py`: QC-27 추가
   - `stop_hook.py`: Telegram digest 확장
-  - `pending_requests.json` 스키마 확장 (`source: aprf` 필드)
+  - `pending_requests.json` 스키마 확장 (`source: tf` 필드)
   - `regression_baseline.json` 신설 (병합 시점 `pytest agents/tests/ -v --tb=short -q` 실측값으로 초기화. 이후 사람이 명시적으로 갱신)
   - 완료 기준: DC-9, DC-10, DC-11
 
 - [ ] Phase 13-B-6: 테스트 + 검증
   - `agents/tests/test_peer_review.py` 작성
-  - 전체 pytest PASS (실측 2026-06-27: 77 PASS / 1 SKIP / 63초, APRF 신규 추가 후 78+ 목표)
+  - 전체 pytest PASS (실측 2026-06-27: 77 PASS / 1 SKIP / 63초, TF 신규 추가 후 78+ 목표)
   - dogfood run 1회 실행
   - 완료 기준: DC-6, DC-7 (위임)
 
@@ -198,12 +199,12 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
 - [ ] DC-2: `peer_review.py --dry-run` exits 0
 - [ ] DC-3: 13개 에이전트 MD "Peer Review Concerns" 섹션 존재 (audit-agent grep)
 - [ ] DC-4: 13개 에이전트 MD frontmatter `hooks.SubagentStop` 존재
-- [ ] DC-5: `aprf_aggregate.py` → aggregate.md 4섹션 생성
+- [ ] DC-5: `tf_aggregate.py` → aggregate.md 4섹션 생성
 - [ ] DC-6: `test_peer_review.py` PASS (team tests SKIP if env var unset)
 - [ ] DC-7: 회귀 검증 stop_hook.py / SA-8 / pm_quality에 위임 (별도 gate 없음 — 결정 명시)
 - [ ] DC-8: audit-agent grep gate 확인
 - [ ] DC-9: `memory_lesson_save` SessionEnd hook 성공 호출
-- [ ] DC-10: `stop_hook.py` Telegram digest APRF 요약 포함
+- [ ] DC-10: `stop_hook.py` Telegram digest TF 요약 포함
 - [ ] DC-11: `pm_quality.py` QC-27 동작 확인
 
 ### 실행 규칙

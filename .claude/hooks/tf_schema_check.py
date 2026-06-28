@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-APRF SubagentStop hook — peer review response schema enforcement.
+TF SubagentStop hook — peer review response schema enforcement.
 
 Fires when a peer review subagent (one of 13 worker agents) is about to finish.
 Validates the subagent's last assistant message JSON against
 `schemas/peer_review_response.schema.json`.
 
 Behavior:
-- Valid response → exit 0 with `additionalContext` "APRF schema PASS"
+- Valid response → exit 0 with `additionalContext` "TF schema PASS"
 - Invalid response → exit 2 with stderr feedback → Claude Code keeps the
   subagent running so it can fix and resubmit (Anthropic native retry).
 
 Activation gate:
 - Hook only does work when `<repo>/output/peer_review/.active` exists.
   Flag is created by `agents/peer_review.py` when launching a peer review,
-  removed when complete. Prevents this hook from firing for non-APRF subagent
+  removed when complete. Prevents this hook from firing for non-TF subagent
   calls (existing data/analysis subagents are untouched).
 
 Failure modes (fail-open: exit 0):
@@ -25,7 +25,7 @@ Failure modes (fail-open: exit 0):
   (these are not subagent fault — don't penalize)
 
 Selftest:
-    python .claude/hooks/aprf_schema_check.py --selftest
+    python .claude/hooks/tf_schema_check.py --selftest
 
 Phase 13-B-2 (2026-06-28).
 """
@@ -42,7 +42,7 @@ _SCHEMA_PATH = _REPO_ROOT / "schemas" / "peer_review_response.schema.json"
 _ACTIVE_FLAG = _REPO_ROOT / "output" / "peer_review" / ".active"
 
 
-def _is_aprf_active() -> bool:
+def _is_tf_active() -> bool:
     return _ACTIVE_FLAG.exists()
 
 
@@ -129,7 +129,7 @@ def _emit_success(agent_type: str) -> None:
     out = {
         "hookSpecificOutput": {
             "hookEventName": "SubagentStop",
-            "additionalContext": f"APRF schema PASS for {agent_type or 'unknown'}",
+            "additionalContext": f"TF schema PASS for {agent_type or 'unknown'}",
         }
     }
     print(json.dumps(out, ensure_ascii=False))
@@ -138,7 +138,7 @@ def _emit_success(agent_type: str) -> None:
 
 def _emit_failure(error: str) -> None:
     feedback = (
-        f"APRF schema validation FAIL: {error}\n\n"
+        f"TF schema validation FAIL: {error}\n\n"
         "응답이 schemas/peer_review_response.schema.json 과 불일치합니다. "
         "필수 필드 (agent, domain_relevance, agreement, urgency_vote, reason) + "
         "enum/길이/타입 제약을 확인해 단일 JSON 객체로 재제출해주세요."
@@ -192,7 +192,7 @@ def _run_selftest() -> int:
         print("SELFTEST FAIL: invalid fixture (enum violation) accepted", file=sys.stderr)
         return 1
 
-    print("aprf_schema_check selftest: PASS")
+    print("tf_schema_check selftest: PASS")
     return 0
 
 
@@ -200,7 +200,7 @@ def main() -> None:
     if "--selftest" in sys.argv:
         sys.exit(_run_selftest())
 
-    if not _is_aprf_active():
+    if not _is_tf_active():
         sys.exit(0)
 
     hook_input = _parse_stdin()
@@ -210,7 +210,7 @@ def main() -> None:
     try:
         schema = json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
     except Exception as e:
-        print(f"APRF schema load failed (fail open): {e}", file=sys.stderr)
+        print(f"TF schema load failed (fail open): {e}", file=sys.stderr)
         sys.exit(0)
 
     msg = _get_last_message(hook_input)
