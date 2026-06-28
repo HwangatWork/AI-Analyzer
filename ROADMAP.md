@@ -164,7 +164,7 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
   - `.claude/hooks/tf_aggregate.py` (PostToolBatch)
   - `.claude/hooks/tf_schema_check.py` (SubagentStop)
   - `.claude/hooks/tf_debate_force.py` (TeammateIdle, TEAM 전용)
-  - `.claude/hooks/tf_memory_writeback.py` (SessionEnd)
+  - `.claude/hooks/lesson_save.py` (SessionEnd)
   - 모든 hook은 Python 스크립트로 통일 (.cmd/.bat 금지)
   - command + args exec form 사용 (Windows-safe)
   - 완료 기준: DC-4, DC-5
