@@ -199,7 +199,11 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
 - [ ] DC-2: `peer_review.py --dry-run` exits 0
 - [ ] DC-3: 13개 에이전트 MD "Peer Review Concerns" 섹션 존재 (audit-agent grep)
 - [ ] DC-4: 13개 에이전트 MD frontmatter `hooks.SubagentStop` 존재
-- [ ] DC-5: `tf_aggregate.py` → aggregate.md 4섹션 생성
+- [x] DC-5: `tf_aggregate.py` → aggregate.md 4섹션 생성 ✅ (commit 49f8821)
+       주의: PostToolBatch는 matcher 미지원 → 모든 parallel batch에서 firing.
+       `.active` 플래그 gate로 TF 외 호출 차단 + hook 내부 schema validation으로
+       corruption 위험 0 (defensive code). 단 Phase 13-B-3에서 `.active` lifecycle
+       정밀 제어 필수 (TF 13 reviewer spawn 직전 set / 완료 직후 unset).
 - [ ] DC-6: `test_peer_review.py` PASS (team tests SKIP if env var unset)
 - [ ] DC-7: 회귀 검증 stop_hook.py / SA-8 / pm_quality에 위임 (별도 gate 없음 — 결정 명시)
 - [ ] DC-8: audit-agent grep gate 확인
