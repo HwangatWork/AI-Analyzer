@@ -2,12 +2,12 @@
   "schema_version": "1.0",
   "last_updated": "2026-06-29",
   "baseline": {
-    "pass_count": 108,
+    "pass_count": 118,
     "skip_count": 0,
     "fail_count": 0,
-    "wall_clock_sec_approx": 47,
+    "wall_clock_sec_approx": 74,
     "pytest_command": "python -m pytest agents/tests/ -v --tb=short -q",
-    "min_pass": 107,
+    "min_pass": 117,
     "max_skip": 1,
     "max_fail": 0,
     "note": "T23 environment-dependent SKIP/PASS. 107+ floor accounts for T23 SKIP scenario."
@@ -30,7 +30,7 @@
     "DC-2": {
       "phase": "13-B-3",
       "level_claimed": 6,
-      "status": "PASS (static, dogfood pending DC-6)",
+      "status": "PASS_STATIC",
       "evidence_files": [
         ".claude/commands/tf-review.md",
         "agents/tf_active.py",
@@ -69,7 +69,7 @@
     "DC-4": {
       "phase": "13-B-2",
       "level_claimed": 6,
-      "status": "PASS",
+      "status": "PASS_STATIC",
       "evidence_files": [
         ".claude/settings.json",
         ".claude/hooks/tf_schema_check.py"
@@ -82,7 +82,7 @@
     "DC-5": {
       "phase": "13-B-2",
       "level_claimed": 7,
-      "status": "PASS",
+      "status": "PASS_STATIC",
       "evidence_files": [
         ".claude/hooks/tf_aggregate.py",
         "agents/tests/test_tf_aggregate_hook.py"
@@ -95,7 +95,7 @@
     "DC-6": {
       "phase": "13-B-6",
       "level_claimed": 5,
-      "status": "PASS (static only, dynamic pending dogfood)",
+      "status": "PASS_STATIC",
       "evidence_files": [
         "agents/tests/test_tf_review_command.py"
       ],
@@ -159,7 +159,14 @@
   },
   "level_gate_rules": {
     "min_level_for_gate": 8,
-    "rule": "level_claimed >= 8 AND (evidence_files empty OR dynamic_test null) → CRITICAL",
-    "rationale": "FIX-G + 라운드 14 'PASS 위장' 패턴 재발 방지. AI Harness 원칙 — Runtime > design intent."
+    "rule": "level_claimed >= 8 AND (status == PASS_STATIC OR evidence_files empty OR dynamic_test null) → CRITICAL",
+    "status_enum": {
+      "PASS": "기본 dynamic 검증 통과 (legacy 또는 미명시)",
+      "PASS_STATIC": "정적 검증만 (unit test / file existence), end-to-end lifecycle 미검증 — Level 8+ 표기 시 CRITICAL",
+      "PASS_DYNAMIC": "end-to-end dogfood 검증 통과 — Level 8+ 권장 표기",
+      "PENDING": "미착수",
+      "N/A": "위임 또는 적용 외"
+    },
+    "rationale": "FIX-G + 라운드 14 'PASS 위장' 패턴 재발 방지. AI Harness 원칙 — Runtime > design intent. PASS_STATIC at Level 8+ = 위장 의심."
   }
 }
