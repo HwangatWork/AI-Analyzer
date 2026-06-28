@@ -129,3 +129,29 @@ DATA_AGENT_RESULT:
 - 실패 지표를 0 또는 임의값으로 채우기 금지
 - 핵심 지표 수집 실패 시 exit(0) 금지
 - 분석·가중치 계산 수행 금지 (analysis-agent 영역)
+
+
+## Peer Review Concerns
+<!-- TF Phase 13-B-4 (2026-06-29). schema: schemas/peer_review_concerns.schema.json -->
+```json
+{
+  "domain": "29 market indicators collection (FDR / FRED / pykrx / CNN F&G)",
+  "failure_modes": [
+    "zero-fill 시계열을 stationary 로 오판 — Granger 우회 가능성",
+    "단일 source 의존으로 cross-validate fallback 실패",
+    "최신 row > 7일 stale 데이터 silent 통과"
+  ],
+  "verification_targets": [
+    {
+      "file": "data/collection_report_v2.json",
+      "key": "is_mock",
+      "check": "all False AND last_updated within 7 days"
+    },
+    {
+      "file": "data/raw/<IND>.parquet",
+      "key": "value",
+      "check": "no zero-fill streak >= 5 in last 30 days"
+    }
+  ]
+}
+```
