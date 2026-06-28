@@ -199,7 +199,7 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
 #### Done Criteria
 
 - [ ] DC-1: schema fixture 유효성 확인
-- [x] DC-2: `/tf-review` slash command 등록 + `.active` lifecycle 동작 (재정의 2026-06-29). 원안 `peer_review.py --dry-run`은 architectural impossibility로 폐기 (Task tool은 subprocess에서 호출 불가) → C안 채택: `.claude/commands/tf-review.md` slash command + `agents/tf_active.py` 헬퍼.
+- [x] DC-2: `/tf-review` slash command 등록 + `.active` lifecycle 동작 (재정의 2026-06-29) — **PASS (static, dogfood pending DC-6)**. 원안 `peer_review.py --dry-run`은 architectural impossibility로 폐기 (Task tool은 subprocess에서 호출 불가) → C안 채택: `.claude/commands/tf-review.md` slash command + `agents/tf_active.py` 헬퍼. 정직성: 정적 검증 (file 존재 + lifecycle helper pytest)만 완료, 13 Agent 실 spawn + hook lifecycle 동적 검증은 DC-6 (manual dogfood) 책무.
 - [ ] DC-3: 13개 에이전트 MD "Peer Review Concerns" 섹션 존재 (audit-agent grep)
 - [x] DC-4: SubagentStop hook 등록 ✅ (commit 392ed66) — `settings.json` regex matcher 방식 채택 (`^(data|analysis|...)-agent$`). Anthropic 공식 2가지 방식 (중앙/분산) 중 유지보수성 우선으로 중앙 등록. 분산(MD frontmatter)도 동등 지원이나 미채택.
 - [x] DC-5: `tf_aggregate.py` → aggregate.md 4섹션 생성 ✅ (commit 49f8821)
@@ -207,7 +207,14 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
        `.active` 플래그 gate로 TF 외 호출 차단 + hook 내부 schema validation으로
        corruption 위험 0 (defensive code). 단 Phase 13-B-3에서 `.active` lifecycle
        정밀 제어 필수 (TF 13 reviewer spawn 직전 set / 완료 직후 unset).
-- [ ] DC-6: `test_peer_review.py` PASS (team tests SKIP if env var unset)
+- [x] DC-6: 재정의 2026-06-29 (옵션 6a) — 원안 `test_peer_review.py PASS`는 architectural 한계로 폐기 (slash command를 subprocess pytest로 dogfood 불가, C안 결정과 같은 근거). 합쳐서 처리: 정적 부분 = `agents/tests/test_tf_review_command.py` (7 PASS, 이미 commit 4a83954 등에 포함, file/lifecycle/keyword 검증). 동적 부분 = manual dogfood (Claude Code 세션 내 `/tf-review <proposal>` 실 호출 + aggregate.md 출력 확인). 자동 회귀 불가, 사람 1회 검증.
+
+### DC 우선순위 노트 (2026-06-29 결정)
+1. **DC-3, DC-8** 먼저 — 13 MD body section 추가 + audit-agent grep gate. 완전 자동화 가능, ROI 명확.
+2. **DC-9, DC-10, DC-11** 다음 — Python 코드 (hook + QC + digest), 단위 테스트 가능.
+3. **DC-6 manual dogfood** 최후 — 위 모두 정적 충족 후 1회 사람 검증.
+
+(pm-agent 권고 "DC-6 ROI 최고" 는 DC-6 자동화 불가 architectural constraint 미고려 — 정정.)
 - [ ] DC-7: 회귀 검증 stop_hook.py / SA-8 / pm_quality에 위임 (별도 gate 없음 — 결정 명시)
 - [ ] DC-8: audit-agent grep gate 확인
 - [ ] DC-9: `memory_lesson_save` SessionEnd hook 성공 호출
