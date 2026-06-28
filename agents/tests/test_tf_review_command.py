@@ -55,7 +55,7 @@ def test_T_TF_CMD_1_command_file_exists():
 def test_T_TF_CMD_2_command_has_required_lifecycle_keywords():
     cmd = _REPO_ROOT / ".claude" / "commands" / "tf-review.md"
     text = cmd.read_text(encoding="utf-8")
-    for keyword in ("set_active", "Task", "clear_active",
+    for keyword in ("set_active", "Agent", "clear_active",
                     "peer_review_response.schema.json"):
         assert keyword in text, f"tf-review.md missing keyword: {keyword!r}"
 

@@ -1,6 +1,6 @@
 ---
 description: TF (Team Framework) Peer Review — spawn 13 reviewer subagents on a PM proposal
-allowed-tools: Task, Bash, Read, Write
+allowed-tools: Agent, Bash, Read, Write
 ---
 
 # /tf-review — Team Framework Peer Review
@@ -28,7 +28,7 @@ This is the canonical input the 13 reviewers will reference.
 
 ## Step 3 — Spawn 13 reviewer subagents (parallel, single message)
 
-Use the Task tool **13 times in ONE message** (parallel execution per
+Use the Agent tool **13 times in ONE message** (parallel execution per
 Claude Code docs) with these `subagent_type` values:
 
 - `data-agent`
@@ -69,7 +69,7 @@ the batch resolves.
 
 Critical: must run regardless of Step 3 outcome (use try/finally semantics
 in your reasoning). Failure to clear leaves hooks active for non-TF future
-Task batches.
+Agent batches.
 
 ```bash
 python -c "from agents.tf_active import clear_active; clear_active(); print('TF session cleared')"
