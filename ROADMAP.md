@@ -169,10 +169,13 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
   - command + args exec form 사용 (Windows-safe)
   - 완료 기준: DC-4, DC-5
 
-- [ ] Phase 13-B-3: `agents/peer_review.py` 구현
-  - `dispatch(report, scope)` → SUBAGENT mode
-  - `_spawn_subagents(agents, prompt)` → Task() × 13 병렬
-  - 완료 기준: DC-2 (`--dry-run` exits 0)
+- [x] Phase 13-B-3: `/tf-review` slash command + `.active` lifecycle (완료 2026-06-29)
+  - **C안 채택** — subprocess에서 Task tool 호출 불가능 architectural constraint 회피
+  - `.claude/commands/tf-review.md` — 5-Step 워크플로 (set_active → save proposal →
+    Task spawn × 13 (단일 메시지 병렬) → clear_active → aggregate read)
+  - `agents/tf_active.py` — set/clear/is/get 헬퍼 (slash command + pytest 양쪽 사용)
+  - `.claude/settings.json` env 블록: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
+  - 완료 기준: DC-2 재정의 — command 파일 존재 + .active lifecycle 검증
 
 - [ ] Phase 13-B-4: 13개 에이전트 MD 업데이트
   - 각 MD에 "Peer Review Concerns" 섹션 추가 (body)
@@ -196,7 +199,7 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
 #### Done Criteria
 
 - [ ] DC-1: schema fixture 유효성 확인
-- [ ] DC-2: `peer_review.py --dry-run` exits 0
+- [x] DC-2: `/tf-review` slash command 등록 + `.active` lifecycle 동작 (재정의 2026-06-29). 원안 `peer_review.py --dry-run`은 architectural impossibility로 폐기 (Task tool은 subprocess에서 호출 불가) → C안 채택: `.claude/commands/tf-review.md` slash command + `agents/tf_active.py` 헬퍼.
 - [ ] DC-3: 13개 에이전트 MD "Peer Review Concerns" 섹션 존재 (audit-agent grep)
 - [x] DC-4: SubagentStop hook 등록 ✅ (commit 392ed66) — `settings.json` regex matcher 방식 채택 (`^(data|analysis|...)-agent$`). Anthropic 공식 2가지 방식 (중앙/분산) 중 유지보수성 우선으로 중앙 등록. 분산(MD frontmatter)도 동등 지원이나 미채택.
 - [x] DC-5: `tf_aggregate.py` → aggregate.md 4섹션 생성 ✅ (commit 49f8821)
