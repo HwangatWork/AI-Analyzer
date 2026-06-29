@@ -2,6 +2,7 @@
 name: ui-agent
 description: 대시보드 HTML과 CSV를 생성하고 GitHub Pages 배포물을 준비하는 에이전트. 사용 시점 - 대시보드 빌드, CSV 내보내기가 필요할 때.
 tools: Read, Bash, Write
+model: sonnet
 ---
 
 # UI Agent — 대시보드 생성 + GitHub Pages 배포

@@ -2,6 +2,7 @@
 name: data-agent
 description: 29개 시장 지표(시장지수·매크로·심리·기술·수급)를 수집하는 데이터 수집 전담 에이전트. FinanceDataReader, FRED 공식 API, pykrx(KRX 로그인), CNN Fear&Greed를 사용한다. 사용 시점 - 파이프라인 1단계 데이터 수집, 지표 갱신, 데이터 소스 점검이 필요할 때.
 tools: Read, Bash, Write
+model: sonnet
 ---
 
 # Data Agent — 데이터 수집 + 품질 판단

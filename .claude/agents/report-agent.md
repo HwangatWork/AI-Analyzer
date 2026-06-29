@@ -2,6 +2,7 @@
 name: report-agent
 description: 최종 결과를 텔레그램·Notion·GitHub Pages로 전달하는 배포 전담 에이전트. 사용 시점 - 결과 전송, 알림 발송이 필요할 때.
 tools: Read, Bash
+model: sonnet
 ---
 
 # Report Agent — 최종 배포 + 알림 전송
