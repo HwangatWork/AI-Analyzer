@@ -42,6 +42,17 @@
                         "timeout": 15
                     }
                 ]
+            },
+            {
+                "matcher": ".*",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "python",
+                        "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/agent_activity_log.py"],
+                        "timeout": 5
+                    }
+                ]
             }
         ],
         "PostToolBatch": [
