@@ -269,3 +269,23 @@ PM Agent가 혼자 분석을 완결하는 패턴 방지.
 - TEAM 모드 실측은 Phase 13-D로 분리
 - 5개 신호(13-A) 자체의 구현은 별도 Phase로 분리 (지금 시작 금지)
 - GitHub Actions CI ratchet/gate 인프라(obj-r4-1, r4-2, r5-1, r5-2)는 별도 Phase 13-E 또는 폐기 — 사용자 결정 대기
+
+## Phase 13-C — 명세 자동 보완 사후 검토 (16 agent MD, 백로그)
+
+REQ-SA9 series 16 items 일괄 이관 (2026-06-30). 각 agent MD 의 AUTO-GENERATED 섹션
+("Role / Execution / Done Criteria") 내용 검토 + 채택/거절. 우선순위 낮음 (advisory).
+
+- 처리 방식: 사용자 ad-hoc review, batch 자동 처리 없음
+- 의도 메타데이터: `pending_requests.json` 의 `request` / `details` 필드에 보존
+- 완료 기준: 16건 모두 closed (accept / reject 표기)
+
+**대상 16 IDs**:
+- `REQ-SA9-analysis-agent`, `REQ-SA9-audit-agent`, `REQ-SA9-data-agent`,
+- `REQ-SA9-decision-agent`, `REQ-SA9-evaluator-agent`, `REQ-SA9-meta-audit-agent`,
+- `REQ-SA9-narrative-agent`, `REQ-SA9-news-agent`, `REQ-SA9-orchestrator`,
+- `REQ-SA9-report-agent`, `REQ-SA9-sector-agent`, `REQ-SA9-stock-agent`,
+- `REQ-SA9-ui-agent`, `REQ-SA9-validation-agent`, `REQ-SA9T-evaluator-agent`,
+- `REQ-SA9-pm-agent`
+
+근거: title/created_at 메타데이터 없이 backlog 누적 → 매 세션 stop_hook digest 노이즈.
+batch close 가 의도 정보 손실 0 (request 필드 명확) + pending count 부담 -16.
