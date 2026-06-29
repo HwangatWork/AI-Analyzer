@@ -112,3 +112,47 @@ def test_T_QC29_5_pending_status_skipped(monkeypatch, tmp_path):
         }
     })
     assert qc29["pass"] is True, f"PENDING should be skipped, got: {qc29}"
+
+
+def test_T_QC29_6_level8_pass_static_critical(monkeypatch, tmp_path):
+    """🔴 신규: Level 8 + status=PASS_STATIC → CRITICAL (정적만으로 Level 8 부정직)."""
+    qc29 = _run_qc29(monkeypatch, tmp_path, dc_evidence={
+        "DC-STATIC-AT-8": {
+            "level_claimed": 8,
+            "status": "PASS_STATIC",
+            "evidence_files": ["schemas/test.json"],
+            "dynamic_test": "pytest test_x.py = 5 PASS"
+        }
+    })
+    assert qc29["pass"] is False, (
+        f"Level 8 + PASS_STATIC should fail (no dynamic dogfood), got: {qc29}"
+    )
+    assert "CRITICAL" in qc29["detail"]
+    assert "DC-STATIC-AT-8" in qc29["detail"]
+    assert "PASS_STATIC" in qc29["detail"]
+
+
+def test_T_QC29_7_level7_pass_static_allowed(monkeypatch, tmp_path):
+    """Level 7 이하의 PASS_STATIC 은 정직 표기로 허용."""
+    qc29 = _run_qc29(monkeypatch, tmp_path, dc_evidence={
+        "DC-STATIC-OK": {
+            "level_claimed": 7,
+            "status": "PASS_STATIC",
+            "evidence_files": [],
+            "dynamic_test": None
+        }
+    })
+    assert qc29["pass"] is True, f"Level 7 PASS_STATIC should pass, got: {qc29}"
+
+
+def test_T_QC29_8_pass_dynamic_at_level8_allowed(monkeypatch, tmp_path):
+    """Level 8+ 에서 PASS_DYNAMIC + evidence 보유는 정당."""
+    qc29 = _run_qc29(monkeypatch, tmp_path, dc_evidence={
+        "DC-DYNAMIC-8": {
+            "level_claimed": 8,
+            "status": "PASS_DYNAMIC",
+            "evidence_files": ["agents/tests/test_x.py"],
+            "dynamic_test": "manual dogfood verified 2026-06-29"
+        }
+    })
+    assert qc29["pass"] is True, f"Level 8 + PASS_DYNAMIC should pass, got: {qc29}"

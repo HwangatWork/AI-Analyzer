@@ -680,10 +680,15 @@ def pm_quality_checks() -> list[dict]:
         "fix_stages": ["run_decision_agent.py"],
     })
 
-    # ── QC-29: Level 8 동적 게이트 — DC evidence 검증 (2026-06-29 신설) ────
+    # ── QC-29: Level 8 동적 게이트 — DC evidence 검증 (2026-06-29 신설, enum 호환 2026-06-29) ────
     # 배경: FIX-G + 라운드 14 "DONE_CRITERIA: PASS 위장" 패턴 재발 방지.
     # AI Harness 원칙 2 (Runtime > design intent).
-    # 룰: level_claimed >= 8 인데 evidence_files 빈/null → CRITICAL.
+    # 룰: level_claimed >= 8 인데
+    #     - status == PASS_STATIC (정적만 검증, dynamic 미수행) → CRITICAL (신규)
+    #     - evidence_files 빈/null → CRITICAL (기존)
+    # status enum: PASS / PASS_STATIC / PASS_DYNAMIC / PENDING / N/A
+    _VALID_PASS_STATUSES = {"PASS", "PASS_STATIC", "PASS_DYNAMIC"}
+    _STATIC_ONLY_STATUSES = {"PASS_STATIC"}  # Level 8+ 표기 시 차단 대상
     qc29_pass = True
     qc29_violations = []
     try:
@@ -698,13 +703,22 @@ def pm_quality_checks() -> list[dict]:
                 if _level < _min_level:  # Level 7 이하는 게이트 대상 외
                     continue
                 _status = _ev.get("status", "")
-                if not _status.startswith("PASS"):  # PENDING/FAIL은 별도 처리
+                if _status not in _VALID_PASS_STATUSES:  # PENDING/FAIL은 별도
                     continue
+                # 신규 룰: Level 8+ 인데 status == PASS_STATIC → CRITICAL
+                if _status in _STATIC_ONLY_STATUSES:
+                    qc29_violations.append(
+                        f"{_dc_id} (Level {_level}, status='{_status}'): "
+                        f"정적 검증만 — dynamic dogfood 미실행 시 Level 8+ 표기 부정직"
+                    )
+                    continue
+                # 기존 룰: evidence 빈/null
                 _evidence = _ev.get("evidence_files", [])
                 _dyn_test = _ev.get("dynamic_test")
                 if not _evidence or not _dyn_test:
                     qc29_violations.append(
-                        f"{_dc_id} (Level {_level}, status='{_status}'): evidence={_evidence}, dyn_test={_dyn_test}"
+                        f"{_dc_id} (Level {_level}, status='{_status}'): "
+                        f"evidence={_evidence}, dyn_test={_dyn_test}"
                     )
             qc29_pass = len(qc29_violations) == 0
             if qc29_violations:
@@ -723,7 +737,7 @@ def pm_quality_checks() -> list[dict]:
         qc29_pass = True  # parse 실패 등은 advisory
         qc29_detail = f"SKIP — 검증 중 오류: {e}"
     results.append({
-        "check": "QC-29 Level 8 동적 게이트 (DC evidence 검증)",
+        "check": "QC-29 Level 8 동적 게이트 (DC evidence + PASS_STATIC 검증)",
         "pass":  qc29_pass,
         "detail": qc29_detail,
         "fix_stages": ["regression_baseline.json 갱신"],
