@@ -449,6 +449,59 @@ def check_operational_hygiene() -> tuple[str, str]:
         return "WARN", f"pending 확인 오류: {e}"
 
 
+# ── DC-10: TF Peer Review digest 섹션 ──────────────────────────────────────
+
+def get_tf_digest_section(tf_root: Path | None = None) -> str:
+    """최신 TF aggregate.md 요약 → Telegram HTML 섹션.
+
+    없으면 빈 문자열 (조건부 섹션). 응답 수 / consensus 항목 / meta·dissent 유무 표기.
+    호출처: main() — combined_html 빌드 직전 append.
+    """
+    tf_root = tf_root or (BASE_DIR / "output" / "peer_review")
+    if not tf_root.exists():
+        return ""
+    try:
+        dirs = [d for d in tf_root.iterdir() if d.is_dir()]
+    except OSError:
+        return ""
+    if not dirs:
+        return ""
+    latest = max(dirs, key=lambda d: d.stat().st_mtime)
+    agg = latest / "aggregate.md"
+    if not agg.exists():
+        return ""
+    try:
+        text = agg.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+
+    m_resp = re.search(r"#\s*TF Peer Review Aggregate\s*—\s*(\d+)\s*response", text)
+    n_resp = m_resp.group(1) if m_resp else "?"
+    m_cons = re.search(
+        r"\*\*Consensus most urgent\*\*:\s*item\s*(\S+)\s*\((\d+)/(\d+)\s*votes\)", text
+    )
+    consensus = (f"item {m_cons.group(1)} ({m_cons.group(2)}/{m_cons.group(3)})"
+                 if m_cons else "—")
+    has_meta = "## 5. Meta-Patterns" in text
+    has_dissent = "## 6. Minority Dissent" in text
+    mtime = datetime.fromtimestamp(agg.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+
+    def _esc(s: str) -> str:
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+    flags = []
+    if has_meta: flags.append("Meta")
+    if has_dissent: flags.append("Dissent")
+    flag_str = (" · " + ", ".join(flags)) if flags else ""
+
+    return (
+        f"\n{'─'*20}\n"
+        f"🧑‍⚖️ <b>TF Peer Review</b>  <i>{mtime}</i>\n"
+        f"   세션: <code>{_esc(latest.name)}</code>\n"
+        f"   응답 {n_resp}개 · Consensus {_esc(consensus)}{flag_str}"
+    )
+
+
 # ── selftest 모드 ────────────────────────────────────────────────────────────
 
 def _selftest(transcript_file: Path) -> int:
@@ -629,12 +682,16 @@ def main() -> None:
     else:
         check_html += "\n\n✅ 이슈 없음"
 
+    # ── DC-10: TF Peer Review digest 섹션 (있을 때만) ────────────────
+    tf_html = get_tf_digest_section()
+
     # ── TQ-4: 단일 통합 메시지 빌드 ──────────────────────────────────
     combined_html = (
         f"📋 <b>작업 완료 보고</b>  <i>{now_str}</i>\n"
         f"<code>{_esc(task_hint[:60])}</code>\n\n"
         f"{report_html}"
         f"{check_html}"
+        f"{tf_html}"
     )
 
     # ── TQ-5: 터미널 ↔ Telegram 동일성 검증 ──────────────────────────

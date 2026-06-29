@@ -2,15 +2,15 @@
   "schema_version": "1.0",
   "last_updated": "2026-06-29",
   "baseline": {
-    "pass_count": 132,
+    "pass_count": 137,
     "skip_count": 0,
     "fail_count": 0,
-    "wall_clock_sec_approx": 135,
+    "wall_clock_sec_approx": 140,
     "pytest_command": "python -m pytest agents/tests/ -v --tb=short -q",
-    "min_pass": 131,
+    "min_pass": 136,
     "max_skip": 1,
     "max_fail": 0,
-    "note": "T23 environment-dependent SKIP/PASS. 131+ floor (126 → 132 after lesson_save 6 tests DC-9)."
+    "note": "T23 environment-dependent SKIP/PASS. 136+ floor (132 → 137 after TF digest 5 tests DC-10)."
   },
   "dc_evidence": {
     "DC-1": {
@@ -142,13 +142,16 @@
     },
     "DC-10": {
       "phase": "13-B-5",
-      "level_claimed": 6,
-      "status": "PENDING",
-      "evidence_files": [],
-      "dynamic_test": null,
-      "verified_at": null,
-      "verified_commit": null,
-      "note": "stop_hook.py Telegram digest TF 요약 미적용"
+      "level_claimed": 7,
+      "status": "PASS_DYNAMIC",
+      "evidence_files": [
+        ".claude/hooks/stop_hook.py",
+        "agents/tests/test_tf_digest_section.py"
+      ],
+      "dynamic_test": "pytest test_tf_digest_section.py = 5 PASS (conditional section / latest dir / Meta·Dissent flags)",
+      "verified_at": "2026-06-29",
+      "verified_commit": "pending (this commit)",
+      "note": "get_tf_digest_section() — output/peer_review/<sess>/aggregate.md 최신본 추출 → 응답 수 / Consensus 항목 / Meta·Dissent flag. 미존재 시 빈 문자열 (조건부 비표기)."
     },
     "DC-11": {
       "phase": "13-B-5",
