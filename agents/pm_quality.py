@@ -680,6 +680,44 @@ def pm_quality_checks() -> list[dict]:
         "fix_stages": ["run_decision_agent.py"],
     })
 
+    # ── QC-27: TF Framework 인프라 파일 존재 검증 (2026-06-29 신설, DC-11) ────
+    # 배경: TF (Team Framework) 핵심 파일 5개 + regression_baseline.json 존재 확인.
+    # 파일 부재 시 hook lifecycle / dogfood 자동 실패 → 사전 게이트.
+    # OL-6 (FIX-G) 준수: 단순 파일 존재만, 키/스키마 의존성 추가 안 함.
+    _tf_required_files = [
+        "schemas/peer_review_response.schema.json",
+        "schemas/peer_review_concerns.schema.json",
+        ".claude/hooks/tf_schema_check.py",
+        ".claude/hooks/tf_aggregate.py",
+        ".claude/commands/tf-review.md",
+        "regression_baseline.json",
+    ]
+    _tf_missing = []
+    _tf_empty = []
+    for _rel in _tf_required_files:
+        _p = BASE_DIR / _rel
+        if not _p.exists():
+            _tf_missing.append(_rel)
+        elif _p.stat().st_size == 0:
+            _tf_empty.append(_rel)
+    if _tf_missing or _tf_empty:
+        qc27_pass = False
+        _bits = []
+        if _tf_missing:
+            _bits.append(f"missing: {_tf_missing}")
+        if _tf_empty:
+            _bits.append(f"empty: {_tf_empty}")
+        qc27_detail = f"CRITICAL — TF 인프라 결손: {'; '.join(_bits)}"
+    else:
+        qc27_pass = True
+        qc27_detail = f"OK — TF 인프라 {len(_tf_required_files)}/{len(_tf_required_files)} 파일 존재 + 비-empty"
+    results.append({
+        "check": "QC-27 TF Framework 인프라 파일 검증 (DC-11)",
+        "pass":  qc27_pass,
+        "detail": qc27_detail,
+        "fix_stages": ["schemas/peer_review_*.schema.json", ".claude/hooks/tf_*.py", ".claude/commands/tf-review.md"],
+    })
+
     # ── QC-29: Level 8 동적 게이트 — DC evidence 검증 (2026-06-29 신설, enum 호환 2026-06-29) ────
     # 배경: FIX-G + 라운드 14 "DONE_CRITERIA: PASS 위장" 패턴 재발 방지.
     # AI Harness 원칙 2 (Runtime > design intent).

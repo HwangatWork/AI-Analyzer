@@ -2,15 +2,15 @@
   "schema_version": "1.0",
   "last_updated": "2026-06-29",
   "baseline": {
-    "pass_count": 118,
+    "pass_count": 126,
     "skip_count": 0,
     "fail_count": 0,
-    "wall_clock_sec_approx": 74,
+    "wall_clock_sec_approx": 133,
     "pytest_command": "python -m pytest agents/tests/ -v --tb=short -q",
-    "min_pass": 117,
+    "min_pass": 125,
     "max_skip": 1,
     "max_fail": 0,
-    "note": "T23 environment-dependent SKIP/PASS. 107+ floor accounts for T23 SKIP scenario."
+    "note": "T23 environment-dependent SKIP/PASS. 125+ floor (118 → 126 after QC-27 5 tests + SD-14 dynamic baseline fix)."
   },
   "dc_evidence": {
     "DC-1": {
@@ -148,13 +148,17 @@
     },
     "DC-11": {
       "phase": "13-B-5",
-      "level_claimed": 6,
-      "status": "PENDING",
-      "evidence_files": [],
-      "dynamic_test": null,
-      "verified_at": null,
-      "verified_commit": null,
-      "note": "pm_quality.py QC-27 미추가"
+      "level_claimed": 7,
+      "status": "PASS_DYNAMIC",
+      "evidence_files": [
+        "agents/pm_quality.py",
+        "agents/tests/test_qc27_tf_infrastructure.py",
+        "agents/tests/test_sd14_regression.py"
+      ],
+      "dynamic_test": "pytest test_qc27_tf_infrastructure.py = 5 PASS + full regression 126/126",
+      "verified_at": "2026-06-29",
+      "verified_commit": "pending (this commit)",
+      "note": "QC-27 (TF 인프라 6파일 missing/empty 게이트) + SD-14 동적 baseline 수정. QC-27 누락 시 hook lifecycle 자동 실패 → 사전 차단."
     }
   },
   "level_gate_rules": {

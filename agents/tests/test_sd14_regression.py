@@ -30,18 +30,26 @@ def _run_sd14_test() -> bool:
     original_baseline = json.loads(BASELINE_FILE.read_text(encoding="utf-8"))
     print(f"[백업] 원본 baseline: {json.dumps(original_baseline, ensure_ascii=False)[:120]}")
 
-    REAL_PASS_COUNT     = 23
+    # 동적 baseline: QC-27 / QC-29 추가로 정적 REAL_PASS_COUNT=23 이 stale.
+    # 실측 pass_count + 5 inflate 로 regression 강제 시그널 — QC 개수 변동 무관.
+    sys.path.insert(0, str(BASE_DIR / "agents"))
+    from run_pm_agent import pm_quality_checks, _tg_send
+
+    _probe_results      = pm_quality_checks()
+    REAL_PASS_COUNT     = sum(1 for c in _probe_results if c["pass"])
+    REAL_TOTAL_COUNT    = len(_probe_results)
     FAKE_BASELINE_COUNT = REAL_PASS_COUNT + 5
 
     inflated = dict(original_baseline)
     inflated["qc_pass_count"]    = FAKE_BASELINE_COUNT
-    inflated["qc_total"]         = 24
+    inflated["qc_total"]         = REAL_TOTAL_COUNT
     inflated["qc_failed_checks"] = []
     BASELINE_FILE.write_text(json.dumps(inflated, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"[테스트] baseline qc_pass_count 임시 설정: {FAKE_BASELINE_COUNT}/24 (실제: {REAL_PASS_COUNT}/24)")
-
-    sys.path.insert(0, str(BASE_DIR / "agents"))
-    from run_pm_agent import pm_quality_checks, _tg_send
+    print(
+        f"[테스트] baseline qc_pass_count 임시 설정: "
+        f"{FAKE_BASELINE_COUNT}/{REAL_TOTAL_COUNT} "
+        f"(실측: {REAL_PASS_COUNT}/{REAL_TOTAL_COUNT})"
+    )
 
     baseline_for_test = json.loads(BASELINE_FILE.read_text(encoding="utf-8"))
 

@@ -139,6 +139,26 @@ Fix: Read `hook_input["last_assistant_message"]` for Check1 (Evidence).
   memory_smart_search("aprf-design-process")  # legacy tag (2026-06-27 저장된 4 lesson)
 (project 필드는 전체 경로라 facet_query 미지원 — smart_search 방식 사용)
 
+## Agent Team Cross-Validation 룰 (2026-06-29 사용자 명시 — 영구)
+
+**어떤 작업도 'PASS / 완료' 표기 전 별도 agent 독립 검증 필수.**
+
+표준 흐름:
+1. **Claude Code main session 구현** (코드/문서 작성)
+2. **audit-agent spawn** — 명세-구현 일치 + evidence 적합성 + 의미 정확성 독립 검증 (grep/Bash/Read 사용)
+3. **pm-agent spawn** — audit 결과 평가 + priority/architecture 비판 + action plan 수립
+4. **main session action plan 실행** (PM 자율 룰 commits ≤ 3 적용)
+5. **audit-agent 재spawn** — 최종 재검증
+6. **사용자에게 결과 보고**
+
+**원칙**:
+- 사용자 micro-orchestration 불요 — agent team 이 cross-check + 최적안 제시 후 실행
+- 크로스체크 프롬프트도 agent 가 생성 (main session 이 pre-script 안 함)
+- 'PASS without independent verification = 자기보고 위장' = FP-001/FP-002 패턴 재발
+- 매 DC PASS 표기 / 매 commit 전 이 패턴 적용
+
+근거: lesson `lsn_e7bd79d1` (AI 자기 라벨 금지) + 라운드 14 'Level 6-7 수준 검증' 회피.
+
 ## AgentMemory 운영 원칙
 - TF 관련 신규 lesson 태그: `tf-design-process`
 - 기존 4 lesson 태그: `aprf-design-process` (legacy, 현재 알려진 호출로는 갱신 불가)
