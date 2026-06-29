@@ -128,21 +128,33 @@ def _llm_score_decision(decision: dict) -> tuple[int, str]:
         client = anthropic.Anthropic()
         sp = decision.get("sp500", {}); ksp = decision.get("kospi", {})
         # FIX-G (2026-06-23): 실제 decision.json 필드는 position_note/composite_score.
-        # reason/signal_score는 존재하지 않음 — 빈 prompt → 낮은 점수 강제. ([[operational-lessons]] OL-6)
-        sp_reason  = str(sp.get("position_note", "") or sp.get("reason", ""))[:150]
-        ksp_reason = str(ksp.get("position_note", "") or ksp.get("reason", ""))[:150]
-        sig_score  = decision.get("composite_score", decision.get("signal_score", "?"))
-        sp_entry   = (sp.get("entry_triggers") or [])[:2]
-        sp_exit    = (sp.get("exit_triggers") or [])[:2]
-        risks      = (decision.get("risk_factors") or [])[:3]
+        # 2026-06-30: position_note 가 짧을 때 (저신뢰 분기 = template 출력) judge 가 빈약한
+        # 컨텍스트로 score<3 부여 → QR-1-warn 매 실행 누적. 해법: 길이 마진 확대 +
+        # composite_score 분기 명시 + entry/exit_triggers 가중 평가 지침. ([[operational-lessons]] OL-6)
+        sp_reason  = str(sp.get("position_note", ""))[:400]
+        ksp_reason = str(ksp.get("position_note", ""))[:400]
+        sig_score  = decision.get("composite_score", "?")
+        sp_entry   = (sp.get("entry_triggers") or [])[:3]
+        sp_exit    = (sp.get("exit_triggers") or [])[:3]
+        risks      = (decision.get("risk_factors") or [])[:5]
+        # composite_score 분기: <40 리스크오프, 40-60 중립, >60 리스크온
+        try:
+            _ss = float(sig_score) if sig_score not in ("?", None) else None
+            if _ss is None:    sig_regime = "?"
+            elif _ss < 40:     sig_regime = "리스크오프 (방어/관망 정합)"
+            elif _ss < 60:     sig_regime = "중립 (관망 정합)"
+            else:              sig_regime = "리스크온 (공격 정합)"
+        except (TypeError, ValueError):
+            sig_regime = "?"
         prompt = (
             "다음 투자 의사결정의 논리 일관성을 1-5점으로 평가하세요.\n"
-            "기준: 시그널 점수와 방향 일치, 이유 논리성, 근거 구체성.\n\n"
+            "기준: 시그널 점수와 액션 방향 일치, 트리거 구체성, 리스크 인식.\n"
+            "주의: position_note 가 짧으면 entry/exit_triggers 와 risk_factors 를 가중 평가하세요.\n\n"
             f"SP500: {sp.get('action','?')} — {sp_reason}\n"
             f"  진입 트리거: {sp_entry}\n"
             f"  청산 트리거: {sp_exit}\n"
             f"KOSPI: {ksp.get('action','?')} — {ksp_reason}\n"
-            f"시그널 점수: {sig_score}\n"
+            f"시그널 점수: {sig_score} ({sig_regime})\n"
             f"리스크 요인: {risks}\n\n"
             "형식: SCORE: [1-5]\nREASON: [한 문장]"
         )
