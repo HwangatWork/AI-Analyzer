@@ -2,15 +2,15 @@
   "schema_version": "1.0",
   "last_updated": "2026-06-29",
   "baseline": {
-    "pass_count": 126,
+    "pass_count": 132,
     "skip_count": 0,
     "fail_count": 0,
-    "wall_clock_sec_approx": 133,
+    "wall_clock_sec_approx": 135,
     "pytest_command": "python -m pytest agents/tests/ -v --tb=short -q",
-    "min_pass": 125,
+    "min_pass": 131,
     "max_skip": 1,
     "max_fail": 0,
-    "note": "T23 environment-dependent SKIP/PASS. 125+ floor (118 → 126 after QC-27 5 tests + SD-14 dynamic baseline fix)."
+    "note": "T23 environment-dependent SKIP/PASS. 131+ floor (126 → 132 after lesson_save 6 tests DC-9)."
   },
   "dc_evidence": {
     "DC-1": {
@@ -129,12 +129,16 @@
     "DC-9": {
       "phase": "13-B-2",
       "level_claimed": 7,
-      "status": "PENDING",
-      "evidence_files": [],
-      "dynamic_test": null,
-      "verified_at": null,
-      "verified_commit": null,
-      "note": "lesson_save.py SessionEnd hook 미존재 — Phase 13-B-2 잔여 hook 4/4"
+      "status": "PASS_DYNAMIC",
+      "evidence_files": [
+        ".claude/hooks/lesson_save.py",
+        ".claude/settings.json",
+        "agents/tests/test_lesson_save_hook.py"
+      ],
+      "dynamic_test": "pytest test_lesson_save_hook.py = 6 PASS + lesson_save.py --selftest PASS (4 candidates from synthetic transcript)",
+      "verified_at": "2026-06-29",
+      "verified_commit": "pending (this commit)",
+      "note": "SessionEnd hook 등록 완료. transcript 마커 5종 (FIX-/lsn_/Anti-Pattern/RCA/재발) 탐지 → data/lesson_candidates.jsonl append. Loop closure: 다음 세션 시작 시 claude-code 가 큐 → memory_lesson_save 호출."
     },
     "DC-10": {
       "phase": "13-B-5",

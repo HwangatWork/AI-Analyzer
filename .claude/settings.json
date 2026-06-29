@@ -55,6 +55,18 @@
                     }
                 ]
             }
+        ],
+        "SessionEnd": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "python",
+                        "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/lesson_save.py"],
+                        "timeout": 10
+                    }
+                ]
+            }
         ]
     }
 }
