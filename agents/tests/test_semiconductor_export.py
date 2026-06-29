@@ -69,9 +69,14 @@ def test_T_SEM_3_dc3_fail_row_count_low(tmp_path):
 # ── T-SEM-4 ───────────────────────────────────────────────────────────────
 
 def test_T_SEM_4_dc5_fail_stale_data(tmp_path):
-    """T-SEM-4: DC-5 FAIL — 최신 행이 45일 초과 시 sys.exit(1)."""
+    """T-SEM-4: DC-5 FAIL — 최신 행이 45일 초과 시 sys.exit(1).
+
+    NOTE (2026-06-30): margin 60→90d. agent 가 max(date) + MonthEnd(0) 로 보정하므로
+    오늘이 특정 month-start 와 60d 차일 때 age 가 30d 로 줄어 false-PASS 발생 가능.
+    90d 마진은 어느 호출 일자에서도 age ≥ 60d 보장 → 안정 회귀.
+    """
     path = tmp_path / "SEMICONDUCTOR_EXPORT.parquet"
-    stale_end = datetime.now() - timedelta(days=60)
+    stale_end = datetime.now() - timedelta(days=90)
     df = pd.DataFrame({
         "date": pd.date_range(end=stale_end, periods=12, freq="MS"),
         "hs_code": "8542",

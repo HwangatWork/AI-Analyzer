@@ -617,19 +617,13 @@ def pm_quality_checks() -> list[dict]:
     })
 
     # ── QN-1: LLM-as-Judge 내러티브 품질 스코어 (Phase 8) ────────
-    # FIX-G (2026-06-23): narrative agent는 data-prep only이므로 narrative_context.json에
-    # narrative/report 키가 없음. 실제 prose는 FINAL_REPORT_v2.md에 있음. ([[operational-lessons]] OL-6)
+    # FIX-G (2026-06-30 dead path 제거): narrative_context.json 의 narrative/report 키는
+    # 실측 부재 (23 키 모두 data-prep 전용 — market_summary/key_indicators/action_plan/...).
+    # FINAL_REPORT_v2.md 가 유일한 prose source. ([[operational-lessons]] OL-6)
     import os as _osN
-    narrative_ctx = OUT_DIR / "narrative_context.json"
     final_report  = OUT_DIR / "FINAL_REPORT_v2.md"
     _narr_text = ""
-    if narrative_ctx.exists():
-        try:
-            _nd = json.loads(narrative_ctx.read_text(encoding="utf-8"))
-            _narr_text = str(_nd.get("narrative", "") or _nd.get("report", ""))[:4000]
-        except Exception:
-            pass
-    if not _narr_text and final_report.exists():
+    if final_report.exists():
         try:
             _narr_text = final_report.read_text(encoding="utf-8")[:4000]
         except Exception:
