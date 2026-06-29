@@ -63,7 +63,7 @@
       ],
       "dynamic_test": "13 MD grep '## Peer Review Concerns' = 13 PASS + jsonschema Draft202012Validator 0 fail",
       "verified_at": "2026-06-29",
-      "verified_commit": "pending (this commit)",
+      "verified_commit": "7bbf7bc",
       "note": "각 MD body 에 schema 통과 JSON 블록 추가. 원안 복귀 (scope 1 섹션만, OWASP/Contract 별도)."
     },
     "DC-4": {
@@ -123,7 +123,7 @@
       ],
       "dynamic_test": "grep -l '## Peer Review Concerns' .claude/agents/*.md | wc -l = 13",
       "verified_at": "2026-06-29",
-      "verified_commit": "pending (this commit)",
+      "verified_commit": "7bbf7bc",
       "note": "audit-agent grep gate 충족 — 13 MD 모두 섹션 보유. 향후 audit-agent.md 에 명시적 grep 자동화 가능."
     },
     "DC-9": {
@@ -157,7 +157,7 @@
       ],
       "dynamic_test": "pytest test_qc27_tf_infrastructure.py = 5 PASS + full regression 126/126",
       "verified_at": "2026-06-29",
-      "verified_commit": "pending (this commit)",
+      "verified_commit": "9e98734",
       "note": "QC-27 (TF 인프라 6파일 missing/empty 게이트) + SD-14 동적 baseline 수정. QC-27 누락 시 hook lifecycle 자동 실패 → 사전 차단."
     }
   },
