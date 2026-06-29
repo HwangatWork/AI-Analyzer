@@ -2,15 +2,15 @@
   "schema_version": "1.0",
   "last_updated": "2026-06-29",
   "baseline": {
-    "pass_count": 137,
+    "pass_count": 153,
     "skip_count": 0,
     "fail_count": 0,
-    "wall_clock_sec_approx": 140,
+    "wall_clock_sec_approx": 35,
     "pytest_command": "python -m pytest agents/tests/ -v --tb=short -q",
-    "min_pass": 136,
+    "min_pass": 152,
     "max_skip": 1,
     "max_fail": 0,
-    "note": "T23 environment-dependent SKIP/PASS. 136+ floor (132 → 137 after TF digest 5 tests DC-10)."
+    "note": "T23 environment-dependent SKIP/PASS. 152+ floor (137 → 153 after Phase 13-D-1: agent_activity_log hook 7 + agent_log script 9 tests including UTF-8/em-dash safety)."
   },
   "dc_evidence": {
     "DC-1": {

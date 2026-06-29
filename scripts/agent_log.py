@@ -184,7 +184,22 @@ def render_counts(invocations: list[dict], key: str = "subagent_type") -> str:
     return "\n".join(rows)
 
 
+def _force_utf8_stdio() -> None:
+    """Windows 기본 cp949 환경에서 한글/em-dash 출력 시 UnicodeEncodeError 차단.
+    Audit 5차 CRITICAL-C1 (2026-06-30) — 사용자가 PowerShell/cmd 에서 실행 시
+    `print(...)` 즉시 크래시했음 (em-dash '—' 등). 모든 main 진입에서 강제 UTF-8.
+    """
+    for stream_name in ("stdout", "stderr"):
+        stream = getattr(sys, stream_name, None)
+        if stream and hasattr(stream, "reconfigure"):
+            try:
+                stream.reconfigure(encoding="utf-8", errors="replace")
+            except (AttributeError, OSError):
+                pass
+
+
 def main(argv: Optional[list[str]] = None) -> int:
+    _force_utf8_stdio()
     ap = argparse.ArgumentParser(description="Claude Code session 의 Agent() 호출 조회")
     ap.add_argument("--all", action="store_true", help="현재 프로젝트의 모든 세션")
     ap.add_argument("--since", default="", help="필터: 1d / 24h / 30m")

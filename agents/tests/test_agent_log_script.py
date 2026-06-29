@@ -128,6 +128,25 @@ def test_T_AL_6_render_counts(script_mod):
     assert "1회" in out
 
 
+def test_T_AL_8_force_utf8_stdio(script_mod):
+    """Audit 5차 CRITICAL-C1: Windows cp949 환경에서 em-dash/한글 print 크래시 방지."""
+    # 함수 존재 + 호출 시 raise 없음
+    assert hasattr(script_mod, "_force_utf8_stdio")
+    script_mod._force_utf8_stdio()  # idempotent + no-raise
+
+
+def test_T_AL_9_render_table_em_dash_safe(script_mod):
+    """em-dash 가 description 에 있어도 render_table 정상 동작."""
+    invs = [{
+        "ts": "2026-06-30T10:00:00",
+        "subagent_type": "audit-agent",
+        "description": "Audit 4차 — 옵션 C 3 commits cross-check",  # em-dash 포함
+    }]
+    out = script_mod.render_table(invs)
+    assert "—" in out  # em-dash 보존
+    assert "audit-agent" in out
+
+
 def test_T_AL_7_main_activity_mode(script_mod, tmp_path, monkeypatch, capsys):
     act = tmp_path / "data" / "agent_activity.jsonl"
     act.parent.mkdir(parents=True, exist_ok=True)
