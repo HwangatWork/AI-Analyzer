@@ -1,12 +1,12 @@
 {
-  "computed_at": "2026-06-29T05:09:24.379088",
-  "composite_score": 33.0,
-  "kospi_composite_score": 34.3,
+  "computed_at": "2026-06-30T04:36:21.109590",
+  "composite_score": 31.9,
+  "kospi_composite_score": 33.1,
   "direction": "risk-off",
   "sp500": {
     "action": "SELL/AVOID",
     "strength": "중",
-    "confidence_pct": 26.4,
+    "confidence_pct": 27.0,
     "confidence_tier": "hold",
     "position_size_pct": 15,
     "position_note": "신뢰도 낮음 — 소량 또는 관망",
@@ -24,11 +24,11 @@
   "kospi": {
     "action": "SELL/AVOID",
     "strength": "중",
-    "confidence_pct": 28.4,
+    "confidence_pct": 29.7,
     "confidence_tier": "hold",
     "position_size_pct": 5,
     "position_note": "신뢰도 낮음 — 소량 또는 관망",
-    "top_stocks_hint": "SK하이닉스 (+815%) / 삼성전자 (+468%)"
+    "top_stocks_hint": "SK하이닉스 (+774%) / 삼성전자 (+434%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
