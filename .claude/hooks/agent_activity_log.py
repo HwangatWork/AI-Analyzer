@@ -41,8 +41,26 @@ def _parse_stdin(raw: str) -> dict:
     return {}
 
 
-def _extract_metrics(hook_input: dict) -> dict:
-    """transcript_path 에서 runtime / tools_used 추출."""
+# Phase 13-D-2 (2026-07-01): runtime cap — transcript_path 가 main session 전체 jsonl
+# 일 때 timestamps 첫~끝 차이가 시간 단위가 됨. 신뢰 가능한 subagent runtime 은
+# 일반적으로 < 1h (3600s). 초과 시 신뢰 안 함 표시.
+_RUNTIME_CAP_SEC = 3600
+
+
+def _extract_metrics(hook_input: dict) -> dict | None:
+    """transcript_path 에서 runtime / tools_used 추출.
+
+    Phase 13-D-2 (2026-07-01) 진단:
+    - SubagentStop hook 이 main session Stop 에서도 fire (agent_type 빈 string)
+    - .* matcher 가 main + subagent 양쪽 잡음
+    - agent_type 빈 → return None → main() skip (jsonl pollution 차단)
+    """
+    agent_type = (hook_input.get("agent_type") or
+                  hook_input.get("subagent_type") or "").strip()
+    if not agent_type:
+        # main session Stop 이 .* matcher 에 잡힌 noise — skip
+        return None
+
     tools = set()
     timestamps = []
     transcript_path = hook_input.get("transcript_path")
@@ -77,11 +95,14 @@ def _extract_metrics(hook_input: dict) -> dict:
             t0 = datetime.fromisoformat(timestamps[0].replace("Z", "+00:00"))
             t1 = datetime.fromisoformat(timestamps[-1].replace("Z", "+00:00"))
             runtime_sec = round((t1 - t0).total_seconds(), 1)
+            # transcript 가 main session 전체일 때 runtime > cap → None (신뢰 안 함)
+            if runtime_sec > _RUNTIME_CAP_SEC:
+                runtime_sec = None
         except (TypeError, ValueError):
             pass
     return {
         "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "agent_type": hook_input.get("agent_type", "unknown"),
+        "agent_type": agent_type,
         "agent_id": hook_input.get("agent_id", ""),
         "session_id": hook_input.get("session_id", ""),
         "runtime_sec": runtime_sec,
@@ -133,6 +154,9 @@ def main() -> int:
     try:
         hook_input = _parse_stdin(raw)
         metrics = _extract_metrics(hook_input)
+        if metrics is None:
+            # main session Stop event 등 noise — silent skip
+            return 0
         _log(metrics)
         print(_stderr_line(metrics), file=sys.stderr)
     except Exception as e:

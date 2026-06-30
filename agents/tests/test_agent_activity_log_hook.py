@@ -95,3 +95,54 @@ def test_T_AAL_6_parse_stdin_jsonl(hook_mod):
 def test_T_AAL_7_selftest_exits_zero(hook_mod):
     rc = hook_mod._selftest()
     assert rc == 0
+
+
+def test_T_AAL_8_empty_agent_type_skipped(hook_mod):
+    """Phase 13-D-2: agent_type 빈 string (main session Stop noise) → None 반환 → skip."""
+    m = hook_mod._extract_metrics({"agent_type": "", "session_id": "x"})
+    assert m is None, "empty agent_type 는 main session noise → skip"
+    m2 = hook_mod._extract_metrics({"agent_type": "   ", "session_id": "x"})
+    assert m2 is None, "whitespace-only 도 skip"
+    m3 = hook_mod._extract_metrics({"session_id": "x"})  # 키 자체 부재
+    assert m3 is None, "agent_type 키 부재도 skip"
+
+
+def test_T_AAL_9_runtime_cap_applied(hook_mod, tmp_path):
+    """Phase 13-D-2: runtime > 3600s (transcript=main session 전체) → None (cap)."""
+    tp = tmp_path / "t.jsonl"
+    # 70시간 차이 = main session 전체 jsonl 시나리오
+    tp.write_text(
+        json.dumps({
+            "timestamp": "2026-06-27T00:00:00Z",
+            "message": {"content": [{"type": "tool_use", "name": "Bash"}]},
+        }) + "\n"
+        + json.dumps({
+            "timestamp": "2026-06-30T00:00:00Z",  # 72h 뒤
+            "message": {"content": [{"type": "tool_use", "name": "Read"}]},
+        }) + "\n",
+        encoding="utf-8",
+    )
+    m = hook_mod._extract_metrics({"agent_type": "real-agent", "transcript_path": str(tp)})
+    assert m is not None  # agent_type 있으니 skip 아님
+    assert m["runtime_sec"] is None, "runtime > 3600 → None (cap, 신뢰 안 함)"
+    # tools / agent_type 등 다른 필드는 정상
+    assert m["agent_type"] == "real-agent"
+    assert m["tools_count"] == 2
+
+
+def test_T_AAL_10_runtime_under_cap_kept(hook_mod, tmp_path):
+    """runtime < 3600s 는 그대로 유지 (cap 미적용)."""
+    tp = tmp_path / "t.jsonl"
+    tp.write_text(
+        json.dumps({
+            "timestamp": "2026-06-30T10:00:00Z",
+            "message": {"content": [{"type": "tool_use", "name": "Bash"}]},
+        }) + "\n"
+        + json.dumps({
+            "timestamp": "2026-06-30T10:00:45Z",
+            "message": {"content": [{"type": "tool_use", "name": "Read"}]},
+        }) + "\n",
+        encoding="utf-8",
+    )
+    m = hook_mod._extract_metrics({"agent_type": "fast-agent", "transcript_path": str(tp)})
+    assert m["runtime_sec"] == 45.0, "45s 는 cap 미적용"
