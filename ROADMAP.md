@@ -3,6 +3,11 @@
 ## 현재 Active Phase
 - 🚧 Phase 13-B: TF v3.4 구현 — 착수 대기 (설계 v3.4 확정 2026-06-27, 13-B-1부터 코딩 진입 가능)
 - 🆕 Phase 14-0-A1: Consensus Revision Tracker — Static Source Access Audit (mock-only, zero-network). 다음 단계 Phase 14-0-A2 정적 robots/terms 분석, Phase 14-0-B1 live policy audit (opt-in).
+- ✅ Phase 14-0-B2 + 14-1: Live smoke fetch (WiseReport, robots-allowed) + Q1~Q5 analyzer. 13-agent cross-validation 7 gates + RCA 2026-06-30 (target price mis-extraction, OL-7 추가, X8/X9 신규 invariant).
+- ✅ Phase 14-1-B: Parser completeness — per-firm targets (25 brokers), Buy/Hold/Sell breakdown, quarterly 매출액/영업이익, annual indicators. Q3 INSUFFICIENT → +397% YoY. 사용자 목표 40% → 80%. X10/X11 invariant 추가.
+- ✅ Phase 14-3: Global IB feed — yfinance 집계 (37 analysts) + WiseReport 차감 → 추정 글로벌 IB 12명 / 평균 3,103,715원 / gap -0.07% / Q5=ALIGNED_DIRECTION_AND_LEVEL. **per-firm JPM/GS 명단은 무료 자동 채널로 추출 불가** (audit 5 sources 실측 — robots 2 deny, Finnhub 401, Yahoo HTML JS-rendered). X12/X13/X14 신규 invariant. 13-agent peer review pre+post 모두 PASS.
+- ✅ Phase 14-4: **Phase 14-3 의 "불가" 결론 정정** — 한국 financial press (한국경제 검색) 가 robots-allowed + 실제로 "JP모건은 24만원, 골드만삭스 26만원" 류 헤드라인을 게재. tools/consensus/global_ib_news.py (520 lines) + configs/manual_global_ib_targets.json + .schema.json. 14 IBs alias map, 정규식 + analyst-vs-underwriter context. **실측**: 005930 에서 6개 named entries 추출 (JPM/GS/MS/Macquarie/CLSA/Nomura). 단 어트리뷰션 정확도 ~60-70% (한 기사에 복수 종목 동시 언급 패턴). user_verified 매뉴얼 입력이 high-confidence 경로. 18 X-tests (X15 range / X16 conf / X17 schema / X18 alias round-trip) + 284 회귀 PASS.
+- 🚧 Phase 14-0-C (제안): Daily snapshot writer — point-in-time invariant 활성화 (Ljungqvist 2009 회피).
 - ⏸️ Phase 11-A: Narrative Spawn — 선행조건 ✅ (Phase 12-1 완료 2026-06-21, c40c7dc) / 우선순위: Phase 13-B 완료 후
 - ⏸️ Phase 11-B: Audit Spawn — 선행조건 ✅ (Phase 12-1 완료 2026-06-21, c40c7dc) / 우선순위: Phase 13-B 완료 후 (11-A와 병렬 가능)
 - 🗄️ Phase 10: CTD 브리지 — 별도 레포, 보류
@@ -74,18 +79,29 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 
 ---
 
-## Phase 11-A: Narrative Agent Spawn 전환
+## Phase 11-A: Narrative Agent Spawn 전환 (재정의 2026-07-02)
 
-배경: run_narrative_agent.py L365 주석이 이미 "Claude Code 서브에이전트 수동 실행" 전제 —
-      자동 Spawn 전환이 설계 의도와 일치.
-선행조건: Phase 12-1 완료 ✅ (2026-06-21, c40c7dc) — 우선순위: Phase 13-B 완료 후 착수
+배경 (원안): run_narrative_agent.py L365 주석이 "Claude Code 서브에이전트 수동 실행" 전제 —
+자동 Spawn 전환이 설계 의도와 일치.
 
-- [ ] Task 1 — run_narrative_agent.py L365 주석 확인 및 Spawn 진입점 정의
-- [ ] Task 2 — pm_orchestrator.py에 Group E 추가 (_run_group_spawn 함수 구현)
-- [ ] Task 3 — narrative_context.json → FINAL_REPORT.md 생성을 서브에이전트가 완전 자동 처리하도록 수정
-- [ ] Task 4 — _verify_output_contract() Spawn 완료 후에도 동일하게 실행 (계약 준수 감시)
-- [ ] Task 5 — failure_memory 연동: Spawn exit code → _record_failure()/_record_success() 호출
-- [ ] Gate — FINAL_REPORT.md 자동 생성 + 수치 포함 여부 검증 + 회귀 테스트 PASS
+**재정의 이유 (Architectural Impossibility)**: `pm_orchestrator.py` 는 subprocess 로 PIPELINE_STAGES
+실행 → Claude Code Task tool 은 subprocess 에서 호출 불가 (Phase 13-B-6 DC-6 와 동일 constraint,
+commit c20814f 에서 이미 인지). 원안 Task 2/3 (pm_orchestrator 가 spawn 자동화) = architectural
+impossibility.
+
+**Path Z 선택 (2026-07-02, 사용자 승인)** — SDK 직접 호출 비용 회피 + 정직 반영:
+- 데이터 prep = `run_narrative_agent.py` (자동 실행, `narrative_context.json` 생성)
+- prose 생성 = **manual Claude Code session** 안의 `narrative-agent` subagent 호출 (사용자가 다음 세션에서 Task tool 로)
+- pm_orchestrator 는 spawn 자동화 시도 안 함 — Group E 는 "pending dogfood" 등록만
+- 자동화 ROI 는 verification 강화로 대체 (schema 완전성 회귀 + sourced-claim metric)
+
+Tasks (재정의):
+- [x] Task 1 — `run_narrative_agent.py` L365 주석 재정의: "data-prep only, prose는 manual dogfood" 명시 (2026-07-02)
+- [x] Task 2 — Group E 재정의: `pending_requests.json` 에 `manual_dogfood` 항목 자동 등록 (spawn 자동화 X)
+- [x] Task 3 — `narrative-agent.md` 에 dogfood 진입점 명시 (사용자 호출 방법)
+- [x] Task 4 — `_verify_output_contract()` narrative_context.json 스키마 완전성 회귀 (필수 5+ 필드)
+- [x] Task 5 — failure_memory 연동: manual dogfood 미완료 시 pending 유지, `_record_success()` 는 사용자 확인 후
+- [x] Gate — narrative_context.json 완전성 회귀 PASS + manual dogfood 명세화 완료 (원안 "FINAL_REPORT 자동 생성" 은 architectural impossibility 로 폐기)
 
 ## Phase 11-B: Audit Agent Spawn 전환 (선택)
 

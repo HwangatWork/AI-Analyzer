@@ -362,5 +362,16 @@ if __name__ == "__main__":
     print(f"  SP500: {ctx['decision']['sp500']['action']} ({ctx['decision']['sp500']['confidence_pct']}%)")
     print(f"  KOSPI:  {ctx['decision']['kospi']['action']} ({ctx['decision']['kospi']['confidence_pct']}%)")
     print(f"  가중치 Top1: {ctx['top5_ranking'][0]['indicator'] if ctx['top5_ranking'] else 'N/A'}")
-    print(f"\n-> 다음 단계: Claude Code 서브에이전트가 narrative_context.json 읽고 FINAL_REPORT.md 생성")
+    # Phase 11-A 재정의 (2026-07-02, Path Z 채택):
+    # 이 스크립트는 data-prep only — narrative_context.json 완성으로 종료.
+    # prose 생성 (FINAL_REPORT_v2.md) 은 architectural constraint 로 pm_orchestrator
+    # 자동화 불가 (subprocess 에서 Claude Code Task tool 호출 불가, Phase 13-B-6 DC-6 와 동일).
+    # → 사용자가 다음 Claude Code session 에서 narrative-agent subagent 를 manual 호출.
+    #    (Task tool 로 subagent_type="narrative-agent" spawn, narrative_context.json 인용 지시)
+    # 자동화 대체: verification 강화 (schema 완전성 회귀 + sourced-claim metric).
+    print(f"\n-> 다음 단계 (manual dogfood):")
+    print(f"   1. 다음 Claude Code session 진입 후")
+    print(f"   2. Task tool 로 narrative-agent subagent spawn")
+    print(f"   3. 프롬프트에 output/narrative_context.json 경로 명시")
+    print(f"   4. subagent 가 output/FINAL_REPORT_v2.md 생성")
     print("DONE_CRITERIA: PASS")

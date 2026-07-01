@@ -6,6 +6,22 @@ tools: Read, Write
 
 # Narrative Agent — 실제 한국어 시장 해설 작성
 
+## Dogfood 진입점 (Phase 11-A 재정의 2026-07-02)
+
+**호출 방법** (Path Z — SDK 자동화 대신 manual Claude Code Task):
+1. `run_narrative_agent.py` 가 `output/narrative_context.json` 생성 (자동, data-prep only)
+2. 사용자가 Claude Code session 에서 다음과 같이 spawn:
+   ```
+   Task tool → subagent_type="narrative-agent",
+   prompt="output/narrative_context.json 을 읽고 output/FINAL_REPORT_v2.md 생성.
+           reasoning · 수치 인용 · 액션플랜 포함 (템플릿 금지)."
+   ```
+3. 이 agent 는 아래 "입력 읽기 순서" + "리포트 작성 지침" 준수하여 markdown prose 생성
+4. 결과 `output/FINAL_REPORT_v2.md` — pm_quality QN-1 이 LLM judge 로 품질 점수화
+
+**Architectural constraint**: pm_orchestrator subprocess 는 Task tool 호출 불가 → 자동
+spawn 불가. 향후 SDK 직접 호출 (Path Y) 로 upgrade 가능하나 현재는 manual dogfood 유지.
+
 ## 역할과 사고방식 (Role & Mindset)
 
 너는 한국 기관투자자를 위한 시장 해설가다.
