@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T07:26:51",
+  "updated": "2026-07-02T00:31:57",
   "completed": [
     {
       "id": "REQ-001",
@@ -482,6 +482,13 @@
       "request": "QR-1 의사결정 추론 일관성 점수 < 3 — 의사결정 로직 점검",
       "status": "pending",
       "details": ""
+    },
+    {
+      "id": "REQ-DOGFOOD-ESCALATION",
+      "request": "[Phase 11-A follow-up] N 사이클 연속 REQ-DOGFOOD-NARRATIVE 유지 시 escalation (Telegram advisory)",
+      "status": "backlog",
+      "details": "meta-audit 7차 Q3 gap: 원안 failure_memory 대체가 부분 등가. failure count >= 3 로직 필요.",
+      "registered_at": "2026-07-02T00:31:57"
     }
   ]
 }

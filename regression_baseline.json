@@ -2,15 +2,15 @@
   "schema_version": "1.0",
   "last_updated": "2026-06-29",
   "baseline": {
-    "pass_count": 177,
+    "pass_count": 179,
     "skip_count": 0,
     "fail_count": 0,
-    "wall_clock_sec_approx": 32,
+    "wall_clock_sec_approx": 31,
     "pytest_command": "python -m pytest agents/tests/ -v --tb=short -q",
-    "min_pass": 176,
+    "min_pass": 178,
     "max_skip": 1,
     "max_fail": 0,
-    "note": "T23 environment-dependent SKIP/PASS. 176+ floor (166 → 177 after Phase 11-A 사이클 2: narrative_context_schema +6 / dogfood_pending +5)."
+    "note": "T23 environment-dependent SKIP/PASS. 178+ floor (177 → 179 after meta-audit 7차 Q5 sweeper fix +2)."
   },
   "dc_evidence": {
     "DC-1": {

@@ -22,6 +22,16 @@ tools: Read, Write
 **Architectural constraint**: pm_orchestrator subprocess 는 Task tool 호출 불가 → 자동
 spawn 불가. 향후 SDK 직접 호출 (Path Y) 로 upgrade 가능하나 현재는 manual dogfood 유지.
 
+**Cross-check (자기 인증 회피, meta-audit 7차 Q4 대응)**:
+- narrative-agent 는 자기가 만든 FINAL_REPORT_v2.md 의 품질을 self-mark 하지 않는다.
+- 다음 세션의 audit-agent 가 아래 항목을 독립 검증:
+  1. FINAL_REPORT_v2.md 존재 + mtime > narrative_context.json mtime
+  2. sourced-claim heuristic: 수치 인용 ≥ 3건 (template 위장 탐지)
+  3. 필수 액션플랜 (BUY/SELL/HOLD 방향 + 진입/청산 조건) 명시
+- pm_quality QN-1 이 LLM judge 로 자동 품질 점수화 (advisory)
+- 산출물 확인 후 REQ-DOGFOOD-NARRATIVE 는 `_register_dogfood_pending` 이 자동
+  completed 로 sweep (다음 파이프라인 실행 시).
+
 ## 역할과 사고방식 (Role & Mindset)
 
 너는 한국 기관투자자를 위한 시장 해설가다.

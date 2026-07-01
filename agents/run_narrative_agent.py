@@ -28,24 +28,23 @@ def _load_json(p: Path) -> dict:
 
 
 def _register_dogfood_pending(base_dir: Path, ctx_path: Path) -> str:
-    """Phase 11-A Path Z Group E 재정의 (2026-07-02).
+    """Phase 11-A Path Z Group E 재정의 (2026-07-02, meta-audit 7차 확장).
 
-    data-prep 완료 후 FINAL_REPORT_v2.md 미존재 시 pending_requests.json 에
-    manual dogfood 항목 자동 등록. 다음 세션에서 사용자가 이 pending 을 보고
-    narrative-agent subagent 를 Task tool 로 spawn.
+    data-prep 완료 후 dogfood 상태 추적. FINAL_REPORT_v2.md 존재하면 pending
+    sweep (Q5 gap fix), 없으면 pending 신규 등록.
 
-    Behavior:
-    - FINAL_REPORT_v2.md 존재 → skip (이미 완료), 반환 "skipped"
-    - 없음 + 이미 등록됨 → skip (중복 방지), 반환 "already_registered"
-    - 없음 + 미등록 → 신규 등록, 반환 "registered"
+    Behavior (Q5 sweeper 통합):
+    - FINAL_REPORT_v2.md 존재 + pending 이 남아있음 → completed 로 sweep, 반환 "swept"
+    - FINAL_REPORT_v2.md 존재 + pending 없음 → 반환 "skipped"
+    - FINAL_REPORT_v2.md 부재 + 이미 등록됨 → 중복 방지, 반환 "already_registered"
+    - FINAL_REPORT_v2.md 부재 + 미등록 → 신규 등록, 반환 "registered"
     - I/O 오류 → 파이프라인 차단 안 함 (advisory), 반환 "error"
+
+    meta-audit 7차 Q5: pending → completed 이동 로직 도입 (기존 skip 만은 traceability gap).
     """
     final_report = base_dir / "output" / "FINAL_REPORT_v2.md"
     pending_path = base_dir / "pending_requests.json"
     req_id = "REQ-DOGFOOD-NARRATIVE"
-
-    if final_report.exists() and final_report.stat().st_size > 100:
-        return "skipped"
 
     try:
         if pending_path.exists():
@@ -53,8 +52,32 @@ def _register_dogfood_pending(base_dir: Path, ctx_path: Path) -> str:
         else:
             data = {"updated": "", "completed": [], "pending": []}
         pending_list = data.get("pending", [])
+        completed_list = data.get("completed", [])
 
-        # 중복 방지
+        # sweeper: FINAL_REPORT 있으면 기존 pending 을 completed 로 이동
+        if final_report.exists() and final_report.stat().st_size > 100:
+            swept = False
+            remaining = []
+            for item in pending_list:
+                if item.get("id") == req_id and item.get("status") == "pending":
+                    item["status"] = "completed"
+                    item["completed_at"] = datetime.now().isoformat(timespec="seconds")
+                    item["completed_by"] = "dogfood_auto_detect (FINAL_REPORT_v2.md 감지)"
+                    completed_list.append(item)
+                    swept = True
+                else:
+                    remaining.append(item)
+            if swept:
+                data["pending"] = remaining
+                data["completed"] = completed_list
+                data["updated"] = datetime.now().isoformat(timespec="seconds")
+                pending_path.write_text(
+                    json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+                )
+                return "swept"
+            return "skipped"
+
+        # FINAL_REPORT 부재: 중복 방지 후 신규 등록
         for item in pending_list:
             if item.get("id") == req_id and item.get("status") == "pending":
                 return "already_registered"
@@ -68,7 +91,8 @@ def _register_dogfood_pending(base_dir: Path, ctx_path: Path) -> str:
             "status": "pending",
             "details": (
                 f"data-prep 완료: {ctx_path.name}. "
-                "다음 세션에서 Task(subagent_type='narrative-agent') 호출 지시."
+                "다음 세션에서 Task(subagent_type='narrative-agent') 호출 지시. "
+                "완료 후 audit-agent 가 산출물 품질 cross-check (자기 인증 회피)."
             ),
             "registered_at": datetime.now().isoformat(timespec="seconds"),
         })

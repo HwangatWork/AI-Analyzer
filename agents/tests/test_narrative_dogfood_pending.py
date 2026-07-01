@@ -97,3 +97,47 @@ def test_T_NDF_5_io_error_non_blocking(script_mod, tmp_path, monkeypatch):
     fake_pending.mkdir()  # 디렉토리로 만들어 write 실패
     result = script_mod._register_dogfood_pending(tmp_path, ctx)
     assert result == "error"  # exception 없이 error 반환
+
+
+def test_T_NDF_6_sweeper_moves_pending_to_completed(script_mod, tmp_path):
+    """meta-audit 7차 Q5 fix: FINAL_REPORT 감지 시 기존 pending → completed sweep."""
+    ctx = _make_ctx(tmp_path)
+    # 1단계: 등록 (FINAL_REPORT 부재)
+    r1 = script_mod._register_dogfood_pending(tmp_path, ctx)
+    assert r1 == "registered"
+
+    # 2단계: FINAL_REPORT 생성 (dogfood 완료 시뮬레이션)
+    fr = tmp_path / "output" / "FINAL_REPORT_v2.md"
+    fr.write_text("# 완료된 리포트\n" + "실제 프로즈 " * 30, encoding="utf-8")
+
+    # 3단계: sweeper 실행
+    r2 = script_mod._register_dogfood_pending(tmp_path, ctx)
+    assert r2 == "swept"
+
+    data = json.loads((tmp_path / "pending_requests.json").read_text(encoding="utf-8"))
+    # pending 에서 제거됨
+    pending_ids = [i["id"] for i in data["pending"]]
+    assert "REQ-DOGFOOD-NARRATIVE" not in pending_ids
+    # completed 로 이동
+    completed_ids = [i["id"] for i in data["completed"]]
+    assert "REQ-DOGFOOD-NARRATIVE" in completed_ids
+    # completed 항목에 completed_at + completed_by 필드 추가됨
+    swept_item = next(i for i in data["completed"] if i["id"] == "REQ-DOGFOOD-NARRATIVE")
+    assert "completed_at" in swept_item
+    assert "dogfood_auto_detect" in swept_item["completed_by"]
+
+
+def test_T_NDF_7_sweeper_idempotent(script_mod, tmp_path):
+    """sweeper 반복 실행 시 이미 completed 상태이면 skip."""
+    ctx = _make_ctx(tmp_path)
+    script_mod._register_dogfood_pending(tmp_path, ctx)
+    fr = tmp_path / "output" / "FINAL_REPORT_v2.md"
+    fr.write_text("# 리포트\n" + "실 프로즈 " * 30, encoding="utf-8")
+    r1 = script_mod._register_dogfood_pending(tmp_path, ctx)  # swept
+    r2 = script_mod._register_dogfood_pending(tmp_path, ctx)  # skipped (더 이상 pending 없음)
+    assert r1 == "swept"
+    assert r2 == "skipped"
+    data = json.loads((tmp_path / "pending_requests.json").read_text(encoding="utf-8"))
+    # completed 는 정확히 1건만 (중복 push 안 함)
+    count = sum(1 for i in data["completed"] if i["id"] == "REQ-DOGFOOD-NARRATIVE")
+    assert count == 1
