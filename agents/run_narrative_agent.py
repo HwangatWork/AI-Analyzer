@@ -27,6 +27,63 @@ def _load_json(p: Path) -> dict:
         return {}
 
 
+def _register_dogfood_pending(base_dir: Path, ctx_path: Path) -> str:
+    """Phase 11-A Path Z Group E 재정의 (2026-07-02).
+
+    data-prep 완료 후 FINAL_REPORT_v2.md 미존재 시 pending_requests.json 에
+    manual dogfood 항목 자동 등록. 다음 세션에서 사용자가 이 pending 을 보고
+    narrative-agent subagent 를 Task tool 로 spawn.
+
+    Behavior:
+    - FINAL_REPORT_v2.md 존재 → skip (이미 완료), 반환 "skipped"
+    - 없음 + 이미 등록됨 → skip (중복 방지), 반환 "already_registered"
+    - 없음 + 미등록 → 신규 등록, 반환 "registered"
+    - I/O 오류 → 파이프라인 차단 안 함 (advisory), 반환 "error"
+    """
+    final_report = base_dir / "output" / "FINAL_REPORT_v2.md"
+    pending_path = base_dir / "pending_requests.json"
+    req_id = "REQ-DOGFOOD-NARRATIVE"
+
+    if final_report.exists() and final_report.stat().st_size > 100:
+        return "skipped"
+
+    try:
+        if pending_path.exists():
+            data = json.loads(pending_path.read_text(encoding="utf-8"))
+        else:
+            data = {"updated": "", "completed": [], "pending": []}
+        pending_list = data.get("pending", [])
+
+        # 중복 방지
+        for item in pending_list:
+            if item.get("id") == req_id and item.get("status") == "pending":
+                return "already_registered"
+
+        pending_list.append({
+            "id": req_id,
+            "request": (
+                "[Phase 11-A dogfood] narrative-agent subagent 로 "
+                "output/FINAL_REPORT_v2.md 생성 필요"
+            ),
+            "status": "pending",
+            "details": (
+                f"data-prep 완료: {ctx_path.name}. "
+                "다음 세션에서 Task(subagent_type='narrative-agent') 호출 지시."
+            ),
+            "registered_at": datetime.now().isoformat(timespec="seconds"),
+        })
+        data["pending"] = pending_list
+        data["updated"] = datetime.now().isoformat(timespec="seconds")
+        pending_path.write_text(
+            json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        return "registered"
+    except Exception as e:
+        # advisory — 파이프라인 차단 안 함
+        print(f"  [NA-4] pending 등록 실패 (advisory): {e}")
+        return "error"
+
+
 def _check_inputs(out_dir: Path) -> None:
     """Input contract: validate required files exist and have expected structure."""
     fr = out_dir / "final_results.json"
@@ -369,9 +426,14 @@ if __name__ == "__main__":
     # → 사용자가 다음 Claude Code session 에서 narrative-agent subagent 를 manual 호출.
     #    (Task tool 로 subagent_type="narrative-agent" spawn, narrative_context.json 인용 지시)
     # 자동화 대체: verification 강화 (schema 완전성 회귀 + sourced-claim metric).
+    # Phase 11-A Path Z Group E: dogfood pending 자동 등록
+    dogfood_status = _register_dogfood_pending(BASE_DIR, ctx_path)
+    print(f"  ✓ NA-4 dogfood pending: {dogfood_status}")
+
     print(f"\n-> 다음 단계 (manual dogfood):")
     print(f"   1. 다음 Claude Code session 진입 후")
     print(f"   2. Task tool 로 narrative-agent subagent spawn")
     print(f"   3. 프롬프트에 output/narrative_context.json 경로 명시")
     print(f"   4. subagent 가 output/FINAL_REPORT_v2.md 생성")
+    print(f"   (pending_requests.json 의 REQ-DOGFOOD-NARRATIVE 참조)")
     print("DONE_CRITERIA: PASS")
