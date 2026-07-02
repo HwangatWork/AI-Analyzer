@@ -1,0 +1,3 @@
+# Sample robots.txt — 전체 UA 전면 차단
+User-agent: *
+Disallow: /

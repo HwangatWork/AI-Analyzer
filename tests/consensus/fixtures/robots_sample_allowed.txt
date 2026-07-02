@@ -1,0 +1,10 @@
+# Sample robots.txt — general allow with rate limit
+User-agent: *
+Disallow: /admin/
+Disallow: /private/
+Crawl-delay: 2
+Sitemap: https://example.com/sitemap.xml
+
+User-agent: GoogleBot
+Allow: /
+Crawl-delay: 1
