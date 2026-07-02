@@ -1,0 +1,13 @@
+{
+  "date": "2026-07-03",
+  "files": {
+    "analysis.json": "b171dcacebf95b114fbe75027905eb57b433f544c9cc2aecff676d5dc5f603ef",
+    "parsed.json": "d1a5c2e1d20ba4f7fe2e04fbc100e9611802e55449ab473355fabc709303761b",
+    "report.md": "c2ba6e1eeb8027d45a464d8afce1ee1d9f33b8c5a31ec1d7e0c37eb4d5a7db98"
+  },
+  "pipeline_git_head_sha": "26a4d9d21d5122c8806d3163ce193df02e08f1af",
+  "schema_version": "1.0",
+  "ticker": "GOOGL",
+  "top_sha256": "8f90486f327658a261479f3599fa2fa6ac5fa3e02dd2612ee6b3d33bfebf4656",
+  "written_at_utc": "2026-07-02T23:06:10+00:00"
+}

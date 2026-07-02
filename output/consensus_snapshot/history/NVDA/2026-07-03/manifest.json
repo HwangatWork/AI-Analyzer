@@ -1,0 +1,13 @@
+{
+  "date": "2026-07-03",
+  "files": {
+    "analysis.json": "a4cab84d2d9084db43d4a4b36374808539462ae6ad16e7b9f39839013eee5af0",
+    "parsed.json": "d1a5c2e1d20ba4f7fe2e04fbc100e9611802e55449ab473355fabc709303761b",
+    "report.md": "b2e140e16a71dcb12de338bc7833c06a10746f803d22c2f197e9524cb813812b"
+  },
+  "pipeline_git_head_sha": "26a4d9d21d5122c8806d3163ce193df02e08f1af",
+  "schema_version": "1.0",
+  "ticker": "NVDA",
+  "top_sha256": "be2124aad20950f2d39e054290b1957ee9b217c40fa3b21ac0ccf5bd6f298a85",
+  "written_at_utc": "2026-07-02T23:05:41+00:00"
+}

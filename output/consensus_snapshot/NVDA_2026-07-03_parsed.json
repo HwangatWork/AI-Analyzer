@@ -1,0 +1,7 @@
+{
+  "company": "NVIDIA Corporation",
+  "schema_version": "0.3-us",
+  "ticker": "NVDA",
+  "us_ticker": true,
+  "yfinance_probed_at": "2026-07-03T08:05:53+09:00"
+}

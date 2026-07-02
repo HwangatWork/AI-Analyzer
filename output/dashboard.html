@@ -2143,7 +2143,10 @@
       <div>
         <label style="color:#94a3b8;margin-right:8px">종목:</label>
         <select id="c-ticker" style="background:#0f172a;color:var(--text);border:1px solid #334155;padding:4px 8px;border-radius:4px;font-size:0.82rem">
-          <option value="000660">000660 SK하이닉스</option>
+          <option value="000660">000660 SK하이닉스 (KR)</option>
+          <option value="NVDA">NVDA NVIDIA (US)</option>
+          <option value="GOOGL">GOOGL Alphabet (US)</option>
+          <option value="VRT">VRT Vertiv (US)</option>
         </select>
       </div>
       <div>
@@ -2285,7 +2288,15 @@
   /* ─────────────── Consensus Tracker (Phase 14-0-A1 ~ 14-0-C) ─────────────── */
   // Reads static JSON from output/consensus_snapshot/. Zero deps.
 
-  const C_TICKERS = { "000660": "SK하이닉스", "005930": "삼성전자" };
+  const C_TICKERS = {
+    "000660": { name: "SK하이닉스",   currency: "KRW", market: "KR" },
+    "005930": { name: "삼성전자",     currency: "KRW", market: "KR" },
+    "NVDA":   { name: "NVIDIA",       currency: "USD", market: "US" },
+    "GOOGL":  { name: "Alphabet",     currency: "USD", market: "US" },
+    "VRT":    { name: "Vertiv",       currency: "USD", market: "US" }
+  };
+  let C_CURR = "KRW";  // updated per fetched analysis
+  let C_MARKET = "KR";
   const Q4_COLORS = {
     "TRUE_UPGRADE":         { bg: "#22c55e22", fg: "#22c55e", label: "펀더멘털 기반 정상 업그레이드" },
     "MULTIPLE_EXPANSION":   { bg: "#f59e0b22", fg: "#f59e0b", label: "밸류에이션 리레이팅 (주의)" },
@@ -2307,7 +2318,18 @@
   };
 
   function fmtKRW(v) {
+    // Currency-aware wrapper. Delegates to fmtMoney with the active currency.
+    return fmtMoney(v, C_CURR);
+  }
+  function fmtMoney(v, curr) {
     if (v === null || v === undefined || isNaN(v)) return "N/A";
+    curr = curr || C_CURR;
+    if (curr === "USD") {
+      // Retain up to 2 decimals for USD prices (dollar amounts often non-integer)
+      const abs = Math.abs(v);
+      const dec = abs >= 100 ? 2 : abs >= 10 ? 2 : 2;
+      return "$" + v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    }
     return Math.round(v).toLocaleString("ko-KR") + "원";
   }
   function fmtPct(v) {
@@ -2405,13 +2427,21 @@
     document.getElementById("c-arith-gap").textContent = fmtPct(gap);
     const badge = document.getElementById("c-arith-badge");
     if (gap === null) {
-      badge.textContent = "산술 검증 데이터 부족";
+      // For US ticker with EPS/PER present but scale issue, mark not_applicable
+      if (C_MARKET === "US" && !(eps && per)) {
+        badge.textContent = "N/A — 산술 인자 부족 (US ticker)";
+      } else {
+        badge.textContent = "산술 검증 데이터 부족";
+      }
       badge.style.background = "#64748b22"; badge.style.color = "#94a3b8";
     } else if (Math.abs(gap) < 1.0) {
       badge.textContent = "✓ 산술 일관성 OK (격차 <1%)";
       badge.style.background = "#22c55e22"; badge.style.color = "#22c55e";
+    } else if (Math.abs(gap) < 5.0) {
+      badge.textContent = "≈ 격차 " + fmtPct(gap) + " (허용 오차 근처)";
+      badge.style.background = "#60a5fa22"; badge.style.color = "#60a5fa";
     } else {
-      badge.textContent = "⚠ 격차 " + fmtPct(gap) + " (>1% 경고)";
+      badge.textContent = "⚠ 격차 " + fmtPct(gap) + " (>5% 검토 필요)";
       badge.style.background = "#f59e0b22"; badge.style.color = "#f59e0b";
     }
   }
@@ -2460,12 +2490,18 @@
     const summary = document.getElementById("c-firm-summary");
     if (pft.n_firms) {
       summary.textContent = " · " + pft.n_firms + "개 · 최고 " + fmtKRW(pft.high_target) + " · 최저 " + fmtKRW(pft.low_target) + " · 평균 " + fmtKRW(pft.mean_target);
+    } else if (pft.high_target || pft.mean_target) {
+      // US ticker: no per-firm names but aggregate range available
+      summary.textContent = " · 집계만 · 최고 " + fmtKRW(pft.high_target) + " · 최저 " + fmtKRW(pft.low_target) + " · 평균 " + fmtKRW(pft.mean_target);
     } else {
       summary.textContent = "";
     }
     const tbody = document.getElementById("c-firms-body");
     if (!firms.length) {
-      tbody.innerHTML = "<tr><td colspan=\"6\" style=\"padding:8px;color:#64748b;text-align:center\">데이터 없음</td></tr>";
+      const msg = pft.not_applicable_reason ||
+                  (C_MARKET === "US" ? "US ticker — per-firm 브로커 명단 없음 (yfinance 집계만 지원)"
+                                     : "데이터 없음");
+      tbody.innerHTML = "<tr><td colspan=\"6\" style=\"padding:12px;color:#94a3b8;text-align:center;font-size:0.75rem\">" + esc(msg) + "</td></tr>";
       return;
     }
     tbody.innerHTML = firms.map(f => {
@@ -2484,9 +2520,23 @@
 
   function renderGlobalIB(a) {
     const named = (a && a.global_ib_named) || [];
+    const raw = (a && a.raw_inputs) || {};
     const el = document.getElementById("c-global-ib-content");
     if (!named.length) {
-      el.innerHTML = "<div style=\"color:#64748b;font-size:0.78rem\">추출된 글로벌 IB 명단 없음. 매뉴얼 입력 시 이 섹션에 표시됩니다.</div>";
+      if (C_MARKET === "US") {
+        // For US ticker, show yfinance aggregate summary instead
+        const th = raw.target_high, tl = raw.target_low, tm = raw.latest_target_price, tmed = raw.target_median;
+        el.innerHTML =
+          "<div style=\"color:#94a3b8;font-size:0.78rem;margin-bottom:8px\">US ticker — yfinance 집계 (per-firm 명단 무료 채널에 노출되지 않음)</div>" +
+          "<table style=\"width:100%;font-size:0.78rem\"><tbody>" +
+          "<tr><td style=\"padding:4px 8px;color:#64748b\">최고 목표가</td><td style=\"padding:4px 8px;text-align:right\">" + fmtKRW(th) + "</td></tr>" +
+          "<tr><td style=\"padding:4px 8px;color:#64748b\">최저 목표가</td><td style=\"padding:4px 8px;text-align:right\">" + fmtKRW(tl) + "</td></tr>" +
+          "<tr><td style=\"padding:4px 8px;color:#64748b\">평균 목표가</td><td style=\"padding:4px 8px;text-align:right;font-weight:600\">" + fmtKRW(tm) + "</td></tr>" +
+          "<tr><td style=\"padding:4px 8px;color:#64748b\">중간값 목표가</td><td style=\"padding:4px 8px;text-align:right\">" + fmtKRW(tmed) + "</td></tr>" +
+          "</tbody></table>";
+      } else {
+        el.innerHTML = "<div style=\"color:#64748b;font-size:0.78rem\">추출된 글로벌 IB 명단 없음. 매뉴얼 입력 시 이 섹션에 표시됩니다.</div>";
+      }
       return;
     }
     let html = "<div style=\"overflow-x:auto\"><table style=\"width:100%;font-size:0.75rem;border-collapse:collapse\">";
@@ -2519,7 +2569,10 @@
     const qs = qe.quarters || [];
     const tbody = document.getElementById("c-quarterly-body");
     if (!qs.length) {
-      tbody.innerHTML = "<tr><td colspan=\"6\" style=\"padding:8px;color:#64748b;text-align:center\">데이터 없음</td></tr>";
+      const msg = qe.not_applicable_reason ||
+                  (C_MARKET === "US" ? "US ticker — yfinance 는 분기 컨센서스 surprise 이력 미제공"
+                                     : "데이터 없음");
+      tbody.innerHTML = "<tr><td colspan=\"6\" style=\"padding:12px;color:#94a3b8;text-align:center;font-size:0.75rem\">" + esc(msg) + "</td></tr>";
       document.getElementById("c-quarterly-chart").innerHTML = "";
       return;
     }
@@ -2628,6 +2681,12 @@
       return;
     }
     const a = result.analysis;
+    const raw = (a && a.raw_inputs) || {};
+    // Detect currency + market from analysis or ticker config
+    C_CURR = raw.currency || (C_TICKERS[ticker] && C_TICKERS[ticker].currency) || "KRW";
+    C_MARKET = ((a && a.meta_audit && a.meta_audit.us_ticker) ||
+                (C_TICKERS[ticker] && C_TICKERS[ticker].market === "US"))
+               ? "US" : "KR";
     const q = (a && a.data_quality && a.data_quality.score) || null;
     renderQualityBadge(q);
     renderBasicConsensus(a);
@@ -2638,8 +2697,10 @@
     renderQuarterly(a);
     renderQs(a);
     renderMetaAudit(a);
+    const cfg = C_TICKERS[ticker];
+    const cname = (a && a.company) || (cfg && cfg.name) || ticker;
     const meta = document.getElementById("c-header-meta");
-    meta.textContent = "기업: " + (a.company || C_TICKERS[ticker] || ticker) + " (" + ticker + ")  ·  스키마: " + (a.schema_version || "?");
+    meta.textContent = "기업: " + cname + " (" + ticker + ", " + C_MARKET + " / " + C_CURR + ")  ·  스키마: " + (a.schema_version || "?");
     if (result.manifest) {
       const h = result.manifest.top_sha256 || "";
       document.getElementById("c-hash-badge").textContent = "immutable sha256: " + h.substring(0, 8);

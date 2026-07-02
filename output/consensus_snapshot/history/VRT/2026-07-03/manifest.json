@@ -1,0 +1,13 @@
+{
+  "date": "2026-07-03",
+  "files": {
+    "analysis.json": "b0d915fdf4e8384a5e360484d7792a99aa7b1a859125eef6068a33c4f351af34",
+    "parsed.json": "d1a5c2e1d20ba4f7fe2e04fbc100e9611802e55449ab473355fabc709303761b",
+    "report.md": "5edb9eb34e16276541f51f29f99842df3a05931476ccf1c5f615f4e3e8f4fe7c"
+  },
+  "pipeline_git_head_sha": "26a4d9d21d5122c8806d3163ce193df02e08f1af",
+  "schema_version": "1.0",
+  "ticker": "VRT",
+  "top_sha256": "eb1cd0a81f381bffde7ce73fc2fd5394dbd4b31a5b5fcce28e90e1622a888c0b",
+  "written_at_utc": "2026-07-02T23:06:11+00:00"
+}

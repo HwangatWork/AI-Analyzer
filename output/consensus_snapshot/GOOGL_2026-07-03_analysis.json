@@ -1,0 +1,105 @@
+{
+  "answers": {
+    "Q1_direction": "INSUFFICIENT",
+    "Q1_target_price_change_pct": null,
+    "Q2_direction": "INSUFFICIENT",
+    "Q2_eps_change_pct": null,
+    "Q3_direction": "INSUFFICIENT",
+    "Q3_op_income_change_pct": null,
+    "Q4_quadrant": "INSUFFICIENT",
+    "Q5_details": {
+      "note": "US ticker; yfinance aggregate is already global consensus.",
+      "per_firm_jpm_gs_available": false
+    },
+    "Q5_global_vs_domestic": "US_TICKER_NOT_APPLICABLE"
+  },
+  "company": "Alphabet Inc.",
+  "data_quality": {
+    "components": {
+      "breakdown_today": true,
+      "close_price": true,
+      "n_analysts": true,
+      "target_high_low": true,
+      "target_mean": true
+    },
+    "score": 1.0
+  },
+  "global_ib_named": [],
+  "meta_audit": {
+    "has_data": true,
+    "kr_buy_bias_source": "N/A — US ticker (KCMI Korean-market bias does not apply)",
+    "kr_buy_bias_warning": false,
+    "point_in_time_note": "single yfinance fetch; no daily accumulation yet.",
+    "point_in_time_status": "snapshot",
+    "target_price_role": "sentiment_valuation_proxy",
+    "target_price_role_source": "Bradshaw, Brown, Huang 2013 — 12-month target price achievement 38%. Applies to US tickers as well; aggregate mean shown.",
+    "us_ticker": true,
+    "us_ticker_limitations": [
+      "no per-firm broker table (only aggregate)",
+      "no quarterly consensus surprise history",
+      "no Korean-market-specific optimism-bias correction",
+      "Q1~Q4 remain INSUFFICIENT until estimate-revision feed"
+    ]
+  },
+  "parser_warnings": [],
+  "probed_at": "2026-07-03T08:05:55+09:00",
+  "raw_inputs": {
+    "Q1_source": "insufficient",
+    "annual_indicators": {
+      "found": false,
+      "metrics": {}
+    },
+    "chart_latest_target_price": 432.64584,
+    "close_price_latest": 359.91,
+    "currency": "USD",
+    "investment_opinion": 1.4375,
+    "latest_target_price": 432.64584,
+    "latest_target_price_date": "2026-07-03",
+    "n_analysts": 53,
+    "opinion_breakdown": {
+      "buy": 43,
+      "hold": 7,
+      "sell": 0,
+      "strong_buy": 14,
+      "strong_sell": 0,
+      "total": 64
+    },
+    "opinion_breakdown_prior": {
+      "buy": 43,
+      "hold": 7,
+      "sell": 0,
+      "strong_buy": 14,
+      "strong_sell": 0,
+      "total": 64
+    },
+    "per_firm_targets": {
+      "firms": [],
+      "found": false,
+      "high_target": 515.0,
+      "low_target": 340.0,
+      "mean_target": 432.64584,
+      "n_firms": 0,
+      "not_applicable_reason": "US tickers do not expose per-firm broker targets on free channels; aggregate range shown."
+    },
+    "prior_target_price": null,
+    "quarterly_earnings": {
+      "found": false,
+      "not_applicable_reason": "yfinance does not provide quarterly consensus vs actual surprise history for free."
+    },
+    "recommendation_key": "strong_buy",
+    "static_eps": 13.11,
+    "static_per": 27.45309,
+    "static_target_price": 432.64584,
+    "target_high": 515.0,
+    "target_low": 340.0,
+    "target_median": 430.0,
+    "target_price_change_label": "insufficient"
+  },
+  "reconciliation": {
+    "close_latest": 359.91,
+    "per_eps_close_diff_pct": 2.750687658655646e-06,
+    "per_times_eps": 359.9100099
+  },
+  "schema_version": "0.3-us",
+  "ticker": "GOOGL"
+}
