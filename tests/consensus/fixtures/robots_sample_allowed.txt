@@ -1,4 +1,9 @@
 # Sample robots.txt — general allow with rate limit
+# source: SYNTHETIC (not fetched from real site)
+# fetched_at: N/A (합성 fixture — Phase 14-0-A2 회귀용)
+# refresh_cadence: manual (실 사이트 정책 변경 시 별도 phase 14-0-B1 live audit)
+# purpose: static_robots_analyzer positive path (allow / with disallow rules)
+# ---
 User-agent: *
 Disallow: /admin/
 Disallow: /private/

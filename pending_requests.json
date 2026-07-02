@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-02T23:04:09",
+  "updated": "2026-07-02T23:17:16",
   "completed": [
     {
       "id": "REQ-001",
@@ -503,6 +503,20 @@
       "status": "backlog",
       "details": "11-A REQ-DOGFOOD-ESCALATION 과 대칭. 별도 파이프라인 후속 작업.",
       "registered_at": "2026-07-02T23:04:09"
+    },
+    {
+      "id": "REQ-14-0-C-INTEGRATION",
+      "request": "[Phase 14-0-C follow-up, meta-audit 9차 Q5] daily_snapshot_writer 파이프라인 통합 (미실행 상태)",
+      "status": "backlog",
+      "details": "현재 tools/consensus/daily_snapshot_writer.py 는 pm_orchestrator PIPELINE_STAGES 미등록 → dead code. schedule 연결 + PM 통합 후 실 데이터 수집.",
+      "registered_at": "2026-07-02T23:17:16"
+    },
+    {
+      "id": "REQ-14-0-C-TRACEABILITY",
+      "request": "[Phase 14-0-C follow-up, meta-audit 9차 Q3] sha256 sink 미연결 (감사 흔적 zero)",
+      "status": "backlog",
+      "details": "daily_snapshot_writer 는 sha256 반환하나 data/agent_activity.jsonl 등 append-only log 미연결. 통합 시 snapshot_written 이벤트 로깅 필요.",
+      "registered_at": "2026-07-02T23:17:16"
     }
   ]
 }

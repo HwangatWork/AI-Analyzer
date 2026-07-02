@@ -1,3 +1,8 @@
 # Sample robots.txt — 전체 UA 전면 차단
+# source: SYNTHETIC (not fetched from real site)
+# fetched_at: N/A (합성 fixture — Phase 14-0-A2 회귀용)
+# refresh_cadence: manual (실 사이트 정책 변경 시 별도 phase 14-0-B1 live audit)
+# purpose: static_robots_analyzer negative path (full disallow, risk flag test)
+# ---
 User-agent: *
 Disallow: /

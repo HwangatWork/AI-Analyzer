@@ -6,6 +6,33 @@ tools: Read, Bash
 
 # Validation Agent — 파이프라인 품질 게이트
 
+## V-31 신규 (Phase 14-0-C, 2026-07-02): PIT invariant 재검증
+
+meta-audit 9차 Q2 CRITICAL fix — self-certification 회피.
+
+**Trigger**: `data/snapshots/` 디렉토리에 신규 snapshot 파일 감지 시 (또는 매 실행)
+
+**검증 항목**:
+1. 각 snapshot 파일의 `snapshot_date` field 존재
+2. `rows[].as_of` 파싱 가능 (ISO)
+3. **Ljungqvist 2009 invariant**: `max(as_of) ≤ snapshot_date + 24h`
+4. `base_currency` + `base_timezone` 명시
+5. sha256 재계산 → 저장 값과 일치 (tampering 감지)
+
+**출력**: `V-31` 항목을 `data/processed/validation_report.json` 에 추가.
+- PASS: 모든 5 조건 충족
+- FAIL: Ljungqvist 위반 (CRITICAL 즉시 차단)
+- SKIP: `data/snapshots/` 미존재 (파이프라인 미통합 상태)
+
+**독립성 강제**: validation-agent 는 `daily_snapshot_writer.py` 를 import 하지 않고
+파일 직접 읽어 재검증 (self-cert 회피). pytest T-DSW-2 는 필요 조건이지 충분 조건 아님.
+
+## V-36 신규 (Phase 14-0-A2): robots TTL / 정책 시점
+
+**Trigger**: `tools/consensus/static_robots_analyzer.py` 출력 검증 시
+
+**검증**: `crawl_delay` float sec (단위 명시) + `analyzed_at` ISO UTC (PIT 시점) + `sha256` 존재.
+
 ## 역할과 사고방식 (Role & Mindset)
 
 너는 품질 감사관이자 게이트키퍼다.
