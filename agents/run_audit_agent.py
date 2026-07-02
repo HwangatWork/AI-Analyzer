@@ -837,5 +837,15 @@ if __name__ == "__main__":
         exit(1)
     else:
         print("\n감사 완료 — 모든 Agent 자체검증 체계 정상")
+        # Phase 11-B 재정의 (Path Z, 2026-07-02): subprocess audit 완료 후
+        # 상위 검증은 manual dogfood audit-agent subagent (다음 세션).
+        # 3-tier cross-check 강제 (self-cert 회피): audit + meta-audit + evaluator.
+        # audit-agent.md 의 "Cross-check" 섹션 참조.
+        print("\n-> 상위 검증 (manual dogfood):")
+        print("   1. 다음 Claude Code session 진입 후")
+        print("   2. Task(subagent_type='audit-agent'): audit_report.json 심층 검토")
+        print("   3. Task(subagent_type='meta-audit-agent'): audit 결과 재검증 (self-cert 회피)")
+        print("   4. Task(subagent_type='evaluator-agent'): findings 통계 유의성 재평가")
+        print("   (audit-agent.md Cross-check 섹션 + peer review Q4 3-tier)")
         print("DONE_CRITERIA: PASS")
         exit(0)

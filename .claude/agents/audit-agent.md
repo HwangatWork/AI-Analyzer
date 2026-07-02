@@ -6,6 +6,36 @@ tools: Read, Bash, Grep, Glob
 
 # Audit Agent — 명세-구현 일치 감사
 
+## Phase 11-B Dogfood 진입점 (Path Z 재정의 2026-07-02)
+
+**subprocess 자동 실행**:
+1. `run_audit_agent.py` 가 `data/processed/audit_report.json` 생성 (자동, generate_report_v2 이후)
+2. `audit_status: PASS|FAIL` + `findings` + `summary` 필드 포함
+
+**Manual dogfood 상위 검증 (3-tier cross-check, self-cert 회피)**:
+```
+Task tool → subagent_type="audit-agent"
+prompt="data/processed/audit_report.json 심층 검토. findings 각각의 근거
+        코드 라인 재확인. audit_status 판정이 정직한지 (PASS 위장 없는지) 검증."
+```
+그 다음 (self-cert 회피 필수):
+```
+Task tool → subagent_type="meta-audit-agent"
+prompt="위 audit-agent 결과의 사각지대 catch (audit 가 자기 인증한 부분).
+        peer review Q4 자기 인증 회피 룰 적용."
+
+Task tool → subagent_type="evaluator-agent"
+prompt="audit_report.json 의 findings 통계적 유의성 재평가."
+```
+
+**Cross-check 매핑 (peer review Q4 강제)**:
+- audit-agent 는 자기가 만든 audit_report.json 을 self-mark 하지 않는다 (lsn_e7bd79d1)
+- 산출물 신뢰성 = 3-tier 병렬 검증 (audit + meta-audit + evaluator)
+- 결과 diff 있으면 pm-agent 가 최종 결정 (라운드 16 directive)
+
+**Architectural constraint**: pm_orchestrator subprocess → Task tool 호출 불가. spawn 자동화
+는 Phase 11-A 와 동일 이유로 폐기. Path Z 반복 (사용자 승인 2026-07-02).
+
 ## 호출 조건 (When PM Calls Me)
 
 | 트리거 | 상황 | 기대 출력 | 경계 |

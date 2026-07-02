@@ -103,16 +103,32 @@ Tasks (재정의):
 - [x] Task 5 — failure_memory 연동: manual dogfood 미완료 시 pending 유지, `_record_success()` 는 사용자 확인 후
 - [x] Gate — narrative_context.json 완전성 회귀 PASS + manual dogfood 명세화 완료 (원안 "FINAL_REPORT 자동 생성" 은 architectural impossibility 로 폐기)
 
-## Phase 11-B: Audit Agent Spawn 전환 (선택)
+## Phase 11-B: Audit Agent Spawn 전환 (재정의 2026-07-02, 사용자 승인 Path Z 반복)
 
 배경: 파이프라인 최종 게이트 — 감사 실패가 다른 단계에 오염되지 않도록 독립 격리 실행.
-선행조건: Phase 12-1 완료 ✅ (2026-06-21, c40c7dc) — 우선순위: Phase 13-B 완료 후 착수 (11-A와 병렬 가능)
 
-- [ ] Task 1 — run_audit_agent.py Spawn 진입점 정의 (audit_report.json 계약 명세)
-- [ ] Task 2 — pm_orchestrator.py Group E에 Audit 추가 (Phase 11-A 완료 후 병행)
-- [ ] Task 3 — Spawn 결과(APPROVE/HOLD)를 pm_orchestrator.py 최종 판정 로직에 자동 연결
-- [ ] Task 4 — failure_memory 연동 및 Telegram 보고 유지
-- [ ] Gate — audit_report.json 생성 + APPROVE/HOLD 자동 판정 전달 + 회귀 테스트 PASS
+**재정의 이유 (11-A 와 동일 constraint + self-cert risk)**:
+- Task 1-3 원안: pm_orchestrator Group E 가 audit-agent subagent spawn → Phase 11-A 와
+  동일 architectural impossibility (subprocess → Task tool 불가)
+- 추가 risk: auditor 가 자기 코드 검증 = **CRITICAL self-cert** (lsn_e7bd79d1 재발 위험)
+- 이미 subprocess 로 audit_report.json 생성 중이라 격리 목표는 부분 달성됨
+
+**Path Z 반복 (사용자 승인 2026-07-02)** — verification + 3-tier cross-check:
+- data-prep = `run_audit_agent.py` (subprocess 자동, `audit_report.json` 생성 유지)
+- 상위 검증 = **manual dogfood** audit-agent subagent (다음 세션 사용자 Task tool)
+- **3-tier cross-check 강제** (peer review Q4 self-cert 회피):
+  1. audit-agent (자기 산출물 검증 — 자기 인증 라벨 금지)
+  2. meta-audit-agent (audit 결과 재검증)
+  3. evaluator-agent (audit_report 의 통계 유의성 재평가)
+- Task 4 failure_memory 는 subprocess exit code 로 유지 (기존 pipeline)
+
+Tasks (재정의):
+- [x] Task 1 — `run_audit_agent.py` 완결 확인 + audit_report.json 계약 명세 (신규 회귀)
+- [x] Task 2 — Group E 재정의: 11-A 와 동일 (spawn 자동화 X, pending 등록만)
+- [x] Task 3 — audit-agent.md 에 dogfood 진입점 + 3-tier cross-check 매핑 명시
+- [x] Task 4 — audit_report.json 완전성 회귀 + audit_status enum + findings 최소 크기
+- [x] Task 5 — `_register_dogfood_audit_pending` (11-A sweeper 패턴 재사용)
+- [x] Gate — audit_report.json 완전성 회귀 PASS + 3-tier cross-check 명세화 (원안 "spawn 자동화" 는 architectural impossibility 로 폐기)
 
 ---
 
