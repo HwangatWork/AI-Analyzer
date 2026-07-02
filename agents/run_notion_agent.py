@@ -124,6 +124,193 @@ def _callout(text: str, emoji: str = "📊") -> dict:
             }}
 
 
+def _code(text: str, language: str = "plain text") -> dict:
+    return {"object": "block", "type": "code",
+            "code": {
+                "rich_text": [{"type": "text", "text": {"content": text[:2000]}}],
+                "language": language,
+            }}
+
+
+# ── Phase: 날짜별 자식 페이지 (2026-07-03 사용자 요청) ─────────────
+
+def markdown_to_notion_blocks(md_text: str) -> list[dict]:
+    """FINAL_REPORT_v2.md 등 markdown 을 Notion 블록으로 변환.
+
+    지원 문법 (규칙 기반, 간단):
+    - `# ...` → H1, `## ...` → H2, `### ...` → H3
+    - `- ...` → bullet
+    - ``` 시작~끝 → code block (언어 자동 detect)
+    - 빈 줄 → 무시 (또는 divider)
+    - `---` → divider
+    - 나머지 → paragraph
+
+    Notion API 제약: 한 블록 rich_text ≤ 2000자.
+    """
+    blocks: list[dict] = []
+    in_code = False
+    code_buf: list[str] = []
+    code_lang = "plain text"
+
+    for raw in md_text.splitlines():
+        line = raw.rstrip("\r")
+
+        # 코드 블록
+        if line.strip().startswith("```"):
+            if in_code:
+                blocks.append(_code("\n".join(code_buf), code_lang))
+                code_buf = []
+                code_lang = "plain text"
+                in_code = False
+            else:
+                lang = line.strip()[3:].strip() or "plain text"
+                # Notion 지원 언어 화이트리스트 (일부)
+                if lang not in {"plain text", "python", "bash", "json", "javascript",
+                                "typescript", "markdown", "html", "css", "sql", "yaml"}:
+                    lang = "plain text"
+                code_lang = lang
+                in_code = True
+            continue
+
+        if in_code:
+            code_buf.append(line)
+            continue
+
+        stripped = line.strip()
+        if not stripped:
+            continue
+
+        if stripped == "---":
+            blocks.append(_divider())
+        elif stripped.startswith("### "):
+            blocks.append(_h3(stripped[4:]))
+        elif stripped.startswith("## "):
+            blocks.append(_h2(stripped[3:]))
+        elif stripped.startswith("# "):
+            blocks.append(_h1(stripped[2:]))
+        elif stripped.startswith("- ") or stripped.startswith("* "):
+            blocks.append(_bullet(stripped[2:]))
+        else:
+            blocks.append(_para(stripped))
+
+    # code fence 미종결 시 flush
+    if in_code and code_buf:
+        blocks.append(_code("\n".join(code_buf), code_lang))
+
+    return blocks
+
+
+def _find_child_by_title(parent_id: str, title: str) -> str | None:
+    """부모 페이지 하위에서 정확한 title 자식 페이지 검색. 있으면 page_id 반환."""
+    try:
+        resp = _get(f"/blocks/{parent_id}/children?page_size=100")
+    except Exception:
+        return None
+    for blk in resp.get("results", []):
+        if blk.get("type") != "child_page":
+            continue
+        cp_title = blk.get("child_page", {}).get("title", "")
+        if cp_title == title:
+            return blk.get("id")
+    return None
+
+
+def create_daily_child_page(
+    parent_id: str = PAGE_ID,
+    date_str: str | None = None,
+    report_md_path: Path | None = None,
+) -> dict:
+    """오늘 날짜 자식 페이지 생성 (중복 시 skip). markdown 리포트를 노션 블록으로 변환.
+
+    Returns:
+        {"status": "created"|"skipped"|"error",
+         "page_id": ..., "title": ..., "block_count": N,
+         "reason": <optional str>}
+    """
+    date_str = date_str or datetime.now().strftime("%Y-%m-%d")
+    title = f"{date_str} 리포트"
+    report_md_path = report_md_path or (OUT_DIR / "FINAL_REPORT_v2.md")
+
+    # 1. 중복 방지: 같은 이름 자식 페이지 이미 있으면 skip
+    existing = _find_child_by_title(parent_id, title)
+    if existing:
+        return {
+            "status": "skipped",
+            "reason": "already_exists",
+            "page_id": existing,
+            "title": title,
+            "block_count": 0,
+        }
+
+    # 2. 리포트 markdown 로드
+    if not report_md_path.exists():
+        return {
+            "status": "error",
+            "reason": f"report md 미존재: {report_md_path}",
+            "title": title,
+            "block_count": 0,
+        }
+    try:
+        md_text = report_md_path.read_text(encoding="utf-8")
+    except OSError as e:
+        return {
+            "status": "error", "reason": f"read fail: {e}",
+            "title": title, "block_count": 0,
+        }
+
+    blocks = markdown_to_notion_blocks(md_text)
+    if not blocks:
+        blocks = [_para("(리포트 내용 없음)")]
+
+    # 3. 자식 페이지 생성 (첫 100 블록만 children 파라미터 허용)
+    first_chunk = blocks[:100]
+    body = {
+        "parent": {"page_id": parent_id},
+        "properties": {
+            "title": {"title": [{"type": "text", "text": {"content": title}}]}
+        },
+        "children": first_chunk,
+    }
+    try:
+        r = httpx.post(
+            f"{BASE_URL}/pages",
+            headers=_headers(),
+            content=json.dumps(body, ensure_ascii=False).encode("utf-8"),
+            timeout=15,
+        )
+        r.raise_for_status()
+        new_page = r.json()
+    except Exception as e:
+        return {
+            "status": "error", "reason": f"create page: {e}",
+            "title": title, "block_count": 0,
+        }
+
+    new_page_id = new_page.get("id", "")
+
+    # 4. 남은 블록 append (chunk 90 씩)
+    remaining = blocks[100:]
+    inserted = len(first_chunk)
+    for i in range(0, len(remaining), 90):
+        chunk = remaining[i:i + 90]
+        try:
+            _patch(f"/blocks/{new_page_id}/children", {"children": chunk})
+            inserted += len(chunk)
+        except Exception as e:
+            return {
+                "status": "error", "reason": f"append chunk: {e}",
+                "page_id": new_page_id, "title": title,
+                "block_count": inserted,
+            }
+
+    return {
+        "status": "created",
+        "page_id": new_page_id,
+        "title": title,
+        "block_count": inserted,
+    }
+
+
 # ── 데이터 로드 ──────────────────────────────────────────────────
 
 def _load_results() -> dict:
@@ -389,7 +576,16 @@ if __name__ == "__main__":
 
     try:
         result = update_notion_page()
-        print(f"[Notion] 완료 — 점수={result['score']}, 방향={result['direc']}, 블록={result['blocks']}개")
+        print(f"[Notion] 부모 완료 — 점수={result['score']}, 방향={result['direc']}, 블록={result['blocks']}개")
+
+        # 2026-07-03: 자식 페이지 매일 생성 (히스토리 유지)
+        child_result = create_daily_child_page()
+        if child_result["status"] == "created":
+            print(f"[Notion] 자식 페이지 생성 — {child_result['title']} ({child_result['block_count']}블록)")
+        elif child_result["status"] == "skipped":
+            print(f"[Notion] 자식 페이지 skip — 이미 존재 ({child_result['title']})")
+        else:
+            print(f"[Notion] 자식 페이지 실패 (advisory) — {child_result.get('reason', '?')}")
     except httpx.HTTPStatusError as e:
         print(f"[ERROR] Notion API HTTP 오류: {e.response.status_code} — {e.response.text}")
         sys.exit(1)

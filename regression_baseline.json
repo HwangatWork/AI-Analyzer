@@ -2,15 +2,15 @@
   "schema_version": "1.0",
   "last_updated": "2026-06-29",
   "baseline": {
-    "pass_count": 204,
+    "pass_count": 220,
     "skip_count": 0,
     "fail_count": 0,
-    "wall_clock_sec_approx": 31,
+    "wall_clock_sec_approx": 32,
     "pytest_command": "python -m pytest agents/tests/ -v --tb=short -q",
-    "min_pass": 203,
+    "min_pass": 219,
     "max_skip": 1,
     "max_fail": 0,
-    "note": "T23 environment-dependent SKIP/PASS. 203+ floor (198 → 204 after Phase 14-0-C 파이프라인 통합: run_daily_snapshot 6 tests)."
+    "note": "T23 environment-dependent SKIP/PASS. 219+ floor (204 → 220 after 사용자 요청 2026-07-03: Notion 자식페이지 +7, Telegram commands +9)."
   },
   "dc_evidence": {
     "DC-1": {
