@@ -76,8 +76,10 @@ PIPELINE_STAGES = [
     ("run_narrative_agent.py",  "Narrative Agent",  11, 120),
     ("generate_report_v2.py",   "Report",           12, 120),
     ("run_audit_agent.py",      "Audit Agent",      13, 300),
+    # Phase 14-0-C 파이프라인 통합 (2026-07-03): meta-audit 9차 Q3/Q5 CRITICAL fix
+    ("run_daily_snapshot.py",   "Daily Snapshot",   14, 60),
 ]
-TOTAL_STEPS = 14  # 13 스테이지 + 1 최종 보고
+TOTAL_STEPS = 15  # 14 스테이지 + 1 최종 보고 (Phase 14-0-C 추가)
 
 STAGE_DEPS: dict[str, list[str]] = {
     "run_data_agent_v2.py":      [],
@@ -96,6 +98,8 @@ STAGE_DEPS: dict[str, list[str]] = {
     "run_narrative_agent.py":    ["run_ui_agent.py"],
     "generate_report_v2.py":     ["run_narrative_agent.py"],
     "run_audit_agent.py":        ["generate_report_v2.py"],
+    # Phase 14-0-C: audit 완료 후 매 실행마다 snapshot 저장 (PIT invariant + sha256 sink)
+    "run_daily_snapshot.py":     ["run_audit_agent.py"],
 }
 
 # ── Phase 6-3: Group A/B/C/D 병렬 실행 구조 ──────────────────────────────
@@ -122,6 +126,7 @@ EXECUTION_GROUPS: list[tuple[str, bool, list[str]]] = [
         "run_narrative_agent.py",
         "generate_report_v2.py",
         "run_audit_agent.py",
+        "run_daily_snapshot.py",  # Phase 14-0-C (2026-07-03)
     ]),
 ]
 

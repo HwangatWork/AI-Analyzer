@@ -2,15 +2,15 @@
   "schema_version": "1.0",
   "last_updated": "2026-06-29",
   "baseline": {
-    "pass_count": 198,
+    "pass_count": 204,
     "skip_count": 0,
     "fail_count": 0,
-    "wall_clock_sec_approx": 33,
+    "wall_clock_sec_approx": 31,
     "pytest_command": "python -m pytest agents/tests/ -v --tb=short -q",
-    "min_pass": 197,
+    "min_pass": 203,
     "max_skip": 1,
     "max_fail": 0,
-    "note": "T23 environment-dependent SKIP/PASS. 197+ floor (194 → 198 after 3-tier catch fix: T-ADF-8/9 marker schema +2 / T-AR-9/10 layer+encoding +2)."
+    "note": "T23 environment-dependent SKIP/PASS. 203+ floor (198 → 204 after Phase 14-0-C 파이프라인 통합: run_daily_snapshot 6 tests)."
   },
   "dc_evidence": {
     "DC-1": {
