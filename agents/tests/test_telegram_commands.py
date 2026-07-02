@@ -84,7 +84,7 @@ def test_T_TC_5_register_new(cmd_mod, tmp_path):
         "command": "/report", "req_id": "REQ-USER-REPORT",
         "description": "test", "update_id": 99, "text": "/report",
     }]
-    result = cmd_mod.register_pending(hits, pending_path=pending)
+    result = cmd_mod.register_pending(hits, pending_path=pending, send_ack=False)
     assert result["registered"] == 1
     data = json.loads(pending.read_text(encoding="utf-8"))
     ids = [i["id"] for i in data["pending"]]
@@ -118,7 +118,7 @@ def test_T_TC_7_new_pending_file_created(cmd_mod, tmp_path):
         "command": "/status", "req_id": "REQ-USER-STATUS",
         "description": "test", "update_id": 1, "text": "/status",
     }]
-    result = cmd_mod.register_pending(hits, pending_path=pending)
+    result = cmd_mod.register_pending(hits, pending_path=pending, send_ack=False)
     assert result["registered"] == 1
     assert pending.exists()
 
@@ -141,3 +141,23 @@ def test_T_TC_8_check_and_register_integrated(cmd_mod, tmp_path, monkeypatch):
 def test_T_TC_9_selftest_exit_zero(cmd_mod):
     rc = cmd_mod._selftest()
     assert rc == 0
+
+
+def test_T_TC_10_send_ack_disabled_by_flag(cmd_mod, tmp_path):
+    """send_ack=False 시 텔레그램 API 호출 안 함 (test 안전)."""
+    pending = tmp_path / "pending_requests.json"
+    hits = [{
+        "command": "/report", "req_id": "REQ-USER-REPORT",
+        "description": "test", "update_id": 1, "text": "/report",
+    }]
+    result = cmd_mod.register_pending(hits, pending_path=pending, send_ack=False)
+    assert result["registered"] == 1
+    assert result["acks_sent"] == 0
+
+
+def test_T_TC_11_check_and_register_returns_acks_sent(cmd_mod, tmp_path, monkeypatch):
+    """acks_sent 필드가 반환값에 포함."""
+    pending = tmp_path / "pending_requests.json"
+    monkeypatch.setattr(cmd_mod, "fetch_recent_updates", lambda lookback=5: [])
+    result = cmd_mod.check_and_register(pending_path=pending)
+    assert "acks_sent" in result or result.get("reason") == "no_hits"

@@ -106,9 +106,55 @@ def detect_commands(updates: list[dict]) -> list[dict]:
     return hits
 
 
+def _send_telegram_ack(hit: dict) -> bool:
+    """감지된 명령어에 대한 즉시 접수 회신. 실패해도 파이프라인 차단 X.
+
+    2026-07-03 UX fix: 사용자가 `/report` 쳤을 때 "아무 반응 없음" 방지.
+    """
+    token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+    chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+    if not token or not chat_id:
+        return False
+    try:
+        import urllib.parse
+        cmd = hit["command"]
+        ack_map = {
+            "/report": (
+                f"📥 <b>{cmd} 명령 접수</b>\n"
+                f"<i>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>\n\n"
+                "리포트 재생성 요청 등록됨.\n"
+                "다음 파이프라인 실행 시 처리 (매일 09:10 KST 자동).\n"
+                "즉시 처리 원하면 GitHub Actions 수동 실행."
+            ),
+            "/status": (
+                f"📊 <b>{cmd} 명령 접수</b>\n"
+                f"<i>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>\n\n"
+                "상태 응답 요청 등록. pm-agent 가 다음 실행 시 응답."
+            ),
+            "/help": (
+                "🤖 <b>사용 가능 명령어</b>\n\n"
+                "/report — 리포트 재생성 요청\n"
+                "/status — 파이프라인 상태 조회\n"
+                "/help — 이 도움말\n\n"
+                "⚠️ 폴링 방식 — 즉시 반응 없음. 다음 실행 시 처리 (매일 09:10)."
+            ),
+        }
+        msg = ack_map.get(cmd, f"📥 {cmd} 접수됨")
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        data = urllib.parse.urlencode({
+            "chat_id": chat_id, "text": msg, "parse_mode": "HTML"
+        }).encode()
+        req = urllib.request.Request(url, data=data)
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return r.status == 200
+    except Exception:
+        return False
+
+
 def register_pending(
     hits: list[dict],
     pending_path: Path | None = None,
+    send_ack: bool = True,
 ) -> dict:
     """감지된 명령어를 pending_requests.json 에 등록. 중복 방지."""
     pending_path = pending_path or PENDING_PATH
@@ -129,6 +175,7 @@ def register_pending(
 
     registered = 0
     skipped = 0
+    acks_sent = 0
     for hit in hits:
         req_id = hit["req_id"]
         if req_id in existing and existing[req_id].get("status") == "pending":
@@ -147,6 +194,10 @@ def register_pending(
             "source": "telegram_command",
         })
         registered += 1
+        # 2026-07-03 UX fix: 감지 즉시 접수 회신 발송
+        if send_ack:
+            if _send_telegram_ack(hit):
+                acks_sent += 1
 
     if registered:
         data["pending"] = pending_list
@@ -158,7 +209,7 @@ def register_pending(
         except OSError as e:
             return {"registered": 0, "skipped": skipped, "reason": f"write fail: {e}"}
 
-    return {"registered": registered, "skipped": skipped}
+    return {"registered": registered, "skipped": skipped, "acks_sent": acks_sent}
 
 
 def check_and_register(

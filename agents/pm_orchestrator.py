@@ -521,6 +521,19 @@ def run_full_pipeline(skip_data: bool = False) -> list[tuple[str, bool]]:
     script_map = {s: (lbl, sn, to) for s, lbl, sn, to in PIPELINE_STAGES}
     results: list[tuple[str, bool]] = []
 
+    # ── 2026-07-03: 텔레그램 명령어 사전 체크 (사용자 /report 등 감지) ──
+    try:
+        import subprocess
+        cmd_script = BASE_DIR / "agents" / "check_telegram_commands.py"
+        if cmd_script.exists():
+            print("[PM] 텔레그램 명령어 사전 체크...")
+            subprocess.run(
+                [sys.executable, str(cmd_script), "--lookback", "20"],
+                timeout=15, cwd=BASE_DIR, check=False,
+            )
+    except Exception as _tg_e:
+        print(f"[PM] 텔레그램 사전 체크 실패 (advisory): {_tg_e}")
+
     # ── Phase 9: VIX 동적 스케일링 ─────────────────────────────────────────
     _vix_tier = _get_vix_tier()
     print(f"[PM] VIX 티어: {_vix_tier} (임계값 PLACEHOLDER — 백테스트 확정 전)")
