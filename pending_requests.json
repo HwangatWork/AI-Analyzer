@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-02T00:31:57",
+  "updated": "2026-07-02T23:04:09",
   "completed": [
     {
       "id": "REQ-001",
@@ -489,6 +489,20 @@
       "status": "backlog",
       "details": "meta-audit 7차 Q3 gap: 원안 failure_memory 대체가 부분 등가. failure count >= 3 로직 필요.",
       "registered_at": "2026-07-02T00:31:57"
+    },
+    {
+      "id": "REQ-DOGFOOD-AUDIT",
+      "request": "[Phase 11-B dogfood] audit_report.json 상위 3-tier 검증 필요",
+      "status": "pending",
+      "details": "data-prep 완료: audit_report.json. 다음 세션에서 3-tier Task spawn: audit-agent + meta-audit-agent + evaluator-agent. 완료 후 data/processed/audit_dogfood_verified.marker 파일 생성으로 auto-sweep. self-cert 회피 룰 (lsn_e7bd79d1) 준수 필수.",
+      "registered_at": "2026-07-02T23:02:10"
+    },
+    {
+      "id": "REQ-DOGFOOD-AUDIT-ESCALATION",
+      "request": "[Phase 11-B follow-up, meta-audit 8차 Q5] REQ-DOGFOOD-AUDIT N 사이클 연속 시 escalation",
+      "status": "backlog",
+      "details": "11-A REQ-DOGFOOD-ESCALATION 과 대칭. 별도 파이프라인 후속 작업.",
+      "registered_at": "2026-07-02T23:04:09"
     }
   ]
 }

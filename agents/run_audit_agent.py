@@ -50,6 +50,30 @@ def _register_dogfood_audit_pending(base_dir: Path, ar_path: Path) -> str:
     pending_path = base_dir / "pending_requests.json"
     req_id = "REQ-DOGFOOD-AUDIT"
 
+    def _validate_marker_schema(marker_path: Path) -> tuple[bool, str]:
+        """meta-audit 8차 Q2 CRITICAL fix (2026-07-02): marker JSON 스키마 강제.
+
+        marker 위장 차단: `echo done > marker` 같은 자유 텍스트 우회 방지.
+        요구 스키마: {"tiers": [...], "verified_at": ISO, "session_id": str}
+        tiers 는 반드시 3개 (audit-agent + meta-audit-agent + evaluator-agent) 포함.
+        """
+        REQUIRED_TIERS = {"audit-agent", "meta-audit-agent", "evaluator-agent"}
+        try:
+            content = marker_path.read_text(encoding="utf-8").strip()
+            obj = json.loads(content)
+        except (OSError, json.JSONDecodeError):
+            return False, "marker JSON parse 실패 (위장 의심)"
+        tiers = obj.get("tiers")
+        if not isinstance(tiers, list):
+            return False, "marker 에 tiers list 부재"
+        tier_names = {t if isinstance(t, str) else t.get("agent", "") for t in tiers}
+        missing = REQUIRED_TIERS - tier_names
+        if missing:
+            return False, f"3-tier 미완료: {missing} 누락"
+        if not obj.get("verified_at"):
+            return False, "verified_at timestamp 부재"
+        return True, "ok"
+
     try:
         if pending_path.exists():
             data = json.loads(pending_path.read_text(encoding="utf-8"))
@@ -59,26 +83,32 @@ def _register_dogfood_audit_pending(base_dir: Path, ar_path: Path) -> str:
         completed_list = data.get("completed", [])
 
         if marker.exists():
-            swept = False
-            remaining = []
-            for item in pending_list:
-                if item.get("id") == req_id and item.get("status") == "pending":
-                    item["status"] = "completed"
-                    item["completed_at"] = datetime.now().isoformat(timespec="seconds")
-                    item["completed_by"] = "3-tier_dogfood_marker (audit + meta-audit + evaluator)"
-                    completed_list.append(item)
-                    swept = True
-                else:
-                    remaining.append(item)
-            if swept:
-                data["pending"] = remaining
-                data["completed"] = completed_list
-                data["updated"] = datetime.now().isoformat(timespec="seconds")
-                pending_path.write_text(
-                    json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
-                )
-                return "swept"
-            return "skipped"
+            # Q2 fix: 스키마 강제 검증. 실패 시 marker 를 신뢰 안 함 (미존재 처리).
+            valid, msg = _validate_marker_schema(marker)
+            if not valid:
+                print(f"  [AA-5] marker 스키마 위반 (self-cert 회피): {msg}")
+                # marker 무효화 → 계속 pending 유지, 아래 등록/중복 로직 진행
+            else:
+                swept = False
+                remaining = []
+                for item in pending_list:
+                    if item.get("id") == req_id and item.get("status") == "pending":
+                        item["status"] = "completed"
+                        item["completed_at"] = datetime.now().isoformat(timespec="seconds")
+                        item["completed_by"] = "3-tier_dogfood_marker (schema-validated)"
+                        completed_list.append(item)
+                        swept = True
+                    else:
+                        remaining.append(item)
+                if swept:
+                    data["pending"] = remaining
+                    data["completed"] = completed_list
+                    data["updated"] = datetime.now().isoformat(timespec="seconds")
+                    pending_path.write_text(
+                        json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+                    )
+                    return "swept"
+                return "skipped"
 
         for item in pending_list:
             if item.get("id") == req_id and item.get("status") == "pending":

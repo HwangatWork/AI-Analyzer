@@ -69,10 +69,14 @@ def test_T_AR_4_summary_fields(ar):
 
 
 def test_T_AR_5_findings_min_size_and_fields(ar):
+    """evaluator 8차 fix: threshold 10 → 30 상향 + 전수 필드 검사."""
     findings = ar.get("findings") or []
     assert isinstance(findings, list), "findings 가 list 아님"
-    assert len(findings) >= 10, f"findings 부족: {len(findings)} < 10"
-    for i, f in enumerate(findings[:5]):  # 첫 5개만 sample 검사
+    assert len(findings) >= 30, (
+        f"findings 부족: {len(findings)} < 30 (실측 65 기준, evaluator 상향)"
+    )
+    # 전수 검사 (이전 sample 5개 → 전수, sampling bias 제거)
+    for i, f in enumerate(findings):
         missing = _FINDING_FIELDS - set(f.keys())
         assert not missing, f"findings[{i}] 필수 필드 누락: {missing}"
 
@@ -106,3 +110,34 @@ def test_T_AR_8_summary_arithmetic(ar):
     assert total >= passed + fc + fw, (
         f"산수 오류: total({total}) < passed({passed}) + fc({fc}) + fw({fw})"
     )
+
+
+def test_T_AR_9_layer_minimum_samples(ar):
+    """evaluator 8차 Q1 fix: layer 별 최소 표본 강제 (통계 대표성)."""
+    from collections import Counter
+    findings = ar.get("findings") or []
+    layer_counts = Counter(f.get("layer", "?") for f in findings)
+    # 각 layer 최소 3건 (통계 무의미 하한). evaluator 실측 L7=3 이 이 임계값.
+    for layer, count in layer_counts.items():
+        assert count >= 3, (
+            f"Layer {layer!r} 표본 부족: {count} < 3 (통계 대표성 부재)"
+        )
+    # 최소 5개 이상 서로 다른 layer 존재 (다양성)
+    assert len(layer_counts) >= 5, (
+        f"Layer 다양성 부족: {len(layer_counts)} 종류 < 5"
+    )
+
+
+def test_T_AR_10_layer_encoding_ascii_safe(ar):
+    """evaluator 8차 Q4 candidate: layer 이름 UTF-8 mojibake 감지 회귀."""
+    findings = ar.get("findings") or []
+    for i, f in enumerate(findings):
+        layer = f.get("layer", "")
+        # mojibake 감지: 대표 깨진 바이트 시퀀스 (cp949→utf-8 변환 잔재)
+        MOJIBAKE_MARKERS = ["싽", "데케", "지듄"]  # 깨진 조합 예시
+        # 실측: 정상 layer 는 ASCII 또는 명확한 한글 (예: "L1_기본감사")
+        assert layer, f"findings[{i}] layer 빈 문자열"
+        for marker in MOJIBAKE_MARKERS:
+            assert marker not in layer, (
+                f"findings[{i}] layer={layer!r} 에 mojibake 패턴 감지"
+            )

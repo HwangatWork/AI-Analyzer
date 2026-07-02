@@ -45,11 +45,22 @@ def _make_ar(tmp_path: Path) -> Path:
     return p
 
 
-def _make_marker(tmp_path: Path) -> Path:
-    """sentinel marker 생성 (3-tier 완료 시뮬레이션)."""
+def _make_marker(tmp_path: Path, valid_schema: bool = True) -> Path:
+    """sentinel marker 생성. meta-audit 8차 Q2 fix: JSON 스키마 강제.
+
+    valid_schema=True (default): 정상 3-tier marker
+    valid_schema=False: 자유 텍스트 (위장 시뮬레이션, sweep 안 되어야 함)
+    """
     m = tmp_path / "data" / "processed" / "audit_dogfood_verified.marker"
     m.parent.mkdir(parents=True, exist_ok=True)
-    m.write_text("verified: 2026-07-02", encoding="utf-8")
+    if valid_schema:
+        m.write_text(json.dumps({
+            "tiers": ["audit-agent", "meta-audit-agent", "evaluator-agent"],
+            "verified_at": "2026-07-02T23:00:00",
+            "session_id": "test-session",
+        }, ensure_ascii=False), encoding="utf-8")
+    else:
+        m.write_text("done", encoding="utf-8")  # 위장 시뮬레이션
     return m
 
 
@@ -129,3 +140,32 @@ def test_T_ADF_7_io_error_non_blocking(script_mod, tmp_path):
     fake.mkdir()
     r = script_mod._register_dogfood_audit_pending(tmp_path, ar)
     assert r == "error"  # exception 재raise 안 함
+
+
+def test_T_ADF_8_marker_invalid_schema_no_sweep(script_mod, tmp_path):
+    """meta-audit 8차 Q2 CRITICAL fix: 자유 텍스트 marker 는 sweep 차단."""
+    ar = _make_ar(tmp_path)
+    script_mod._register_dogfood_audit_pending(tmp_path, ar)  # pending 등록
+    _make_marker(tmp_path, valid_schema=False)  # 위장 marker
+
+    r = script_mod._register_dogfood_audit_pending(tmp_path, ar)
+    # marker 위장 → sweep 안 되어야 함 → already_registered 로 pending 유지
+    assert r == "already_registered", (
+        f"marker 스키마 위반인데 sweep 됨 (Q2 CRITICAL 방어 실패): {r}"
+    )
+    data = json.loads((tmp_path / "pending_requests.json").read_text(encoding="utf-8"))
+    pending_ids = [i["id"] for i in data["pending"]]
+    assert "REQ-DOGFOOD-AUDIT" in pending_ids, "위장 marker 로 pending 이 잘못 sweep 됨"
+
+
+def test_T_ADF_9_marker_missing_tier_no_sweep(script_mod, tmp_path):
+    """3-tier 중 1 tier 누락 시 sweep 차단."""
+    ar = _make_ar(tmp_path)
+    script_mod._register_dogfood_audit_pending(tmp_path, ar)
+    m = tmp_path / "data" / "processed" / "audit_dogfood_verified.marker"
+    m.write_text(json.dumps({
+        "tiers": ["audit-agent"],  # meta-audit + evaluator 누락
+        "verified_at": "2026-07-02T23:00:00",
+    }, ensure_ascii=False), encoding="utf-8")
+    r = script_mod._register_dogfood_audit_pending(tmp_path, ar)
+    assert r == "already_registered", "3-tier 미완료인데 sweep 됨"
