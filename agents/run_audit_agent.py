@@ -29,6 +29,85 @@ import copy
 from pathlib import Path
 from datetime import datetime
 
+
+def _register_dogfood_audit_pending(base_dir: Path, ar_path: Path) -> str:
+    """Phase 11-B Path Z (2026-07-02): 3-tier cross-check 상위 검증 pending 등록.
+
+    audit_report.json 생성 완료 후 pending_requests.json 에 REQ-DOGFOOD-AUDIT
+    등록. 사용자가 다음 세션에서 3-tier (audit + meta-audit + evaluator) Task
+    spawn 후 pending 을 수동 close.
+
+    Sentinel: data/processed/audit_dogfood_verified.marker 파일 존재 시 sweep.
+
+    Behavior:
+    - marker 존재 + pending 있음 → completed 로 sweep, "swept" 반환
+    - marker 존재 + pending 없음 → "skipped"
+    - marker 부재 + 이미 등록됨 → "already_registered"
+    - marker 부재 + 미등록 → "registered"
+    - I/O 오류 → advisory, 파이프라인 차단 X, "error" 반환
+    """
+    marker = base_dir / "data" / "processed" / "audit_dogfood_verified.marker"
+    pending_path = base_dir / "pending_requests.json"
+    req_id = "REQ-DOGFOOD-AUDIT"
+
+    try:
+        if pending_path.exists():
+            data = json.loads(pending_path.read_text(encoding="utf-8"))
+        else:
+            data = {"updated": "", "completed": [], "pending": []}
+        pending_list = data.get("pending", [])
+        completed_list = data.get("completed", [])
+
+        if marker.exists():
+            swept = False
+            remaining = []
+            for item in pending_list:
+                if item.get("id") == req_id and item.get("status") == "pending":
+                    item["status"] = "completed"
+                    item["completed_at"] = datetime.now().isoformat(timespec="seconds")
+                    item["completed_by"] = "3-tier_dogfood_marker (audit + meta-audit + evaluator)"
+                    completed_list.append(item)
+                    swept = True
+                else:
+                    remaining.append(item)
+            if swept:
+                data["pending"] = remaining
+                data["completed"] = completed_list
+                data["updated"] = datetime.now().isoformat(timespec="seconds")
+                pending_path.write_text(
+                    json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+                )
+                return "swept"
+            return "skipped"
+
+        for item in pending_list:
+            if item.get("id") == req_id and item.get("status") == "pending":
+                return "already_registered"
+
+        pending_list.append({
+            "id": req_id,
+            "request": (
+                "[Phase 11-B dogfood] audit_report.json 상위 3-tier 검증 필요"
+            ),
+            "status": "pending",
+            "details": (
+                f"data-prep 완료: {ar_path.name}. "
+                "다음 세션에서 3-tier Task spawn: audit-agent + meta-audit-agent + evaluator-agent. "
+                "완료 후 data/processed/audit_dogfood_verified.marker 파일 생성으로 auto-sweep. "
+                "self-cert 회피 룰 (lsn_e7bd79d1) 준수 필수."
+            ),
+            "registered_at": datetime.now().isoformat(timespec="seconds"),
+        })
+        data["pending"] = pending_list
+        data["updated"] = datetime.now().isoformat(timespec="seconds")
+        pending_path.write_text(
+            json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        return "registered"
+    except Exception as e:
+        print(f"  [AA-5] pending 등록 실패 (advisory): {e}")
+        return "error"
+
 BASE_DIR  = Path(__file__).parent.parent
 AGENTS_DIR = Path(__file__).parent
 PROC_DIR  = BASE_DIR / "data" / "processed"
@@ -841,6 +920,13 @@ if __name__ == "__main__":
         # 상위 검증은 manual dogfood audit-agent subagent (다음 세션).
         # 3-tier cross-check 강제 (self-cert 회피): audit + meta-audit + evaluator.
         # audit-agent.md 의 "Cross-check" 섹션 참조.
+
+        # Phase 11-B Group E: 3-tier dogfood pending 자동 등록
+        _base_dir = Path(__file__).parent.parent
+        _ar_path = _base_dir / "data" / "processed" / "audit_report.json"
+        dogfood_status = _register_dogfood_audit_pending(_base_dir, _ar_path)
+        print(f"  ✓ AA-5 dogfood pending: {dogfood_status}")
+
         print("\n-> 상위 검증 (manual dogfood):")
         print("   1. 다음 Claude Code session 진입 후")
         print("   2. Task(subagent_type='audit-agent'): audit_report.json 심층 검토")
