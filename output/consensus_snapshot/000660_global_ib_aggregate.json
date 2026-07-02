@@ -1,0 +1,31 @@
+{
+  "breakdown_prior_1m": {
+    "buy": 26,
+    "hold": 2,
+    "sell": 0,
+    "strong_buy": 10,
+    "strong_sell": 0,
+    "total": 38
+  },
+  "breakdown_today": {
+    "buy": 25,
+    "hold": 1,
+    "sell": 1,
+    "strong_buy": 10,
+    "strong_sell": 0,
+    "total": 37
+  },
+  "currency": "KRW",
+  "error": null,
+  "found": true,
+  "n_analysts": 37,
+  "per_firm": [],
+  "probed_at": "2026-06-30T23:39:10+09:00",
+  "recommendation_key": "strong_buy",
+  "recommendation_mean": 1.43243,
+  "source_name": "yfinance_aggregate",
+  "target_high": 4700000.0,
+  "target_low": 1030000.0,
+  "target_mean": 3105259.0,
+  "target_median": 3200000.0
+}

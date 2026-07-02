@@ -8,6 +8,10 @@ on:
       - 'output/final_results.json'
       - 'output/indicator_ranking.csv'
       - 'output/market_signals.csv'
+      - 'output/consensus_snapshot/**/*.json'
+      - 'output/consensus_snapshot/**/*.md'
+      - 'output/consensus_snapshot/**/dates.json'
+      - 'scripts/generate_snapshot_index.py'
       - 'index.html'
       - '.github/workflows/deploy-dashboard.yml'
   workflow_dispatch:
@@ -115,6 +119,18 @@ jobs:
           cp output/market_signals.csv    _site/ 2>/dev/null || true
           cp output/stock_analysis.csv    _site/ 2>/dev/null || true
           cp output/final_results.json    _site/ 2>/dev/null || true
+          # Phase 14-0-C: consensus tracker data (JSON + Markdown only, no raw HTML)
+          mkdir -p _site/consensus_snapshot
+          # Flat-file outputs (Phase 14-0-B2 ~ 14-4)
+          cp output/consensus_snapshot/*.json _site/consensus_snapshot/ 2>/dev/null || true
+          cp output/consensus_snapshot/*.md   _site/consensus_snapshot/ 2>/dev/null || true
+          # Immutable snapshot history (Phase 14-0-C) — JSON + MD only, no raw HTML fixtures
+          if [ -d output/consensus_snapshot/history ]; then
+            find output/consensus_snapshot/history \( -name '*.json' -o -name '*.md' \) \
+              -exec sh -c 'rel="${1#output/consensus_snapshot/}"; mkdir -p "_site/consensus_snapshot/$(dirname "$rel")"; cp "$1" "_site/consensus_snapshot/$rel"' _ {} \;
+          fi
+          # Regenerate dates index (in case fresh snapshots landed between commit and deploy)
+          python scripts/generate_snapshot_index.py --history-root _site/consensus_snapshot/history 2>/dev/null || true
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3

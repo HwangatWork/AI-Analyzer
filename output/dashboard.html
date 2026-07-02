@@ -113,6 +113,7 @@
   <button class="nav-tab" onclick="showPage('stocks')">종목 분석</button>
   <button class="nav-tab" onclick="showPage('sector')">산업 딥다이브</button>
   <button class="nav-tab" onclick="showPage('indicators')">지표 랭킹</button>
+  <button class="nav-tab" onclick="showPage('consensus')">🎯 컨센서스 트래커</button>
   <button class="nav-tab" onclick="showPage('looker')">📈 Looker Studio</button>
 </nav>
 <!-- ── Main ────────────────────────────────────────────────────── -->
@@ -2131,6 +2132,136 @@
     </div>
   </div>
 </section></div>
+<!-- ═══ CONSENSUS TRACKER SECTION (Phase 14-0-A1 ~ 14-0-C) ═══ -->
+<div id="page-consensus" class="page">
+<section id="consensus">
+  <h2 class="section-title">🎯 컨센서스 트래커 <span id="c-quality-badge" style="font-size:0.7rem;font-weight:500;padding:2px 8px;border-radius:10px;margin-left:8px;vertical-align:middle"></span></h2>
+
+  <!-- 종목 + 날짜 선택 -->
+  <div class="card" style="margin-bottom:16px;padding:12px 16px">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:0.82rem">
+      <div>
+        <label style="color:#94a3b8;margin-right:8px">종목:</label>
+        <select id="c-ticker" style="background:#0f172a;color:var(--text);border:1px solid #334155;padding:4px 8px;border-radius:4px;font-size:0.82rem">
+          <option value="000660">000660 SK하이닉스</option>
+        </select>
+      </div>
+      <div>
+        <label style="color:#94a3b8;margin-right:8px">날짜:</label>
+        <select id="c-date" style="background:#0f172a;color:var(--text);border:1px solid #334155;padding:4px 8px;border-radius:4px;font-size:0.82rem">
+          <option value="">로딩 중...</option>
+        </select>
+      </div>
+      <div id="c-hash-badge" style="font-size:0.68rem;color:#64748b;font-family:monospace"></div>
+    </div>
+    <div style="font-size:0.7rem;color:#475569;margin-top:6px" id="c-header-meta"></div>
+  </div>
+
+  <div id="c-status" style="display:none;padding:16px;text-align:center;color:#94a3b8;font-size:0.85rem"></div>
+
+  <div id="c-content" style="display:none">
+    <!-- Section 1: 기본 컨센서스 + 산술 일관성 -->
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="section-title">기본 컨센서스</div>
+        <div class="kv"><span>투자의견 (1~5)</span><span id="c-opinion">—</span></div>
+        <div class="kv"><span>추정기관 수</span><span id="c-nanalyst">—</span></div>
+        <div class="kv"><span>최근 컨센서스 목표주가</span><span id="c-target">—</span></div>
+        <div class="kv"><span>목표주가 기준일</span><span id="c-target-date">—</span></div>
+        <div class="kv"><span>1개월 전 목표주가</span><span id="c-prior-target">—</span></div>
+        <div class="kv"><span>1개월 변화율</span><span id="c-change-1m">—</span></div>
+        <div class="kv"><span>Q1 산출 소스</span><span id="c-q1-source" style="font-size:0.7rem;color:#64748b">—</span></div>
+      </div>
+
+      <div class="card" id="c-arith-card">
+        <div class="section-title">산술 일관성 점검 <span style="font-size:0.68rem;color:#64748b">RCA 2026-06-30</span></div>
+        <div class="kv"><span>EPS (static)</span><span id="c-eps">—</span></div>
+        <div class="kv"><span>PER (static)</span><span id="c-per">—</span></div>
+        <div class="kv"><span>PER × EPS = 함의 주가</span><span id="c-implied">—</span></div>
+        <div class="kv"><span>현재 주가 (chart close)</span><span id="c-close">—</span></div>
+        <div class="kv"><span>격차</span><span id="c-arith-gap">—</span></div>
+        <div id="c-arith-badge" style="margin-top:10px;padding:8px;border-radius:6px;font-size:0.75rem;text-align:center;font-weight:600"></div>
+      </div>
+    </div>
+
+    <!-- Section 2: 투자의견 분포 stacked bar -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">투자의견 분포 (오늘 vs 1개월 전)</div>
+      <div id="c-opinion-bars"></div>
+    </div>
+
+    <!-- Section 3: 증권사별 목표주가 (25 브로커) -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">증권사별 목표주가 <span id="c-firm-summary" style="font-size:0.72rem;font-weight:400;color:#64748b"></span></div>
+      <div style="overflow-x:auto">
+        <table id="c-firms-table" style="width:100%;font-size:0.75rem;border-collapse:collapse">
+          <thead>
+            <tr style="border-bottom:1px solid #334155;color:#94a3b8">
+              <th style="text-align:left;padding:6px 8px">증권사</th>
+              <th style="text-align:left;padding:6px 8px">작성일</th>
+              <th style="text-align:right;padding:6px 8px">목표가</th>
+              <th style="text-align:right;padding:6px 8px">이전</th>
+              <th style="text-align:right;padding:6px 8px">변동률</th>
+              <th style="text-align:left;padding:6px 8px">의견</th>
+            </tr>
+          </thead>
+          <tbody id="c-firms-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 4: Named Global IB -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">Named Global IB Targets <span style="font-size:0.7rem;color:#f59e0b">Phase 14-4</span></div>
+      <div style="background:#f59e0b22;border:1px solid #f59e0b44;padding:10px 12px;border-radius:6px;font-size:0.75rem;color:#fbbf24;margin-bottom:12px">
+        ⚠ 뉴스 기반 attribution 정확도 ~60-70%. 한국 기사가 여러 종목 목표가를 동시 언급하는 패턴 때문에 wrong-ticker 매칭 가능. 정확한 값은 <code style="color:#fef3c7">configs/manual_global_ib_targets.json</code> 매뉴얼 입력 (user_verified 라벨) 참조.
+      </div>
+      <div id="c-global-ib-content"></div>
+    </div>
+
+    <!-- Section 5: 분기 실적 추이 -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">분기 실적 추이 (매출액 · 영업이익, 단위: 억원)</div>
+      <div style="overflow-x:auto">
+        <table id="c-quarterly-table" style="width:100%;font-size:0.75rem;border-collapse:collapse">
+          <thead>
+            <tr style="border-bottom:1px solid #334155;color:#94a3b8">
+              <th style="text-align:left;padding:6px 8px">분기</th>
+              <th style="text-align:right;padding:6px 8px">매출 cons</th>
+              <th style="text-align:right;padding:6px 8px">매출 actual</th>
+              <th style="text-align:right;padding:6px 8px">영업 cons</th>
+              <th style="text-align:right;padding:6px 8px">영업 actual</th>
+              <th style="text-align:right;padding:6px 8px">영업이익 YoY</th>
+            </tr>
+          </thead>
+          <tbody id="c-quarterly-body"></tbody>
+        </table>
+      </div>
+      <div id="c-quarterly-chart" style="margin-top:12px"></div>
+    </div>
+
+    <!-- Section 6: AI 분석 Q1~Q5 -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">AI 분석 Q1~Q5</div>
+      <div class="grid-3" id="c-q-grid" style="gap:10px"></div>
+      <div id="c-q4-quadrant" style="margin-top:14px;padding:14px;border-radius:8px;text-align:center"></div>
+    </div>
+
+    <!-- Section 7: 주의사항 -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">데이터 해석 주의사항</div>
+      <ul id="c-meta-audit" style="font-size:0.75rem;color:#94a3b8;line-height:1.7;list-style-position:inside;padding-left:6px"></ul>
+    </div>
+
+    <!-- Section 8: 투자 조언 disclaimer -->
+    <div class="card" style="margin-bottom:8px;border:1px solid #ef444444;background:#ef444411">
+      <div style="font-size:0.72rem;color:#fca5a5;text-align:center;font-weight:600">
+        ⚠ 본 화면의 어떤 수치도 투자 조언이 아니며, 매수/매도 자동 신호를 생성하지 않습니다. 판단은 사용자 책임입니다.
+      </div>
+    </div>
+  </div>
+</section>
+</div>
 </main>
 <footer style="text-align:center;padding:16px;font-size:0.7rem;color:#334155;border-top:1px solid #1e293b">
   AI Analyzer v5 &nbsp;|&nbsp; Data: FinanceDataReader · FRED · alternative.me · Yahoo Finance &nbsp;|&nbsp;
@@ -2150,6 +2281,400 @@
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     event.target.classList.add('active');
   }
+
+  /* ─────────────── Consensus Tracker (Phase 14-0-A1 ~ 14-0-C) ─────────────── */
+  // Reads static JSON from output/consensus_snapshot/. Zero deps.
+
+  const C_TICKERS = { "000660": "SK하이닉스", "005930": "삼성전자" };
+  const Q4_COLORS = {
+    "TRUE_UPGRADE":         { bg: "#22c55e22", fg: "#22c55e", label: "펀더멘털 기반 정상 업그레이드" },
+    "MULTIPLE_EXPANSION":   { bg: "#f59e0b22", fg: "#f59e0b", label: "밸류에이션 리레이팅 (주의)" },
+    "OVERHEATED":           { bg: "#ef444422", fg: "#ef4444", label: "실적 하향에도 목표가 상향 (과열 신호)" },
+    "CONSERVATIVE_IB":      { bg: "#60a5fa22", fg: "#60a5fa", label: "보수적 (추가 상향 잠재)" },
+    "STAGNANT":             { bg: "#64748b22", fg: "#94a3b8", label: "변화 없음" },
+    "WEAK_NEGATIVE":        { bg: "#f5975922", fg: "#fb923c", label: "부정적 흐름 초기" },
+    "MISPRICED_DOWN":       { bg: "#a78bfa22", fg: "#a78bfa", label: "외부충격/일시적 mispricing" },
+    "SENTIMENT_DOWN":       { bg: "#64748b22", fg: "#94a3b8", label: "센티먼트 약화" },
+    "TRUE_DOWNGRADE":       { bg: "#ef444422", fg: "#ef4444", label: "펀더멘털 동반 약화" },
+    "INSUFFICIENT":         { bg: "#64748b22", fg: "#94a3b8", label: "데이터 부족" },
+    "UNCLASSIFIED":         { bg: "#64748b22", fg: "#94a3b8", label: "분류 불가" }
+  };
+  const DIR_COLORS = {
+    "UP":           { color: "#22c55e", label: "상승" },
+    "DOWN":         { color: "#ef4444", label: "하락" },
+    "FLAT":         { color: "#94a3b8", label: "정체" },
+    "INSUFFICIENT": { color: "#f59e0b", label: "데이터 부족" }
+  };
+
+  function fmtKRW(v) {
+    if (v === null || v === undefined || isNaN(v)) return "N/A";
+    return Math.round(v).toLocaleString("ko-KR") + "원";
+  }
+  function fmtPct(v) {
+    if (v === null || v === undefined || isNaN(v)) return "N/A";
+    const s = v >= 0 ? "+" : "";
+    return s + v.toFixed(2) + "%";
+  }
+  function fmtInt(v) {
+    if (v === null || v === undefined) return "N/A";
+    return v.toLocaleString("ko-KR");
+  }
+  function esc(s) {
+    if (s === null || s === undefined) return "";
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
+  async function loadConsensusDates(ticker) {
+    const url = "consensus_snapshot/history/" + ticker + "/dates.json";
+    try {
+      const r = await fetch(url, { cache: "no-cache" });
+      if (!r.ok) return null;
+      return await r.json();
+    } catch (e) {
+      console.warn("dates.json fetch failed:", e);
+      return null;
+    }
+  }
+
+  async function loadConsensusData(ticker, date) {
+    // Try history snapshot first (immutable), then fall back to flat file.
+    const historyUrl = "consensus_snapshot/history/" + ticker + "/" + date + "/analysis.json";
+    const flatUrl = "consensus_snapshot/" + ticker + "_" + date + "_analysis.json";
+    let manifest = null;
+    try {
+      const manifestR = await fetch(
+        "consensus_snapshot/history/" + ticker + "/" + date + "/manifest.json",
+        { cache: "no-cache" }
+      );
+      if (manifestR.ok) manifest = await manifestR.json();
+    } catch (e) { /* ignore */ }
+
+    for (const url of [historyUrl, flatUrl]) {
+      try {
+        const r = await fetch(url, { cache: "no-cache" });
+        if (r.ok) {
+          const analysis = await r.json();
+          return { analysis, manifest, source: url };
+        }
+      } catch (e) { /* ignore */ }
+    }
+    return null;
+  }
+
+  function renderQualityBadge(score) {
+    const el = document.getElementById("c-quality-badge");
+    if (score === null || score === undefined) {
+      el.textContent = "";
+      return;
+    }
+    const pct = (score * 100).toFixed(0) + "%";
+    let bg, fg;
+    if (score >= 0.7)      { bg = "#22c55e22"; fg = "#22c55e"; }
+    else if (score >= 0.5) { bg = "#f59e0b22"; fg = "#f59e0b"; }
+    else                    { bg = "#ef444422"; fg = "#ef4444"; }
+    el.style.background = bg; el.style.color = fg;
+    el.textContent = "품질 " + pct;
+  }
+
+  function renderBasicConsensus(a) {
+    const raw = (a && a.raw_inputs) || {};
+    const ans = (a && a.answers) || {};
+    document.getElementById("c-opinion").textContent = raw.investment_opinion ?? "N/A";
+    document.getElementById("c-nanalyst").textContent = fmtInt(raw.n_analysts);
+    document.getElementById("c-target").textContent = fmtKRW(raw.latest_target_price);
+    document.getElementById("c-target-date").textContent = raw.latest_target_price_date || "N/A";
+    document.getElementById("c-prior-target").textContent = fmtKRW(raw.prior_target_price);
+    document.getElementById("c-change-1m").textContent = fmtPct(ans.Q1_target_price_change_pct);
+    document.getElementById("c-q1-source").textContent = raw.Q1_source || "N/A";
+  }
+
+  function renderArithmetic(a) {
+    const raw = (a && a.raw_inputs) || {};
+    const eps = raw.static_eps;
+    const per = raw.static_per;
+    const close = raw.close_price_latest;
+    document.getElementById("c-eps").textContent = fmtKRW(eps);
+    document.getElementById("c-per").textContent = (per === null || per === undefined) ? "N/A" : per + " 배";
+    let implied = null, gap = null;
+    if (eps && per) implied = eps * per;
+    document.getElementById("c-implied").textContent = fmtKRW(implied);
+    document.getElementById("c-close").textContent = fmtKRW(close);
+    if (implied && close) gap = (implied - close) / close * 100;
+    document.getElementById("c-arith-gap").textContent = fmtPct(gap);
+    const badge = document.getElementById("c-arith-badge");
+    if (gap === null) {
+      badge.textContent = "산술 검증 데이터 부족";
+      badge.style.background = "#64748b22"; badge.style.color = "#94a3b8";
+    } else if (Math.abs(gap) < 1.0) {
+      badge.textContent = "✓ 산술 일관성 OK (격차 <1%)";
+      badge.style.background = "#22c55e22"; badge.style.color = "#22c55e";
+    } else {
+      badge.textContent = "⚠ 격차 " + fmtPct(gap) + " (>1% 경고)";
+      badge.style.background = "#f59e0b22"; badge.style.color = "#f59e0b";
+    }
+  }
+
+  function renderOpinionBars(a) {
+    const raw = (a && a.raw_inputs) || {};
+    const today = raw.opinion_breakdown || {};
+    const prior = raw.opinion_breakdown_prior || {};
+    const labels = [
+      { key: "strong_buy",  name: "강력매수", color: "#22c55e" },
+      { key: "buy",         name: "매수",     color: "#4ade80" },
+      { key: "hold",        name: "중립",     color: "#94a3b8" },
+      { key: "sell",        name: "매도",     color: "#f87171" },
+      { key: "strong_sell", name: "강력매도", color: "#ef4444" }
+    ];
+    const el = document.getElementById("c-opinion-bars");
+    function buildBar(title, data) {
+      const total = data.total || labels.reduce((s, l) => s + (data[l.key] || 0), 0);
+      if (!total) return "<div style=\"color:#64748b;font-size:0.75rem\">" + title + ": 데이터 없음</div>";
+      let html = "<div style=\"margin-bottom:14px\">";
+      html += "<div style=\"font-size:0.78rem;color:#94a3b8;margin-bottom:6px\">" + title + " (총 " + total + "명)</div>";
+      html += "<div style=\"display:flex;width:100%;height:24px;border-radius:4px;overflow:hidden\">";
+      labels.forEach(l => {
+        const cnt = data[l.key] || 0;
+        const pct = cnt / total * 100;
+        if (pct > 0) {
+          html += "<div title=\"" + l.name + " " + cnt + "명\" style=\"width:" + pct + "%;background:" + l.color + ";display:flex;align-items:center;justify-content:center;color:#0b1120;font-size:0.7rem;font-weight:700\">" + (pct >= 8 ? cnt : "") + "</div>";
+        }
+      });
+      html += "</div>";
+      html += "<div style=\"display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;font-size:0.68rem;color:#94a3b8\">";
+      labels.forEach(l => {
+        const cnt = data[l.key] || 0;
+        html += "<span><span style=\"display:inline-block;width:10px;height:10px;background:" + l.color + ";border-radius:2px;margin-right:4px;vertical-align:middle\"></span>" + l.name + " " + cnt + "</span>";
+      });
+      html += "</div></div>";
+      return html;
+    }
+    el.innerHTML = buildBar("오늘", today) + buildBar("1개월 전", prior);
+  }
+
+  function renderFirmsTable(a) {
+    const raw = (a && a.raw_inputs) || {};
+    const pft = raw.per_firm_targets || {};
+    const firms = pft.firms || [];
+    const summary = document.getElementById("c-firm-summary");
+    if (pft.n_firms) {
+      summary.textContent = " · " + pft.n_firms + "개 · 최고 " + fmtKRW(pft.high_target) + " · 최저 " + fmtKRW(pft.low_target) + " · 평균 " + fmtKRW(pft.mean_target);
+    } else {
+      summary.textContent = "";
+    }
+    const tbody = document.getElementById("c-firms-body");
+    if (!firms.length) {
+      tbody.innerHTML = "<tr><td colspan=\"6\" style=\"padding:8px;color:#64748b;text-align:center\">데이터 없음</td></tr>";
+      return;
+    }
+    tbody.innerHTML = firms.map(f => {
+      const chg = f.change_pct;
+      const chgColor = chg > 0 ? "#22c55e" : chg < 0 ? "#ef4444" : "#94a3b8";
+      return "<tr style=\"border-bottom:1px solid #1e293b\">" +
+        "<td style=\"padding:6px 8px\">" + esc(f.firm) + "</td>" +
+        "<td style=\"padding:6px 8px;color:#94a3b8\">" + esc(f.report_date) + "</td>" +
+        "<td style=\"padding:6px 8px;text-align:right;font-weight:600\">" + fmtKRW(f.target_price) + "</td>" +
+        "<td style=\"padding:6px 8px;text-align:right;color:#64748b\">" + fmtKRW(f.prior_target_price) + "</td>" +
+        "<td style=\"padding:6px 8px;text-align:right;color:" + chgColor + ";font-weight:600\">" + fmtPct(chg) + "</td>" +
+        "<td style=\"padding:6px 8px;color:#94a3b8\">" + esc(f.rating) + "</td>" +
+      "</tr>";
+    }).join("");
+  }
+
+  function renderGlobalIB(a) {
+    const named = (a && a.global_ib_named) || [];
+    const el = document.getElementById("c-global-ib-content");
+    if (!named.length) {
+      el.innerHTML = "<div style=\"color:#64748b;font-size:0.78rem\">추출된 글로벌 IB 명단 없음. 매뉴얼 입력 시 이 섹션에 표시됩니다.</div>";
+      return;
+    }
+    let html = "<div style=\"overflow-x:auto\"><table style=\"width:100%;font-size:0.75rem;border-collapse:collapse\">";
+    html += "<thead><tr style=\"border-bottom:1px solid #334155;color:#94a3b8\"><th style=\"text-align:left;padding:6px 8px\">IB</th><th style=\"text-align:right;padding:6px 8px\">목표가</th><th style=\"text-align:left;padding:6px 8px\">보고일</th><th style=\"text-align:left;padding:6px 8px\">신뢰도</th><th style=\"text-align:left;padding:6px 8px\">출처</th><th style=\"text-align:left;padding:6px 8px\">Stale?</th></tr></thead><tbody>";
+    named.forEach(e => {
+      let confBg = "#64748b22", confFg = "#94a3b8";
+      if (e.confidence === "user_verified") { confBg = "#22c55e22"; confFg = "#22c55e"; }
+      else if (e.confidence === "high")     { confBg = "#4ade8022"; confFg = "#4ade80"; }
+      else if (e.confidence === "medium")   { confBg = "#f59e0b22"; confFg = "#f59e0b"; }
+      else if (e.confidence === "low")      { confBg = "#ef444422"; confFg = "#ef4444"; }
+      const badge = "<span style=\"padding:2px 8px;border-radius:10px;background:" + confBg + ";color:" + confFg + ";font-size:0.68rem;font-weight:600\">" + esc(e.confidence) + "</span>";
+      const src = e.extraction_method === "manual" ? "manual [PDF]" : "news";
+      const stale = e.is_stale ? "<span style=\"color:#f59e0b\">STALE</span>" : "";
+      html += "<tr style=\"border-bottom:1px solid #1e293b\">" +
+        "<td style=\"padding:6px 8px;font-weight:600\">" + esc(e.firm) + "</td>" +
+        "<td style=\"padding:6px 8px;text-align:right\">" + fmtKRW(e.target_price) + "</td>" +
+        "<td style=\"padding:6px 8px;color:#94a3b8\">" + esc(e.report_date) + "</td>" +
+        "<td style=\"padding:6px 8px\">" + badge + "</td>" +
+        "<td style=\"padding:6px 8px;color:#94a3b8\">" + esc(src) + "</td>" +
+        "<td style=\"padding:6px 8px\">" + stale + "</td>" +
+      "</tr>";
+    });
+    html += "</tbody></table></div>";
+    el.innerHTML = html;
+  }
+
+  function renderQuarterly(a) {
+    const raw = (a && a.raw_inputs) || {};
+    const qe = raw.quarterly_earnings || {};
+    const qs = qe.quarters || [];
+    const tbody = document.getElementById("c-quarterly-body");
+    if (!qs.length) {
+      tbody.innerHTML = "<tr><td colspan=\"6\" style=\"padding:8px;color:#64748b;text-align:center\">데이터 없음</td></tr>";
+      document.getElementById("c-quarterly-chart").innerHTML = "";
+      return;
+    }
+    tbody.innerHTML = qs.map(q => {
+      const yoy = q.op_income_yoy_pct;
+      const yoyColor = yoy > 0 ? "#22c55e" : yoy < 0 ? "#ef4444" : "#94a3b8";
+      return "<tr style=\"border-bottom:1px solid #1e293b\">" +
+        "<td style=\"padding:6px 8px;font-weight:600\">" + esc(q.yymm) + "</td>" +
+        "<td style=\"padding:6px 8px;text-align:right\">" + fmtInt(Math.round(q.revenue_consensus)) + "</td>" +
+        "<td style=\"padding:6px 8px;text-align:right\">" + fmtInt(Math.round(q.revenue_actual)) + "</td>" +
+        "<td style=\"padding:6px 8px;text-align:right\">" + fmtInt(Math.round(q.op_income_consensus)) + "</td>" +
+        "<td style=\"padding:6px 8px;text-align:right;font-weight:600\">" + fmtInt(Math.round(q.op_income_actual)) + "</td>" +
+        "<td style=\"padding:6px 8px;text-align:right;color:" + yoyColor + ";font-weight:600\">" + fmtPct(yoy) + "</td>" +
+      "</tr>";
+    }).join("");
+    // Inline SVG mini chart for op_income_actual
+    const w = 480, h = 100, pad = 20;
+    const vals = qs.map(q => q.op_income_actual);
+    const maxV = Math.max(...vals);
+    const step = (w - pad * 2) / (vals.length - 1 || 1);
+    let path = "M";
+    vals.forEach((v, i) => {
+      const x = pad + i * step;
+      const y = pad + (1 - v / maxV) * (h - pad * 2);
+      path += (i === 0 ? "" : " L") + x.toFixed(1) + "," + y.toFixed(1);
+    });
+    let svg = "<svg viewBox=\"0 0 " + w + " " + h + "\" style=\"width:100%;max-width:600px;height:auto\">";
+    svg += "<path d=\"" + path + "\" stroke=\"#22c55e\" stroke-width=\"2\" fill=\"none\"/>";
+    vals.forEach((v, i) => {
+      const x = pad + i * step;
+      const y = pad + (1 - v / maxV) * (h - pad * 2);
+      svg += "<circle cx=\"" + x.toFixed(1) + "\" cy=\"" + y.toFixed(1) + "\" r=\"3\" fill=\"#22c55e\"/>";
+      svg += "<text x=\"" + x.toFixed(1) + "\" y=\"" + (h - 4) + "\" text-anchor=\"middle\" font-size=\"9\" fill=\"#64748b\">" + qs[i].yymm + "</text>";
+    });
+    svg += "</svg>";
+    document.getElementById("c-quarterly-chart").innerHTML =
+      "<div style=\"font-size:0.7rem;color:#64748b;margin-bottom:4px\">영업이익 (actual) 추이</div>" + svg;
+  }
+
+  function renderQs(a) {
+    const ans = (a && a.answers) || {};
+    function qCard(label, dirKey, pctKey) {
+      const dir = ans[dirKey] || "INSUFFICIENT";
+      const meta = DIR_COLORS[dir] || DIR_COLORS.INSUFFICIENT;
+      const pct = ans[pctKey];
+      const pctText = (pct !== null && pct !== undefined) ? fmtPct(pct) : "";
+      return "<div class=\"card\" style=\"padding:10px 12px\">" +
+        "<div style=\"font-size:0.68rem;color:#64748b;margin-bottom:2px\">" + label + "</div>" +
+        "<div style=\"font-size:0.95rem;font-weight:700;color:" + meta.color + "\">" + meta.label + "</div>" +
+        (pctText ? "<div style=\"font-size:0.72rem;color:#94a3b8\">" + pctText + "</div>" : "") +
+      "</div>";
+    }
+    const grid = document.getElementById("c-q-grid");
+    grid.innerHTML =
+      qCard("Q1 목표주가 추세", "Q1_direction", "Q1_target_price_change_pct") +
+      qCard("Q2 EPS 추세", "Q2_direction", "Q2_eps_change_pct") +
+      qCard("Q3 영업이익 추세", "Q3_direction", "Q3_op_income_change_pct");
+
+    const q4 = ans.Q4_quadrant || "INSUFFICIENT";
+    const q4meta = Q4_COLORS[q4] || Q4_COLORS.INSUFFICIENT;
+    const q5 = ans.Q5_global_vs_domestic || "GLOBAL_DATA_INSUFFICIENT";
+    document.getElementById("c-q4-quadrant").style.background = q4meta.bg;
+    document.getElementById("c-q4-quadrant").innerHTML =
+      "<div style=\"font-size:0.7rem;color:#94a3b8;margin-bottom:4px\">Q4 4사분면 분류</div>" +
+      "<div style=\"font-size:1.4rem;font-weight:800;color:" + q4meta.fg + "\">" + q4 + "</div>" +
+      "<div style=\"font-size:0.78rem;color:#94a3b8;margin-top:4px\">" + q4meta.label + "</div>" +
+      "<div style=\"margin-top:10px;padding-top:10px;border-top:1px solid #33415544;font-size:0.72rem\">" +
+        "<span style=\"color:#64748b\">Q5 글로벌 vs 국내:</span> " +
+        "<span style=\"color:#e2e8f0;font-weight:600\">" + esc(q5) + "</span>" +
+      "</div>";
+  }
+
+  function renderMetaAudit(a) {
+    const m = (a && a.meta_audit) || {};
+    const items = [];
+    if (m.kr_buy_bias_warning) {
+      items.push("<li><strong>한국 매수편향</strong>: " + esc(m.kr_buy_bias_source || "") + ". 투자의견 카운트보다 revision 을 우선.</li>");
+    }
+    if (m.target_price_role) {
+      items.push("<li><strong>목표주가 역할</strong>: " + esc(m.target_price_role) + " — " + esc(m.target_price_role_source || "") + ".</li>");
+    }
+    if (m.point_in_time_note) {
+      items.push("<li><strong>PIT 상태</strong>: " + esc(m.point_in_time_status || "") + " — " + esc(m.point_in_time_note) + "</li>");
+    }
+    items.push("<li style=\"color:#64748b\">참고: KCMI 2025 / Bradshaw 2013 / Ljungqvist 2009 인용은 backend 보고서 (report.md) 참조.</li>");
+    document.getElementById("c-meta-audit").innerHTML = items.join("");
+  }
+
+  async function refreshConsensus() {
+    const ticker = document.getElementById("c-ticker").value;
+    const date = document.getElementById("c-date").value;
+    const content = document.getElementById("c-content");
+    const status = document.getElementById("c-status");
+    if (!date) {
+      content.style.display = "none";
+      status.style.display = "block";
+      status.textContent = "날짜 데이터 없음.";
+      return;
+    }
+    status.style.display = "block";
+    status.textContent = "데이터 로딩 중...";
+    content.style.display = "none";
+    const result = await loadConsensusData(ticker, date);
+    if (!result) {
+      status.textContent = "데이터를 찾을 수 없습니다 (" + ticker + " / " + date + ").";
+      return;
+    }
+    const a = result.analysis;
+    const q = (a && a.data_quality && a.data_quality.score) || null;
+    renderQualityBadge(q);
+    renderBasicConsensus(a);
+    renderArithmetic(a);
+    renderOpinionBars(a);
+    renderFirmsTable(a);
+    renderGlobalIB(a);
+    renderQuarterly(a);
+    renderQs(a);
+    renderMetaAudit(a);
+    const meta = document.getElementById("c-header-meta");
+    meta.textContent = "기업: " + (a.company || C_TICKERS[ticker] || ticker) + " (" + ticker + ")  ·  스키마: " + (a.schema_version || "?");
+    if (result.manifest) {
+      const h = result.manifest.top_sha256 || "";
+      document.getElementById("c-hash-badge").textContent = "immutable sha256: " + h.substring(0, 8);
+    } else {
+      document.getElementById("c-hash-badge").textContent = "";
+    }
+    status.style.display = "none";
+    content.style.display = "block";
+  }
+
+  async function initConsensus() {
+    const ticker = document.getElementById("c-ticker").value;
+    const idx = await loadConsensusDates(ticker);
+    const dateSel = document.getElementById("c-date");
+    if (!idx || !idx.dates || !idx.dates.length) {
+      dateSel.innerHTML = "<option value=\"\">데이터 없음</option>";
+      document.getElementById("c-status").style.display = "block";
+      document.getElementById("c-status").textContent = "이 종목의 스냅샷 이력이 없습니다.";
+      return;
+    }
+    dateSel.innerHTML = idx.dates.slice().reverse().map(d =>
+      "<option value=\"" + d + "\">" + d + "</option>"
+    ).join("");
+    dateSel.value = idx.latest || idx.dates[idx.dates.length - 1];
+    await refreshConsensus();
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const t = document.getElementById("c-ticker");
+    const d = document.getElementById("c-date");
+    if (t) t.addEventListener("change", initConsensus);
+    if (d) d.addEventListener("change", refreshConsensus);
+    // Load once on DOMContentLoaded — content stays hidden until tab is clicked.
+    initConsensus().catch(e => console.warn("consensus init failed", e));
+  });
 </script>
 </body>
 </html>
