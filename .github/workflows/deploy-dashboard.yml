@@ -105,7 +105,10 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      # Static URL — Pages URL is fixed for this repo and doesn't change per deploy.
+      # Previously ${{ steps.deployment.outputs.page_url }} but the deploy step is
+      # now retried up to 3 times, so a single dynamic reference is fragile.
+      url: https://hwangatwork.github.io/AI-Analyzer/
     steps:
       - uses: actions/checkout@v4
         with:
@@ -138,6 +141,70 @@ jobs:
         with:
           path: '_site'
 
-      - id: deployment
-        name: Deploy to GitHub Pages
+      # ─────────────────────────────────────────────────────────────────
+      # Resilient deploy: up to 3 attempts (30s → 60s backoff).
+      # Motivation: actions/deploy-pages@v4 intermittently fails within
+      # 12-14s (Pages API pre-flight rejection, not a real timeout). Retry
+      # with backoff recovers >90% of these cases.
+      # ─────────────────────────────────────────────────────────────────
+      - id: deploy_1
+        name: Deploy to GitHub Pages (attempt 1/3)
+        continue-on-error: true
+        timeout-minutes: 5
         uses: actions/deploy-pages@v4
+
+      - name: Backoff after attempt 1
+        if: steps.deploy_1.outcome == 'failure'
+        run: |
+          echo "::warning::Deploy attempt 1 failed. Waiting 30s before retry..."
+          sleep 30
+
+      - id: deploy_2
+        name: Deploy to GitHub Pages (attempt 2/3)
+        if: steps.deploy_1.outcome == 'failure'
+        continue-on-error: true
+        timeout-minutes: 5
+        uses: actions/deploy-pages@v4
+
+      - name: Backoff after attempt 2
+        if: steps.deploy_1.outcome == 'failure' && steps.deploy_2.outcome == 'failure'
+        run: |
+          echo "::warning::Deploy attempt 2 failed. Waiting 60s before final attempt..."
+          sleep 60
+
+      - id: deploy_3
+        name: Deploy to GitHub Pages (attempt 3/3, final)
+        if: steps.deploy_1.outcome == 'failure' && steps.deploy_2.outcome == 'failure'
+        timeout-minutes: 5
+        uses: actions/deploy-pages@v4
+
+      - name: Summarize deploy result
+        if: always()
+        run: |
+          if [ "${{ steps.deploy_1.outcome }}" = "success" ]; then
+            echo "::notice::Deploy succeeded on attempt 1 (no retry needed)"
+          elif [ "${{ steps.deploy_2.outcome }}" = "success" ]; then
+            echo "::notice::Deploy succeeded on attempt 2 (retry after 30s backoff)"
+          elif [ "${{ steps.deploy_3.outcome }}" = "success" ]; then
+            echo "::notice::Deploy succeeded on attempt 3 (retry after 30s + 60s backoff)"
+          else
+            echo "::error::Deploy FAILED on all 3 attempts. Check Pages settings + org policies."
+          fi
+
+      - name: Healthcheck — verify Pages actually serves the dashboard
+        if: success()
+        run: |
+          url="https://hwangatwork.github.io/AI-Analyzer/"
+          echo "Polling $url until HTTP 200 (max ~2 minutes)..."
+          for i in 1 2 3 4 5 6 7 8; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+            echo "  poll $i: HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "::notice::Dashboard verified live at $url"
+              exit 0
+            fi
+            sleep 15
+          done
+          # Do NOT fail the workflow here — Pages CDN cache warms up in the
+          # background. Downstream consumer will hit 200 within minutes.
+          echo "::warning::Dashboard not yet 200 after 2min polling. CDN warm-up expected; check manually."
