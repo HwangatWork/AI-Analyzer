@@ -1,13 +1,14 @@
 # AI Analyzer ROADMAP
 
 ## 현재 Active Phase
+- ✅ Phase Ops-1 (2026-07-04): GitHub Actions workflow 분리 (옵션 C) — pipeline / pages 완전 독립. `deploy-dashboard.yml` (223 lines) → `run-pipeline.yml` (concurrency: `pipeline-schedule`) + `pages-deploy.yml` (concurrency: `pages`). 실측 사고 근절: 사용자 push 진행 중 09:10 KST schedule skip (06-26, 07-01, 07-03, 07-04). 신규 회귀 `test_workflow_split.py` (T-WS-1~7) + 기존 T-CI-2/5 latent bug (NOTION_TOKEN 누락) 정정. 228 PASS, 1 SKIP, 0 FAIL.
 - 🚧 Phase 13-B: TF v3.4 구현 — 착수 대기 (설계 v3.4 확정 2026-06-27, 13-B-1부터 코딩 진입 가능)
 - 🆕 Phase 14-0-A1: Consensus Revision Tracker — Static Source Access Audit (mock-only, zero-network). 다음 단계 Phase 14-0-A2 정적 robots/terms 분석, Phase 14-0-B1 live policy audit (opt-in).
 - ✅ Phase 14-0-B2 + 14-1: Live smoke fetch (WiseReport, robots-allowed) + Q1~Q5 analyzer. 13-agent cross-validation 7 gates + RCA 2026-06-30 (target price mis-extraction, OL-7 추가, X8/X9 신규 invariant).
 - ✅ Phase 14-1-B: Parser completeness — per-firm targets (25 brokers), Buy/Hold/Sell breakdown, quarterly 매출액/영업이익, annual indicators. Q3 INSUFFICIENT → +397% YoY. 사용자 목표 40% → 80%. X10/X11 invariant 추가.
 - ✅ Phase 14-3: Global IB feed — yfinance 집계 (37 analysts) + WiseReport 차감 → 추정 글로벌 IB 12명 / 평균 3,103,715원 / gap -0.07% / Q5=ALIGNED_DIRECTION_AND_LEVEL. **per-firm JPM/GS 명단은 무료 자동 채널로 추출 불가** (audit 5 sources 실측 — robots 2 deny, Finnhub 401, Yahoo HTML JS-rendered). X12/X13/X14 신규 invariant. 13-agent peer review pre+post 모두 PASS.
 - ✅ Phase 14-4: **Phase 14-3 의 "불가" 결론 정정** — 한국 financial press (한국경제 검색) 가 robots-allowed + 실제로 "JP모건은 24만원, 골드만삭스 26만원" 류 헤드라인을 게재. tools/consensus/global_ib_news.py (520 lines) + configs/manual_global_ib_targets.json + .schema.json. 14 IBs alias map, 정규식 + analyst-vs-underwriter context. **실측**: 005930 에서 6개 named entries 추출 (JPM/GS/MS/Macquarie/CLSA/Nomura). 단 어트리뷰션 정확도 ~60-70% (한 기사에 복수 종목 동시 언급 패턴). user_verified 매뉴얼 입력이 high-confidence 경로. 18 X-tests (X15 range / X16 conf / X17 schema / X18 alias round-trip) + 284 회귀 PASS.
-- 🚧 Phase 14-0-C (제안): Daily snapshot writer — point-in-time invariant 활성화 (Ljungqvist 2009 회피).
+- ✅ Phase 14-0-C: Daily snapshot writer — point-in-time invariant 활성화 (Ljungqvist 2009 회피). `tools/consensus/snapshot_store.py` (275 lines): write-once (SnapshotExistsError), sha256 manifest per-file + top-level, tamper detection, no destructive functions. `output/consensus_snapshot/history/{ticker}/{YYYY-MM-DD}/` layout. PIT Q1 자동 override (7일+ 갭 있는 snapshot 존재 시). 22 X-tests (X19 manifest / X20 tamper / X21 write-once / X22 immutable historical). 351 회귀 PASS. 13-agent peer review pre+post 모두 PASS.
 - ⏸️ Phase 11-A: Narrative Spawn — 선행조건 ✅ (Phase 12-1 완료 2026-06-21, c40c7dc) / 우선순위: Phase 13-B 완료 후
 - ⏸️ Phase 11-B: Audit Spawn — 선행조건 ✅ (Phase 12-1 완료 2026-06-21, c40c7dc) / 우선순위: Phase 13-B 완료 후 (11-A와 병렬 가능)
 - 🗄️ Phase 10: CTD 브리지 — 별도 레포, 보류

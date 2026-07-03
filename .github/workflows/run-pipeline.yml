@@ -1,0 +1,111 @@
+name: Run AI Analyzer Pipeline
+# ─────────────────────────────────────────────────────────────────
+# Phase Ops-1 (2026-07-04): workflow 분리 — 파이프라인 실행 전용.
+# 배경:
+#   기존 deploy-dashboard.yml 은 run-pipeline + deploy 두 job 을 `concurrency: pages`
+#   그룹으로 묶어 pages 배포와 파이프라인 스케줄이 서로 대기시켰다. 실측 사고:
+#     - 2026-07-04 08:43 사용자 push → 09:10 KST schedule skip
+#     - 2026-06-26, 07-01, 07-03 daily pipeline commit 부재
+#   → 옵션 C: pipeline / pages 완전 분리.
+#
+# 참조: 사용자 REQ 2026-07-04 (Level 10), CLAUDE.md L142+ (Cross-Validation 룰).
+# ─────────────────────────────────────────────────────────────────
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '10 0 * * *'  # 매일 09:10 KST (00:10 UTC)
+
+# Pages 그룹과 완전 분리. cancel-in-progress: false 로 겹치는 push 는 대기시킨다.
+concurrency:
+  group: pipeline-schedule
+  cancel-in-progress: false
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Validate credential environment
+        env:
+          FRED_API_KEY:          ${{ secrets.FRED_API_KEY }}
+          TELEGRAM_BOT_TOKEN:    ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:      ${{ secrets.TELEGRAM_CHAT_ID }}
+          KRX_ID:                ${{ secrets.KRX_ID }}
+          KRX_PW:                ${{ secrets.KRX_PW }}
+          ECOS_API_KEY:          ${{ secrets.ECOS_API_KEY }}
+          ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
+          CUSTOMS_API_KEY:       ${{ secrets.CUSTOMS_API_KEY }}
+          # Phase Ops-1 (2026-07-04): NOTION_TOKEN 도 workflow secrets.* 참조 대상이므로
+          # Validate 단계에서 사전 검증. --ci 모드가 workflow 참조 secrets 전체를 대상으로
+          # 검증하므로, 이 env 블록도 모든 secrets 를 포함해야 T-CI-2 계약이 유지된다.
+          NOTION_TOKEN:          ${{ secrets.NOTION_TOKEN }}
+        run: python -X utf8 scripts/audit_env_secrets.py --ci
+
+      - name: Run pipeline
+        env:
+          FRED_API_KEY:          ${{ secrets.FRED_API_KEY }}
+          TELEGRAM_BOT_TOKEN:    ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:      ${{ secrets.TELEGRAM_CHAT_ID }}
+          KRX_ID:                ${{ secrets.KRX_ID }}
+          KRX_PW:                ${{ secrets.KRX_PW }}
+          ECOS_API_KEY:          ${{ secrets.ECOS_API_KEY }}
+          ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
+          CUSTOMS_API_KEY:       ${{ secrets.CUSTOMS_API_KEY }}
+          NOTION_TOKEN:          ${{ secrets.NOTION_TOKEN }}
+        run: |
+          # 2026-07-03: /report 등 텔레그램 명령어 사전 체크 (즉시 접수 회신 포함)
+          python -X utf8 agents/check_telegram_commands.py --lookback 20 || true
+          python -X utf8 agents/run_data_agent_v2.py
+          python -X utf8 agents/run_analysis_agent_v2.py
+          python -X utf8 agents/run_stock_agent_v2.py
+          python -X utf8 agents/run_evaluator_agent_v2.py
+          python -X utf8 agents/run_news_agent.py
+          python -X utf8 agents/run_decision_agent.py
+          python -X utf8 agents/run_ui_agent.py
+          python -X utf8 agents/generate_report_v2.py
+          # 2026-07-03: 뉴스 시황 이후 추가 (Path Z manual 대체 대신 자동화)
+          python -X utf8 agents/run_narrative_agent.py || true
+          python -X utf8 agents/run_audit_agent.py || true
+          python -X utf8 agents/run_daily_snapshot.py || true
+          # 2026-07-03: Notion 자동 업데이트 (부모 요약 + 자식 페이지 매일 생성)
+          if [ -n "$NOTION_TOKEN" ]; then
+            python -X utf8 agents/run_notion_agent.py || echo "[warn] notion 실패 (advisory)"
+          else
+            echo "[info] NOTION_TOKEN 없음 — Notion 업데이트 건너뜀"
+          fi
+
+      - name: Commit updated outputs
+        # 이 push 가 pages-deploy.yml 의 push trigger 를 발동시키는 유일한 경로.
+        # 파이프라인 실패 (script error) 시 commit 없음 → pages 배포 자동 skip.
+        run: |
+          git config user.name "AI Analyzer Bot"
+          git config user.email "bot@ai-analyzer"
+          git add output/ feature_list.json claude-progress.txt
+          git diff --staged --quiet || git commit -m "chore: daily pipeline run $(date +'%Y-%m-%d')"
+          git pull --rebase origin HEAD || true
+          git push origin HEAD
+
+      - name: Notify via ntfy
+        if: always()
+        run: |
+          curl -s \
+            -H "Title: AI Analyzer Pipeline ${{ job.status }}" \
+            -H "Tags: chart_with_upwards_trend" \
+            -d "Daily pipeline ${{ job.status }} at $(date +'%Y-%m-%d %H:%M UTC'). Dashboard: https://${{ github.repository_owner }}.github.io/AI-Analyzer/" \
+            https://ntfy.sh/ai-analyzer-${{ github.repository_owner }}

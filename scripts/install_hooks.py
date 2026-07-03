@@ -41,7 +41,7 @@ def main() -> int:
         pass  # Windows doesn't use chmod the same way
 
     print(f"[install_hooks] Installed: {PRE_COMMIT_HOOK}")
-    print("  pre-commit hook will block commits when deploy-dashboard.yml has credential inconsistencies.")
+    print("  pre-commit hook will block commits when workflow files have credential inconsistencies.")
     return 0
 
 

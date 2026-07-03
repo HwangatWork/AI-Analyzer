@@ -15,7 +15,9 @@ import subprocess
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent.parent.parent
-WORKFLOW = BASE / ".github" / "workflows" / "deploy-dashboard.yml"
+# Phase Ops-1 (2026-07-04): workflow 분리 후 Validate step 은 run-pipeline.yml 에 위치.
+# 기존 deploy-dashboard.yml 은 폐기.
+WORKFLOW = BASE / ".github" / "workflows" / "run-pipeline.yml"
 AUDIT_SCRIPT = BASE / "scripts" / "audit_env_secrets.py"
 RUN_PM_AGENT = BASE / "agents" / "run_pm_agent.py"
 
@@ -28,6 +30,10 @@ REQUIRED_SECRETS = {
     "ECOS_API_KEY",
     "ANTHROPIC_API_KEY",
     "CUSTOMS_API_KEY",
+    # Phase Ops-1 (2026-07-04): 2026-07-03 워크플로에서 NOTION_TOKEN 이 Run pipeline env
+    # 블록에 추가되었지만 REQUIRED_SECRETS 는 미갱신이라 T-CI-5 latent FAIL 상태였음.
+    # 워크플로 분리 리팩터 시 함께 정정.
+    "NOTION_TOKEN",
 }
 
 

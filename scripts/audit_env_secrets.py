@@ -21,7 +21,14 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_FILE = BASE_DIR / ".env"
-WORKFLOW_FILE = BASE_DIR / ".github" / "workflows" / "deploy-dashboard.yml"
+# Phase Ops-1 (2026-07-04): workflow 분리 후 두 파일을 모두 스캔한다.
+#   run-pipeline.yml  → 파이프라인 스크립트 실행 (secrets 사용처)
+#   pages-deploy.yml  → Pages 배포 전용 (secrets 미사용, permissions 만)
+# 기존 deploy-dashboard.yml 은 삭제됨.
+WORKFLOW_FILES = [
+    BASE_DIR / ".github" / "workflows" / "run-pipeline.yml",
+    BASE_DIR / ".github" / "workflows" / "pages-deploy.yml",
+]
 
 # Keys that are intentionally CI-only (not needed in .env)
 CI_ONLY_KEYS = {"GITHUB_TOKEN"}
@@ -42,21 +49,30 @@ def _load_env_keys() -> set[str]:
 
 
 def _load_workflow_secret_refs() -> set[str]:
-    """Return all secrets.KEY_NAME referenced in the workflow."""
-    if not WORKFLOW_FILE.exists():
-        print(f"[audit] workflow not found: {WORKFLOW_FILE}")
+    """Return all secrets.KEY_NAME referenced across every workflow file."""
+    refs: set[str] = set()
+    any_found = False
+    for wf in WORKFLOW_FILES:
+        if not wf.exists():
+            print(f"[audit] workflow not found: {wf}")
+            continue
+        any_found = True
+        content = wf.read_text(encoding="utf-8")
+        refs.update(re.findall(r"\$\{\{\s*secrets\.([A-Z0-9_]+)\s*\}\}", content))
+    if not any_found:
         return set()
-    content = WORKFLOW_FILE.read_text(encoding="utf-8")
-    refs = re.findall(r"\$\{\{\s*secrets\.([A-Z0-9_]+)\s*\}\}", content)
-    return set(refs)
+    return refs
 
 
 def _load_workflow_env_key_names() -> set[str]:
-    """Return left-hand-side key names from workflow env: blocks."""
-    if not WORKFLOW_FILE.exists():
-        return set()
-    content = WORKFLOW_FILE.read_text(encoding="utf-8")
-    return set(re.findall(r"^\s{8,}([A-Z][A-Z0-9_]+)\s*:", content, re.MULTILINE))
+    """Return left-hand-side key names from every workflow env: block."""
+    keys: set[str] = set()
+    for wf in WORKFLOW_FILES:
+        if not wf.exists():
+            continue
+        content = wf.read_text(encoding="utf-8")
+        keys.update(re.findall(r"^\s{8,}([A-Z][A-Z0-9_]+)\s*:", content, re.MULTILINE))
+    return keys
 
 
 def _load_github_secrets() -> set[str] | None:

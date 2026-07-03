@@ -2,7 +2,8 @@
 """
 scripts/pre_commit_env_check.py - Git pre-commit hook for workflow credential consistency.
 
-Triggered when deploy-dashboard.yml is staged for commit.
+Triggered when any workflow file in .github/workflows/ is staged for commit
+(post Phase Ops-1: run-pipeline.yml or pages-deploy.yml).
 Runs audit_env_secrets.py --no-gh and blocks commit on FAIL.
 
 Install via: python scripts/install_hooks.py
@@ -28,7 +29,8 @@ def _staged_files() -> list[str]:
 
 def main() -> int:
     staged = _staged_files()
-    workflow_staged = any(".github/workflows" in f or "deploy-dashboard.yml" in f for f in staged)
+    # Phase Ops-1 (2026-07-04): 워크플로 분리 후 두 파일 모두 감시.
+    workflow_staged = any(".github/workflows" in f for f in staged)
 
     if not workflow_staged:
         return 0  # nothing credential-related staged, allow commit
