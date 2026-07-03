@@ -66,7 +66,10 @@ jobs:
           ECOS_API_KEY:          ${{ secrets.ECOS_API_KEY }}
           ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
           CUSTOMS_API_KEY:       ${{ secrets.CUSTOMS_API_KEY }}
+          NOTION_TOKEN:          ${{ secrets.NOTION_TOKEN }}
         run: |
+          # 2026-07-03: /report 등 텔레그램 명령어 사전 체크 (즉시 접수 회신 포함)
+          python -X utf8 agents/check_telegram_commands.py --lookback 20 || true
           python -X utf8 agents/run_data_agent_v2.py
           python -X utf8 agents/run_analysis_agent_v2.py
           python -X utf8 agents/run_stock_agent_v2.py
@@ -75,6 +78,16 @@ jobs:
           python -X utf8 agents/run_decision_agent.py
           python -X utf8 agents/run_ui_agent.py
           python -X utf8 agents/generate_report_v2.py
+          # 2026-07-03: 뉴스 시황 이후 추가 (Path Z manual 대체 대신 자동화)
+          python -X utf8 agents/run_narrative_agent.py || true
+          python -X utf8 agents/run_audit_agent.py || true
+          python -X utf8 agents/run_daily_snapshot.py || true
+          # 2026-07-03: Notion 자동 업데이트 (부모 요약 + 자식 페이지 매일 생성)
+          if [ -n "$NOTION_TOKEN" ]; then
+            python -X utf8 agents/run_notion_agent.py || echo "[warn] notion 실패 (advisory)"
+          else
+            echo "[info] NOTION_TOKEN 없음 — Notion 업데이트 건너뜀"
+          fi
 
       - name: Commit updated outputs
         run: |
