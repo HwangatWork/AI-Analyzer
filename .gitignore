@@ -10,6 +10,9 @@ data/processed/
 # Phase P backtest price cache (regenerated on demand from yfinance/FDR)
 output/backtest_cache/
 
+# /pr peer review session artifacts (local-only; rotated to latest 10 by skill Phase 5)
+output/peer_review_pr/
+
 # Python
 __pycache__/
 *.pyc

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-analyzer/schemas/pr_round_response.schema.json",
+  "title": "/pr Peer Review Round Response",
+  "description": "Schema for individual agent responses in /pr skill peer review rounds. Round >= 2 requires feedback_addressed (min 2) to enforce mutual feedback.",
+  "type": "object",
+  "required": ["agent", "round", "stance", "key_points", "risks", "consensus_ready"],
+  "additionalProperties": false,
+  "properties": {
+    "agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Agent identifier (e.g., critic-agent, analysis-agent)"
+    },
+    "round": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Current review round (1-5; 4-5 only when PM score <= 8)"
+    },
+    "stance": {
+      "enum": ["support", "oppose", "conditional"],
+      "description": "Position on the task/proposal under review"
+    },
+    "key_points": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 10},
+      "description": "Core arguments with evidence (file:line where applicable)"
+    },
+    "risks": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 10},
+      "description": "Risks or objections raised (critic-agent: key_points + risks >= 2 objections required)"
+    },
+    "feedback_addressed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["to_agent", "point", "response"],
+        "additionalProperties": false,
+        "properties": {
+          "to_agent": {"type": "string", "minLength": 1},
+          "point": {"type": "string", "minLength": 5},
+          "response": {"type": "string", "minLength": 10}
+        }
+      },
+      "description": "Responses to other agents' prior-round points (required with minItems 2 from round 2)"
+    },
+    "consensus_ready": {
+      "type": "boolean",
+      "description": "true if this agent believes consensus is reached and no further rounds needed"
+    }
+  },
+  "if": {
+    "properties": {"round": {"minimum": 2}}
+  },
+  "then": {
+    "required": ["feedback_addressed"],
+    "properties": {
+      "feedback_addressed": {"minItems": 2}
+    }
+  }
+}

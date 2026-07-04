@@ -461,10 +461,10 @@ def _load_agent_spec(script_name: str) -> dict:
                           re.DOTALL | re.MULTILINE)
             return m.group(1) if m else ""
 
-        in_txt  = _section(r"##\s+입력\s+계약")
-        out_txt = _section(r"##\s+출력\s+계약")
-        dc_txt  = _section(r"##\s+완료\s+기준")
-        fb_txt  = _section(r"##\s+금지\s+행위")
+        in_txt  = _section(r"##\s+(?:입력\s+계약|Input\s+Contract)")
+        out_txt = _section(r"##\s+(?:출력\s+계약|Output\s+Contract)")
+        dc_txt  = _section(r"##\s+(?:완료\s+기준|Done\s+Criteria)")
+        fb_txt  = _section(r"##\s+(?:금지\s+행위|Forbidden)")
 
         return {
             "input_contract":  _extract_checkable_paths(in_txt),

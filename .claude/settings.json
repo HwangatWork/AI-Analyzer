@@ -44,6 +44,17 @@
                 ]
             },
             {
+                "matcher": "^(data|analysis|evaluator|validation|decision|stock|sector|news|narrative|ui|report|audit|meta-audit|critic)-agent$",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "python",
+                        "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/pr_schema_check.py"],
+                        "timeout": 15
+                    }
+                ]
+            },
+            {
                 "matcher": ".*",
                 "hooks": [
                     {

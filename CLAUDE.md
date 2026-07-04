@@ -255,6 +255,13 @@ exit non-zero 면 즉시 실패 workflow / endpoint / freshness 원인과
 
 근거: lesson `lsn_e7bd79d1` (AI 자기 라벨 금지) + 라운드 14 'Level 6-7 수준 검증' 회피.
 
+## Peer Review Skill (/pr)
+- 호출: `/pr <리뷰할 내용>` — worker 선별(전수 평가) + critic-agent(비판 전담) + pm-agent(점수·최종 판단) 필수.
+- 왕복: 기본 3회 + PM 점수 8점 이하 시 추가 최대 2회 (총 5회 상한, 이후 조건부 결론).
+- general-purpose/Explore 페르소나 사용 절대 금지 — `.claude/agents/` named agent 만.
+- 산출물: `output/peer_review_pr/<sid>/` (최근 10 세션 회전), 영구 이력 `history.jsonl`.
+- 스펙: `.claude/skills/pr/SKILL.md`, 스키마 `schemas/pr_round_response.schema.json`.
+
 ## AgentMemory 운영 원칙
 - TF 관련 신규 lesson 태그: `tf-design-process`
 - 기존 4 lesson 태그: `aprf-design-process` (legacy, 현재 알려진 호출로는 갱신 불가)
