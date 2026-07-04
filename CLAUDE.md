@@ -100,6 +100,33 @@ Verbal-only RCA = Level 1. All four steps = Level 6+.
 
 ## Things to Avoid
 
+**OL-8 (2026-07-04): Parser (HTML scrape) 와 Price Fetcher (API) 는 반드시 분리**
+
+Root cause: `tools/consensus/naver_parser.py:619` 가 WiseReport `chartData2.close_price_series`
+(**월별** 시계열) 에서 close_price_latest 를 뽑아 스냅샷에 저장. 최대 30일 lag → 7.7% stale
+(2,628,000원 vs 실제 KRX close 2,425,000원). validation-agent 는 `data_freshness_report`
+딕셔너리만 감사, 컨센서스 스냅샷은 커버리지 밖이라 감지 못함.
+
+Mandatory rules:
+1. **파서는 HTML 원본 데이터만** 반환. 파서 출력 필드명에 소스를 명시
+   (예: `close_price_from_wisereport_chart`). 파서 안에서 "authoritative current"
+   값을 결정하지 말 것.
+2. **Authoritative current value 는 별도 fetcher 모듈이 API 로 획득**.
+   KR: FinanceDataReader (KRX 공식), US: yfinance. Fetcher 는 파서와 다른 파일.
+   레퍼런스: `tools/consensus/live_price_fetcher.py`.
+3. **Snapshot writer 는 파서 → fetcher override 순으로 조립**. 파서 값은
+   `<field>_from_<source>` 로 보존 (자기일관성 감사용), 최종 `<field>` 는
+   fetcher 값 사용. 레퍼런스: `tools/consensus/consensus_pipeline.py` Step 2e.
+4. **validation-agent 는 `output/consensus_snapshot/*_analysis.json` 을
+   반드시 감사 스코프에 포함** — snapshot close vs live_prices.json diff > 5% WARN,
+   > 10% CRITICAL. 신규 D-7 check (`_validate_consensus_close_freshness`).
+5. **재발 방지 gate**: 새 컨센서스 필드 추가 시 "파서에서 계산 vs fetcher 에서 획득"
+   결정을 문서화. 파서에 API 호출 코드 금지, fetcher 에 HTML 파싱 코드 금지.
+
+See: `tools/consensus/live_price_fetcher.py`,
+     `agents/run_validation_agent.py::_validate_consensus_close_freshness`,
+     `tests/consensus/test_live_price_fetcher.py`.
+
 **OL-7 (2026-06-30): Anti-confirmation-bias on extracted data + multi-source corroboration required**
 
 Root cause incident: Phase 14-0-B2 parser extracted target_price = 2,470,417원 from

@@ -166,6 +166,11 @@ def build_us_analysis(ticker: str) -> dict:
     raw["target_low"] = target_low
     raw["target_median"] = target_median
     raw["close_price_latest"] = close_latest
+    # OL-8 provenance: US tickers fetch close directly from yfinance API,
+    # no WiseReport chart layer so close_price_from_wisereport_chart = None.
+    raw["close_price_source"] = "yfinance" if close_latest is not None else "unknown"
+    raw["close_price_as_of"] = _today_iso() if close_latest is not None else None
+    raw["close_price_from_wisereport_chart"] = None
     raw["currency"] = currency
     raw["static_target_price"] = target_mean
     raw["static_eps"] = info.get("trailingEps") or info.get("forwardEps")

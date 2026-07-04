@@ -194,6 +194,105 @@ def validate_data_quality(vr: ValidationResult, stock_res: dict, eval_res: dict)
            f"누락: {missing_raw}" if missing_raw else f"필수 {len(required_raw)}개 존재",
            "run_data_agent_v2.py 실행")
 
+    # D7: 컨센서스 스냅샷 close 정확도 (OL-8, 2026-07-04)
+    # 스코프: output/consensus_snapshot/*_analysis.json 의 close_price_latest
+    # vs output/consensus_snapshot/live_prices.json 의 오늘 라이브 close.
+    # WARN threshold 5%, FAIL threshold 10%.
+    d7_result = _validate_consensus_close_freshness()
+    vr.add(layer, "D7", "컨센서스 스냅샷 close 정확도 (라이브 vs snapshot)",
+           d7_result["passed"],
+           d7_result["severity"],
+           d7_result["evidence"],
+           d7_result["fix_hint"])
+
+
+def _validate_consensus_close_freshness() -> dict:
+    """Compare each consensus snapshot's close_price_latest vs live_prices.
+    Returns validation add() args."""
+    import json as _json
+    snap_dir = OUT_DIR / "consensus_snapshot"
+    if not snap_dir.exists():
+        return {"passed": True, "severity": "WARNING",
+                "evidence": "consensus_snapshot 디렉토리 없음 — 스코프 밖",
+                "fix_hint": ""}
+
+    live_path = snap_dir / "live_prices.json"
+    live_prices: dict = {}
+    if live_path.exists():
+        try:
+            with live_path.open(encoding="utf-8") as fh:
+                live_prices = (_json.load(fh) or {}).get("prices", {})
+        except Exception:
+            pass
+
+    # Find latest analysis.json per ticker (flat files: TICKER_YYYY-MM-DD_analysis.json)
+    latest_by_ticker: dict[str, tuple[str, Path]] = {}
+    for p in snap_dir.glob("*_*_analysis.json"):
+        name = p.stem  # e.g., "000660_2026-07-03_analysis"
+        parts = name.rsplit("_analysis", 1)[0].rsplit("_", 1)
+        if len(parts) != 2:
+            continue
+        ticker, date_str = parts
+        if len(date_str) != 10 or date_str.count("-") != 2:
+            continue
+        prev = latest_by_ticker.get(ticker)
+        if prev is None or date_str > prev[0]:
+            latest_by_ticker[ticker] = (date_str, p)
+
+    if not latest_by_ticker:
+        return {"passed": True, "severity": "WARNING",
+                "evidence": "*_analysis.json 없음 — 스코프 밖",
+                "fix_hint": ""}
+
+    warnings: list[str] = []
+    failures: list[str] = []
+    ok_count = 0
+    for ticker, (date_str, path) in latest_by_ticker.items():
+        try:
+            with path.open(encoding="utf-8") as fh:
+                a = _json.load(fh)
+        except Exception:
+            warnings.append(f"{ticker}: 파일 읽기 실패")
+            continue
+        raw = a.get("raw_inputs") or {}
+        snap_close = raw.get("close_price_latest")
+        snap_source = raw.get("close_price_source")
+        live = live_prices.get(ticker) or {}
+        live_close = live.get("close")
+        # Fallback source WARN
+        if snap_source and "chart_fallback" in snap_source:
+            warnings.append(
+                f"{ticker}({date_str}): source={snap_source} — 라이브 fetch 실패 상태"
+            )
+            continue
+        if snap_close is None or live_close is None or live_close <= 0:
+            continue
+        diff_pct = (snap_close - live_close) / live_close * 100
+        if abs(diff_pct) > 10:
+            failures.append(
+                f"{ticker}({date_str}): {diff_pct:+.2f}% "
+                f"(snap={snap_close:,.0f} vs live={live_close:,.0f})"
+            )
+        elif abs(diff_pct) > 5:
+            warnings.append(
+                f"{ticker}({date_str}): {diff_pct:+.2f}% "
+                f"(snap={snap_close:,.0f} vs live={live_close:,.0f})"
+            )
+        else:
+            ok_count += 1
+
+    if failures:
+        return {"passed": False, "severity": "CRITICAL",
+                "evidence": f"FAIL(>10%): {failures} | WARN(>5%): {warnings}",
+                "fix_hint": "consensus_pipeline 재실행 (라이브 fetch 필수)"}
+    if warnings:
+        return {"passed": False, "severity": "WARNING",
+                "evidence": f"WARN(>5%): {warnings} | OK: {ok_count}",
+                "fix_hint": "consensus_pipeline 재실행 권장"}
+    return {"passed": True, "severity": "WARNING",
+            "evidence": f"전 {ok_count}개 티커 라이브 대비 <5% 이내",
+            "fix_hint": ""}
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Layer 3: 결과 타당성 검증 (확증 편향 방지)
