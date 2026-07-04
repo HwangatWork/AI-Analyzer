@@ -1,0 +1,35 @@
+
+=== https://www.hankyung.com/article/2026020437756 ===
+  title: 삼성전자 시총 첫 1000조 돌파…17만전자 눈앞 | 한국경제
+  -> Match '목표주가 컨센서스는 21' IBs=['Morgan Stanley', 'JPMorgan', 'CLSA']
+     analyst_ctx=4 underwriter_ctx=0
+     snippet: ...은 317조원을 제시한 점이 눈길을 끈다. 앞서 모건스탠리는 2024년 9월 겨울이 곧 닥친다 라는 제목의 메모리반도체산업 보고서를 내면서 반도체 업황 비관론을 주도한 바 있다. 목표주가도 줄줄이 상향되고 있다. 국내 증권사들의 목표주가 컨센서스는 21만5375원이다. 전일 종가(16만7500원) 대비 28.58%의 상승 여력이 있다. 이날엔 흥국증권과 삼성증권이 23만원으로, 한국투자증권이 22만원으로 각각 목표주가를 상향했다. 현재 가장 높은 목표주가를 제시한 증권사는 미래에셋증권(24만7000원)이다. 외국계 증권사 중에서는 JP모건이 24만원, 홍콩계 IB인 CLSA가 26만원을 제시하고 있다. 한경우 한경닷컴 ...
+  -> Match '목표주가를 제시한 증권사는 미래에셋증권(24' IBs=['Morgan Stanley', 'JPMorgan', 'CLSA']
+     analyst_ctx=4 underwriter_ctx=0
+     snippet: ...은 317조원을 제시한 점이 눈길을 끈다. 앞서 모건스탠리는 2024년 9월 겨울이 곧 닥친다 라는 제목의 메모리반도체산업 보고서를 내면서 반도체 업황 비관론을 주도한 바 있다. 목표주가도 줄줄이 상향되고 있다. 국내 증권사들의 목표주가 컨센서스는 21만5375원이다. 전일 종가(16만7500원) 대비 28.58%의 상승 여력이 있다. 이날엔 흥국증권과 삼성증권이 23만원으로, 한국투자증권이 22만원으로 각각 목표주가를 상향했다. 현재 가장 높은 목표주가를 제시한 증권사는 미래에셋증권(24만7000원)이다. 외국계 증권사 중에서는 JP모건이 24만원, 홍콩계 IB인 CLSA가 26만원을 제시하고 있다. 한경우 한경닷컴 ...
+
+=== https://www.hankyung.com/article/2026042167375 ===
+  title: 코스피, 8500 갈 것...외국인, 1.3조 담았다 | 한국경제
+
+=== https://www.hankyung.com/article/202604283191i ===
+  title: AI 투자 지속 의문…경제적 변동성 고려할 때 | 한국경제
+
+=== https://www.hankyung.com/article/202606195734i ===
+  title: Fed 금리 동결했지만…다음 수는 인상 쪽으로 | 한국경제
+
+=== https://www.hankyung.com/article/202606123710i ===
+  title: 다음 美 초대형 IPO는 앤스로픽…여기 투자한 국내 종목은? | 한국경제
+
+=== https://www.hankyung.com/article/202606094676i ===
+  title: 반도체 5.6% 급반등…JPM 안정 찾는데 몇 주 | 한국경제
+
+=== https://www.hankyung.com/article/202606134041i ===
+  title: 로켓처럼 튄 스페이스X…6개월 뒤? 하락 50%/상승 35% | 한국경제
+
+=== https://www.hankyung.com/article/202606083418 ===
+  HTTPError 404
+
+=== EXTRACTION HITS (analyst-context confirmed) ===
+Total: 2
+  https://www.hankyung.com/article/2026020437756: ibs=['Morgan Stanley', 'JPMorgan', 'CLSA'] target_raw='21'
+  https://www.hankyung.com/article/2026020437756: ibs=['Morgan Stanley', 'JPMorgan', 'CLSA'] target_raw='24'

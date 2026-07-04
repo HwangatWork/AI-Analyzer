@@ -1,0 +1,7 @@
+# determinism.txt — fixture-mode pipeline determinism
+
+run1_analysis_sha256 = 57759383a8a8e3e4f1783208af06edfac9f493bfc301cb0adbfc7f066bb46889
+run2_analysis_sha256 = 57759383a8a8e3e4f1783208af06edfac9f493bfc301cb0adbfc7f066bb46889
+
+# Report MD identical across 2 runs?
+report_md_sha256 = 040d076c3867b6730057352f215c121d2b6f05beeaa2408c86a5a82ba0a0505f

@@ -1,0 +1,42 @@
+{
+  "answers": {
+    "Q1_direction": "UP",
+    "Q1_target_price_change_pct": 42.08005751258088,
+    "Q2_direction": "UP",
+    "Q2_eps_change_pct": 421.8471715715376,
+    "Q3_direction": "INSUFFICIENT",
+    "Q3_op_income_change_pct": null,
+    "Q4_quadrant": "TRUE_UPGRADE",
+    "Q5_global_vs_domestic": "GLOBAL_DATA_INSUFFICIENT"
+  },
+  "company": "SK hynix",
+  "data_quality": {
+    "components": {
+      "estimates_present": true,
+      "investment_opinion": true,
+      "latest_target_price": true,
+      "n_analysts": true,
+      "sufficient_series_length": true,
+      "target_price_change_1m_pct": true
+    },
+    "score": 1.0
+  },
+  "meta_audit": {
+    "kr_buy_bias_source": "KCMI 2025 (Buy 93.1%, Sell 0.1%, 2020-2024)",
+    "kr_buy_bias_warning": true,
+    "point_in_time_note": "single fetch; not yet a daily-accumulated point-in-time series. Naver/WiseReport historical entries may have been retroactively updated (Ljungqvist 2009).",
+    "point_in_time_status": "snapshot",
+    "target_price_role": "sentiment_valuation_proxy",
+    "target_price_role_source": "Bradshaw, Brown, Huang 2013 -- 12-month target price end-of-period achievement 38%, MAFE ~45%"
+  },
+  "parser_warnings": [],
+  "raw_inputs": {
+    "investment_opinion": 4.0,
+    "latest_target_price": 2470417.0,
+    "latest_target_price_date": "2026-05-29",
+    "n_analysts": 24,
+    "prior_target_price": 1738750.0
+  },
+  "schema_version": "0.1",
+  "ticker": "000660"
+}

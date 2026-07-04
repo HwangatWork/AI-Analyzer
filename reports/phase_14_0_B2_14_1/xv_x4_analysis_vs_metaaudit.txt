@@ -1,0 +1,6 @@
+X4 — Analysis <-> Meta-Audit: label invariance
+  full_data        Q4=INSUFFICIENT   labels_present=YES
+  eps_missing      Q4=INSUFFICIENT   labels_present=YES
+  target_missing   Q4=INSUFFICIENT   labels_present=YES
+  all_missing      Q4=INSUFFICIENT   labels_present=YES
+VERDICT: all 4 scenarios preserve 6 labels -> PASS

@@ -1,0 +1,11 @@
+<stdin>:10: DeprecationWarning: Accessing jsonschema.__version__ is deprecated and will be removed in a future release. Use importlib.metadata directly to query for jsonschema's version.
+# jsonschema_validation.txt
+jsonschema_version = 4.26.0
+
+errors_found = 0
+schema_check = PASS
+sources_validated = 7
+network_calls_made = 0
+mode = dry_run_static_audit
+financial_data_fetch_allowed_violations = []
+phase_0_a1_invariants = PASS

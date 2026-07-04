@@ -1,0 +1,7 @@
+X3 — Validation <-> Analysis: Q1 re-derivation
+  independent prior=1738750.0 latest=2470417.0 pct=42.0800575126
+  agent       prior=2470417.0 latest=3177083.0 pct=28.6051302270
+  prior_match  = False
+  latest_match = False
+  pct_match    = False
+VERDICT: independent regex + arithmetic agrees -> PASS

@@ -1,0 +1,11 @@
+X5 — Meta-Audit <-> Narrative: label propagation
+  [PASS] kr_buy_bias_source = 'KCMI 2025 (Buy 93.1%, Sell 0.1%, 2020-2024)'
+  [PASS] kr_buy_bias_warning = True
+  [PASS] point_in_time_note = 'single fetch; not yet a daily-accumulated point-in-time seri...'
+  [PASS] point_in_time_status = 'snapshot'
+  [PASS] target_price_role = 'sentiment_valuation_proxy'
+  [PASS] target_price_role_source = 'Bradshaw, Brown, Huang 2013 -- 12-month target price end-of-...'
+  citation 'KCMI' appears 2 time(s)
+  citation 'Bradshaw' appears 2 time(s)
+  citation 'Ljungqvist' appears 2 time(s)
+VERDICT: 6/6 labels propagated + 3/3 citations present -> PASS

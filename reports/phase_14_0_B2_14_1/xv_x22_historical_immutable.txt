@@ -1,0 +1,4 @@
+X22 -- Historical snapshot byte-identical after new writes
+  top_sha_before = 7e5e5fc091bce83a
+  top_sha_after  = 7e5e5fc091bce83a
+VERDICT: PASS

@@ -1,0 +1,12 @@
+
+=== https://www.hankyung.com/article/202606305285 ===
+  robots: ALLOWED
+  HTTPError 404
+
+=== https://www.hankyung.com/article/202606292738 ===
+  robots: ALLOWED
+  HTTPError 404
+
+=== https://www.hankyung.com/article/202606271163 ===
+  robots: ALLOWED
+  HTTPError 404

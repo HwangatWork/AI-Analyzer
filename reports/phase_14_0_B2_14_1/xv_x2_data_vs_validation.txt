@@ -1,0 +1,10 @@
+X2 — Data <-> Validation: byte integrity
+  data_agent_sha256 = b98295dbe088d69a4c25f63336d3b98ce2a621cafe301474c6316d7c2d1fc737
+  data_agent_bytes  = 92056
+  rehash_sha256     = b98295dbe088d69a4c25f63336d3b98ce2a621cafe301474c6316d7c2d1fc737
+  rehash_bytes      = 92056
+  fixture_sha256    = b98295dbe088d69a4c25f63336d3b98ce2a621cafe301474c6316d7c2d1fc737
+  sha_match         = True
+  bytes_match       = True
+  fixture_match     = True
+VERDICT: all three independent hashes equal -> PASS

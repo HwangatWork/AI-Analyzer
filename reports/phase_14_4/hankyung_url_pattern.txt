@@ -1,0 +1,50 @@
+Total unique hankyung URLs: 70
+
+Domain frequencies:
+  www.hankyung.com: 23
+  hkstatic.hankyung.com: 21
+  company.hankyung.com: 7
+  id.hankyung.com: 3
+  magazine.hankyung.com: 3
+  search.hankyung.com: 2
+  ac.hankyung.com: 1
+  bp.hankyung.com: 1
+  itcampus.hankyung.com: 1
+  jrsgsg.hankyung.com: 1
+  kizmom.hankyung.com: 1
+  member.hankyung.com: 1
+  members.hankyung.com: 1
+  ooh.hankyung.com: 1
+  sgsg.hankyung.com: 1
+  stg-www.hankyung.com: 1
+  tenasia.hankyung.com: 1
+
+=== Sample URLs by path pattern ===
+Top path prefixes:
+  /resource: 14
+  /article: 8
+  /tag: 5
+  /dotcom: 4
+  /plugin: 4
+  /ked: 3
+  /user: 3
+  /ext-api: 3
+  /css: 2
+  /business: 2
+  /premium9: 2
+  /js: 1
+  /apps.frame: 1
+  /apps.frm: 1
+  /search: 1
+
+=== href attribute search for article links ===
+  https://magazine.hankyung.com/business/article/202606256388b
+  https://magazine.hankyung.com/business/article/202606269286b
+  https://www.hankyung.com/article/202606243956i
+  https://www.hankyung.com/article/202606246047g
+  https://www.hankyung.com/article/202606246360i
+  https://www.hankyung.com/article/202606256523i
+  https://www.hankyung.com/article/2026062580656
+  https://www.hankyung.com/article/202606271163i
+  https://www.hankyung.com/article/202606292738i
+  https://www.hankyung.com/article/202606305285i

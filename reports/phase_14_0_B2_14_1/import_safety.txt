@@ -1,0 +1,19 @@
+# import_safety.txt
+
+## tools/consensus — high-level HTTP libs
+scan: requests/httpx/aiohttp top-level imports
+  (no matches)
+
+## tools/consensus — urllib (intentional, used for robots + 1 GET)
+tools/consensus/robots_check.py:17:import urllib.error
+tools/consensus/robots_check.py:18:import urllib.request
+tools/consensus/robots_check.py:19:from urllib import robotparser
+tools/consensus/robots_check.py:20:from urllib.parse import urlparse
+tools/consensus/smoke_fetch.py:28:import urllib.error
+tools/consensus/smoke_fetch.py:29:import urllib.request
+
+## tools/consensus — socket (audit guard only)
+tools/consensus/source_access_audit.py:31:import socket
+
+## tests/consensus — network libs (any depth)
+tests/consensus/test_source_access_audit.py:210:    import socket

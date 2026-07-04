@@ -1,0 +1,19 @@
+warning: in the working copy of 'ROADMAP.md', LF will be replaced by CRLF the next time Git touches it
+ .claude/agents/analysis-agent.md   | 20 ++++++++++++++
+ .claude/agents/audit-agent.md      | 21 +++++++++++++++
+ .claude/agents/decision-agent.md   | 18 +++++++++++++
+ .claude/agents/evaluator-agent.md  | 21 +++++++++++++++
+ .claude/agents/meta-audit-agent.md | 20 ++++++++++++++
+ .claude/agents/narrative-agent.md  | 23 ++++++++++++++++
+ .claude/agents/news-agent.md       | 21 +++++++++++++++
+ .claude/agents/pm-agent.md         | 22 +++++++++++++++
+ .claude/agents/report-agent.md     | 19 +++++++++++++
+ .claude/agents/sector-agent.md     | 18 +++++++++++++
+ .claude/agents/stock-agent.md      | 40 ++++++++++++++++++++-------
+ .claude/agents/ui-agent.md         | 21 +++++++++++++++
+ .claude/agents/validation-agent.md | 19 +++++++++++++
+ ROADMAP.md                         |  1 +
+ data/collection_report_v2.json     | 55 +++++++++++++++++++++-----------------
+ pending_requests.json              | 18 ++++++-------
+ 16 files changed, 314 insertions(+), 43 deletions(-)
+EXIT=0

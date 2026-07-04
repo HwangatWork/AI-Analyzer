@@ -1,0 +1,9 @@
+captured_at_utc=2026-06-28T23:14:42+00:00
+captured_at_local=2026-06-29T08:14:42+09:00
+repo_head_sha=7bbf7bce2fc98ebccce6ba7d2a61e6005e48b19a
+repo_head_short=7bbf7bc
+evidence_pack_original_head=0cbe60a51be04a101b965a5148061eeda2e4074c
+head_moved_since_evidence_pack=true
+phase_14_0_A1_owned_paths_changed_since_evidence_pack=false
+python_version=Python 3.12.10
+pytest_version=pytest 9.0.3

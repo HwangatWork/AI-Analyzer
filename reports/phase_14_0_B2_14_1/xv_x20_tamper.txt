@@ -1,0 +1,3 @@
+X20 -- Snapshot tamper detection
+  ok_after_tamper=False mismatches=['report.md: expected fd99dedae7c3 actual 5b6ba5b310f2']
+VERDICT: PASS (tamper must be detected)

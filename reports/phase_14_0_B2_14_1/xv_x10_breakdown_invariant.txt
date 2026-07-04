@@ -1,0 +1,4 @@
+X10 -- Internal invariant: breakdown total == static n_analysts
+  static n_analysts   = 24
+  breakdown.total     = 24
+VERDICT: PASS (counts match exactly)

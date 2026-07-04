@@ -1,0 +1,3 @@
+X6 — PM <-> Pipeline: independent jsonschema
+  errors_found = 0
+VERDICT: 0 errors against independent schema -> PASS

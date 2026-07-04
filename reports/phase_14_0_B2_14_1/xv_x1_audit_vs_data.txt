@@ -1,0 +1,5 @@
+X1 — Audit <-> Data: call order + veto
+  ALLOW: robots_calls=1 page_calls=1 exit_code=0
+  DENY: robots_calls=1 page_calls=0 exit_code=7
+  smoke=False: robots_calls=0 page_calls=0 exit_code=4
+VERDICT: page_calls=0 under DENY and smoke=False -> PASS

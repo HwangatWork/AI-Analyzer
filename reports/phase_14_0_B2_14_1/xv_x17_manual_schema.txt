@@ -1,0 +1,3 @@
+X17 -- Manual targets matches jsonschema
+  errors_found = 0
+VERDICT: PASS

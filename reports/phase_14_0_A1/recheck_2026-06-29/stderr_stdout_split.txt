@@ -1,0 +1,22 @@
+# stderr_stdout_split.txt
+
+## dry-run: stdout/stderr separated
+exit_code = 0
+stdout:
+DONE_CRITERIA: PASS -- sources=7 network_calls_made=0 ready_for_smoke_test=3
+stderr (expect empty):
+<EMPTY>
+
+## --live: rejected — stdout/stderr separated
+exit_code = 4
+stdout (expect empty):
+<EMPTY>
+stderr (expect ERROR):
+ERROR: --live and --fetch-data are forbidden in Phase 0-A1. This phase must make zero network calls.
+
+## --fetch-data: rejected
+exit_code = 4
+stdout (expect empty):
+<EMPTY>
+stderr (expect ERROR):
+ERROR: --live and --fetch-data are forbidden in Phase 0-A1. This phase must make zero network calls.

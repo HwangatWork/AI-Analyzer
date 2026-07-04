@@ -1,0 +1,8 @@
+X7 — Negative injection across agents
+  X7.1 robots DENY -> exit=7 raw_html_path=None
+  X7.2 HTTP 500     -> exit=3
+  X7.3 empty HTML   -> warnings=['chart_data2_not_found', 'static_table_incomplete: only 0 cells', 'estimates_table_not_found', 'opinion_breakdown_not_found', 'quarterly_earnings_not_found', 'annual_indicators_not_found', 'per_firm_targets_not_found'] latest=None
+  X7.4 empty est.   -> Q1=UP Q2=INSUFFICIENT Q4=INSUFFICIENT
+  X7.5 classify(FLAT,UP)         -> CONSERVATIVE_IB
+  X7.6 classify(UP,INSUFFICIENT) -> INSUFFICIENT
+VERDICT: failures propagate honestly (no silent masking) -> PASS

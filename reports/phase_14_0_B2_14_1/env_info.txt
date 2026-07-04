@@ -1,0 +1,8 @@
+captured_at_utc=2026-06-29T23:03:17+00:00
+captured_at_local=2026-06-30T08:03:18+09:00
+python_version=Python 3.12.10
+pytest_version=pytest 9.0.3
+repo_head_sha=3b0d9bf8063364892f5ee6708679ee0ff4b9e082
+repo_head_short=3b0d9bf
+repo_branch=master
+platform=Windows-11-10.0.26200-SP0

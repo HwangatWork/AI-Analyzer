@@ -1,0 +1,9 @@
+X13 -- Multi-source attempt log present
+  attempts logged = 6
+  - yfinance Python lib (.analyst_price_targets / .recommendatio: result='available — 37 analysts, KRW, per-firm not exposed', robots=n/a (library, not URL)
+  - Finnhub /stock/recommendation: result='401 — requires FINNHUB_API_KEY (not configured)', robots=allow
+  - Yahoo Finance HTML quote page: result='200 / 166KB — 0 occurrences of JPM/Goldman/MS/BofA names; data is JS-rendered', robots=allow
+  - query1.finance.yahoo.com /v7/finance/quote API: result='robots_denied', robots=disallow
+  - Google News RSS (SK hynix JPMorgan): result='robots_denied', robots=disallow
+  - Bloomberg.com quote page: result='allow (robots) but full data behind login; not attempted at scale', robots=allow
+VERDICT: >=5 sources tried -> PASS

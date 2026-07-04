@@ -1,0 +1,28 @@
+# pytest_collect.txt (Level-10 test count baseline)
+
+## Full repository collection
+tests/consensus/test_source_access_audit.py::test_network_block_does_not_break_dry_run
+
+106 tests collected in 0.99s
+
+## tests/consensus only
+tests/consensus/test_source_access_audit.py::test_network_block_does_not_break_dry_run
+
+13 tests collected in 0.01s
+
+## Test files contributing to collection
+agents/tests/test_aprf_schema_check_hook.py
+agents/tests/test_aprf_schemas.py
+agents/tests/test_phase12_ci_fixes.py
+agents/tests/test_phase63_groups.py
+agents/tests/test_phase63b_md_reference.py
+agents/tests/test_phase64_memory.py
+agents/tests/test_phase8_llm_judge.py
+agents/tests/test_phase9_vix_scaling.py
+agents/tests/test_qi1_logic.py
+agents/tests/test_regression.py
+agents/tests/test_req_sa4_done_criteria.py
+agents/tests/test_sa9_injection.py
+agents/tests/test_sd14_regression.py
+agents/tests/test_semiconductor_export.py
+tests/consensus/test_source_access_audit.py

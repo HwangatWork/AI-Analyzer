@@ -1,0 +1,5 @@
+X9 -- External anchor: FDR vs extracted close_price_latest
+  extracted_close_latest = 2628000.0
+  fdr_latest_close       = 2650000.0
+  diff_pct               = -0.8302%
+VERDICT: |diff| < 5% -> PASS

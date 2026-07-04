@@ -1,0 +1,4 @@
+X18 -- IB alias round-trip
+  total aliases = 34
+  failed = 0
+VERDICT: PASS

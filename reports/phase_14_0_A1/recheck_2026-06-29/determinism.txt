@@ -1,0 +1,11 @@
+# determinism.txt
+run1_sha256_raw = 346169493ab37ba3fe518fce33302b73f47f6a70a74ed3deba13f5b3602b48a3
+run2_sha256_raw = 346169493ab37ba3fe518fce33302b73f47f6a70a74ed3deba13f5b3602b48a3
+raw_identical = True
+
+run1_generated_at = 2026-06-29T08:11:34+09:00
+run2_generated_at = 2026-06-29T08:11:34+09:00
+
+run1_sha256_modulo_timestamp = 08ad59f0ed06f3956b55494db036216d2c6c06a029683f3be489c4410d6e6d20
+run2_sha256_modulo_timestamp = 08ad59f0ed06f3956b55494db036216d2c6c06a029683f3be489c4410d6e6d20
+deterministic_modulo_timestamp = True

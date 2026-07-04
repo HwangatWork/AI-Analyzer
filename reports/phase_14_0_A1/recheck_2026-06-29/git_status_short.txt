@@ -1,0 +1,31 @@
+ M .claude/agents/analysis-agent.md
+ M .claude/agents/audit-agent.md
+ M .claude/agents/decision-agent.md
+ M .claude/agents/evaluator-agent.md
+ M .claude/agents/meta-audit-agent.md
+ M .claude/agents/narrative-agent.md
+ M .claude/agents/news-agent.md
+ M .claude/agents/pm-agent.md
+ M .claude/agents/report-agent.md
+ M .claude/agents/sector-agent.md
+ M .claude/agents/stock-agent.md
+ M .claude/agents/ui-agent.md
+ M .claude/agents/validation-agent.md
+ M data/collection_report_v2.json
+?? .claude/hooks/stdin_debug.txt
+?? .claude/scheduled_tasks.lock
+?? .understand-anything/
+?? README.md
+?? _rank.txt
+?? _tmp_rank.txt
+?? agents/archive/run_analysis_agent.py
+?? agents/archive/run_evaluator_agent.py
+?? agents/archive/run_stock_agent.py
+?? configs/
+?? docs/
+?? output/consensus_audit/
+?? reports/
+?? test_hooks_full.py
+?? tests/
+?? tools/
+EXIT=0

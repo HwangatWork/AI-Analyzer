@@ -1,0 +1,80 @@
+# commit_candidate_files.txt
+#
+# Phase 14-0-A1 — Consensus Revision Tracker / Static Source Access Audit
+#
+# These are the EXACT files that should be staged for the Phase 14-0-A1
+# commit. No file outside this list is part of this phase.
+# DO NOT include any of the pre-existing modified/untracked entries
+# captured in git_status_short.txt that are NOT listed here.
+
+# --- modified (M) ---
+ROADMAP.md
+
+# --- new files (??) ---
+configs/consensus_sources.json
+configs/policy_keywords.json
+tools/__init__.py
+tools/consensus/__init__.py
+tools/consensus/source_access_audit.py
+tests/__init__.py
+tests/consensus/__init__.py
+tests/consensus/test_source_access_audit.py
+docs/consensus_revision_tracker.md
+output/consensus_audit/.gitkeep
+output/consensus_audit/source_access_audit.json
+
+# === Decision on output JSON ===
+#
+# Question : Should output/consensus_audit/source_access_audit.json be committed?
+# Decision : INCLUDE in commit.
+# Rule    : Repo convention tracks output/*.json artifacts.
+# Evidence:
+#   $ git ls-files output/ | grep -c '\.json$'
+#   Multiple .json files are already tracked (e.g. output/decision.json,
+#   output/final_results.json, output/ctd_bridge.json, output/ctd_weights.json,
+#   output/narrative_context.json). The audit JSON follows the same pattern:
+#   it is a single-file "latest run state" artifact that gets overwritten on
+#   each invocation. Tracking it provides a recoverable baseline for what the
+#   audit returned at any given commit, and downstream consumers (e.g.
+#   dashboards, pm_quality readers) can reference it by path.
+#
+# The accompanying .gitkeep is redundant once the JSON is present but
+# is intentionally kept so the directory remains visible even after a
+# possible future `rm output/consensus_audit/*.json`.
+
+# === Files explicitly EXCLUDED from this commit ===
+#
+# Pre-existing modified files (NOT touched by this phase):
+#   .claude/agents/analysis-agent.md
+#   .claude/agents/audit-agent.md
+#   .claude/agents/decision-agent.md
+#   .claude/agents/evaluator-agent.md
+#   .claude/agents/meta-audit-agent.md
+#   .claude/agents/narrative-agent.md
+#   .claude/agents/news-agent.md
+#   .claude/agents/pm-agent.md
+#   .claude/agents/report-agent.md
+#   .claude/agents/sector-agent.md
+#   .claude/agents/stock-agent.md
+#   .claude/agents/ui-agent.md
+#   .claude/agents/validation-agent.md
+#   data/collection_report_v2.json
+#   pending_requests.json
+#
+# Pre-existing untracked files (NOT touched by this phase):
+#   .claude/hooks/stdin_debug.txt
+#   .claude/scheduled_tasks.lock
+#   .understand-anything/
+#   README.md
+#   _rank.txt
+#   _tmp_rank.txt
+#   agents/archive/run_analysis_agent.py
+#   agents/archive/run_evaluator_agent.py
+#   agents/archive/run_stock_agent.py
+#   test_hooks_full.py
+#
+# Evidence pack itself (decide separately):
+#   reports/phase_14_0_A1/  -- contains raw verification logs.
+#   Recommendation: commit this directory in the same Phase 14-0-A1 commit
+#   so the Level-10 evidence remains attached to the change. Alternatively,
+#   keep it untracked and reference paths from the PR description.

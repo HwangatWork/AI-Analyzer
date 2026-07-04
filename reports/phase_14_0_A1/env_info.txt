@@ -1,0 +1,11 @@
+# env_info.txt (Level-10 reproducibility evidence)
+captured_at_utc=2026-06-27T15:46:55+00:00
+captured_at_local=2026-06-28T00:46:55+09:00
+cwd=/c/Users/JY Hwang/Desktop/AI Projects/AI Analyzer
+platform=Windows-11-10.0.26200-SP0
+python_version=Python 3.12.10
+python_executable=C:\Users\JY Hwang\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\python.exe
+pytest_version=pytest 9.0.3
+repo_head_sha=0cbe60a51be04a101b965a5148061eeda2e4074c
+repo_head_short=0cbe60a
+repo_branch=master

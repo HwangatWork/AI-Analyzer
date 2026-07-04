@@ -1,0 +1,22 @@
+Total chars: 72829
+
+Unique article URLs found: 8
+  https://www.hankyung.com/article/202606243956
+  https://www.hankyung.com/article/202606246047
+  https://www.hankyung.com/article/202606246360
+  https://www.hankyung.com/article/202606256523
+  https://www.hankyung.com/article/2026062580656
+  https://www.hankyung.com/article/202606271163
+  https://www.hankyung.com/article/202606292738
+  https://www.hankyung.com/article/202606305285
+
+=== Title-like elements ===
+  class='tit': 1 matches
+    - '검색'
+  class='title': 1 matches
+    - '검색'
+
+목표가 positions: [53733]
+
+--- pos 53733 ---
+ 확정했습니다. 최대 294억달러를 조달할 예정인데, 역대 미국 주식 발행 규모 5위 안에 들어가는 수준입니다. 이 자금은 용인 반도체 클러스터 ... 때문입니다. 최근 골드만삭스와 도이체방크 등 주요 은행들도 최근 금값 전망치를 잇따라 하향 조정했습니다. ④ JP모건 , 올해 S&amp;P500 목표가 상향 JP모건 은 에너지 공급 충격에도 글로벌 소비와 고용, AI 설비투자가 성장을 ... 

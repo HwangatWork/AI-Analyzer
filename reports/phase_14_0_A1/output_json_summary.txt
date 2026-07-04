@@ -1,0 +1,15 @@
+# output_json_summary.txt
+source: output/consensus_audit/source_access_audit.json
+
+sha256: 93054035b611207350d084e0b6e60e3753a54285fffaa06686bfd31c5afb40d4
+bytes: 7017
+network_calls_made: 0
+mode: dry_run_static_audit
+total_sources: 7
+accessible_sources: 3
+blocked_sources: 4
+unknown_license_sources: 0
+ready_for_smoke_test: ['Naver Finance', 'Hankyung Consensus', 'DART']
+config_valid: True
+policy_keywords_valid: True
+generated_at: 2026-06-28T00:46:25+09:00

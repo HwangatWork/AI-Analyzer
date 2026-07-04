@@ -1,0 +1,41 @@
+# import_safety.txt (Level-10 static network safety proof)
+
+## Audit tool (tools/consensus/source_access_audit.py)
+
+### Network-library imports (requests/httpx/urllib/aiohttp/http.client)
+scan: grep -nE '^(import|from)\s+(requests|httpx|urllib|aiohttp|http\.client)'
+result: 0 matches
+
+### Socket-library imports (allowed, but guarded at runtime)
+scan: grep -nE '^(import|from)\s+socket'
+result:
+31:import socket
+
+note: socket is imported solely to be replaced with raising stubs in
+      _install_network_guard(). Any attempted use of socket.socket or
+      socket.create_connection raises NetworkAccessForbidden.
+
+## Test suite (tests/consensus/)
+
+### Network-library imports (top-level)
+scan: grep -nE '^(import|from)\s+(requests|httpx|urllib|aiohttp|http\.client|socket)'
+result: 0 matches
+
+### Network-library imports (top-level OR inline, any depth)
+scan: grep -nE '(import|from).*\b(socket|requests|httpx|urllib|aiohttp|http\.client)\b'
+result:
+  tests/consensus/test_source_access_audit.py:210:    import socket
+
+note: the single inline import is inside test_network_block_does_not_break_dry_run.
+      It replaces socket.socket and socket.create_connection with assertion-raising
+      stubs BEFORE calling the audit tool, then restores them in `finally`.
+      It does not perform any network I/O.
+      No imports of requests/httpx/urllib/aiohttp/http.client anywhere in tests/.
+
+## Conclusion
+
+Static analysis confirms zero indirect network capability beyond the
+deliberately-guarded socket module. The audit tool cannot accidentally
+open an HTTP connection because none of the high-level HTTP libraries
+are imported. The single inline socket import in tests exists solely to
+prove that the audit tool tolerates a fully-guarded socket layer.

@@ -1,0 +1,9 @@
+X15 -- Named target ∈ yfinance.low..high range
+  yfinance range: [1,030,000, 4,700,000]
+  OUT_OF_RANGE: Nomura target=610,000 conf=low
+  OUT_OF_RANGE: JPMorgan target=247,000 conf=medium
+  OUT_OF_RANGE: Goldman Sachs target=260,000 conf=medium
+  OUT_OF_RANGE: Morgan Stanley target=840,000 conf=medium
+  OUT_OF_RANGE: CLSA target=260,000 conf=medium
+  in_range = 1, out_of_range = 5
+VERDICT: PASS (low/medium out-of-range allowed; high must be in range)

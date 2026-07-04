@@ -1,0 +1,3 @@
+X19 -- Snapshot manifest sha256 integrity
+  ok=True checked=3 mismatches=[] missing=[]
+VERDICT: PASS

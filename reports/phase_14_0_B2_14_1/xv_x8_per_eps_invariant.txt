@@ -1,0 +1,7 @@
+X8 -- Arithmetic invariant: PER * EPS ~= close (within 1%)
+  static_eps     = 307655.0
+  static_per     = 8.54
+  close_latest   = 2628000.0
+  PER * EPS      = 2627373.70
+  diff_pct       = -0.0238%
+VERDICT: |diff| < 1% -> PASS

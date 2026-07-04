@@ -1,0 +1,22 @@
+{
+  "bytes": 92056,
+  "company": "SK hynix",
+  "encoding_detected": "utf-8",
+  "errors": [],
+  "exit_code": 0,
+  "fetched_at": "2026-06-30T07:52:25+09:00",
+  "http_status": 200,
+  "raw_html_path": "output/consensus_snapshot\\000660_2026-06-30_raw.html",
+  "robots_decision": {
+    "allowed": true,
+    "reason": "robots_missing_default_allow",
+    "robots_status": 404,
+    "robots_url": "https://navercomp.wisereport.co.kr/robots.txt",
+    "url": "https://navercomp.wisereport.co.kr/v2/company/c1010001.aspx?cn=&cmp_cd=000660",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+  },
+  "sha256": "b98295dbe088d69a4c25f63336d3b98ce2a621cafe301474c6316d7c2d1fc737",
+  "source": "wisereport",
+  "ticker": "000660",
+  "url": "https://navercomp.wisereport.co.kr/v2/company/c1010001.aspx?cn=&cmp_cd=000660"
+}

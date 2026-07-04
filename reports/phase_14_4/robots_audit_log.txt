@@ -1,0 +1,44 @@
+=== https://search.naver.com/search.naver?where=news&query=JP%EB%AA%A8%EA%B1%B4+SK%ED%95%98%EC%9D%B4%EB%8B%89%EC%8A%A4+%EB%AA%A9%ED%91%9C%EA%B0%80 ===
+{"url": "https://search.naver.com/search.naver?where=news&query=JP%EB%AA%A8%EA%B1%B4+SK%ED%95%98%EC%9D%B4%EB%8B%89%EC%8A%A4+%EB%AA%A9%ED%91%9C%EA%B0%80", "robots_url": "https://search.naver.com/robots.txt", "robots_status": 200, "allowed": false, "reason": "robots_disallow", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
+exit=0
+
+=== https://news.naver.com/main/main.naver?mode=LSD&mid=shm&sid1=101 ===
+{"url": "https://news.naver.com/main/main.naver?mode=LSD&mid=shm&sid1=101", "robots_url": "https://news.naver.com/robots.txt", "robots_status": 200, "allowed": false, "reason": "robots_disallow", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
+exit=0
+
+=== https://www.mk.co.kr/news/economy/ ===
+{"url": "https://www.mk.co.kr/news/economy/", "robots_url": "https://www.mk.co.kr/robots.txt", "robots_status": 200, "allowed": true, "reason": "robots_allow", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
+exit=0
+
+=== https://www.hankyung.com/economy ===
+{"url": "https://www.hankyung.com/economy", "robots_url": "https://www.hankyung.com/robots.txt", "robots_status": 200, "allowed": true, "reason": "robots_allow", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
+exit=0
+
+=== https://biz.chosun.com/stock/ ===
+{"url": "https://biz.chosun.com/stock/", "robots_url": "https://biz.chosun.com/robots.txt", "robots_status": 200, "allowed": true, "reason": "robots_allow", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
+exit=0
+
+=== https://www.thebell.co.kr/free/content/ArticleList.asp ===
+{"url": "https://www.thebell.co.kr/free/content/ArticleList.asp", "robots_url": "https://www.thebell.co.kr/robots.txt", "robots_status": 200, "allowed": false, "reason": "robots_disallow", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
+exit=0
+
+=== https://search.mk.co.kr/?word=SK%ED%95%98%EC%9D%B4%EB%8B%89%EC%8A%A4 ===
+{"url": "https://search.mk.co.kr/?word=SK%ED%95%98%EC%9D%B4%EB%8B%89%EC%8A%A4", "robots_url": "https://search.mk.co.kr/robots.txt", "robots_status": 200, "allowed": false, "reason": "robots_disallow", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
+exit=0
+
+=== https://search.hankyung.com/search/news?query=SK%ED%95%98%EC%9D%B4%EB%8B%89%EC%8A%A4 ===
+{"url": "https://search.hankyung.com/search/news?query=SK%ED%95%98%EC%9D%B4%EB%8B%89%EC%8A%A4", "robots_url": "https://search.hankyung.com/robots.txt", "robots_status": 200, "allowed": true, "reason": "robots_allow", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
+exit=0
+
+=== https://biz.chosun.com/search/?query=SK%ED%95%98%EC%9D%B4%EB%8B%89%EC%8A%A4 ===
+{"url": "https://biz.chosun.com/search/?query=SK%ED%95%98%EC%9D%B4%EB%8B%89%EC%8A%A4", "robots_url": "https://biz.chosun.com/robots.txt", "robots_status": 200, "allowed": true, "reason": "robots_allow", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
+exit=0
+
+=== https://duckduckgo.com/html/?q=JP%EB%AA%A8%EA%B1%B4+SK%ED%95%98%EC%9D%B4%EB%8B%89%EC%8A%A4+%EB%AA%A9%ED%91%9C%EA%B0%80 ===
+{"url": "https://duckduckgo.com/html/?q=JP%EB%AA%A8%EA%B1%B4+SK%ED%95%98%EC%9D%B4%EB%8B%89%EC%8A%A4+%EB%AA%A9%ED%91%9C%EA%B0%80", "robots_url": "https://duckduckgo.com/robots.txt", "robots_status": 200, "allowed": false, "reason": "robots_disallow", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
+exit=0
+
+=== https://www.bing.com/search?q=Goldman+Sachs+SK+hynix+price+target ===
+{"url": "https://www.bing.com/search?q=Goldman+Sachs+SK+hynix+price+target", "robots_url": "https://www.bing.com/robots.txt", "robots_status": 200, "allowed": false, "reason": "robots_disallow", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
+exit=0
+

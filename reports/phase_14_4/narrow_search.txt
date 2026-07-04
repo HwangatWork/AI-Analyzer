@@ -1,0 +1,30 @@
+
+=== hk_JPM목표가 ===
+  status=200 bytes=83640
+  article URLs: 9
+    https://www.hankyung.com/article/202606083418
+    https://www.hankyung.com/article/202606094676i
+    https://www.hankyung.com/article/202606134041i
+    https://www.hankyung.com/article/202606243956i
+    https://www.hankyung.com/article/202606246360i
+  '목표가': 0, '목표주가': 9, '상향': 5
+
+=== hk_GS목표가 ===
+  status=200 bytes=83296
+  article URLs: 9
+    https://www.hankyung.com/article/202606110999i
+    https://www.hankyung.com/article/202606123710i
+    https://www.hankyung.com/article/202606195734i
+    https://www.hankyung.com/article/202606243956i
+    https://www.hankyung.com/article/202606246360i
+  '목표가': 0, '목표주가': 13, '상향': 0
+
+=== hk_외국계상향 ===
+  status=200 bytes=78779
+  article URLs: 10
+    https://www.hankyung.com/article/2026020313606
+    https://www.hankyung.com/article/2026020427731
+    https://www.hankyung.com/article/2026020437756
+    https://www.hankyung.com/article/2026042167375
+    https://www.hankyung.com/article/202604283191i
+  '목표가': 0, '목표주가': 22, '상향': 26

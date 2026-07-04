@@ -1,0 +1,5 @@
+X12 -- Phase 14-3 arithmetic invariant: weighted-mean decomposition
+  yf_n*yf_mean        = 114894583.00
+  dom_n*dom + g_n*g  = 114894583.00
+  diff_pct            = +0.000000%
+VERDICT: |diff| < 0.01% -> PASS

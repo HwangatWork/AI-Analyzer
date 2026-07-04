@@ -1,0 +1,36 @@
+=== hankyung_JP모건 ===
+  status=200 bytes=81364 sha256=0ca674bc589cac99...
+  IB name presence:
+    'JP모건': 23
+    'JPMorgan': 0
+    '제이피모간': 0
+  '목표가': 1, '목표주가': 0, 'SK하이닉스': 27
+
+=== hankyung_골드만삭스 ===
+  status=200 bytes=80270 sha256=9417ec7cae981953...
+  IB name presence:
+    '골드만삭스': 18
+    'Goldman Sachs': 0
+    '골드만': 18
+  '목표가': 0, '목표주가': 0, 'SK하이닉스': 26
+
+=== hankyung_모건스탠리 ===
+  status=200 bytes=79712 sha256=c5f27122622cd4ee...
+  IB name presence:
+    '모건스탠리': 20
+    'Morgan Stanley': 0
+    'MS': 1
+  '목표가': 0, '목표주가': 0, 'SK하이닉스': 22
+
+=== chosunbiz_JP모건 ===
+  HTTPError 404
+
+=== chosunbiz_골드만삭스 ===
+  HTTPError 404
+
+=== Summary ===
+  {'label': 'hankyung_JP모건', 'status': 200, 'bytes': 81364, 'sha256': '0ca674bc589cac9919deb20e63b149cb7dcda6b3d7dd52f2cb2c494ca707da29'}
+  {'label': 'hankyung_골드만삭스', 'status': 200, 'bytes': 80270, 'sha256': '9417ec7cae981953916c02435593ad5b53a2838eb2e5c452128fca1b062a5d34'}
+  {'label': 'hankyung_모건스탠리', 'status': 200, 'bytes': 79712, 'sha256': 'c5f27122622cd4eeca0428f238ee8911e6a1b536a34bcfc07d4d3444e0a32f12'}
+  {'label': 'chosunbiz_JP모건', 'status': 404, 'error': 'HTTP Error 404: Not Found'}
+  {'label': 'chosunbiz_골드만삭스', 'status': 404, 'error': 'HTTP Error 404: Not Found'}

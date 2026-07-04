@@ -1,0 +1,21 @@
+# cross_suite_invariance.txt
+
+## tests/consensus alone
+.............                                                            [100%]
+13 passed in 0.09s
+exit=0
+
+## tests/consensus filtered through full discovery (-k consensus)
+.............                                                            [100%]
+13 passed, 118 deselected in 1.06s
+exit=0
+
+## tests/consensus run alongside agents/tests (verify no side-effects)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+131 passed, 16 warnings in 81.01s (0:01:21)
+exit=0
+
+## same with --no-header --tb=no for clean diff
+.............                                                            [100%]
+13 passed in 0.10s

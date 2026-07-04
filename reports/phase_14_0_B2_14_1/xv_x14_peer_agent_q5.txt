@@ -1,0 +1,7 @@
+X14 -- Independent Q5 re-derivation (peer agent)
+  reported = ALIGNED_DIRECTION_AND_LEVEL
+  expected = ALIGNED_DIRECTION_AND_LEVEL
+  gap_pct  = -0.07355924018029619
+  sample   = ok
+  target_dir = UP
+VERDICT: peer agent agrees -> PASS

@@ -1,0 +1,405 @@
+{
+  "answers": {
+    "Q1_direction": "UP",
+    "Q1_target_price_change_pct": 28.605130227002164,
+    "Q2_direction": "UP",
+    "Q2_eps_change_pct": 421.8471715715376,
+    "Q3_direction": "UP",
+    "Q3_op_income_change_pct": 397.46852,
+    "Q4_quadrant": "TRUE_UPGRADE",
+    "Q5_global_vs_domestic": "GLOBAL_DATA_INSUFFICIENT"
+  },
+  "company": "SK hynix",
+  "data_quality": {
+    "components": {
+      "estimates_present": true,
+      "investment_opinion": true,
+      "latest_target_price": true,
+      "n_analysts": true,
+      "sufficient_series_length": true,
+      "target_price_change_1m_pct": true
+    },
+    "score": 1.0
+  },
+  "meta_audit": {
+    "kr_buy_bias_source": "KCMI 2025 (Buy 93.1%, Sell 0.1%, 2020-2024)",
+    "kr_buy_bias_warning": true,
+    "point_in_time_note": "single fetch; not yet a daily-accumulated point-in-time series. Naver/WiseReport historical entries may have been retroactively updated (Ljungqvist 2009).",
+    "point_in_time_status": "snapshot",
+    "target_price_role": "sentiment_valuation_proxy",
+    "target_price_role_source": "Bradshaw, Brown, Huang 2013 -- 12-month target price end-of-period achievement 38%, MAFE ~45%"
+  },
+  "parser_warnings": [],
+  "raw_inputs": {
+    "annual_indicators": {
+      "found": true,
+      "fy_labels": [
+        "2025/12(A)",
+        "2026/12(E)"
+      ],
+      "metrics": {
+        "BPS": [
+          174539.0,
+          481869.0
+        ],
+        "EBITDA": [
+          611364.5,
+          2859056.8
+        ],
+        "EPS": [
+          58955.0,
+          307655.0
+        ],
+        "EV/EBITDA": [
+          30.47,
+          6.01
+        ],
+        "PBR": [
+          15.06,
+          5.45
+        ],
+        "PCR": [
+          35.85,
+          7.9
+        ],
+        "PER": [
+          44.58,
+          8.54
+        ],
+        "현금배당수익률": [
+          0.11,
+          0.26
+        ]
+      }
+    },
+    "chart_latest_target_price": 2470417.0,
+    "close_price_latest": 2628000.0,
+    "investment_opinion": 4.0,
+    "latest_target_price": 3177083.0,
+    "latest_target_price_date": "2026-05-29",
+    "n_analysts": 24,
+    "opinion_breakdown": {
+      "buy": 22,
+      "hold": 1,
+      "sell": null,
+      "strong_buy": 1,
+      "strong_sell": null,
+      "total": 24
+    },
+    "opinion_breakdown_prior": {
+      "buy": 22,
+      "hold": 1,
+      "sell": null,
+      "strong_buy": 1,
+      "strong_sell": null,
+      "total": 24
+    },
+    "per_firm_targets": {
+      "firms": [
+        {
+          "change_pct": 57.14,
+          "firm": "LS",
+          "prior_rating": "Buy",
+          "prior_target_price": 2100000.0,
+          "rating": "Buy",
+          "report_date": "26/06/29",
+          "target_price": 3300000.0
+        },
+        {
+          "change_pct": 30.91,
+          "firm": "하나",
+          "prior_rating": "BUY",
+          "prior_target_price": 2750000.0,
+          "rating": "BUY",
+          "report_date": "26/06/26",
+          "target_price": 3600000.0
+        },
+        {
+          "change_pct": 0.0,
+          "firm": "다올투자",
+          "prior_rating": "BUY",
+          "prior_target_price": 4200000.0,
+          "rating": "BUY",
+          "report_date": "26/06/25",
+          "target_price": 4200000.0
+        },
+        {
+          "change_pct": 0.0,
+          "firm": "삼성",
+          "prior_rating": "BUY",
+          "prior_target_price": 3500000.0,
+          "rating": "BUY",
+          "report_date": "26/06/25",
+          "target_price": 3500000.0
+        },
+        {
+          "change_pct": 10.53,
+          "firm": "미래에셋",
+          "prior_rating": "매수",
+          "prior_target_price": 3800000.0,
+          "rating": "매수",
+          "report_date": "26/06/25",
+          "target_price": 4200000.0
+        },
+        {
+          "change_pct": 0.0,
+          "firm": "KB",
+          "prior_rating": "BUY",
+          "prior_target_price": 3800000.0,
+          "rating": "BUY",
+          "report_date": "26/06/24",
+          "target_price": 3800000.0
+        },
+        {
+          "change_pct": 24.53,
+          "firm": "현대차",
+          "prior_rating": "BUY",
+          "prior_target_price": 2650000.0,
+          "rating": "BUY",
+          "report_date": "26/06/24",
+          "target_price": 3300000.0
+        },
+        {
+          "change_pct": 26.81,
+          "firm": "iM",
+          "prior_rating": "Buy",
+          "prior_target_price": 2760000.0,
+          "rating": "Buy",
+          "report_date": "26/06/22",
+          "target_price": 3500000.0
+        },
+        {
+          "change_pct": 163.8,
+          "firm": "한화투자",
+          "prior_rating": "Buy",
+          "prior_target_price": 1630000.0,
+          "rating": "Buy",
+          "report_date": "26/06/22",
+          "target_price": 4300000.0
+        },
+        {
+          "change_pct": 15.62,
+          "firm": "유진투자",
+          "prior_rating": "STRONG BUY",
+          "prior_target_price": 3200000.0,
+          "rating": "STRONG BUY",
+          "report_date": "26/06/17",
+          "target_price": 3700000.0
+        },
+        {
+          "change_pct": 93.75,
+          "firm": "DS투자",
+          "prior_rating": "BUY",
+          "prior_target_price": 1600000.0,
+          "rating": "BUY",
+          "report_date": "26/06/17",
+          "target_price": 3100000.0
+        },
+        {
+          "change_pct": 47.5,
+          "firm": "메리츠",
+          "prior_rating": "Buy",
+          "prior_target_price": 2000000.0,
+          "rating": "Buy",
+          "report_date": "26/06/10",
+          "target_price": 2950000.0
+        },
+        {
+          "change_pct": 0.0,
+          "firm": "신한투자",
+          "prior_rating": "매수",
+          "prior_target_price": 3800000.0,
+          "rating": "매수",
+          "report_date": "26/06/09",
+          "target_price": 3800000.0
+        },
+        {
+          "change_pct": 3.23,
+          "firm": "NH투자",
+          "prior_rating": "Buy",
+          "prior_target_price": 3100000.0,
+          "rating": "Buy",
+          "report_date": "26/06/08",
+          "target_price": 3200000.0
+        },
+        {
+          "change_pct": 0.0,
+          "firm": "대신",
+          "prior_rating": "Buy",
+          "prior_target_price": 3400000.0,
+          "rating": "Buy",
+          "report_date": "26/06/05",
+          "target_price": 3400000.0
+        },
+        {
+          "change_pct": 73.68,
+          "firm": "유안타",
+          "prior_rating": "Buy",
+          "prior_target_price": 1900000.0,
+          "rating": "Buy",
+          "report_date": "26/06/01",
+          "target_price": 3300000.0
+        },
+        {
+          "change_pct": 36.84,
+          "firm": "키움",
+          "prior_rating": "Outperform",
+          "prior_target_price": 1900000.0,
+          "rating": "Outperform",
+          "report_date": "26/06/01",
+          "target_price": 2600000.0
+        },
+        {
+          "change_pct": 33.33,
+          "firm": "SK",
+          "prior_rating": "매수",
+          "prior_target_price": 3000000.0,
+          "rating": "매수",
+          "report_date": "26/06/01",
+          "target_price": 4000000.0
+        },
+        {
+          "change_pct": 85.37,
+          "firm": "한국투자",
+          "prior_rating": "매수",
+          "prior_target_price": 2050000.0,
+          "rating": "매수",
+          "report_date": "26/05/20",
+          "target_price": 3800000.0
+        },
+        {
+          "change_pct": 42.31,
+          "firm": "BNK투자",
+          "prior_rating": "보유",
+          "prior_target_price": 1300000.0,
+          "rating": "보유",
+          "report_date": "26/05/12",
+          "target_price": 1850000.0
+        },
+        {
+          "change_pct": 0.0,
+          "firm": "IBK투자",
+          "prior_rating": "매수",
+          "prior_target_price": 1800000.0,
+          "rating": "매수",
+          "report_date": "26/04/24",
+          "target_price": 1800000.0
+        },
+        {
+          "change_pct": 59.09,
+          "firm": "DB",
+          "prior_rating": "Buy",
+          "prior_target_price": 1100000.0,
+          "rating": "Buy",
+          "report_date": "26/04/24",
+          "target_price": 1750000.0
+        },
+        {
+          "change_pct": 58.33,
+          "firm": "교보",
+          "prior_rating": "Buy",
+          "prior_target_price": 1200000.0,
+          "rating": "Buy",
+          "report_date": "26/04/24",
+          "target_price": 1900000.0
+        },
+        {
+          "change_pct": 40.0,
+          "firm": "상상인",
+          "prior_rating": "BUY",
+          "prior_target_price": 1000000.0,
+          "rating": "BUY",
+          "report_date": "26/04/20",
+          "target_price": 1400000.0
+        },
+        {
+          "change_pct": 12.0,
+          "firm": "흥국",
+          "prior_rating": "BUY",
+          "prior_target_price": 1250000.0,
+          "rating": "BUY",
+          "report_date": "26/04/09",
+          "target_price": 1400000.0
+        }
+      ],
+      "found": true,
+      "high_target": 4300000.0,
+      "low_target": 1400000.0,
+      "mean_target": 3106000.0,
+      "n_firms": 25
+    },
+    "prior_target_price": 2470417.0,
+    "q3_source": "latest_quarter_yoy(202603)",
+    "quarterly_earnings": {
+      "announce_dates": [
+        "2025/10/29(연결)",
+        "2026/01/28(연결)",
+        "2026/04/23(연결)"
+      ],
+      "found": true,
+      "quarters": [
+        {
+          "announce_date": "2025/10/29(연결)",
+          "op_income_actual": 125951.95,
+          "op_income_consensus": 88066.25,
+          "op_income_qoq_pct": 80.00264,
+          "op_income_surprise_pct": 43.01955,
+          "op_income_yoy_pct": 119.09732,
+          "revenue_actual": 113833.9,
+          "revenue_consensus": 114142.36,
+          "revenue_qoq_pct": 23.55991,
+          "revenue_surprise_pct": -0.27024,
+          "revenue_yoy_pct": 61.92686,
+          "yymm": "202509"
+        },
+        {
+          "announce_date": "2026/01/28(연결)",
+          "op_income_actual": 152197.83,
+          "op_income_consensus": 131957.1666666667,
+          "op_income_qoq_pct": 20.83801,
+          "op_income_surprise_pct": 15.33881,
+          "op_income_yoy_pct": 90.23599,
+          "revenue_actual": 191695.73,
+          "revenue_consensus": 164641.8846153846,
+          "revenue_qoq_pct": 68.39951,
+          "revenue_surprise_pct": 16.43193,
+          "revenue_yoy_pct": 137.16512,
+          "yymm": "202512"
+        },
+        {
+          "announce_date": "2026/04/23(연결)",
+          "op_income_actual": 403301.76,
+          "op_income_consensus": 308069.6923076923,
+          "op_income_qoq_pct": 164.98522,
+          "op_income_surprise_pct": 30.91251,
+          "op_income_yoy_pct": 397.46852,
+          "revenue_actual": 376102.83,
+          "revenue_consensus": 363954.52,
+          "revenue_qoq_pct": 96.1978,
+          "revenue_surprise_pct": 3.33787,
+          "revenue_yoy_pct": 405.48031,
+          "yymm": "202603"
+        }
+      ],
+      "yymm": [
+        "202509",
+        "202512",
+        "202603"
+      ]
+    },
+    "static_eps": 307655.0,
+    "static_per": 8.54,
+    "static_target_price": 3177083.0,
+    "target_price_change_label": "current_vs_chart_latest_nonnull"
+  },
+  "reconciliation": {
+    "chart_latest_target": 2470417.0,
+    "close_latest": 2628000.0,
+    "per_eps_close_diff_pct": -0.023831811263328746,
+    "per_times_eps": 2627373.6999999997,
+    "static_target": 3177083.0,
+    "static_vs_chart_target_diff_pct": 28.605130227002164
+  },
+  "schema_version": "0.2",
+  "ticker": "000660"
+}

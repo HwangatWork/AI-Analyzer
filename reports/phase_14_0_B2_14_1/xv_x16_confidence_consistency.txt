@@ -1,0 +1,3 @@
+X16 -- Confidence labeling consistency
+  total entries = 6
+VERDICT: PASS

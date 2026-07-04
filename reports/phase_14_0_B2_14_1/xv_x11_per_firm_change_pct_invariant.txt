@@ -1,0 +1,4 @@
+X11 -- Per-firm change_pct arithmetic invariant
+  n_firms checked = 25
+  inconsistencies = 0
+VERDICT: PASS

@@ -1,0 +1,3 @@
+X21 -- Write-once guard
+  refused_second_write=True
+VERDICT: PASS
