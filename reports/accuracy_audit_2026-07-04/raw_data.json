@@ -1,0 +1,60 @@
+{
+  "000660": {
+    "fdr_close": 2425000.0,
+    "fdr_date": "2026-07-03",
+    "ticker": "000660",
+    "wr_close": 2628000.0,
+    "wr_n_analysts": 24,
+    "wr_static_eps": 307655.0,
+    "wr_static_per": 8.54,
+    "wr_target_mean": 3177083.0,
+    "yf_close": 2425000.0,
+    "yf_currency": "KRW",
+    "yf_n_analysts": 37,
+    "yf_target_high": 4700000.0,
+    "yf_target_low": 1030000.0,
+    "yf_target_mean": 3129583.5
+  },
+  "GOOGL": {
+    "snap_close": 359.91,
+    "snap_n_analysts": 53,
+    "snap_target_high": 515.0,
+    "snap_target_low": 340.0,
+    "snap_target_mean": 432.64584,
+    "ticker": "GOOGL",
+    "yf_close": 359.91,
+    "yf_currency": "USD",
+    "yf_n_analysts": 53,
+    "yf_target_high": 515.0,
+    "yf_target_low": 340.0,
+    "yf_target_mean": 432.28735
+  },
+  "NVDA": {
+    "snap_close": 194.83,
+    "snap_n_analysts": 58,
+    "snap_target_high": 500.0,
+    "snap_target_low": 180.0,
+    "snap_target_mean": 301.6207,
+    "ticker": "NVDA",
+    "yf_close": 194.83,
+    "yf_currency": "USD",
+    "yf_n_analysts": 58,
+    "yf_target_high": 500.0,
+    "yf_target_low": 180.0,
+    "yf_target_mean": 301.6207
+  },
+  "VRT": {
+    "snap_close": 300.53,
+    "snap_n_analysts": 25,
+    "snap_target_high": 500.0,
+    "snap_target_low": 236.0,
+    "snap_target_mean": 377.0,
+    "ticker": "VRT",
+    "yf_close": 300.53,
+    "yf_currency": "USD",
+    "yf_n_analysts": 25,
+    "yf_target_high": 500.0,
+    "yf_target_low": 236.0,
+    "yf_target_mean": 377.0
+  }
+}

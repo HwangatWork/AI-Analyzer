@@ -2433,7 +2433,7 @@
     el.textContent = "품질 " + pct;
   }
 
-  function renderBasicConsensus(a) {
+  function renderBasicConsensus(a, livePrice) {
     const raw = (a && a.raw_inputs) || {};
     const ans = (a && a.answers) || {};
     document.getElementById("c-opinion").textContent = raw.investment_opinion ?? "N/A";
@@ -2444,26 +2444,49 @@
     document.getElementById("c-change-1m").textContent = fmtPct(ans.Q1_target_price_change_pct);
     document.getElementById("c-q1-source").textContent = raw.Q1_source || "N/A";
 
-    // Issue 3: current price + upside — data from raw.close_price_latest (no hardcoding).
-    // Freshness label from a.probed_at when available (US ticker) or manifest.written_at
-    // — the "asof" hint is metadata only, does not affect the number.
-    const close = raw.close_price_latest;
-    document.getElementById("c-close-price").textContent = fmtKRW(close);
+    // Current price: prefer LIVE (from live_prices.json daily refresh) over
+    // snapshot's close_price_latest which can go stale between fetch and view.
+    // Fallback to snapshot close if live price unavailable.
+    const snapClose = raw.close_price_latest;
+    const liveClose = livePrice && typeof livePrice.close === "number" ? livePrice.close : null;
+    const displayClose = liveClose !== null ? liveClose : snapClose;
+    const isLive = liveClose !== null;
+
+    document.getElementById("c-close-price").innerHTML =
+      fmtKRW(displayClose) +
+      (isLive
+        ? " <span style=\"font-size:0.65rem;color:#22c55e;font-weight:500\">● LIVE</span>"
+        : " <span style=\"font-size:0.65rem;color:#94a3b8;font-weight:500\">● snapshot</span>");
     const asofEl = document.getElementById("c-close-asof");
-    const probedAt = a && a.probed_at ? a.probed_at.substring(0, 16).replace("T", " ") : "";
-    asofEl.textContent = probedAt ? ("(" + probedAt + ")") : "";
+    if (isLive) {
+      asofEl.innerHTML = "(" + esc(livePrice.as_of || "?") + " · " + esc(livePrice.source || "?") + ")";
+    } else {
+      const probedAt = a && a.probed_at ? a.probed_at.substring(0, 16).replace("T", " ") : "";
+      asofEl.textContent = probedAt ? ("(스냅샷 " + probedAt + ")") : "";
+    }
 
     const upsideEl = document.getElementById("c-upside");
     const target = raw.latest_target_price;
-    if (target && close && close > 0) {
-      const upsidePct = (target - close) / close * 100;
+    if (target && displayClose && displayClose > 0) {
+      const upsidePct = (target - displayClose) / displayClose * 100;
       const sign = upsidePct >= 0 ? "+" : "";
       const color = upsidePct > 0 ? "#22c55e" : upsidePct < 0 ? "#ef4444" : "#94a3b8";
       upsideEl.style.color = color;
-      upsideEl.textContent = sign + upsidePct.toFixed(2) + "%  (" + fmtKRW(target) + " → " + fmtKRW(close) + ")";
+      const basisLabel = isLive ? "live" : "스냅샷";
+      upsideEl.innerHTML = sign + upsidePct.toFixed(2) + "%  (" +
+        fmtKRW(target) + " → " + fmtKRW(displayClose) +
+        " <span style=\"font-size:0.65rem;color:#94a3b8;font-weight:400\">basis: " + basisLabel + "</span>)";
     } else {
       upsideEl.style.color = "#94a3b8";
       upsideEl.textContent = "N/A (필요 데이터 부족)";
+    }
+
+    // If live and snapshot differ meaningfully, surface a stale badge
+    if (isLive && snapClose && Math.abs(liveClose - snapClose) / liveClose > 0.02) {
+      const gapPct = (snapClose - liveClose) / liveClose * 100;
+      const sign = gapPct >= 0 ? "+" : "";
+      const badge = " <span title=\"snapshot close differs from live\" style=\"font-size:0.62rem;color:#f59e0b;font-weight:500;background:#f59e0b22;padding:1px 6px;border-radius:8px\">스냅샷 " + sign + gapPct.toFixed(1) + "%</span>";
+      document.getElementById("c-close-price").innerHTML += badge;
     }
   }
 
@@ -2840,9 +2863,18 @@
     C_MARKET = ((a && a.meta_audit && a.meta_audit.us_ticker) ||
                 (C_TICKERS[ticker] && C_TICKERS[ticker].market === "US"))
                ? "US" : "KR";
+    // Fetch daily-refreshed live prices (Phase D self-improvement)
+    let livePrice = null;
+    try {
+      const lr = await fetch("consensus_snapshot/live_prices.json", { cache: "no-cache" });
+      if (lr.ok) {
+        const lpData = await lr.json();
+        livePrice = (lpData.prices || {})[ticker] || null;
+      }
+    } catch (e) { /* ignore — fallback to snapshot close */ }
     const q = (a && a.data_quality && a.data_quality.score) || null;
     renderQualityBadge(q);
-    renderBasicConsensus(a);
+    renderBasicConsensus(a, livePrice);
     renderArithmetic(a);
     renderOpinionBars(a);
     renderFirmsTable(a);

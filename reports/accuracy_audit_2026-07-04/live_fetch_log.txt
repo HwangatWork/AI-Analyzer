@@ -1,0 +1,31 @@
+fdr available: True
+yfinance available: True
+
+===== 000660 SK hynix =====
+  FDR: close=2,425,000원 date=2026-07-03
+  yfinance: close=2425000.0 currency=KRW
+           target mean/high/low = 3129583.5/4700000.0/1030000.0
+           analysts=37
+  WiseReport (2026-07-03 snapshot): close=2,628,000원 target=3,177,083원
+                                    static PER×EPS=2,627,374원  (invariant check)
+                                    analysts=24
+
+===== NVDA =====
+  yfinance NOW: close=194.83 currency=USD
+                target mean/high/low = 301.6207/500.0/180.0
+                analysts=58
+  Snapshot 2026-07-03: close=194.83, target mean=301.6207, analysts=58
+
+===== GOOGL =====
+  yfinance NOW: close=359.91 currency=USD
+                target mean/high/low = 432.28735/515.0/340.0
+                analysts=53
+  Snapshot 2026-07-03: close=359.91, target mean=432.64584, analysts=53
+
+===== VRT =====
+  yfinance NOW: close=300.53 currency=USD
+                target mean/high/low = 377.0/500.0/236.0
+                analysts=25
+  Snapshot 2026-07-03: close=300.53, target mean=377.0, analysts=25
+
+Saved raw_data.json

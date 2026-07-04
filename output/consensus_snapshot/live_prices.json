@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-07-04T09:45:26+09:00",
+  "generator": "scripts/consensus_accuracy_daily.py",
+  "prices": {
+    "000660": {
+      "as_of": "2026-07-03",
+      "close": 2425000.0,
+      "currency": "KRW",
+      "market": "KR",
+      "name": "SK hynix",
+      "source": "FinanceDataReader"
+    },
+    "GOOGL": {
+      "as_of": "2026-07-04",
+      "close": 359.91,
+      "currency": "USD",
+      "market": "US",
+      "name": "Alphabet",
+      "source": "yfinance"
+    },
+    "NVDA": {
+      "as_of": "2026-07-04",
+      "close": 194.83,
+      "currency": "USD",
+      "market": "US",
+      "name": "NVIDIA",
+      "source": "yfinance"
+    },
+    "VRT": {
+      "as_of": "2026-07-04",
+      "close": 300.53,
+      "currency": "USD",
+      "market": "US",
+      "name": "Vertiv",
+      "source": "yfinance"
+    }
+  }
+}
