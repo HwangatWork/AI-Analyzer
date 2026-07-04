@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T09:45:26+09:00",
+  "updated": "2026-07-04T19:24:47",
   "completed": [
     {
       "id": "REQ-001",
@@ -52,6 +52,28 @@
     }
   ],
   "pending": [
+    {
+      "id": "SESSION-HANDOFF-2026-07-04-1",
+      "kind": "session_handoff",
+      "priority": "HIGH",
+      "day": "2026-07-04",
+      "target_audience": "Phase 14 session (다른 Claude Code 세션)",
+      "created_by": "session 08bfa6d (OL-8 fix)",
+      "created_at": "2026-07-04T19:23:43+09:00",
+      "message": "Phase 14 세션이 아직 열려있다면 반드시 확인: 이전에 untracked 로 남아있던 Phase 14 base 모듈 (tools/consensus/*.py) + Phase 14 리포트 (reports/phase_14_*) + consensus 스냅샷 산출물 등 대부분이 이미 다음 3개 커밋으로 반영됨: 71a6abb (Phase 14 컨센서스 파이프라인 모듈), 9534f52 (Phase 14 리포트 아카이브), cdeaed2 (consensus 스냅샷 산출물 + legacy agent + activity 로그). 커밋/푸시 시도 전 반드시 'git status' 재확인. 중복 커밋 or 충돌 방지.",
+      "action_required": [
+        "1. 세션 시작 시 'git status --short' 실행",
+        "2. 'git log --oneline -8' 로 최근 커밋 확인",
+        "3. 특히 08bfa6d (OL-8), 71a6abb, 9534f52, cdeaed2 4개 커밋 후 상태 인지",
+        "4. 이후 커밋 여부 판단 (대부분 이미 tracked)"
+      ],
+      "related_commits": [
+        "08bfa6d fix(consensus): OL-8 stale close_price 뿌리 원인 수정",
+        "71a6abb feat(consensus): Phase 14 컨센서스 파이프라인 모듈·테스트·설정 커밋",
+        "9534f52 docs(reports): Phase 14 증적 리포트 아카이브 (14-0-A1 ~ 14-4)",
+        "cdeaed2 chore: consensus 스냅샷 산출물 + legacy agent 아카이브 + activity 로그"
+      ]
+    },
     {
       "id": "PHASE-5",
       "status": "done",
@@ -536,6 +558,16 @@
       "snapshot_close": 2628000.0,
       "snapshot_date": "2026-07-03",
       "note": "000660 snapshot close differs from live by +8.37%. Consider regenerating snapshot or displaying live overlay in dashboard."
+    },
+    {
+      "id": "REQ-XSESSION-CDEAED2-NOTIFY",
+      "request": "[세션 간 알림] Phase 14 세션이 cdeaed2 로 이미 커밋·푸시함 — 중복 커밋/충돌 방지",
+      "status": "pending",
+      "details": "cdeaed2 (2026-07-04 19:16 KST, HwangatWork) 가 이미 push 한 파일들: output/consensus_snapshot/{000660,005930}*, output/consensus_snapshot/history/write-once, output/consensus_snapshot/news_raw, output/consensus_snapshot/robots_decision, output/consensus_audit/source_access_audit.json, agents/archive/run_{analysis,evaluator,stock}_agent.py, data/agent_activity.jsonl. 다른 세션 (특히 Phase 14) 이 위 파일들을 재커밋 시도 시 중복/충돌. 각 세션 시작 시 반드시: (1) git fetch origin master, (2) git status 재확인, (3) 파일이 원격 tracked 인지 `git cat-file -e origin/master:<file>` 로 확인 후 add. 로컬 untracked 로 보여도 원격에는 이미 있을 수 있음.",
+      "registered_at": "2026-07-04T19:24:47",
+      "source": "user_directive_xsession",
+      "target_sessions": "all (특히 Phase 14 세션)",
+      "reference_commit": "cdeaed2"
     }
   ]
 }
