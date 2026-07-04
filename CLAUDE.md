@@ -203,7 +203,10 @@ Fix: Read `hook_input["last_assistant_message"]` for Check1 (Evidence).
 **매 `git push` 후 필수 실행**:
 ```powershell
 $SHA = git rev-parse HEAD
+# 로컬 파일이 이미 pull 된 상태면 기본
 python scripts/verify_push_deployment.py --sha $SHA --wait-min 20
+# 사용자 로컬이 아직 pull 안 됐거나 원격 파일만 검증 원할 때
+python scripts/verify_push_deployment.py --sha $SHA --wait-min 20 --remote
 ```
 
 **exit 0 확인 후에만 사용자에게 "배포 완료" 보고 가능**.

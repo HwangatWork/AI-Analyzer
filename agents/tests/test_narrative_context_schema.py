@@ -35,18 +35,21 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 _NC_PATH = _REPO_ROOT / "output" / "narrative_context.json"
 _FR_PATH = _REPO_ROOT / "output" / "FINAL_REPORT_v2.md"
 
-_REQUIRED_FIELDS = {
-    "generated_at", "signal", "confidence_pct", "kospi_confidence_pct",
-    "composite_score_sp500", "composite_score_kospi", "consensus_ratio",
-    "bullish_count", "bearish_count", "total_signals",
-    "market_summary", "key_indicators", "sp500_action", "kospi_action",
-    "position_size_pct", "position_guidance",
-    "sp500_top_stocks", "kospi_top_stocks",
-    "action_plan", "monitor_points", "risk_flags",
-    "data_quality", "na_verification",
+# 2026-07-04 스키마 갱신: run_narrative_agent 리팩터로 top-level 7 필드로 축소.
+# 기존 flat 스키마 (23 필드) → nested (signal/decision/top5_ranking).
+_REQUIRED_TOP_FIELDS = {
+    "generated_at", "analysis_period", "signal", "decision",
+    "top5_ranking", "sp500", "kospi",
 }
+_REQUIRED_SIGNAL_FIELDS = {
+    "score", "direction", "bullish_count", "bearish_count",
+    "total_signals", "indicator_details",
+}
+_REQUIRED_DECISION_FIELDS = {"sp500", "kospi", "risk_factors"}
 
-_VALID_ACTIONS = {"BUY", "SELL", "HOLD", "WATCH", "WAIT", "STRONG_BUY", "STRONG_SELL"}
+_VALID_ACTIONS = {"BUY", "SELL", "HOLD", "WATCH", "WAIT",
+                  "STRONG_BUY", "STRONG_SELL"}
+_VALID_DIRECTIONS = {"bullish", "bearish", "neutral"}
 
 
 @pytest.fixture(scope="module")
@@ -58,35 +61,47 @@ def nc() -> dict:
 
 def test_T_NC_1_file_exists_and_parses(nc):
     assert isinstance(nc, dict), "narrative_context.json 최상위 object 아님"
-    assert len(nc) >= 20, f"필드 수 부족: {len(nc)} < 20"
+    assert len(nc) >= 7, f"top 필드 수 부족: {len(nc)} < 7 (새 스키마)"
 
 
 def test_T_NC_2_all_required_fields_present(nc):
-    missing = _REQUIRED_FIELDS - set(nc.keys())
-    assert not missing, f"필수 필드 누락 (Phase 11-A DC gate): {missing}"
+    """새 스키마: top 7 필드 + signal 하위 6 + decision 하위 3."""
+    missing_top = _REQUIRED_TOP_FIELDS - set(nc.keys())
+    assert not missing_top, f"top 필드 누락: {missing_top}"
+    signal = nc.get("signal") or {}
+    missing_signal = _REQUIRED_SIGNAL_FIELDS - set(signal.keys())
+    assert not missing_signal, f"signal 하위 필드 누락: {missing_signal}"
+    decision = nc.get("decision") or {}
+    missing_decision = _REQUIRED_DECISION_FIELDS - set(decision.keys())
+    assert not missing_decision, f"decision 하위 필드 누락: {missing_decision}"
 
 
 def test_T_NC_3_numeric_bounds(nc):
-    for key in ("confidence_pct", "kospi_confidence_pct"):
-        v = nc.get(key)
-        if v is not None:
-            assert 0 <= v <= 100, f"{key}={v} 가 [0,100] 밖"
-    for key in ("composite_score_sp500", "composite_score_kospi"):
-        v = nc.get(key)
-        if v is not None:
-            assert 0 <= v <= 100, f"{key}={v} 가 [0,100] 밖"
-    # bullish + bearish = total (or ≤ total for HOLD entries)
-    bull = nc.get("bullish_count", 0)
-    bear = nc.get("bearish_count", 0)
-    total = nc.get("total_signals", 0)
+    """새 스키마: signal.score [0,100] + bullish + bearish = total."""
+    signal = nc.get("signal") or {}
+    score = signal.get("score")
+    if score is not None:
+        assert 0 <= score <= 100, f"signal.score={score} 가 [0,100] 밖"
+    bull = signal.get("bullish_count", 0)
+    bear = signal.get("bearish_count", 0)
+    total = signal.get("total_signals", 0)
     assert bull + bear <= total, f"bull({bull})+bear({bear}) > total({total})"
+
+    # decision.sp500/kospi confidence_pct (있으면 [0,100])
+    for market in ("sp500", "kospi"):
+        m = (nc.get("decision") or {}).get(market) or {}
+        conf = m.get("confidence_pct")
+        if conf is not None:
+            assert 0 <= conf <= 100, f"decision.{market}.confidence_pct={conf} 밖"
 
 
 def test_T_NC_4_minimum_content_size(nc):
-    key_ind = nc.get("key_indicators") or []
-    assert len(key_ind) >= 5, f"key_indicators 부족: {len(key_ind)} < 5"
-    action = nc.get("action_plan") or []
-    assert len(action) >= 3, f"action_plan 부족: {len(action)} < 3"
+    """새 스키마: signal.indicator_details ≥ 5, top5_ranking ≥ 3."""
+    signal = nc.get("signal") or {}
+    ind = signal.get("indicator_details") or []
+    assert len(ind) >= 5, f"signal.indicator_details 부족: {len(ind)} < 5"
+    top5 = nc.get("top5_ranking") or []
+    assert len(top5) >= 3, f"top5_ranking 부족: {len(top5)} < 3"
 
 
 def test_T_NC_5_final_report_sourced_claim_heuristic():
@@ -115,10 +130,18 @@ def test_T_NC_5_final_report_sourced_claim_heuristic():
 
 
 def test_T_NC_6_action_enum_valid(nc):
-    for key in ("signal", "sp500_action", "kospi_action"):
-        v = nc.get(key)
-        if v is None:
+    """새 스키마: signal.direction ∈ {bullish, bearish, neutral},
+    decision.sp500/kospi.action ∈ _VALID_ACTIONS."""
+    direction = (nc.get("signal") or {}).get("direction")
+    if direction is not None:
+        assert direction.lower() in _VALID_DIRECTIONS, (
+            f"signal.direction={direction!r} 가 허용 enum 외: {_VALID_DIRECTIONS}"
+        )
+    for market in ("sp500", "kospi"):
+        m = (nc.get("decision") or {}).get(market) or {}
+        action = m.get("action")
+        if action is None:
             continue
-        assert v.upper() in _VALID_ACTIONS, (
-            f"{key}={v!r} 가 허용 enum 외: {_VALID_ACTIONS}"
+        assert action.upper() in _VALID_ACTIONS, (
+            f"decision.{market}.action={action!r} 가 허용 enum 외: {_VALID_ACTIONS}"
         )

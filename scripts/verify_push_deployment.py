@@ -154,6 +154,84 @@ def check_pages_content(
         return False, f"fetch 실패: {e}"
 
 
+def check_freshness_remote(
+    files: list[str],
+    sha: str,
+    repo: str,
+    max_hours: int,
+    now: datetime | None = None,
+) -> tuple[bool, list[dict]]:
+    """원격 (raw.githubusercontent.com) 파일 신선도.
+
+    2026-07-04 UX fix: 로컬이 pull 안 되면 stale 오탐. --remote 는
+    실 원격 파일 fetch 후 generated_at/computed_at 확인.
+
+    반환 shape 은 check_freshness 와 동일. source 필드에 "remote.<key>" 표기.
+    """
+    now = now or datetime.now(timezone.utc)
+    results = []
+    all_fresh = True
+    for rel in files:
+        url = f"https://raw.githubusercontent.com/{repo}/{sha}/{rel}"
+        entry = {"file": rel, "url": url}
+        try:
+            req = urllib.request.Request(
+                url, headers={"User-Agent": "verify-push-deployment/1.0"},
+            )
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                if resp.status != 200:
+                    entry.update({"exists": False, "fresh": False,
+                                  "reason": f"HTTP {resp.status}"})
+                    all_fresh = False
+                    results.append(entry)
+                    continue
+                body = resp.read().decode("utf-8", errors="replace")
+        except (urllib.error.HTTPError, urllib.error.URLError) as e:
+            entry.update({"exists": False, "fresh": False,
+                          "reason": f"fetch: {e}"})
+            all_fresh = False
+            results.append(entry)
+            continue
+
+        entry["exists"] = True
+        ts = None
+        source = None
+        if rel.endswith(".json"):
+            try:
+                data = json.loads(body)
+                for key in ("generated_at", "computed_at"):
+                    v = _extract_ts(data, key)
+                    if v:
+                        ts = v
+                        source = f"remote.json.{key}"
+                        break
+            except json.JSONDecodeError:
+                pass
+        if ts is None:
+            # non-json 또는 timestamp 필드 부재 → 원격 mtime 불가 → last-modified 헤더
+            entry.update({"fresh": False,
+                          "reason": "원격 파일에 timestamp 필드 부재"})
+            all_fresh = False
+            results.append(entry)
+            continue
+
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        age_hours = (now - ts).total_seconds() / 3600
+        fresh = age_hours <= max_hours
+        entry.update({
+            "fresh": fresh,
+            "age_hours": round(age_hours, 2),
+            "source": source,
+            "ts": ts.isoformat(timespec="seconds"),
+        })
+        if not fresh:
+            entry["reason"] = f"stale: {age_hours:.1f}h > {max_hours}h"
+            all_fresh = False
+        results.append(entry)
+    return all_fresh, results
+
+
 def check_freshness(
     files: list[str],
     base_dir: Path,
@@ -273,6 +351,7 @@ def verify(
     token: str = "",
     base_dir: Path | None = None,
     stderr=sys.stderr,
+    remote_freshness: bool = False,
 ) -> dict:
     """전체 검증. dict 반환 (exit_code 포함)."""
     sentinel_keywords = sentinel_keywords or DEFAULT_SENTINEL_KEYWORDS
@@ -322,13 +401,20 @@ def verify(
             report["exit_code"] = EXIT_CONTENT_FAIL
         report["failures"].append(f"CONTENT_FAIL: {msg}")
 
-    # 3. Freshness check
-    print(f"[verify] Freshness: {len(freshness_files)} 파일", file=stderr)
-    all_fresh, fresh_details = check_freshness(
-        freshness_files, base_dir, freshness_hours,
-    )
+    # 3. Freshness check (remote or local)
+    scope = "remote" if remote_freshness else "local"
+    print(f"[verify] Freshness ({scope}): {len(freshness_files)} 파일",
+          file=stderr)
+    if remote_freshness:
+        all_fresh, fresh_details = check_freshness_remote(
+            freshness_files, sha, repo, freshness_hours,
+        )
+    else:
+        all_fresh, fresh_details = check_freshness(
+            freshness_files, base_dir, freshness_hours,
+        )
     report["freshness"] = {"all_fresh": all_fresh, "details": fresh_details,
-                            "max_hours": freshness_hours}
+                            "max_hours": freshness_hours, "scope": scope}
     if not all_fresh:
         if report["exit_code"] == EXIT_OK:
             report["exit_code"] = EXIT_FRESHNESS_FAIL
@@ -371,7 +457,8 @@ def render_human(report: dict) -> str:
 
     fr = report.get("freshness") or {}
     lines.append(f"║")
-    lines.append(f"║ [3] Freshness (≤{fr.get('max_hours', '?')}h): "
+    scope = fr.get("scope", "local")
+    lines.append(f"║ [3] Freshness ({scope}, ≤{fr.get('max_hours', '?')}h): "
                  f"{'✅' if fr.get('all_fresh') else '❌'}")
     for d in fr.get("details") or []:
         icon = "✅" if d.get("fresh") else "❌"
@@ -418,6 +505,8 @@ def main() -> int:
                     help="Pages sentinel keyword (repeat for multi)")
     ap.add_argument("--freshness-file", action="append", default=None,
                     help="파일 경로 (repeat for multi)")
+    ap.add_argument("--remote", action="store_true",
+                    help="원격 (raw.githubusercontent.com) 파일 신선도 확인 — 로컬 미pull 오탐 방지")
     args = ap.parse_args()
 
     token = os.getenv("GITHUB_TOKEN", "").strip()
@@ -453,6 +542,7 @@ def main() -> int:
         freshness_files=args.freshness_file,
         freshness_hours=args.freshness_hours,
         token=token,
+        remote_freshness=args.remote,
     )
 
     if args.json:

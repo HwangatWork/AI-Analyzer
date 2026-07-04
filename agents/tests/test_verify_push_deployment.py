@@ -222,3 +222,96 @@ def test_T_VPD_10_main_short_sha_invalid(vpd, monkeypatch, capsys):
                         ["verify_push_deployment.py", "--sha", "abc"])
     rc = vpd.main()
     assert rc == vpd.EXIT_INVALID_ARGS
+
+
+# ─── Step 2 신규 (2026-07-04): --remote 옵션 회귀 ─────────────────
+
+def test_T_VPD_11_remote_freshness_fresh(vpd, monkeypatch):
+    """원격 raw URL 이 fresh generated_at 반환 → all_fresh=True."""
+    fresh_ts = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+    fake_body = json.dumps({"generated_at": fresh_ts}).encode("utf-8")
+
+    class FakeResp:
+        status = 200
+        def read(self): return fake_body
+        def __enter__(self): return self
+        def __exit__(self, *a): pass
+
+    monkeypatch.setattr(vpd.urllib.request, "urlopen", lambda *a, **k: FakeResp())
+    ok, results = vpd.check_freshness_remote(
+        ["output/x.json"], sha="abc123", repo="o/r", max_hours=24,
+    )
+    assert ok is True
+    assert results[0]["fresh"] is True
+    assert "remote.json.generated_at" in results[0]["source"]
+    assert "raw.githubusercontent.com" in results[0]["url"]
+
+
+def test_T_VPD_12_remote_freshness_stale(vpd, monkeypatch):
+    """원격 파일 timestamp 오래됨 → stale."""
+    old_ts = (datetime.now(timezone.utc) - timedelta(hours=48)).isoformat()
+    fake_body = json.dumps({"generated_at": old_ts}).encode("utf-8")
+
+    class FakeResp:
+        status = 200
+        def read(self): return fake_body
+        def __enter__(self): return self
+        def __exit__(self, *a): pass
+
+    monkeypatch.setattr(vpd.urllib.request, "urlopen", lambda *a, **k: FakeResp())
+    ok, results = vpd.check_freshness_remote(
+        ["output/x.json"], sha="abc123", repo="o/r", max_hours=24,
+    )
+    assert ok is False
+    assert "stale" in results[0]["reason"]
+
+
+def test_T_VPD_13_remote_freshness_http_error(vpd, monkeypatch):
+    """404 등 HTTP 오류 → fresh=False + reason 명시."""
+    import urllib.error
+    def _raise(*a, **k):
+        raise urllib.error.HTTPError(
+            "https://x", 404, "Not Found", {}, None,
+        )
+    monkeypatch.setattr(vpd.urllib.request, "urlopen", _raise)
+    ok, results = vpd.check_freshness_remote(
+        ["output/missing.json"], sha="abc123", repo="o/r", max_hours=24,
+    )
+    assert ok is False
+    assert "fetch" in results[0]["reason"] or "404" in results[0]["reason"]
+
+
+def test_T_VPD_14_verify_remote_flag_uses_remote(vpd, tmp_path, monkeypatch):
+    """verify(remote_freshness=True) → check_freshness_remote 호출."""
+    called = {"remote": 0, "local": 0}
+    monkeypatch.setattr(vpd, "list_workflow_runs",
+                        lambda sha, repo, token="": [
+                            {"name": "X", "conclusion": "success",
+                             "status": "completed", "html_url": "u", "id": 1}
+                        ])
+    monkeypatch.setattr(vpd, "check_pages_content",
+                        lambda url, kws, timeout=15: (True, "OK"))
+
+    def _mock_remote(files, sha, repo, max_hours, now=None):
+        called["remote"] += 1
+        return True, [{"file": f, "fresh": True, "age_hours": 0.5,
+                       "source": "remote.json.generated_at",
+                       "ts": "2026-07-04T00:00:00+00:00",
+                       "url": f"https://raw/{sha}/{f}", "exists": True}
+                      for f in files]
+
+    def _mock_local(files, base_dir, max_hours, now=None):
+        called["local"] += 1
+        return True, []
+
+    monkeypatch.setattr(vpd, "check_freshness_remote", _mock_remote)
+    monkeypatch.setattr(vpd, "check_freshness", _mock_local)
+
+    report = vpd.verify(
+        sha="deadbeef123", wait_min=1, base_dir=tmp_path,
+        freshness_files=["output/x.json"],
+        remote_freshness=True,
+    )
+    assert called["remote"] == 1
+    assert called["local"] == 0
+    assert report["freshness"]["scope"] == "remote"
