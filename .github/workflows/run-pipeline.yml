@@ -51,6 +51,7 @@ jobs:
           ECOS_API_KEY:          ${{ secrets.ECOS_API_KEY }}
           ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
           CUSTOMS_API_KEY:       ${{ secrets.CUSTOMS_API_KEY }}
+          DART_API_KEY:          ${{ secrets.DART_API_KEY }}
         run: python -X utf8 scripts/audit_env_secrets.py --ci
 
       - name: Run pipeline
@@ -63,6 +64,7 @@ jobs:
           ECOS_API_KEY:          ${{ secrets.ECOS_API_KEY }}
           ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
           CUSTOMS_API_KEY:       ${{ secrets.CUSTOMS_API_KEY }}
+          DART_API_KEY:          ${{ secrets.DART_API_KEY }}
         run: |
           # 2026-07-03: /report 등 텔레그램 명령어 사전 체크 (즉시 접수 회신 포함)
           python -X utf8 agents/check_telegram_commands.py --lookback 20 || true
