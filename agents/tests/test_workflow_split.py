@@ -112,7 +112,7 @@ def test_T_WS_6_secrets_consistency():
         "ECOS_API_KEY",
         "ANTHROPIC_API_KEY",
         "CUSTOMS_API_KEY",
-        "NOTION_TOKEN",
+        # 2026-07-04: NOTION_TOKEN 제거 (사용자 결정 — MCP 로 세션에서 처리)
     ]
     for key in required:
         assert f"secrets.{key}" in text, (

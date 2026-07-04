@@ -30,10 +30,9 @@ REQUIRED_SECRETS = {
     "ECOS_API_KEY",
     "ANTHROPIC_API_KEY",
     "CUSTOMS_API_KEY",
-    # Phase Ops-1 (2026-07-04): 2026-07-03 워크플로에서 NOTION_TOKEN 이 Run pipeline env
-    # 블록에 추가되었지만 REQUIRED_SECRETS 는 미갱신이라 T-CI-5 latent FAIL 상태였음.
-    # 워크플로 분리 리팩터 시 함께 정정.
-    "NOTION_TOKEN",
+    # 2026-07-04: NOTION_TOKEN 제거 (사용자 결정)
+    # 노션 저장은 Claude Code 세션에서 MCP 로 처리 (사용자가 요청할 때만).
+    # GitHub Actions 서버 자동 실행에서는 노션 자동 저장 안 함 → secret 불필요.
 }
 
 
