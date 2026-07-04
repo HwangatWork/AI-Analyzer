@@ -14,6 +14,11 @@ FAIL 시 MU/SIG/conf 임계/드리프트 윈도우 튜닝 금지 — 수치 전�
 
 Bootstrap: 스냅샷-월 블록 리샘플 (사용자 승인 2026-07-04) — 90일 전방 윈도우
 중첩의 시계열 자기상관으로 naive 리샘플은 p 과소평가 → 월 단위 블록으로 보수화.
+
+Phase B-1 (H1-B): `--phase-b1` — per_trailing 을 pykrx PER 로 공급 (coverage
+5/6), 벤치마크를 KRX 업종지수로 교체 (미매핑 종목만 종합지수 fallback, 건수
+로깅), 결과는 stage_engine_h1b_results.json (Phase A 결과 보존). 합격선·seed·
+코호트 규칙·MU/SIG 전부 불변 — 사전등록 피처 공급 확대이며 튜닝 아님.
 """
 from __future__ import annotations
 
@@ -39,6 +44,7 @@ PASS_MEDIAN_DIFF_PP = 8.0      # 사전등록 — 재해석 금지
 PASS_P = 0.05
 THIN_COHORT = 5
 OUT_PATH = Path(__file__).parents[1] / "output" / "stage_engine_h1_results.json"
+OUT_PATH_B1 = Path(__file__).parents[1] / "output" / "stage_engine_h1b_results.json"
 _BENCH = {"KOSPI": "KS11", "KOSDAQ": "KQ11", "KOSDAQ GLOBAL": "KQ11"}
 RNG_SEED = 20260704            # 재현성
 
@@ -64,8 +70,14 @@ def _classify_snapshot(snap: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _build_month(snap: pd.DataFrame, asof: pd.Timestamp) -> dict:
-    """단일 스냅샷의 cohort/control 초과수익 관측치."""
+def _build_month(snap: pd.DataFrame, asof: pd.Timestamp,
+                 sector_map: dict[str, str] | None = None) -> dict:
+    """단일 스냅샷의 cohort/control 초과수익 관측치.
+
+    sector_map (ticker→업종지수 코드) 지정 시 업종지수 벤치마크 우선,
+    미매핑/지수 fwd 불가 종목만 종합지수 fallback (건수 카운트).
+    None(기본) = Phase A 경로 (종합지수 100%).
+    """
     df = _classify_snapshot(snap)
     cohort = df[df["stage"].isin(COHORT_STAGES) & (df["conf"] >= CONF_THRESHOLD)]
     cohort_set = set(cohort["ticker"])
@@ -83,6 +95,24 @@ def _build_month(snap: pd.DataFrame, asof: pd.Timestamp) -> dict:
         controls.update(pool["ticker"])
 
     bench_cache: dict[str, float | None] = {}
+    idx_cache: dict[str, float | None] = {}
+    n_bench = {"sector": 0, "fallback": 0}
+
+    def _bench_for(r) -> float | None:
+        if sector_map is not None:
+            code = sector_map.get(r["ticker"])
+            if code is not None:
+                if code not in idx_cache:
+                    idx_cache[code] = dl.index_forward_return(code, asof, FWD_DAYS)
+                if idx_cache[code] is not None:
+                    n_bench["sector"] += 1
+                    return idx_cache[code]
+        mkt = r["market"]
+        if mkt not in bench_cache:
+            bench_cache[mkt] = _bench_fwd(mkt, asof)
+        if bench_cache[mkt] is not None:
+            n_bench["fallback"] += 1
+        return bench_cache[mkt]
 
     def _excess(rows: pd.DataFrame) -> list[float]:
         out = []
@@ -90,12 +120,10 @@ def _build_month(snap: pd.DataFrame, asof: pd.Timestamp) -> dict:
             fr = dl.forward_return(r["ticker"], asof, FWD_DAYS)
             if fr is None:
                 continue
-            mkt = r["market"]
-            if mkt not in bench_cache:
-                bench_cache[mkt] = _bench_fwd(mkt, asof)
-            if bench_cache[mkt] is None:
+            b = _bench_for(r)
+            if b is None:
                 continue
-            out.append(fr - bench_cache[mkt])
+            out.append(fr - b)
         return out
 
     return {
@@ -105,6 +133,8 @@ def _build_month(snap: pd.DataFrame, asof: pd.Timestamp) -> dict:
         "cohort_size": len(cohort),
         "control_size": len(controls),
         "cohort_tickers": sorted(cohort["ticker"].tolist()),
+        "n_bench_sector": n_bench["sector"],
+        "n_bench_fallback": n_bench["fallback"],
     }
 
 
@@ -143,23 +173,55 @@ def _block_bootstrap_p(months: list[dict], n_iter: int = N_BOOTSTRAP,
     return p, obs
 
 
-def run_backtest(start: str = "2023-01", end: str = "2025-12") -> dict:
+def _fallback_block(months: list[dict], use_sector_bench: bool,
+                    n_obs_total: int) -> dict:
+    n_sec = sum(m["n_bench_sector"] for m in months)
+    n_fb = sum(m["n_bench_fallback"] for m in months)
+    if not use_sector_bench:
+        return {
+            "reason": "FDR SnapDataReader KRX/INDEX/OHLCV NotImplementedError "
+                      "(2026-07-04 실측) — 시장 종합지수(KS11/KQ11) 대체",
+            "fallback_count": n_obs_total,
+            "fallback_ratio": 1.0,
+        }
+    total = n_sec + n_fb
+    return {
+        "reason": "KRX 업종지수 벤치마크 (pykrx) — 미매핑 종목만 종합지수 fallback. "
+                  "구성종목은 '현재' 기준 (PIT 아님, S2 한계)",
+        "sector_bench_count": n_sec,
+        "fallback_count": n_fb,
+        "fallback_ratio": round(n_fb / total, 4) if total else None,
+    }
+
+
+def run_backtest(start: str = "2023-01", end: str = "2025-12",
+                 attach_per: bool = False, use_sector_bench: bool = False,
+                 out_path: Path = OUT_PATH) -> dict:
+    """기본값 = Phase A 경로 (per None, 종합지수 벤치, h1_results.json)."""
     t0 = time.time()
     dates = dl.month_end_snapshots(start, end)
     universe = dl.load_universe()
     snaps = dl.build_all_snapshots(dates, universe)
     snaps["asof"] = pd.to_datetime(snaps["asof"])
+    if attach_per:
+        snaps = dl.attach_fundamentals(snaps)
+
+    sector_map = None
+    if use_sector_bench:
+        m_df = dl.load_sector_index_map()
+        sector_map = dict(zip(m_df["ticker"], m_df["index_code"]))
 
     months = []
     for d in dates:
         sub = snaps[snaps["asof"] == d]
         if sub.empty:
             continue
-        m = _build_month(sub, d)
+        m = _build_month(sub, d, sector_map=sector_map)
         months.append(m)
         print(f"[backtest] {m['asof']} cohort={m['cohort_size']} "
               f"control={m['control_size']} "
-              f"obs=({len(m['cohort_excess'])},{len(m['control_excess'])})",
+              f"obs=({len(m['cohort_excess'])},{len(m['control_excess'])}) "
+              f"bench(sector/fb)=({m['n_bench_sector']},{m['n_bench_fallback']})",
               flush=True)
 
     p_all, diff_all = _block_bootstrap_p(months)
@@ -189,6 +251,10 @@ def run_backtest(start: str = "2023-01", end: str = "2025-12") -> dict:
 
     results = {
         "generated_at": pd.Timestamp.now().isoformat(),
+        "phase": "B-1" if (attach_per or use_sector_bench) else "A",
+        "feature_supply": {"per_trailing": "pykrx PER (PER<=0→None)" if attach_per
+                           else "None (설계상 결측)",
+                           "consensus_gap": "None (Phase B-2 이연)"},
         "pass_line": {"median_diff_pp_min": PASS_MEDIAN_DIFF_PP,
                       "p_max": PASS_P, "pre_registered": True},
         "h1_verdict": "PASS" if h1_pass else "FAIL",
@@ -204,29 +270,29 @@ def run_backtest(start: str = "2023-01", end: str = "2025-12") -> dict:
         "per_year": per_year,
         "thin_cohort_months": thin,
         "conf_threshold": CONF_THRESHOLD,
-        "sector_index_fallback": {
-            "reason": "FDR SnapDataReader KRX/INDEX/OHLCV NotImplementedError "
-                      "(2026-07-04 실측) — 시장 종합지수(KS11/KQ11) 대체",
-            "fallback_count": n_co + n_ct,
-            "fallback_ratio": 1.0,
-        },
+        "sector_index_fallback": _fallback_block(months, use_sector_bench,
+                                                 n_co + n_ct),
         "download_meta": {k: v for k, v in meta.items() if k != "empty_tickers"},
         "n_empty_fdr_tickers": meta.get("n_empty"),
         "backtest_wall_clock_sec": round(time.time() - t0, 1),
         "months": months,
     }
-    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUT_PATH.write_text(json.dumps(results, ensure_ascii=False, indent=2),
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(results, ensure_ascii=False, indent=2),
                         encoding="utf-8")
 
     print(f"\nH1 {results['h1_verdict']}: median_diff={results['median_diff_pp']}pp "
           f"(합격선 +{PASS_MEDIAN_DIFF_PP}pp), p={p_all} (<{PASS_P}), "
           f"cohort_obs={n_co}, control_obs={n_ct}, thin_months={len(thin)}")
-    ok = OUT_PATH.exists() and len(months) > 0
+    ok = out_path.exists() and len(months) > 0
     print(f"DONE_CRITERIA: {'PASS' if ok else 'FAIL — 출력 파일/스냅샷 부재'}")
     return results
 
 
 if __name__ == "__main__":
-    r = run_backtest()
+    if "--phase-b1" in sys.argv:
+        r = run_backtest(attach_per=True, use_sector_bench=True,
+                         out_path=OUT_PATH_B1)
+    else:
+        r = run_backtest()
     sys.exit(0 if r["n_snapshots"] > 0 else 1)

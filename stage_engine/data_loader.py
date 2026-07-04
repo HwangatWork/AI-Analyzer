@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
-"""Stage Engine v3.0 — data_loader: FinanceDataReader 전용 PIT 피처 로더.
+"""Stage Engine v3.0 — data_loader: PIT 피처 로더 (FDR + pykrx).
 
-- pykrx 사용 금지 (환경 파손) — FinanceDataReader ONLY.
-- per_trailing / consensus_gap 은 Phase A 설계상 None (Phase B에서 공급).
+- Phase A: FinanceDataReader 전용. ("pykrx 환경 파손" 믿음은 2026-07-04
+  실측으로 STALE 판명 — pykrx 1.2.8 정상 동작, KRX_ID/PW 자동 로그인.)
+- Phase B-1: pykrx 추가 — 월말 PER 크로스섹션 (per_trailing 공급) +
+  KRX 업종지수 매핑/OHLCV (벤치마크). consensus_gap 은 여전히 None (B-2).
+- 보안: pykrx 는 로그인 ID 를 stdout 에 평문 출력 (website/comm/auth.py:189)
+  → 모든 pykrx 호출은 _quiet() 로 stdout 을 흡수한다.
 - PIT 규칙: asof 종가까지의 데이터만 사용 (zero lookahead). 모든 rolling
   지표는 trailing-only 연산으로 구성된다.
-- 알려진 한계 (리포트 S2 기록 대상): 섹터·상장주식수는 '현재' 리스팅 기준
-  (과거 시점 아님), 유니버스는 현재 상장 종목만 포함 → 생존편향 존재.
+- 알려진 한계 (리포트 S2 기록 대상): 섹터·상장주식수·업종지수 구성종목은
+  '현재' 기준 (과거 시점 아님), 유니버스는 현재 상장 종목만 → 생존편향 존재.
 """
 from __future__ import annotations
 
+import contextlib
+import io
 import json
+import os
 import time
 from datetime import date, timedelta
 from pathlib import Path
@@ -305,3 +312,166 @@ def forward_return(ticker: str, asof: date | str, days: int = 90) -> float | Non
 def month_end_snapshots(start: str = "2023-01", end: str = "2025-12") -> list[pd.Timestamp]:
     return list(pd.date_range(start=start, end=pd.Period(end).end_time.normalize(),
                               freq="ME"))
+
+
+# ── pykrx (Phase B-1): PER 크로스섹션 + 업종지수 ─────────────────────────
+
+FUND_DIR = CACHE_DIR / "fundamentals"
+INDEX_DIR = CACHE_DIR / "index_ohlcv"
+SECTOR_MAP_PATH = CACHE_DIR / "sector_index_map.parquet"
+
+_PYKRX_STOCK = None
+
+
+def _load_env() -> None:
+    """프로젝트 .env → os.environ (KRX_ID/KRX_PW — 값 출력 절대 금지)."""
+    env_path = Path(__file__).parents[1] / ".env"
+    if not env_path.exists():
+        return
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, _, v = line.partition("=")
+        os.environ.setdefault(k.strip(), v.strip())
+
+
+def _pykrx_stock():
+    global _PYKRX_STOCK
+    if _PYKRX_STOCK is None:
+        _load_env()
+        # 로그인 ID 평문 print 흡수 (auth.py:189)
+        with contextlib.redirect_stdout(io.StringIO()):
+            from pykrx import stock
+        _PYKRX_STOCK = stock
+    return _PYKRX_STOCK
+
+
+def _quiet(fn, *args, **kwargs):
+    """pykrx 호출 래퍼 — 세션 (재)로그인 시 ID 평문 출력을 흡수."""
+    with contextlib.redirect_stdout(io.StringIO()):
+        return fn(*args, **kwargs)
+
+
+def load_fundamentals_asof(asof: date | str) -> pd.DataFrame:
+    """월말 PER/EPS 크로스섹션 (KOSPI+KOSDAQ). 컬럼: ticker, PER, EPS, fund_date.
+
+    비영업일 → 최대 7일 역방향 back-off. PER 해석은 attach_fundamentals 에서
+    (PER<=0 = 적자/무의미 → None). 일자별 parquet 캐시.
+    """
+    t = pd.Timestamp(asof)
+    FUND_DIR.mkdir(parents=True, exist_ok=True)
+    path = FUND_DIR / f"{t:%Y%m%d}.parquet"
+    if path.exists():
+        return pd.read_parquet(path)
+    stock = _pykrx_stock()
+    for back in range(8):
+        d = (t - timedelta(days=back)).strftime("%Y%m%d")
+        frames = []
+        for mkt in ("KOSPI", "KOSDAQ"):
+            try:
+                df = _quiet(stock.get_market_fundamental_by_ticker, d, market=mkt)
+            except Exception:  # noqa: BLE001
+                df = None
+            # 비영업일은 빈 프레임 또는 전량 0 으로 반환됨
+            if df is None or df.empty or ("PER" in df.columns and (df["PER"] == 0).all()):
+                frames = []
+                break
+            frames.append(df[["PER", "EPS"]])
+        if frames:
+            out = pd.concat(frames)
+            out.index.name = "ticker"
+            out = out.reset_index()
+            out["fund_date"] = d
+            out.to_parquet(path)
+            return out
+    raise RuntimeError(f"fundamentals unavailable for {t.date()} (7일 back-off 소진)")
+
+
+def attach_fundamentals(snaps: pd.DataFrame) -> pd.DataFrame:
+    """스냅샷 프레임의 per_trailing 을 pykrx PER 로 채운다 (재계산 없음).
+
+    PER<=0 또는 NaN → None (적자 기업 — 분류기의 결측 인지에 위임).
+    """
+    out = []
+    for asof, grp in snaps.groupby("asof", sort=True):
+        fund = load_fundamentals_asof(asof)
+        per_map = {}
+        for r in fund.itertuples(index=False):
+            v = r.PER
+            per_map[r.ticker] = float(v) if pd.notna(v) and v > 0 else None
+        g = grp.copy()
+        g["per_trailing"] = [per_map.get(tk) for tk in g["ticker"]]
+        out.append(g)
+    return pd.concat(out, ignore_index=True)
+
+
+def load_sector_index_map(refresh: bool = False) -> pd.DataFrame:
+    """KRX 업종지수 → 구성종목 매핑. 컬럼: ticker, index_code, index_name.
+
+    '현재' 구성종목 기준 (PIT 아님 — S2 한계). 지수명에 코스피/코스닥 이
+    포함된 종합·규모·테마 지수는 제외 (업종지수만 남기는 휴리스틱).
+    복수 지수 소속 시 첫 매칭 유지.
+    """
+    if SECTOR_MAP_PATH.exists() and not refresh:
+        return pd.read_parquet(SECTOR_MAP_PATH)
+    stock = _pykrx_stock()
+    today = pd.Timestamp.now().strftime("%Y%m%d")
+    rows = []
+    for mkt in ("KOSPI", "KOSDAQ"):
+        for code in _quiet(stock.get_index_ticker_list, today, market=mkt):
+            name = _quiet(stock.get_index_ticker_name, code)
+            if "코스피" in name or "코스닥" in name:
+                continue
+            try:
+                members = _quiet(stock.get_index_portfolio_deposit_file, code)
+            except Exception:  # noqa: BLE001
+                continue
+            for tk in members:
+                rows.append({"ticker": tk, "index_code": code, "index_name": name})
+    df = pd.DataFrame(rows).drop_duplicates("ticker", keep="first")
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(SECTOR_MAP_PATH)
+    return df
+
+
+def load_index_ohlcv(code: str, refresh: bool = False) -> pd.DataFrame | None:
+    """업종지수 일봉 (DOWNLOAD_START~현재). parquet 캐시. 빈 결과도 캐시."""
+    INDEX_DIR.mkdir(parents=True, exist_ok=True)
+    path = INDEX_DIR / f"{code}.parquet"
+    if path.exists() and not refresh:
+        df = pd.read_parquet(path)
+        return df if not df.empty else None
+    stock = _pykrx_stock()
+    start = DOWNLOAD_START.replace("-", "")
+    end = pd.Timestamp.now().strftime("%Y%m%d")
+    try:
+        df = _quiet(stock.get_index_ohlcv, start, end, code)
+        if df is None:
+            df = pd.DataFrame()
+    except Exception:  # noqa: BLE001
+        df = pd.DataFrame()
+    df.to_parquet(path)
+    return df if not df.empty else None
+
+
+def index_forward_return(code: str, asof: date | str, days: int = 90) -> float | None:
+    """업종지수 fwd 수익률 — forward_return 과 동일 규칙 (종가 컬럼)."""
+    px = load_index_ohlcv(code)
+    if px is None or "종가" not in px.columns:
+        return None
+    t = pd.Timestamp(asof)
+    base = px.loc[:t]
+    if base.empty or (t - base.index[-1]).days > 15:
+        return None
+    end = t + timedelta(days=days)
+    fwd = px.loc[:end]
+    if fwd.index[-1] <= base.index[-1]:
+        return None
+    if (fwd.index[-1] - base.index[-1]).days < 30:
+        return None
+    p0 = float(base["종가"].iloc[-1])
+    p1 = float(fwd["종가"].iloc[-1])
+    if p0 <= 0:
+        return None
+    return p1 / p0 - 1.0
