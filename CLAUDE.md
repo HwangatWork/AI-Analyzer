@@ -100,6 +100,38 @@ Verbal-only RCA = Level 1. All four steps = Level 6+.
 
 ## Things to Avoid
 
+**OL-7 (2026-06-30): Anti-confirmation-bias on extracted data + multi-source corroboration required**
+
+Root cause incident: Phase 14-0-B2 parser extracted target_price = 2,470,417원 from
+WiseReport's `chartData2` (historical monthly series, latest non-null = May 2026).
+The static current-snapshot table held 3,177,083원 (June 2026 consensus). PM Agent
+dismissed the static value as "비현실적" based on outdated price assumptions and
+never reconciled the two sources. Cross-validation X1-X7 all PASSED because they
+verified self-consistency (same source -> same value) rather than correctness
+against an external anchor. User-provided ground truth (close = 2,628,000원)
+revealed the error: PER * EPS = 8.54 × 307,655 = 2,627,374 ~= close (within
+-0.02%), proving static-table values were correct and chart-based extraction was
+the wrong source.
+
+Mandatory rules going forward:
+1. When multiple sources of the same field exist in one HTML / API response,
+   parse all of them and explicitly choose the "authoritative current" source.
+   Document the choice and flag any disagreement > 1% (numeric) or > 50%
+   (semantic-gap signaling source mismatch).
+2. Whenever PER, EPS, close are simultaneously extractable, enforce the
+   invariant PER * EPS ~= close (within 1%) as an arithmetic-anchor check.
+   Fail loudly when violated.
+3. Never dismiss extracted numeric data as "wrong" based on prior assumptions.
+   Required action before rejection: (a) check arithmetic invariants, (b)
+   query an external anchor (user, FinanceDataReader for KOSPI/KOSDAQ, FRED,
+   etc.), (c) compare against a second extraction path. Only after all three
+   may a value be rejected, and the rejection must be logged with the reason.
+4. Cross-validation matrices must include at least one EXTERNAL ANCHOR test
+   (independent data source or human-provided ground truth) - pure
+   self-consistency tests inflate confidence without proving correctness.
+
+See: reports/phase_14_0_B2_14_1/rca_2026_06_30.md for full incident report.
+
 **FIX-E (2026-06-12): stop_hook stdin JSONL silent failure**
 Claude Code passes session transcript as raw JSONL (one JSON object per line), NOT a wrapped
 `{"session_id":..., "transcript":[...]}` object. `json.loads(raw)` throws JSONDecodeError,
@@ -138,6 +170,40 @@ Fix: Read `hook_input["last_assistant_message"]` for Check1 (Evidence).
   memory_smart_search("tf-design-process")
   memory_smart_search("aprf-design-process")  # legacy tag (2026-06-27 저장된 4 lesson)
 (project 필드는 전체 경로라 facet_query 미지원 — smart_search 방식 사용)
+
+## Post-Push Deployment Verification (2026-07-04 사용자 명시 — 영구)
+
+**매 `git push` 후 필수 실행**:
+```powershell
+$SHA = git rev-parse HEAD
+python scripts/verify_push_deployment.py --sha $SHA --wait-min 20
+```
+
+**exit 0 확인 후에만 사용자에게 "배포 완료" 보고 가능**.
+exit non-zero 면 즉시 실패 workflow / endpoint / freshness 원인과
+사용자 조치 필요 항목을 알림.
+
+### 검증 6 항목 (모두 통과해야 완료)
+1. GitHub Actions API: SHA 로 트리거된 **ALL workflows** conclusion == success
+   (primary deploy 만 확인 = PASS 위장 패턴)
+2. Pages URL HTTP 200
+3. Pages 콘텐츠에 예상 sentinel 존재 (end-user 관점)
+4. `output/*.json` freshness (generated_at ≤ 24h)
+5. 실패 시 workflow name + conclusion + URL 명시 (actionable)
+6. 정직 보고 — 성공 요약이 아니라 "모든 workflow / 모든 endpoint / 모든 데이터" 상세
+
+### 스크립트 exit codes
+- 0 = 모든 workflow 성공 + content OK + freshness OK
+- 2 = workflow failure (사용자 조치 필요)
+- 3 = poll timeout (완료 안 됨)
+- 4 = content 검증 실패 (Pages HTTP 오류 or sentinel 부재)
+- 5 = freshness 실패 (데이터 stale)
+
+### 절대 금지 (라운드 16 directive)
+- 스크립트 미실행 후 "완료" 보고 = PASS 위장
+- primary deploy 만 확인 후 "성공" = 편향 감시
+- Content endpoint 확인 없이 "정상" = end-user 관점 무시
+- 여러 workflow 중 하나만 성공이어도 "배포 완료" = 부분 진실 위장
 
 ## Agent Team Cross-Validation 룰 (2026-06-29 사용자 명시 — 영구)
 
