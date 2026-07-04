@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "frozen_at": "2026-07-05T00:00:00Z",
+  "frozen_by": "phase_p_purpose_return.md (user-triggered)",
+  "git_sha_at_freeze_note": "The freeze SHA is the git commit that introduces this file. Runner derives it via: git log --format=%H -1 -- output/phase_p_preregistration.json. Any uncommitted edits to this file must FAIL the runner gate.",
+  "purpose": "Freeze all Phase P (Purpose Return) hypotheses, thresholds, horizons, gate variants, and exclusion filters BEFORE any backtest code is executed. Runner MUST validate this file's existence and git ancestry; else exit(1). Prevents FP-001 post-hoc criterion relaxation.",
+  "peer_review_evidence": "reports/phase_p/peer_review_2026_07_05.md",
+  "data_snapshots": {
+    "source_command": "git log --grep='daily pipeline'",
+    "count": 12,
+    "date_range": "2026-06-19 to 2026-07-04",
+    "commit_shas": [
+      {"sha": "e63f9cd36cddb522faf51f3b9be3c18e8d93ad14", "date": "2026-07-04", "label": "daily pipeline run 2026-07-04"},
+      {"sha": "4cc604c12e9df890f52977f8d65eb0d8da113914", "date": "2026-07-02", "label": "daily pipeline run 2026-07-02"},
+      {"sha": "fe4bde272a94da2d00b0e11d24f32be7a9f61b80", "date": "2026-06-30", "label": "daily pipeline run 2026-06-30"},
+      {"sha": "0daed4c14ffc30126ab6587cb5603da8e8688d5d", "date": "2026-06-29", "label": "daily pipeline run 2026-06-29"},
+      {"sha": "92b5848e00820af0dc459e534bf44ae621be542b", "date": "2026-06-28", "label": "daily pipeline run 2026-06-28"},
+      {"sha": "d2abbe3918f5d7384b65c9f9ee1cbafbd452483a", "date": "2026-06-27", "label": "daily pipeline run 2026-06-27"},
+      {"sha": "cd937a7da65862fe138d1630412626d55b684b16", "date": "2026-06-25", "label": "daily pipeline run 2026-06-25"},
+      {"sha": "5beaa33845f3c7af43563aefc00398d9fbb1edb8", "date": "2026-06-24", "label": "daily pipeline run 2026-06-24"},
+      {"sha": "246e01261ead453ccd36810619eca963a053af3e", "date": "2026-06-23", "label": "daily pipeline run 2026-06-23"},
+      {"sha": "18a9187cc9e16780d8847297d28075658d7e2708", "date": "2026-06-22", "label": "daily pipeline run 2026-06-22"},
+      {"sha": "542d93b77c7d24d3e6db3fdbfbdb0aebaeec776d", "date": "2026-06-20", "label": "chore: 전체 파이프라인 실행 (2026-06-20)"},
+      {"sha": "c9447019383bda690a86ae6263b62c1812f0a8ee", "date": "2026-06-19", "label": "daily pipeline run 2026-06-19"}
+    ],
+    "note": "12 pipeline snapshots verified: each contains both output/decision.json and output/final_results.json. Regression tests use these snapshots verbatim, no synthetic fixtures (FIX-G)."
+  },
+  "external_anchors": {
+    "us_prices": "yfinance",
+    "kr_prices": "FinanceDataReader",
+    "us_index_ticker": "^GSPC",
+    "kr_index_ticker": "KS11",
+    "cache_dir": "output/backtest_cache/",
+    "rationale": "OL-7 anti-confirmation-bias — evaluation uses independent price source, never the pipeline's internal features"
+  },
+  "reference_scripts": [
+    "stage_engine/backtest_h1.py",
+    "stage_engine/data_loader.py",
+    "tools/consensus/live_price_fetcher.py"
+  ],
+  "hypotheses": {
+    "P-4": {
+      "kind": "descriptive_with_secondary_inferential",
+      "question": "decision.json signals vs buy-and-hold — was signal-following better?",
+      "signal_source": {
+        "file": "output/decision.json",
+        "fields": ["sp500.action", "sp500.confidence_pct", "kospi.action", "kospi.confidence_pct", "direction"]
+      },
+      "signal_gate_variants": [
+        {"id": "unconditional", "rule": "act on every BUY/SELL regardless of confidence"},
+        {"id": "confidence_gte_60", "rule": "act on BUY/SELL only when confidence_pct >= 60"},
+        {"id": "confidence_gte_70", "rule": "sensitivity check; act only when confidence_pct >= 70"}
+      ],
+      "signal_action_mapping": {
+        "BUY": "target 100% long",
+        "SELL": "target 0%",
+        "HOLD": "no trade (carry-over)",
+        "WAIT": "no trade (carry-over)",
+        "neutral": "no trade (carry-over)"
+      },
+      "transaction_cost_bps": 10,
+      "benchmarks": [
+        {"id": "buy_and_hold", "rule": "100% index continuously"},
+        {"id": "constant_50_50_mix", "rule": "50% index + 50% cash rebalanced at snapshot dates"},
+        {"id": "beta_matched", "rule": "avg exposure of unconditional signal * index + rest cash"}
+      ],
+      "metrics": {
+        "primary": "sharpe_ratio",
+        "secondary": ["cumulative_return_pct", "max_drawdown_pct", "avg_exposure_pct", "num_trades"]
+      },
+      "success_criteria": {
+        "primary": "gated Sharpe > buy_and_hold Sharpe by any positive margin (report exact numbers; no statistical claim due to N=12)",
+        "secondary": "gated cumulative return >= buy_and_hold OR MDD < buy_and_hold MDD",
+        "sample_size_note": "N=12 snapshots. Sharpe SE ≈ 1.6 (per analysis-agent). No p-value asserted; report descriptively."
+      },
+      "assets_tested": ["SP500", "KOSPI"]
+    },
+    "P-1": {
+      "kind": "descriptive_only",
+      "question": "Do top-weighted indicators forecast index direction better than bottom-weighted?",
+      "reason_for_descriptive": "N=12 snapshots, 5d forward available for at most 6 → effective inferential N < 30. Analysis-agent's minimum viable pooled N is ~60.",
+      "ranking_source": {
+        "file": "output/final_results.json",
+        "field": "indicator_weight_ranking",
+        "sort_key": "combined_weight desc"
+      },
+      "groups": {
+        "top": "rank 1..5",
+        "bottom": "rank 9..13 (bottom 5 of 13)"
+      },
+      "horizons_bdays": [5],
+      "horizons_infeasible_today": [10, 20],
+      "metric": "top_group_hit_rate vs bottom_group_hit_rate, where hit = sign(sum(signal * signed_r)) matches sign(index_forward_return)",
+      "success_criteria": {
+        "descriptive": "report both hit rates + Wilson 90% CI + delta; no p-value asserted",
+        "note": "Prompt originally required p<0.05 with N>=30; infeasible today. Do NOT relax criterion; report as data-insufficient."
+      }
+    },
+    "P-2": {
+      "kind": "descriptive_only_corrected_definition",
+      "question": "Did snapshot's contribution_top5 predict next-window top contributors?",
+      "original_prompt_definition_flaw": "Prompt asks 'was Top5 actual contribution leader on snapshot day?' — but contribution_top5 is computed over PAST 249 days ending at snapshot. Same-day comparison is tautological (Analysis-agent P-3 finding).",
+      "corrected_definition": "precision@5 = |snapshot_contribution_top5 ∩ empirically_top5_over_forward_window| / 5, where empirical Top5 = market-cap-weighted return contribution over T+1..T+5 (forward window, computed from external yfinance/FDR prices)",
+      "sources": {
+        "predicted_top5": "output/final_results.json.sp500_analysis.contribution_top5 and kospi_analysis.contribution_top5",
+        "actual_top5_computation": "external prices via yfinance/FDR; universe = all tickers appearing in any snapshot's top5 union"
+      },
+      "horizons_bdays": [5],
+      "n_evaluable": 6,
+      "success_criteria": {
+        "descriptive": "report mean precision@5 + per-snapshot values; chance baseline note (5/universe_size)",
+        "note": "20d version infeasible until 2026-08-03"
+      }
+    },
+    "P-3": {
+      "kind": "descriptive_only",
+      "question": "Did beneficiary_top5 outperform benchmark on forward window?",
+      "sources": {
+        "predicted_top5": "output/final_results.json.sp500_analysis.beneficiary_top5 and kospi_analysis.beneficiary_top5"
+      },
+      "exclusion_filter": [
+        {"rule": "warn_reason field present", "reason": "flagged by pipeline for suspicious past return"},
+        {"rule": "excess_return_pct > 200", "reason": "winsorize 99th percentile per Analysis-agent"},
+        {"rule": "less_than_180_days_continuous_price_history", "reason": "spinoff / new listing bias"}
+      ],
+      "benchmarks": ["SP500", "KOSPI"],
+      "horizons_bdays": [5],
+      "horizons_infeasible_today": [10, 20],
+      "n_evaluable": 6,
+      "metric": "forward_return_5d - benchmark_return_5d (excess), averaged across surviving Top5",
+      "success_criteria": {
+        "descriptive": "report mean excess + hit rate + per-snapshot values",
+        "note": "Prompt required 20d excess > 0 + win_rate > 50%; horizon infeasible today. Report data-insufficient."
+      }
+    }
+  },
+  "multiple_testing": {
+    "family_alpha": 0.05,
+    "correction": "holm_bonferroni",
+    "applied_to": "not applied (all tests are descriptive-only due to sample-size constraints); documented for future inferential re-run when N>=60"
+  },
+  "runner_gate_rule": {
+    "requirement": "any script implementing P-1..P-4 must (a) read this file, (b) verify frozen_at is set and git_sha_at_freeze is an ancestor of HEAD, (c) assert own params match this file — else sys.exit(1)",
+    "gate_function_signature": "assert_preregistration(path='output/phase_p_preregistration.json') -> dict"
+  },
+  "level_8_evidence_requirement": {
+    "rule": "Each P-* must produce: exit code, printed numeric summary line, JSON output file with metrics, one regression test using real snapshots (FIX-G)",
+    "output_files": {
+      "P-4": "output/phase_p_p4_results.json",
+      "P-1": "output/phase_p_p1_results.json",
+      "P-2": "output/phase_p_p2_results.json",
+      "P-3": "output/phase_p_p3_results.json",
+      "report": "output/backtest_report.md"
+    }
+  },
+  "post_execution_rules": {
+    "no_criterion_relaxation": "If a success criterion fails, report failure + decompose cause. Do NOT edit this file to lower the threshold (FP-001).",
+    "criterion_change_protocol": "Only allowed via new pre-registration file with new frozen_at; old file preserved.",
+    "roadmap_registration": "Any failed metric or infeasible horizon must be registered as ROADMAP improvement item with specific formula fix proposal."
+  }
+}
