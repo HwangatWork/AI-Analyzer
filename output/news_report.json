@@ -1,23 +1,18 @@
 {
-  "generated_at": "2026-07-02T04:35:09.323848",
-  "date": "2026-07-02",
+  "generated_at": "2026-07-04T08:58:26.534522",
+  "date": "2026-07-04",
   "movements": [
-    "S&P500 7,483.23 (▼0.22%)",
-    "나스닥 26,040.03 (▼0.66%)",
-    "다우 52,305.24 (▼0.03%)",
-    "코스피 7,889.12 (▼4.99%)"
+    "S&P500 7,483.24 (▲0.00%)",
+    "나스닥 25,832.67 (▼0.80%)",
+    "다우 52,900.07 (▲1.14%)",
+    "코스피 8,088.34 (▲5.76%)"
   ],
   "causes": [
     "Fed 매파적 신호 → 금리 인하 기대 후퇴 → 성장주·기술주 조정",
     "인플레이션 예상 상회 → 금리 인하 경로 후퇴 → 리스크 자산 매도",
-    "AMD 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▼0.66%"
+    "AMD 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▼0.80%"
   ],
   "watchpoints": [
-    {
-      "date": "2026-07-03",
-      "event": "비농업 고용(NFP) (2026년 6월 데이터) 발표",
-      "significance": "강한 고용은 금리 인하 기대 후퇴, 약한 고용은 경기 우려"
-    },
     {
       "date": "2026-07-08",
       "event": "CPI (2026년 6월 데이터) 발표",
@@ -32,24 +27,29 @@
       "date": "2026-07-31",
       "event": "PCE 물가 (2026년 6월 데이터) 발표",
       "significance": "Fed 선호 물가 지표, 인플레 방향성 가늠"
+    },
+    {
+      "date": "2026-08-07",
+      "event": "비농업 고용(NFP) (2026년 7월 데이터) 발표",
+      "significance": "강한 고용은 금리 인하 기대 후퇴, 약한 고용은 경기 우려"
     }
   ],
   "sources": [
     {
-      "source": "Yahoo Finance",
-      "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxQcWhTSWlhSGUwcmpCTi1sdnUtREl0djVBN2xTbENXTy1QalpBd2ZaZzQ3VkxrRWlZNDhPdk1ZdjRaT2pZejJOYzItNk51a1Z0Rlpmc3M5TWtRS1VlcjZjTnFJZE1JNkNNMHJ2NTFBaklHSHcxaVl6UFVudVZ6ejZDeEVyLTBucnd0RGd3TV9YbzVGZ2dpSFFXUmRWaGc4ZEtyVjQwMWQ5RXZKQkdUQUJpMV9XY1NsUF96NW9aWnNCZF82eXVzYkpWdEZLeEY5c3RZR2h4T2tYbDM0QQ?oc=5"
+      "source": "Yahoo Finance UK",
+      "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxNRExxZ1h4aWI4ZFB5OXQ1QUx0UktsZkhGY19PY2V3aHFEWkR1ZFV2YzVtQlBEQ3Y2WXp1ajA1MFNpclUwOHdLT0pJcE1DbUJ1V0tvWVEwem5HTjk0SFlNVGdxVmlEanl5eFdwSTRsWHQ4S0lfMV8zNF92cmxEdjlCdXdKZUY1VWQxaDdLRHRtWHRDWjBaWWhXUEZEUW9WbU5oZHpPTXRBSjFkcEZIQWFxc0pWdU5TNS01a3dCX0Rsb2lxVXdBWHUxSWpsZw?oc=5"
     },
     {
       "source": "MarketWatch",
       "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPNTZZa1ptZTFOQks4dUFsVDZncDlvRnpiTXpOVG9JSW5xVm5vLVpSV3N3SWtHYjl2RTFpclc1NDVURjlqZFhQY1l5Y3N0TXZ4Tnk5VDNhMnFLWnZmcmVvYy05QnpVWEdic3RBUENsUmVjRjY4WHhXRjdJSFU2QVlYV3pkaE9pNXE2dWxfQlNiZmhKcm9zQzBCeFZtWVh1T1F6NVE?oc=5"
     },
     {
-      "source": "thestreet.com",
-      "link": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQbzdrN3dHdURMZGVBZXdSOUVKR3ZPczZZV2lxNk8xY0ZnOE5uYnIzaXgteWZGbHlvQlB4SXVHcUhqYjZDUHo4VnRPM3pGd0JWazI2RDZaMlUwZmdiS3BCVXM0TGlBS19hdTNQNG5RaFNoQ1kxUnVMd1JJZjVMTlNKWmpLa20zTjJGRFVCeE43MFU0OG1Jc3YwUVFaZmdLbk1Vd28wMDVnWmJsbEJLZ1Uxczd3am5rV1JVdi1WQXYtY19uOERPbjZ3bEFn?oc=5"
+      "source": "Investopedia",
+      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNNnR0alByQ20yU2xtRmdjN0RmYnNPQmtRNnhibkttbWIyTXdBREVqdkcxY3FUdklMdXFMZUt1RVN6XzlFT2pMVldpcmMtU05QRHk0ZXRBdDVMc2ZwQl8yd19xSk9OR0l5SEZsVXU1LXRWOFdac3ZPb1Vha1VWU213X216TGc4elJMbC1wQkpqNUM?oc=5"
     },
     {
-      "source": "Investopedia",
-      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNYlhNMlJCbk8tR0M0Z3V1VEFoUzM1eV9jbmg1X2VBNUJHODdKYlotaTJEbUNpc256QU1LTFBJWHd0c0drb3p6UEdRYi1iQkdReXltbnZMenpaNm96bGp3WkpYWG9PZ3EzQjVTeUhZT1JvTlNrQ1BJOXhldGhrU3BsT1pJM3RWbHJPOEw1Ym9EdmQ?oc=5"
+      "source": "thestreet.com",
+      "link": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQbzdrN3dHdURMZGVBZXdSOUVKR3ZPczZZV2lxNk8xY0ZnOE5uYnIzaXgteWZGbHlvQlB4SXVHcUhqYjZDUHo4VnRPM3pGd0JWazI2RDZaMlUwZmdiS3BCVXM0TGlBS19hdTNQNG5RaFNoQ1kxUnVMd1JJZjVMTlNKWmpLa20zTjJGRFVCeE43MFU0OG1Jc3YwUVFaZmdLbk1Vd28wMDVnWmJsbEJLZ1Uxczd3am5rV1JVdi1WQXYtY19uOERPbjZ3bEFn?oc=5"
     },
     {
       "source": "Benzinga",
@@ -58,24 +58,24 @@
   ],
   "market_raw": {
     "SP500": {
-      "close": 7483.23,
-      "change": -0.22,
-      "date": "2026-07-01"
+      "close": 7483.24,
+      "change": 0.0,
+      "date": "2026-07-02"
     },
     "NASDAQ": {
-      "close": 26040.03,
-      "change": -0.66,
-      "date": "2026-07-01"
+      "close": 25832.67,
+      "change": -0.8,
+      "date": "2026-07-02"
     },
     "DOW": {
-      "close": 52305.24,
-      "change": -0.03,
-      "date": "2026-07-01"
+      "close": 52900.07,
+      "change": 1.14,
+      "date": "2026-07-02"
     },
     "KOSPI": {
-      "close": 7889.12,
-      "change": -4.99,
-      "date": "2026-07-02"
+      "close": 8088.34,
+      "change": 5.76,
+      "date": "2026-07-03"
     }
   },
   "done_criteria": {
