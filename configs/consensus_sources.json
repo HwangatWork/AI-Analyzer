@@ -1,0 +1,127 @@
+{
+  "schema_version": "0.1",
+  "target": {
+    "ticker": "000660",
+    "company": "SK hynix"
+  },
+  "sources": [
+    {
+      "source_provider": "FnSpace",
+      "source_type": "official_api",
+      "homepage_url": "https://www.fnspace.com/",
+      "robots_url": "https://www.fnspace.com/robots.txt",
+      "terms_url": "https://www.fnspace.com/Customer/Info",
+      "requires_login": true,
+      "requires_api_key": true,
+      "expected_data_roles": [
+        "consensus_target_price",
+        "consensus_rating",
+        "consensus_estimates_eps",
+        "consensus_estimates_op_income",
+        "consensus_estimates_revenue"
+      ],
+      "live_audit_allowed": false,
+      "financial_data_fetch_allowed": false,
+      "notes": "Primary candidate for Korean consensus data. Paid B2B-oriented API; requires account + key. Phase 0-A1 records metadata only; no auth/key access in this phase."
+    },
+    {
+      "source_provider": "Naver Finance",
+      "source_type": "public_page",
+      "homepage_url": "https://finance.naver.com/",
+      "robots_url": "https://finance.naver.com/robots.txt",
+      "terms_url": "https://policy.naver.com/policy/service_finance.html",
+      "requires_login": false,
+      "requires_api_key": false,
+      "expected_data_roles": [
+        "consensus_target_price",
+        "consensus_estimates_eps",
+        "consensus_estimates_op_income",
+        "analyst_count"
+      ],
+      "live_audit_allowed": false,
+      "financial_data_fetch_allowed": false,
+      "notes": "Public consensus page (FnGuide-sourced). HTML structure changes are a known risk. Phase 0-A1 only records configured policy/robots URLs; no fetch."
+    },
+    {
+      "source_provider": "Hankyung Consensus",
+      "source_type": "public_page",
+      "homepage_url": "https://consensus.hankyung.com/",
+      "robots_url": "https://consensus.hankyung.com/robots.txt",
+      "terms_url": "https://www.hankyung.com/policy/terms",
+      "requires_login": false,
+      "requires_api_key": false,
+      "expected_data_roles": [
+        "per_firm_target_price",
+        "per_firm_rating",
+        "per_firm_report_date"
+      ],
+      "live_audit_allowed": false,
+      "financial_data_fetch_allowed": false,
+      "notes": "Aggregator with per-firm analyst report metadata. Original PDFs are typically restricted; metadata only is useful."
+    },
+    {
+      "source_provider": "Investing",
+      "source_type": "public_page",
+      "homepage_url": "https://www.investing.com/",
+      "robots_url": "https://www.investing.com/robots.txt",
+      "terms_url": "https://www.investing.com/about-us/terms-and-conditions",
+      "requires_login": false,
+      "requires_api_key": false,
+      "expected_data_roles": [
+        "consensus_target_price",
+        "consensus_rating"
+      ],
+      "live_audit_allowed": false,
+      "financial_data_fetch_allowed": false,
+      "notes": "International aggregator. Strong anti-automation posture historically; treat with caution."
+    },
+    {
+      "source_provider": "DART",
+      "source_type": "official_api",
+      "homepage_url": "https://opendart.fss.or.kr/",
+      "robots_url": "https://opendart.fss.or.kr/robots.txt",
+      "terms_url": "https://opendart.fss.or.kr/intro/main.do",
+      "requires_login": false,
+      "requires_api_key": true,
+      "expected_data_roles": [
+        "actual_financials",
+        "forecast_error_verification"
+      ],
+      "live_audit_allowed": false,
+      "financial_data_fetch_allowed": false,
+      "notes": "Government disclosure API. Not a consensus source; used as actual-financials verification layer for forecast accuracy."
+    },
+    {
+      "source_provider": "Finnhub",
+      "source_type": "official_api",
+      "homepage_url": "https://finnhub.io/",
+      "robots_url": "https://finnhub.io/robots.txt",
+      "terms_url": "https://finnhub.io/policies/terms-of-service",
+      "requires_login": true,
+      "requires_api_key": true,
+      "expected_data_roles": [
+        "us_consensus_target_price",
+        "us_recommendation_trend"
+      ],
+      "live_audit_allowed": false,
+      "financial_data_fetch_allowed": false,
+      "notes": "US-centric. Korean coverage of 000660 is uncertain and treated as a negative-control candidate in later phases."
+    },
+    {
+      "source_provider": "yfinance",
+      "source_type": "library",
+      "homepage_url": "https://pypi.org/project/yfinance/",
+      "robots_url": "https://finance.yahoo.com/robots.txt",
+      "terms_url": "https://policies.yahoo.com/us/en/yahoo/terms/index.htm",
+      "requires_login": false,
+      "requires_api_key": false,
+      "expected_data_roles": [
+        "us_consensus_target_price",
+        "upgrade_downgrade_events"
+      ],
+      "live_audit_allowed": false,
+      "financial_data_fetch_allowed": false,
+      "notes": "Open-source wrapper around unofficial Yahoo endpoints. Educational/research framing. Korean ticker coverage uncertain; treated as boundary check."
+    }
+  ]
+}

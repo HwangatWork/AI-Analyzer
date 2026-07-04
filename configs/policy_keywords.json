@@ -1,0 +1,107 @@
+{
+  "schema_version": "0.1",
+  "categories": {
+    "automation": {
+      "ko": [
+        "자동수집",
+        "자동 수집",
+        "자동화 수집",
+        "크롤링",
+        "크롤러",
+        "스크래핑",
+        "스크래퍼",
+        "봇",
+        "자동 접근"
+      ],
+      "en": [
+        "scraping",
+        "scraper",
+        "crawler",
+        "crawling",
+        "automated access",
+        "automated collection",
+        "robot",
+        "bot"
+      ]
+    },
+    "redistribution": {
+      "ko": [
+        "재배포",
+        "재배포 금지",
+        "재판매",
+        "제3자 제공",
+        "외부 제공",
+        "외부 공유"
+      ],
+      "en": [
+        "redistribute",
+        "redistribution",
+        "resale",
+        "resell",
+        "third party",
+        "third-party",
+        "share with others"
+      ]
+    },
+    "login": {
+      "ko": [
+        "로그인",
+        "회원 전용",
+        "가입자",
+        "인증"
+      ],
+      "en": [
+        "login",
+        "sign in",
+        "sign-in",
+        "members only",
+        "authentication",
+        "registered user"
+      ]
+    },
+    "api_key": {
+      "ko": [
+        "API 키",
+        "API key",
+        "발급",
+        "토큰"
+      ],
+      "en": [
+        "api key",
+        "api token",
+        "access token",
+        "credential",
+        "issued key"
+      ]
+    },
+    "storage": {
+      "ko": [
+        "저장",
+        "데이터베이스",
+        "DB 구축",
+        "보관"
+      ],
+      "en": [
+        "store",
+        "storage",
+        "database",
+        "cache",
+        "persist"
+      ]
+    },
+    "commercial_use": {
+      "ko": [
+        "상업적",
+        "영리 목적",
+        "상업적 이용",
+        "유료 서비스"
+      ],
+      "en": [
+        "commercial use",
+        "commercial purpose",
+        "for-profit",
+        "paid service"
+      ]
+    }
+  }
+}
