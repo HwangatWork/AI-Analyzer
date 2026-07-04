@@ -263,8 +263,10 @@ def _simulate(
 
     # strategy pnl
     strat_gross = (exposure.shift(1).fillna(0.0) * rets).astype(float)
-    # tx cost on absolute exposure changes
-    changes = exposure.diff().abs().fillna(0.0)
+    # tx cost on absolute exposure changes (initial state = flat, so day-0
+    # entry from 0→exposure[0] is counted as a real trade cost)
+    prev_exposure = exposure.shift(1).fillna(0.0)
+    changes = (exposure - prev_exposure).abs()
     tx_hit = changes * tx_cost
     strat_net = strat_gross - tx_hit
     strat_curve = (1.0 + strat_net).cumprod()

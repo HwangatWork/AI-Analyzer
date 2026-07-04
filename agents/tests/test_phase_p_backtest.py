@@ -213,3 +213,60 @@ def test_p3_sp500_zero_evaluable_due_to_warn_reason(pp):
         pytest.skip("P-3 not run yet")
     d = json.loads(out.read_text(encoding="utf-8"))
     assert d["SP500"]["n_evaluable_snapshots"] == 0
+
+
+# ── Round-2 peer review additions (locked findings + coverage gaps) ──────
+
+def test_p2_precision_below_chance_baseline(pp):
+    """Round-2 (audit-agent) requested: lock the observed P-2 finding that
+    mean_precision_at_5 (0.533) < chance_baseline (0.625). If future code
+    changes flip this without a fresh backtest run, this test catches it."""
+    out = ROOT / "output" / "phase_p_p2_results.json"
+    if not out.exists():
+        pytest.skip("P-2 not run yet")
+    d = json.loads(out.read_text(encoding="utf-8"))
+    mp = d["mean_precision_at_5"]
+    base = d["chance_baseline_precision_at_5"]
+    assert mp is not None and base is not None
+    # Historical observation on 2026-07-05: mp ≈ 0.533, base = 0.625
+    assert mp < base, f"mean_precision {mp} should be < baseline {base} for the frozen window"
+
+
+def test_tx_cost_10bps_single_transition(pp):
+    """Round-2 (audit-agent) requested: verify tx cost accounting on a synthetic
+    0→1 transition. This is a pure-function unit test (allowed under FIX-G:
+    synthetic fixtures allowed for unit-testing pure math, not for end-to-end
+    pipeline regression)."""
+    import pandas as pd
+    from datetime import date
+
+    # Synthetic price series with known 1% daily up-move
+    idx = [date(2026, 6, 22), date(2026, 6, 23), date(2026, 6, 24)]
+    prices = pd.Series([100.0, 101.0, 102.01], index=idx, name="Close")
+
+    # One BUY signal on day 0, HOLD after (carry-over)
+    signals = [
+        pp.SignalPoint(snapshot_date=idx[0], action="BUY", confidence_pct=99.0),
+    ]
+    result = pp._simulate(signals, prices, variant="unconditional", tx_bps=10)
+
+    # One trade (flat → long), 10 bps hit on day 0
+    assert result["n_trades"] == 1
+    trade = result["trades"][0]
+    assert trade["from"] == 0.0
+    assert trade["to"] == 1.0
+    assert trade["action_effective"] == "BUY"
+
+    # Cumulative return check: two full days of +1% each = (1.01 * 1.01) - 1 ≈ 0.0201
+    # Minus tx cost of 10 bps on the flat→long transition = 0.001
+    # Strategy exposure switches from 0 to 1 on day 0 close, so daily returns apply from day 1.
+    # Day 0 has exposure.shift(1) = 0, so PnL is 0 on day 0, minus tx cost.
+    # Day 1: exposure=1, ret=1%, so PnL = 1%, no tx.
+    # Day 2: exposure=1, ret=1%, so PnL = 1%, no tx.
+    # Total: (1 - 0.001) * 1.01 * 1.01 - 1 ≈ 0.01909
+    strat_cum = result["strategy"]["cumulative_return_pct"] / 100.0
+    expected = (1 - 0.001) * 1.01 * 1.01 - 1.0
+    assert abs(strat_cum - expected) < 1e-6, (
+        f"cumret {strat_cum:.6f} != expected {expected:.6f} "
+        f"(tx cost or compounding wrong)"
+    )

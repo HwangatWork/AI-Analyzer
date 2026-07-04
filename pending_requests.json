@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-05T00:37:31",
+  "updated": "2026-07-05T02:07:42",
   "completed": [
     {
       "id": "REQ-001",
@@ -620,6 +620,26 @@
       "proposed_fix": "Q4 2026 (~90 daily snapshots) 도달 시 phase_p_backtest 를 20d horizon + walk-forward embargo(-20d) + Holm-Bonferroni α=0.05/6 으로 재실행. Pre-registration 신규 freeze 필요.",
       "next_check_date": "2026-10-01",
       "evidence": "output/phase_p_preregistration.json"
+    },
+    {
+      "id": "REQ-P-prereg-v2",
+      "kind": "roadmap_improvement",
+      "priority": "MEDIUM",
+      "source": "Round-2 peer review 2026-07-05 (evaluator-agent)",
+      "created_at": "2026-07-05T02:07:42",
+      "problem": "phase_p_preregistration.json v1 이 initial_state 미명시 (기본 flat 사용됨), SHORT-side gate variant 부재 (BUY-side 만 있음), freeze integrity 는 HEAD-ancestor + disk-match 만 확인하며 canonical JSON hash 나 immutable freeze_sha 필드 없음.",
+      "proposed_fix": "다음 backtest 사이클 시작 시 pre-registration v2 프리즈: (a) initial_state ∈ {flat, long} 명시 + 두 변형 병행 실행, (b) SHORT-side gate variant 추가 (실제 발화 못하면 pre-reg 결함 재발견), (c) frozen_at 시점의 canonical JSON hash (sorted keys, no whitespace) 를 pre-reg 안에 자체 참조로 embed, (d) freeze commit SHA 를 pre-reg 필드로 직접 pin (git-ancestor 헐거움 방지)",
+      "evidence": "reports/phase_p/peer_review_2026_07_05.md, evaluator-agent round-2 SendMessage transcript"
+    },
+    {
+      "id": "REQ-P-tx-cost-bug-fixed",
+      "kind": "regression_fix_completed",
+      "priority": "resolved",
+      "source": "Round-2 peer review 2026-07-05 (audit-agent) — real bug found by convergent process",
+      "created_at": "2026-07-05T02:07:42",
+      "problem": "scripts/phase_p_backtest.py _simulate() 의 tx cost 계산이 초기 진입(flat→long)을 놓쳤음. exposure.diff().fillna(0.0) 가 첫 행 NaN 을 0 으로 채워 initial entry 시 10 bps 를 부과하지 않음. 실제 P-4 실행에서는 0 trades 이므로 수치 영향 없지만 다음 사이클 (BUY 시그널 발생 시) 첫 진입 비용이 누락될 예정이었음.",
+      "resolution": "prev_exposure = exposure.shift(1).fillna(0.0); changes = (exposure - prev_exposure).abs() 로 수정. test_tx_cost_10bps_single_transition 회귀 테스트 추가 (synthetic 0→1 transition). 23/23 tests PASS.",
+      "evidence": "commit 신규 예정 (Round-2 peer review 반영), test_phase_p_backtest.py::test_tx_cost_10bps_single_transition"
     }
   ]
 }
