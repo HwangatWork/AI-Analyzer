@@ -1,0 +1,215 @@
+{
+  "config_valid": true,
+  "defaults": {
+    "budget_krw_monthly": 0,
+    "collection_mode": "metadata_only",
+    "external_distribution": false,
+    "live_network": false,
+    "purpose": "llm_report_assistant",
+    "ticker": "000660"
+  },
+  "errors": {
+    "policy_keywords": [],
+    "sources_config": []
+  },
+  "generated_at": "2026-06-30T07:30:00+09:00",
+  "mode": "dry_run_static_audit",
+  "network_calls_made": 0,
+  "policy_keywords_valid": true,
+  "sources": [
+    {
+      "config_status": "ok",
+      "errors": [],
+      "expected_data_roles": [
+        "consensus_target_price",
+        "consensus_rating",
+        "consensus_estimates_eps",
+        "consensus_estimates_op_income",
+        "consensus_estimates_revenue"
+      ],
+      "financial_data_fetch_allowed": false,
+      "homepage_url": "https://www.fnspace.com/",
+      "license_risk": "high",
+      "live_audit_allowed": false,
+      "point_in_time_status": "unknown",
+      "ready_for_future_data_smoke_test": false,
+      "ready_for_future_live_policy_audit": false,
+      "requires_api_key": true,
+      "requires_login": true,
+      "risk_reason_codes": [
+        "login_required",
+        "api_key_required"
+      ],
+      "robots_url": "https://www.fnspace.com/robots.txt",
+      "source_provider": "FnSpace",
+      "source_type": "official_api",
+      "terms_url": "https://www.fnspace.com/Customer/Info"
+    },
+    {
+      "config_status": "ok",
+      "errors": [],
+      "expected_data_roles": [
+        "consensus_target_price",
+        "consensus_estimates_eps",
+        "consensus_estimates_op_income",
+        "analyst_count"
+      ],
+      "financial_data_fetch_allowed": false,
+      "homepage_url": "https://finance.naver.com/",
+      "license_risk": "medium",
+      "live_audit_allowed": false,
+      "point_in_time_status": "unknown",
+      "ready_for_future_data_smoke_test": false,
+      "ready_for_future_live_policy_audit": true,
+      "requires_api_key": false,
+      "requires_login": false,
+      "risk_reason_codes": [
+        "public_page_html_dependency"
+      ],
+      "robots_url": "https://finance.naver.com/robots.txt",
+      "source_provider": "Naver Finance",
+      "source_type": "public_page",
+      "terms_url": "https://policy.naver.com/policy/service_finance.html"
+    },
+    {
+      "config_status": "ok",
+      "errors": [],
+      "expected_data_roles": [
+        "per_firm_target_price",
+        "per_firm_rating",
+        "per_firm_report_date"
+      ],
+      "financial_data_fetch_allowed": false,
+      "homepage_url": "https://consensus.hankyung.com/",
+      "license_risk": "medium",
+      "live_audit_allowed": false,
+      "point_in_time_status": "unknown",
+      "ready_for_future_data_smoke_test": false,
+      "ready_for_future_live_policy_audit": true,
+      "requires_api_key": false,
+      "requires_login": false,
+      "risk_reason_codes": [
+        "public_page_html_dependency"
+      ],
+      "robots_url": "https://consensus.hankyung.com/robots.txt",
+      "source_provider": "Hankyung Consensus",
+      "source_type": "public_page",
+      "terms_url": "https://www.hankyung.com/policy/terms"
+    },
+    {
+      "config_status": "ok",
+      "errors": [],
+      "expected_data_roles": [
+        "consensus_target_price",
+        "consensus_rating"
+      ],
+      "financial_data_fetch_allowed": false,
+      "homepage_url": "https://www.investing.com/",
+      "license_risk": "high",
+      "live_audit_allowed": false,
+      "point_in_time_status": "unknown",
+      "ready_for_future_data_smoke_test": false,
+      "ready_for_future_live_policy_audit": false,
+      "requires_api_key": false,
+      "requires_login": false,
+      "risk_reason_codes": [
+        "public_page_html_dependency",
+        "provider_anti_automation_history"
+      ],
+      "robots_url": "https://www.investing.com/robots.txt",
+      "source_provider": "Investing",
+      "source_type": "public_page",
+      "terms_url": "https://www.investing.com/about-us/terms-and-conditions"
+    },
+    {
+      "config_status": "ok",
+      "errors": [],
+      "expected_data_roles": [
+        "actual_financials",
+        "forecast_error_verification"
+      ],
+      "financial_data_fetch_allowed": false,
+      "homepage_url": "https://opendart.fss.or.kr/",
+      "license_risk": "low",
+      "live_audit_allowed": false,
+      "point_in_time_status": "unknown",
+      "ready_for_future_data_smoke_test": false,
+      "ready_for_future_live_policy_audit": true,
+      "requires_api_key": true,
+      "requires_login": false,
+      "risk_reason_codes": [
+        "api_key_required",
+        "government_open_data"
+      ],
+      "robots_url": "https://opendart.fss.or.kr/robots.txt",
+      "source_provider": "DART",
+      "source_type": "official_api",
+      "terms_url": "https://opendart.fss.or.kr/intro/main.do"
+    },
+    {
+      "config_status": "ok",
+      "errors": [],
+      "expected_data_roles": [
+        "us_consensus_target_price",
+        "us_recommendation_trend"
+      ],
+      "financial_data_fetch_allowed": false,
+      "homepage_url": "https://finnhub.io/",
+      "license_risk": "high",
+      "live_audit_allowed": false,
+      "point_in_time_status": "unknown",
+      "ready_for_future_data_smoke_test": false,
+      "ready_for_future_live_policy_audit": false,
+      "requires_api_key": true,
+      "requires_login": true,
+      "risk_reason_codes": [
+        "login_required",
+        "api_key_required"
+      ],
+      "robots_url": "https://finnhub.io/robots.txt",
+      "source_provider": "Finnhub",
+      "source_type": "official_api",
+      "terms_url": "https://finnhub.io/policies/terms-of-service"
+    },
+    {
+      "config_status": "ok",
+      "errors": [],
+      "expected_data_roles": [
+        "us_consensus_target_price",
+        "upgrade_downgrade_events"
+      ],
+      "financial_data_fetch_allowed": false,
+      "homepage_url": "https://pypi.org/project/yfinance/",
+      "license_risk": "high",
+      "live_audit_allowed": false,
+      "point_in_time_status": "unknown",
+      "ready_for_future_data_smoke_test": false,
+      "ready_for_future_live_policy_audit": false,
+      "requires_api_key": false,
+      "requires_login": false,
+      "risk_reason_codes": [
+        "unofficial_wrapper",
+        "provider_anti_automation_history"
+      ],
+      "robots_url": "https://finance.yahoo.com/robots.txt",
+      "source_provider": "yfinance",
+      "source_type": "library",
+      "terms_url": "https://policies.yahoo.com/us/en/yahoo/terms/index.htm"
+    }
+  ],
+  "summary": {
+    "accessible_sources": 3,
+    "blocked_sources": 4,
+    "ready_for_smoke_test": [
+      "Naver Finance",
+      "Hankyung Consensus",
+      "DART"
+    ],
+    "total_sources": 7,
+    "unknown_license_sources": 0
+  },
+  "target": {
+    "company": "SK hynix",
+    "ticker": "000660"
+  }
+}

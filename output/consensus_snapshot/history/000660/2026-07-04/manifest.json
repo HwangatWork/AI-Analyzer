@@ -1,0 +1,13 @@
+{
+  "date": "2026-07-04",
+  "files": {
+    "analysis.json": "a49638c973ec9c96a72d2a28f47749001778ca653d996be371358bc99c8b4501",
+    "parsed.json": "b4b5b5a86dafe1018ca727caa7c2946849fac74a8672a0dadfc03dafa75308cd",
+    "report.md": "623825a2514fca1e98811e5dedaa7deeb7d636451621ec6f42429599197d4920"
+  },
+  "pipeline_git_head_sha": "1eb6bd5cbcf704986ddf62dad9d18865394fe1cf",
+  "schema_version": "1.0",
+  "ticker": "000660",
+  "top_sha256": "23a0ed9c18e1df8d7e9a53e1fe7768b2c9158dcd4058e5c7569c75fef42a048e",
+  "written_at_utc": "2026-07-04T00:48:00+00:00"
+}
