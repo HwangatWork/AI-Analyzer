@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-02T23:17:16",
+  "updated": "2026-07-04T09:45:26+09:00",
   "completed": [
     {
       "id": "REQ-001",
@@ -517,6 +517,25 @@
       "status": "backlog",
       "details": "daily_snapshot_writer 는 sha256 반환하나 data/agent_activity.jsonl 등 append-only log 미연결. 통합 시 snapshot_written 이벤트 로깅 필요.",
       "registered_at": "2026-07-02T23:17:16"
+    },
+    {
+      "id": "REQ-USER-REPORT",
+      "request": "[텔레그램 /report] 다음 파이프라인 실행 시 narrative-agent 재spawn 필요",
+      "status": "pending",
+      "details": "텔레그램 명령어: /report (update_id=848436941). 원문: /report",
+      "registered_at": "2026-07-03T08:47:26",
+      "source": "telegram_command"
+    },
+    {
+      "id": "consensus-accuracy-000660",
+      "day": "2026-07-04",
+      "kind": "consensus_accuracy",
+      "ticker": "000660",
+      "diff_pct": 8.371134020618557,
+      "live_close": 2425000.0,
+      "snapshot_close": 2628000.0,
+      "snapshot_date": "2026-07-03",
+      "note": "000660 snapshot close differs from live by +8.37%. Consider regenerating snapshot or displaying live overlay in dashboard."
     }
   ]
 }

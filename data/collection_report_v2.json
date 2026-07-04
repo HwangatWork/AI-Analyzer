@@ -1,27 +1,27 @@
 {
   "SP500": {
     "status": "ok",
-    "rows": 276,
+    "rows": 274,
     "source": "FDR:US500"
   },
   "NASDAQ100": {
     "status": "ok",
-    "rows": 276,
+    "rows": 274,
     "source": "FDR:QQQ"
   },
   "DOW": {
     "status": "ok",
-    "rows": 276,
+    "rows": 274,
     "source": "FDR:^DJI"
   },
   "KOSPI": {
     "status": "ok",
-    "rows": 267,
+    "rows": 266,
     "source": "FDR:KS11"
   },
   "KOSDAQ": {
     "status": "ok",
-    "rows": 267,
+    "rows": 266,
     "source": "FDR:KQ11"
   },
   "NIKKEI225": {
@@ -31,17 +31,17 @@
   },
   "US10Y": {
     "status": "ok",
-    "rows": 273,
+    "rows": 271,
     "source": "FRED:DGS10"
   },
   "DXY": {
     "status": "ok",
-    "rows": 270,
+    "rows": 268,
     "source": "FRED:DTWEXBGS"
   },
   "WTI": {
     "status": "ok",
-    "rows": 270,
+    "rows": 268,
     "source": "FRED:DCOILWTICO"
   },
   "FED_ASSETS": {
@@ -51,22 +51,22 @@
   },
   "T10Y2Y": {
     "status": "ok",
-    "rows": 274,
+    "rows": 272,
     "source": "FRED:T10Y2Y"
   },
   "HY_SPREAD": {
     "status": "ok",
-    "rows": 289,
+    "rows": 287,
     "source": "FRED:BAMLH0A0HYM2"
   },
   "VIX": {
     "status": "ok",
-    "rows": 277,
+    "rows": 275,
     "source": "FDR:^VIX"
   },
   "SKEW": {
     "status": "ok",
-    "rows": 275,
+    "rows": 273,
     "source": "yfinance:^SKEW"
   },
   "PUT_CALL": {
@@ -80,67 +80,72 @@
   },
   "MARKET_MOMENTUM": {
     "status": "ok",
-    "rows": 257,
+    "rows": 255,
     "source": "CALC:SP500_13w_momentum"
   },
   "MARKET_STRENGTH": {
     "status": "ok",
-    "rows": 262,
+    "rows": 260,
     "source": "CALC:SP500_RSI14_proxy"
   },
   "RSI14": {
     "status": "ok",
-    "rows": 262,
+    "rows": 260,
     "source": "CALC:RSI14"
   },
   "RSI_SIGNAL": {
     "status": "ok",
-    "rows": 276,
+    "rows": 274,
     "source": "CALC:RSI_SIG"
   },
   "MA50": {
     "status": "ok",
-    "rows": 227,
+    "rows": 225,
     "source": "CALC:MA50"
   },
   "MA200": {
     "status": "ok",
-    "rows": 77,
+    "rows": 75,
     "source": "CALC:MA200"
   },
   "MA_SIGNAL": {
     "status": "ok",
-    "rows": 276,
+    "rows": 274,
     "source": "CALC:MA_SIG"
   },
   "BBAND": {
     "status": "ok",
-    "rows": 257,
+    "rows": 255,
     "source": "CALC:BBAND_pctB"
   },
   "BETA": {
     "status": "ok",
-    "rows": 200,
+    "rows": 198,
     "source": "CALC:KOSPI_BETA_60d"
   },
   "STOCH_RSI": {
     "status": "ok",
-    "rows": 249,
+    "rows": 247,
     "source": "CALC:STOCH_RSI"
   },
   "FOREIGN_NET": {
     "status": "ok",
-    "rows": 267,
+    "rows": 266,
     "source": "pykrx:KOSPI"
   },
   "INSTITUTION_NET": {
     "status": "ok",
-    "rows": 267,
+    "rows": 266,
     "source": "pykrx:KOSPI"
   },
   "INDIVIDUAL_NET": {
     "status": "ok",
-    "rows": 267,
+    "rows": 266,
     "source": "pykrx:KOSPI"
+  },
+  "SEMICONDUCTOR_EXPORT": {
+    "status": "ok",
+    "rows": 23,
+    "source": "customs.data.go.kr:HS8542:17sido"
   }
 }
