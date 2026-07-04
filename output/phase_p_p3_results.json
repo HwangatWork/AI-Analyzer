@@ -1,0 +1,640 @@
+{
+  "id": "P-3",
+  "kind": "descriptive_only",
+  "generated_at": "2026-07-05T00:31:34",
+  "horizon_bdays": 5,
+  "exclusion_filter": [
+    "warn_reason present",
+    "excess_return_pct > 200",
+    "n_days < 180"
+  ],
+  "SP500": {
+    "asset": "SP500",
+    "benchmark": "^GSPC",
+    "horizon_bdays": 5,
+    "n_evaluable_snapshots": 0,
+    "mean_excess_pct": null,
+    "win_rate": null,
+    "per_snapshot": [
+      {
+        "date": "2026-07-04",
+        "sha": "e63f9cd36cdd",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "SNDK",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "MU",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "WDC",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "LITE",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "STX",
+            "reason": "excess_return_pct 437.1 > 200"
+          }
+        ]
+      },
+      {
+        "date": "2026-07-02",
+        "sha": "4cc604c12e9d",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "SNDK",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "WDC",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "MU",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "LITE",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "CIEN",
+            "reason": "excess_return_pct 461.4 > 200"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-30",
+        "sha": "fe4bde272a94",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "SNDK",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "WDC",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "MU",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "LITE",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "STX",
+            "reason": "warn_reason present"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-29",
+        "sha": "0daed4c14ffc",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "SNDK",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "MU",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "WDC",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "LITE",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "STX",
+            "reason": "warn_reason present"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-28",
+        "sha": "92b5848e0082",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "SNDK",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "MU",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "WDC",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "LITE",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "STX",
+            "reason": "warn_reason present"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-27",
+        "sha": "d2abbe3918f5",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "SNDK",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "WDC",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "MU",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "LITE",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "STX",
+            "reason": "warn_reason present"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-25",
+        "sha": "cd937a7da658",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "SNDK",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "WDC",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "MU",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "LITE",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "STX",
+            "reason": "warn_reason present"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-24",
+        "sha": "5beaa33845f3",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "SNDK",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "WDC",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "MU",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "LITE",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "STX",
+            "reason": "warn_reason present"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-23",
+        "sha": "246e01261ead",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "SNDK",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "WDC",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "MU",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "LITE",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "STX",
+            "reason": "warn_reason present"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-22",
+        "sha": "18a9187cc9e1",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "SNDK",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "WDC",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "MU",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "LITE",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "STX",
+            "reason": "warn_reason present"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-20",
+        "sha": "542d93b77c7d",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "SNDK",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "WDC",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "MU",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "LITE",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "STX",
+            "reason": "warn_reason present"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-19",
+        "sha": "c9447019383b",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "SNDK",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "WDC",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "MU",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "LITE",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "STX",
+            "reason": "warn_reason present"
+          }
+        ]
+      }
+    ]
+  },
+  "KOSPI": {
+    "asset": "KOSPI",
+    "benchmark": "KS11",
+    "horizon_bdays": 5,
+    "n_evaluable_snapshots": 2,
+    "mean_excess_pct": -0.01860783876264649,
+    "win_rate": 0.5,
+    "per_snapshot": [
+      {
+        "date": "2026-07-04",
+        "sha": "e63f9cd36cdd",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "009150.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "402340.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "000660.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "353200.KS",
+            "reason": "excess_return_pct 461.2 > 200"
+          },
+          {
+            "ticker": "005930.KS",
+            "reason": "excess_return_pct 224.1 > 200"
+          }
+        ]
+      },
+      {
+        "date": "2026-07-02",
+        "sha": "4cc604c12e9d",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "009150.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "402340.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "000660.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "353200.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "000500.KS",
+            "reason": "warn_reason present"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-30",
+        "sha": "fe4bde272a94",
+        "reason": "benchmark forward window unavailable",
+        "surviving_tickers": [
+          "000990.KS",
+          "322000.KS"
+        ]
+      },
+      {
+        "date": "2026-06-29",
+        "sha": "0daed4c14ffc",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "009150.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "000660.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "402340.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "353200.KS",
+            "reason": "excess_return_pct 476.2 > 200"
+          },
+          {
+            "ticker": "005930.KS",
+            "reason": "excess_return_pct 267.0 > 200"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-28",
+        "sha": "92b5848e0082",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "009150.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "000660.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "402340.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "353200.KS",
+            "reason": "excess_return_pct 495.2 > 200"
+          },
+          {
+            "ticker": "005930.KS",
+            "reason": "excess_return_pct 293.9 > 200"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-27",
+        "sha": "d2abbe3918f5",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "009150.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "000660.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "402340.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "353200.KS",
+            "reason": "excess_return_pct 487.2 > 200"
+          },
+          {
+            "ticker": "005930.KS",
+            "reason": "excess_return_pct 283.1 > 200"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-25",
+        "sha": "cd937a7da658",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "009150.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "000660.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "402340.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "005930.KS",
+            "reason": "excess_return_pct 296.8 > 200"
+          },
+          {
+            "ticker": "353200.KS",
+            "reason": "excess_return_pct 468.5 > 200"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-24",
+        "sha": "5beaa33845f3",
+        "surviving": [
+          [
+            "000990.KS",
+            -0.12598425196850394
+          ],
+          [
+            "322000.KS",
+            0.24346405228758172
+          ]
+        ],
+        "mean_return_pct": 5.87399001595389,
+        "benchmark_return_pct": -1.9786283115846848,
+        "excess_pct": 7.852618327538574,
+        "excluded": []
+      },
+      {
+        "date": "2026-06-23",
+        "sha": "246e01261ead",
+        "surviving": [
+          [
+            "000990.KS",
+            -0.04566512243547316
+          ]
+        ],
+        "mean_return_pct": -4.566512243547316,
+        "benchmark_return_pct": 3.323321761516551,
+        "excess_pct": -7.889834005063867,
+        "excluded": []
+      },
+      {
+        "date": "2026-06-22",
+        "sha": "18a9187cc9e1",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "009150.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "402340.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "000660.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "353200.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "005930.KS",
+            "reason": "excess_return_pct 305.5 > 200"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-20",
+        "sha": "542d93b77c7d",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "009150.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "402340.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "000660.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "353200.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "005930.KS",
+            "reason": "excess_return_pct 295.4 > 200"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-19",
+        "sha": "c9447019383b",
+        "reason": "all_top5_excluded_by_filter",
+        "excluded": [
+          {
+            "ticker": "009150.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "402340.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "000660.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "353200.KS",
+            "reason": "warn_reason present"
+          },
+          {
+            "ticker": "011070.KS",
+            "reason": "warn_reason present"
+          }
+        ]
+      }
+    ]
+  },
+  "correction_note": "5d horizon only (10d/20d infeasible today). Original prompt required 20d excess>0 and win_rate>50%; that criterion is data-insufficient and cannot be judged."
+}

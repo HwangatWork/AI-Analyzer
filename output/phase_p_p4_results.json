@@ -1,0 +1,280 @@
+{
+  "id": "P-4",
+  "kind": "descriptive_with_secondary_inferential",
+  "generated_at": "2026-07-05T00:30:51",
+  "sample_size": 12,
+  "variants": {
+    "unconditional": {
+      "SP500": {
+        "variant": "unconditional",
+        "asset": "SP500",
+        "n_days": 9,
+        "n_trades": 0,
+        "final_exposure_pct": 0.0,
+        "avg_exposure_pct": 0.0,
+        "strategy": {
+          "cumulative_return_pct": 0.0,
+          "sharpe": null,
+          "max_drawdown_pct": 0.0
+        },
+        "benchmark_buy_and_hold": {
+          "cumulative_return_pct": 0.13984328822131964,
+          "sharpe": 0.39399282054312285,
+          "max_drawdown_pct": -1.5893664737053226
+        },
+        "benchmark_50_50_mix": {
+          "cumulative_return_pct": 0.07507371559045684,
+          "sharpe": 0.39399282054312285,
+          "max_drawdown_pct": -0.7952560262946884
+        },
+        "beta_matched_note": "beta_matched benchmark = avg_exposure * buy_and_hold_return (linear scale)",
+        "benchmark_beta_matched": {
+          "cumulative_return_pct": 0.0
+        },
+        "trades": [],
+        "price_span": {
+          "start": "2026-06-22",
+          "end": "2026-07-02",
+          "n_prices": 9
+        }
+      },
+      "KOSPI": {
+        "variant": "unconditional",
+        "asset": "KOSPI",
+        "n_days": 11,
+        "n_trades": 0,
+        "final_exposure_pct": 0.0,
+        "avg_exposure_pct": 0.0,
+        "strategy": {
+          "cumulative_return_pct": 0.0,
+          "sharpe": null,
+          "max_drawdown_pct": 0.0
+        },
+        "benchmark_buy_and_hold": {
+          "cumulative_return_pct": -10.649969842318407,
+          "sharpe": -2.7538075518578267,
+          "max_drawdown_pct": -16.08921998343308
+        },
+        "benchmark_50_50_mix": {
+          "cumulative_return_pct": -5.132342949072422,
+          "sharpe": -2.7538075518578267,
+          "max_drawdown_pct": -8.101771770392595
+        },
+        "beta_matched_note": "beta_matched benchmark = avg_exposure * buy_and_hold_return (linear scale)",
+        "benchmark_beta_matched": {
+          "cumulative_return_pct": -0.0
+        },
+        "trades": [],
+        "price_span": {
+          "start": "2026-06-19",
+          "end": "2026-07-03",
+          "n_prices": 11
+        }
+      }
+    },
+    "confidence_gte_60": {
+      "SP500": {
+        "variant": "confidence_gte_60",
+        "asset": "SP500",
+        "n_days": 9,
+        "n_trades": 0,
+        "final_exposure_pct": 0.0,
+        "avg_exposure_pct": 0.0,
+        "strategy": {
+          "cumulative_return_pct": 0.0,
+          "sharpe": null,
+          "max_drawdown_pct": 0.0
+        },
+        "benchmark_buy_and_hold": {
+          "cumulative_return_pct": 0.13984328822131964,
+          "sharpe": 0.39399282054312285,
+          "max_drawdown_pct": -1.5893664737053226
+        },
+        "benchmark_50_50_mix": {
+          "cumulative_return_pct": 0.07507371559045684,
+          "sharpe": 0.39399282054312285,
+          "max_drawdown_pct": -0.7952560262946884
+        },
+        "beta_matched_note": "beta_matched benchmark = avg_exposure * buy_and_hold_return (linear scale)",
+        "benchmark_beta_matched": {
+          "cumulative_return_pct": 0.0
+        },
+        "trades": [],
+        "price_span": {
+          "start": "2026-06-22",
+          "end": "2026-07-02",
+          "n_prices": 9
+        }
+      },
+      "KOSPI": {
+        "variant": "confidence_gte_60",
+        "asset": "KOSPI",
+        "n_days": 11,
+        "n_trades": 0,
+        "final_exposure_pct": 0.0,
+        "avg_exposure_pct": 0.0,
+        "strategy": {
+          "cumulative_return_pct": 0.0,
+          "sharpe": null,
+          "max_drawdown_pct": 0.0
+        },
+        "benchmark_buy_and_hold": {
+          "cumulative_return_pct": -10.649969842318407,
+          "sharpe": -2.7538075518578267,
+          "max_drawdown_pct": -16.08921998343308
+        },
+        "benchmark_50_50_mix": {
+          "cumulative_return_pct": -5.132342949072422,
+          "sharpe": -2.7538075518578267,
+          "max_drawdown_pct": -8.101771770392595
+        },
+        "beta_matched_note": "beta_matched benchmark = avg_exposure * buy_and_hold_return (linear scale)",
+        "benchmark_beta_matched": {
+          "cumulative_return_pct": -0.0
+        },
+        "trades": [],
+        "price_span": {
+          "start": "2026-06-19",
+          "end": "2026-07-03",
+          "n_prices": 11
+        }
+      }
+    },
+    "confidence_gte_70": {
+      "SP500": {
+        "variant": "confidence_gte_70",
+        "asset": "SP500",
+        "n_days": 9,
+        "n_trades": 0,
+        "final_exposure_pct": 0.0,
+        "avg_exposure_pct": 0.0,
+        "strategy": {
+          "cumulative_return_pct": 0.0,
+          "sharpe": null,
+          "max_drawdown_pct": 0.0
+        },
+        "benchmark_buy_and_hold": {
+          "cumulative_return_pct": 0.13984328822131964,
+          "sharpe": 0.39399282054312285,
+          "max_drawdown_pct": -1.5893664737053226
+        },
+        "benchmark_50_50_mix": {
+          "cumulative_return_pct": 0.07507371559045684,
+          "sharpe": 0.39399282054312285,
+          "max_drawdown_pct": -0.7952560262946884
+        },
+        "beta_matched_note": "beta_matched benchmark = avg_exposure * buy_and_hold_return (linear scale)",
+        "benchmark_beta_matched": {
+          "cumulative_return_pct": 0.0
+        },
+        "trades": [],
+        "price_span": {
+          "start": "2026-06-22",
+          "end": "2026-07-02",
+          "n_prices": 9
+        }
+      },
+      "KOSPI": {
+        "variant": "confidence_gte_70",
+        "asset": "KOSPI",
+        "n_days": 11,
+        "n_trades": 0,
+        "final_exposure_pct": 0.0,
+        "avg_exposure_pct": 0.0,
+        "strategy": {
+          "cumulative_return_pct": 0.0,
+          "sharpe": null,
+          "max_drawdown_pct": 0.0
+        },
+        "benchmark_buy_and_hold": {
+          "cumulative_return_pct": -10.649969842318407,
+          "sharpe": -2.7538075518578267,
+          "max_drawdown_pct": -16.08921998343308
+        },
+        "benchmark_50_50_mix": {
+          "cumulative_return_pct": -5.132342949072422,
+          "sharpe": -2.7538075518578267,
+          "max_drawdown_pct": -8.101771770392595
+        },
+        "beta_matched_note": "beta_matched benchmark = avg_exposure * buy_and_hold_return (linear scale)",
+        "benchmark_beta_matched": {
+          "cumulative_return_pct": -0.0
+        },
+        "trades": [],
+        "price_span": {
+          "start": "2026-06-19",
+          "end": "2026-07-03",
+          "n_prices": 11
+        }
+      }
+    }
+  },
+  "primary_judgment_per_variant": [
+    {
+      "asset": "SP500",
+      "variant": "unconditional",
+      "strat_sharpe": null,
+      "bh_sharpe": 0.39399282054312285,
+      "beats_bh_by_sharpe": false,
+      "beats_bh_by_cum_return_pp": -0.13984328822131964,
+      "beats_5050_by_cum_return_pp": -0.07507371559045684,
+      "strategy_took_zero_trades": true,
+      "avg_exposure_pct": 0.0
+    },
+    {
+      "asset": "KOSPI",
+      "variant": "unconditional",
+      "strat_sharpe": null,
+      "bh_sharpe": -2.7538075518578267,
+      "beats_bh_by_sharpe": false,
+      "beats_bh_by_cum_return_pp": 10.649969842318407,
+      "beats_5050_by_cum_return_pp": 5.132342949072422,
+      "strategy_took_zero_trades": true,
+      "avg_exposure_pct": 0.0
+    },
+    {
+      "asset": "SP500",
+      "variant": "confidence_gte_60",
+      "strat_sharpe": null,
+      "bh_sharpe": 0.39399282054312285,
+      "beats_bh_by_sharpe": false,
+      "beats_bh_by_cum_return_pp": -0.13984328822131964,
+      "beats_5050_by_cum_return_pp": -0.07507371559045684,
+      "strategy_took_zero_trades": true,
+      "avg_exposure_pct": 0.0
+    },
+    {
+      "asset": "KOSPI",
+      "variant": "confidence_gte_60",
+      "strat_sharpe": null,
+      "bh_sharpe": -2.7538075518578267,
+      "beats_bh_by_sharpe": false,
+      "beats_bh_by_cum_return_pp": 10.649969842318407,
+      "beats_5050_by_cum_return_pp": 5.132342949072422,
+      "strategy_took_zero_trades": true,
+      "avg_exposure_pct": 0.0
+    },
+    {
+      "asset": "SP500",
+      "variant": "confidence_gte_70",
+      "strat_sharpe": null,
+      "bh_sharpe": 0.39399282054312285,
+      "beats_bh_by_sharpe": false,
+      "beats_bh_by_cum_return_pp": -0.13984328822131964,
+      "beats_5050_by_cum_return_pp": -0.07507371559045684,
+      "strategy_took_zero_trades": true,
+      "avg_exposure_pct": 0.0
+    },
+    {
+      "asset": "KOSPI",
+      "variant": "confidence_gte_70",
+      "strat_sharpe": null,
+      "bh_sharpe": -2.7538075518578267,
+      "beats_bh_by_sharpe": false,
+      "beats_bh_by_cum_return_pp": 10.649969842318407,
+      "beats_5050_by_cum_return_pp": 5.132342949072422,
+      "strategy_took_zero_trades": true,
+      "avg_exposure_pct": 0.0
+    }
+  ]
+}

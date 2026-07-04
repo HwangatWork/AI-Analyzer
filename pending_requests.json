@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T19:24:47",
+  "updated": "2026-07-05T00:37:31",
   "completed": [
     {
       "id": "REQ-001",
@@ -568,6 +568,58 @@
       "source": "user_directive_xsession",
       "target_sessions": "all (특히 Phase 14 세션)",
       "reference_commit": "cdeaed2"
+    },
+    {
+      "id": "REQ-P1-fix",
+      "kind": "roadmap_improvement",
+      "priority": "MEDIUM",
+      "source": "Phase P backtest 2026-07-05 (P-1 미달)",
+      "created_at": "2026-07-05T00:37:31",
+      "problem": "6 스냅샷 5d SP500 forward hit rate: Top5=36.7% (11/30) < Bottom5=60.0% (18/30). 특히 3 DOWN 일에 Bot5=4~5/5 로 저가중 지표가 하락을 정확히 예고. 가중치 산식이 forward 예측력이 아닌 과거 상관관계 강도만 반영한다는 시사.",
+      "proposed_fix": "가중치 산식에 forward-window validation 항목 추가 + 국면(리스크-온/오프) 분류 후 국면별 가중치 계산 + Q4 2026 (~90 daily snapshots) 도달 시 walk-forward embargo(-20d) 재실행",
+      "evidence": "output/phase_p_p1_results.json, output/backtest_report.md#P-1",
+      "roadmap_registration": "REQ-Phase-P-rerun 과 함께 진행"
+    },
+    {
+      "id": "REQ-P2-universe",
+      "kind": "roadmap_improvement",
+      "priority": "LOW",
+      "source": "Phase P backtest 2026-07-05 (P-2 mean prec@5=0.533)",
+      "created_at": "2026-07-05T00:37:31",
+      "problem": "12 스냅샷 contribution_top5 union universe = 8 unique tickers 로 chance baseline 이 62.5% 로 부풀림. precision@5=0.533 < baseline. 좁은 universe 로 통계 판정 불가.",
+      "proposed_fix": "universe 를 S&P500 500 종목 전체로 확장한 별도 스크립트로 precision@5 재계산. 시가총액 가중 forward 기여 랭킹 계산. baseline 은 5/500=1% 로 하강 → 유의미 판정 가능.",
+      "evidence": "output/phase_p_p2_results.json"
+    },
+    {
+      "id": "REQ-P3-filter",
+      "kind": "roadmap_improvement",
+      "priority": "HIGH",
+      "source": "Phase P backtest 2026-07-05 (P-3 SP500 N_evaluable=0)",
+      "created_at": "2026-07-05T00:37:31",
+      "problem": "12 스냅샷 SP500 beneficiary_top5 의 100% 가 warn_reason 존재 (SNDK 스핀오프, MU +694%, WDC 스핀오프 등). 사전등록된 exclusion filter 적용 시 SP500 은 0개 남음 → 산출물 사용 불가.",
+      "proposed_fix": "run_stock_agent 의 beneficiary_score 계산 전에 warn_reason 후보 자동 제외 옵션 + winsorization (past 1yr return 99th percentile clip) + 180일 continuous price history 최소 요건을 파이프라인 필터에 이관.",
+      "evidence": "output/phase_p_p3_results.json"
+    },
+    {
+      "id": "REQ-P4-buy-conditions",
+      "kind": "roadmap_improvement",
+      "priority": "HIGH",
+      "source": "Phase P backtest 2026-07-05 (P-4 BUY 시그널 0회)",
+      "created_at": "2026-07-05T00:37:31",
+      "problem": "12 스냅샷 전체에서 BUY 시그널 미발생 (SP500 8× SELL/AVOID + 4× HOLD, KOSPI 4× SELL/AVOID + 8× HOLD). 관측 창 2026-06-22~07-02 에 SP500 은 실제 상승 (+0.14%, 3 UP 일 포함) 인데 시그널은 매수 진입 못함 → decision agent 의 BUY 조건 임계값 재보정 필요.",
+      "proposed_fix": "run_decision_agent 의 composite_score BUY 임계값 및 SP500/KOSPI 독립 시그널 조합 재검토. 이번 6/23~6/25 SP500 상승 국면에 어떤 지표 조합이 왜 BUY 를 트리거하지 못했는지 backward 분석.",
+      "evidence": "output/phase_p_p4_results.json"
+    },
+    {
+      "id": "REQ-Phase-P-rerun",
+      "kind": "roadmap_improvement",
+      "priority": "MEDIUM",
+      "source": "Phase P backtest 2026-07-05 (표본 부족)",
+      "created_at": "2026-07-05T00:37:31",
+      "problem": "P-1/P-2/P-3 를 descriptive-only 로 실행. 20d forward horizon 은 오늘 0 스냅샷 지원. 10d 도 0. Analysis-agent 권장 minimum viable pooled N ≈ 60.",
+      "proposed_fix": "Q4 2026 (~90 daily snapshots) 도달 시 phase_p_backtest 를 20d horizon + walk-forward embargo(-20d) + Holm-Bonferroni α=0.05/6 으로 재실행. Pre-registration 신규 freeze 필요.",
+      "next_check_date": "2026-10-01",
+      "evidence": "output/phase_p_preregistration.json"
     }
   ]
 }

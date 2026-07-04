@@ -7,6 +7,9 @@ secrets/
 data/raw/
 data/processed/
 
+# Phase P backtest price cache (regenerated on demand from yfinance/FDR)
+output/backtest_cache/
+
 # Python
 __pycache__/
 *.pyc

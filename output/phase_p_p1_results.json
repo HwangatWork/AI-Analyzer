@@ -1,0 +1,116 @@
+{
+  "id": "P-1",
+  "kind": "descriptive_only",
+  "generated_at": "2026-07-05T00:30:29",
+  "horizon_bdays": 5,
+  "n_evaluable_snapshots": 6,
+  "asset_tested": "SP500",
+  "top5_hit_rate": 0.36666666666666664,
+  "top5_hits": 11,
+  "top5_total": 30,
+  "top5_wilson90_ci": [
+    0.23864709853367247,
+    0.516749651759278
+  ],
+  "bottom5_hit_rate": 0.6,
+  "bottom5_hits": 18,
+  "bottom5_total": 30,
+  "bottom5_wilson90_ci": [
+    0.450568396605209,
+    0.7328840406750781
+  ],
+  "delta_top_minus_bottom": -0.23333333333333334,
+  "per_snapshot": [
+    {
+      "date": "2026-07-04",
+      "sha": "e63f9cd36cdd",
+      "reason": "forward_window_unavailable"
+    },
+    {
+      "date": "2026-07-02",
+      "sha": "4cc604c12e9d",
+      "reason": "forward_window_unavailable"
+    },
+    {
+      "date": "2026-06-30",
+      "sha": "fe4bde272a94",
+      "reason": "forward_window_unavailable"
+    },
+    {
+      "date": "2026-06-29",
+      "sha": "0daed4c14ffc",
+      "reason": "forward_window_unavailable"
+    },
+    {
+      "date": "2026-06-28",
+      "sha": "92b5848e0082",
+      "reason": "forward_window_unavailable"
+    },
+    {
+      "date": "2026-06-27",
+      "sha": "d2abbe3918f5",
+      "reason": "forward_window_unavailable"
+    },
+    {
+      "date": "2026-06-25",
+      "sha": "cd937a7da658",
+      "sp500_5d_forward_ret_pct": 1.7091426015420685,
+      "actual_up": true,
+      "top5_hit_count": 2,
+      "top5_size": 5,
+      "bottom5_hit_count": 1,
+      "bottom5_size": 5
+    },
+    {
+      "date": "2026-06-24",
+      "sha": "5beaa33845f3",
+      "sp500_5d_forward_ret_pct": 1.698913079182085,
+      "actual_up": true,
+      "top5_hit_count": 1,
+      "top5_size": 5,
+      "bottom5_hit_count": 1,
+      "bottom5_size": 5
+    },
+    {
+      "date": "2026-06-23",
+      "sha": "246e01261ead",
+      "sp500_5d_forward_ret_pct": 1.8179435236072683,
+      "actual_up": true,
+      "top5_hit_count": 2,
+      "top5_size": 5,
+      "bottom5_hit_count": 2,
+      "bottom5_size": 5
+    },
+    {
+      "date": "2026-06-22",
+      "sha": "18a9187cc9e1",
+      "sp500_5d_forward_ret_pct": -0.43303589572428747,
+      "actual_up": false,
+      "top5_hit_count": 2,
+      "top5_size": 5,
+      "bottom5_hit_count": 5,
+      "bottom5_size": 5
+    },
+    {
+      "date": "2026-06-20",
+      "sha": "542d93b77c7d",
+      "sp500_5d_forward_ret_pct": -1.9539829862117442,
+      "actual_up": false,
+      "top5_hit_count": 2,
+      "top5_size": 5,
+      "bottom5_hit_count": 4,
+      "bottom5_size": 5
+    },
+    {
+      "date": "2026-06-19",
+      "sha": "c9447019383b",
+      "sp500_5d_forward_ret_pct": -1.9539829862117442,
+      "actual_up": false,
+      "top5_hit_count": 2,
+      "top5_size": 5,
+      "bottom5_hit_count": 5,
+      "bottom5_size": 5
+    }
+  ],
+  "interpretation_rule": "Descriptive only. Sample size below inferential threshold. Positive delta suggests weight ranking is directionally informative; no p-value asserted (prompt required N>=30, actual N is limited by 5d forward availability)."
+}
