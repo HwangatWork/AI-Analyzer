@@ -35,6 +35,9 @@ desktop.ini
 # Phase 4 baseline snapshots (pre/post conversion diffs, not for versioning)
 output/phase4_baseline/
 
+# Stage Engine OHLCV/feature parquet cache (re-downloadable)
+stage_engine/cache/
+
 # Keep output/ in git (dashboard, reports)
 !output/
 !output/dashboard.html
