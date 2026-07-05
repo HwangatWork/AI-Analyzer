@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-07-04T08:58:28.060656",
+  "generated_at": "2026-07-05T04:29:52.704889",
   "analysis_period": {
-    "start": "2025-07-04",
-    "end": "2026-07-04"
+    "start": "2025-07-05",
+    "end": "2026-07-05"
   },
   "signal": {
-    "score": 46.6,
+    "score": 46.8,
     "direction": "neutral",
-    "bullish_count": 7,
-    "bearish_count": 6,
+    "bullish_count": 8,
+    "bearish_count": 5,
     "total_signals": 13,
     "indicator_details": [
       {
         "indicator": "INSTITUTION_NET",
         "z_score": 2.0,
-        "weight": 0.0502,
+        "weight": 0.0503,
         "bullish": true
       },
       {
@@ -26,31 +26,31 @@
       {
         "indicator": "US10Y",
         "z_score": 1.513,
-        "weight": 0.2445,
+        "weight": 0.2447,
         "bullish": false
       },
       {
         "indicator": "DXY",
         "z_score": 0.999,
-        "weight": 0.2563,
+        "weight": 0.2565,
         "bullish": false
       },
       {
         "indicator": "HY_SPREAD",
         "z_score": -0.921,
-        "weight": 0.2776,
+        "weight": 0.2777,
         "bullish": true
       },
       {
         "indicator": "FOREIGN_NET",
         "z_score": -0.882,
-        "weight": 0.2266,
+        "weight": 0.2263,
         "bullish": false
       },
       {
         "indicator": "STOCH_RSI",
-        "z_score": 0.801,
-        "weight": 0.0408,
+        "z_score": 0.811,
+        "weight": 0.0406,
         "bullish": true
       },
       {
@@ -62,32 +62,32 @@
       {
         "indicator": "MARKET_MOMENTUM",
         "z_score": -0.237,
-        "weight": 0.0363,
+        "weight": 0.0365,
         "bullish": false
       },
       {
         "indicator": "BBAND",
         "z_score": 0.121,
-        "weight": 0.0502,
+        "weight": 0.0508,
         "bullish": true
       },
       {
         "indicator": "MARKET_STRENGTH",
         "z_score": -0.111,
-        "weight": 0.2325,
+        "weight": 0.2324,
         "bullish": false
+      },
+      {
+        "indicator": "CNN_FG",
+        "z_score": 0.09,
+        "weight": 0.1997,
+        "bullish": true
       },
       {
         "indicator": "WTI",
         "z_score": -0.085,
-        "weight": 0.2426,
+        "weight": 0.2427,
         "bullish": true
-      },
-      {
-        "indicator": "CNN_FG",
-        "z_score": -0.006,
-        "weight": 0.1998,
-        "bullish": false
       }
     ]
   },
@@ -110,37 +110,37 @@
     {
       "rank": 2,
       "indicator": "HY_SPREAD",
-      "combined_weight": 0.2776,
-      "sp500_signed_r": -0.6262,
-      "kospi_signed_r": -0.1586
+      "combined_weight": 0.2777,
+      "sp500_signed_r": -0.6258,
+      "kospi_signed_r": -0.159
     },
     {
       "rank": 3,
       "indicator": "DXY",
-      "combined_weight": 0.2563,
-      "sp500_signed_r": -0.3626,
-      "kospi_signed_r": -0.2018
+      "combined_weight": 0.2565,
+      "sp500_signed_r": -0.3619,
+      "kospi_signed_r": -0.2037
     },
     {
       "rank": 5,
       "indicator": "US10Y",
-      "combined_weight": 0.2445,
-      "sp500_signed_r": -0.1959,
-      "kospi_signed_r": -0.0176
+      "combined_weight": 0.2447,
+      "sp500_signed_r": -0.1985,
+      "kospi_signed_r": -0.0172
     },
     {
       "rank": 6,
       "indicator": "WTI",
-      "combined_weight": 0.2426,
-      "sp500_signed_r": -0.3242,
-      "kospi_signed_r": -0.1148
+      "combined_weight": 0.2427,
+      "sp500_signed_r": -0.3256,
+      "kospi_signed_r": -0.1146
     },
     {
       "rank": 7,
       "indicator": "MARKET_STRENGTH",
-      "combined_weight": 0.2325,
-      "sp500_signed_r": 0.2194,
-      "kospi_signed_r": 0.1112
+      "combined_weight": 0.2324,
+      "sp500_signed_r": 0.2193,
+      "kospi_signed_r": 0.1113
     }
   ],
   "sp500": {
@@ -198,28 +198,28 @@
     "contribution_top5": [
       {
         "name": "SK하이닉스",
-        "stock_return_pct": 796.5,
-        "contribution_score": 1.115
+        "stock_return_pct": 794.8,
+        "contribution_score": 0.962
       },
       {
         "name": "삼성전자",
-        "stock_return_pct": 388.9,
-        "contribution_score": 1.012
+        "stock_return_pct": 401.6,
+        "contribution_score": 0.931
       },
       {
         "name": "SK스퀘어",
-        "stock_return_pct": 873.6,
-        "contribution_score": 0.192
+        "stock_return_pct": 880.9,
+        "contribution_score": 0.177
       },
       {
         "name": "삼성생명",
-        "stock_return_pct": 209.1,
-        "contribution_score": 0.04
+        "stock_return_pct": 202.8,
+        "contribution_score": 0.038
       },
       {
         "name": "SK",
-        "stock_return_pct": 251.0,
-        "contribution_score": 0.039
+        "stock_return_pct": 254.4,
+        "contribution_score": 0.037
       }
     ],
     "beneficiary_top5": [
