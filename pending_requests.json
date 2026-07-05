@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-05T16:45:44",
+  "updated": "2026-07-05T22:20:28",
   "completed": [
     {
       "id": "REQ-001",
@@ -49,9 +49,7 @@
       "status": "done",
       "completed_at": "2026-06-20T00:00:00",
       "details": "ROADMAP_HISTORY: Phase REQ-KITA-001 Gate 완료 (2026-06-20). API 호출 성공 23행 (2024-07~2026-05), DC-1~DC-5 PASS, Telegram 완료 보고."
-    }
-  ],
-  "pending": [
+    },
     {
       "id": "SESSION-HANDOFF-2026-07-04-1",
       "kind": "session_handoff",
@@ -72,7 +70,8 @@
         "71a6abb feat(consensus): Phase 14 컨센서스 파이프라인 모듈·테스트·설정 커밋",
         "9534f52 docs(reports): Phase 14 증적 리포트 아카이브 (14-0-A1 ~ 14-4)",
         "cdeaed2 chore: consensus 스냅샷 산출물 + legacy agent 아카이브 + activity 로그"
-      ]
+      ],
+      "status": "done"
     },
     {
       "id": "PHASE-5",
@@ -130,20 +129,6 @@
       "completed_at": "2026-06-11T02:31:23"
     },
     {
-      "id": "REQ-003",
-      "request": "Google Sheets 완전 자동화",
-      "status": "waiting_credentials",
-      "created_at": "2026-06-08T13:00:00",
-      "details": "GOOGLE_SA_JSON 서비스 계정 경로 .env에 추가 필요"
-    },
-    {
-      "id": "REQ-004",
-      "request": "Notion 연동 활성화",
-      "status": "waiting_credentials",
-      "created_at": "2026-06-08T13:00:00",
-      "details": "NOTION_TOKEN .env에 추가 필요. Page ID: 3781a4c7-30d8-81f9-bf7d-db6541a23fcf"
-    },
-    {
       "id": "REQ-008",
       "request": "T7/T11 GitHub Actions run-pipeline CI 검증",
       "status": "done",
@@ -191,21 +176,6 @@
       "status": "done",
       "completed_at": "2026-06-09T11:00:00",
       "details": "R2 FAIL 원인: 효성 excess_return=-31.47% = 주가수익(154.29%) - KOSPI(185.76%). 데이터 오류 아님(실측 KOSPI 2856→8161). 필터 (x.get('beneficiary_score') or 0) > 0 — None TypeError 버그도 수정. 효성화학 stock_return=0% + corr=None은 별도 데이터 수집 이슈"
-    },
-    {
-      "id": "REQ-015",
-      "request": "PM Agent 자기 감사 레이어 (sd_meta_check) — E단계 완료",
-      "status": "partial",
-      "priority": "high",
-      "details": "A단계: SD-10(API 주장 vs 실제 코드), SD-11(하드코딩 위장 패턴). B단계: SD-12~14. C단계: SD-15(vacuous PASS 탐지), SD-16(신선도 25h), SD-17(파일 크기). D단계: SD-18(하드코딩 날짜 탐지+수정), SD-19(fix_request 동적화), SD-20(CLAUDE.md 패턴 추가). E단계: 5개 에이전트 exit(1) 확인 완료 (mock exit_code=1 PASS). F단계(SD-12 탐지 zero 확인) 대기",
-      "stages": {
-        "A": "done",
-        "B": "done",
-        "C": "done",
-        "D": "done",
-        "E": "done",
-        "F": "backlog"
-      }
     },
     {
       "id": "REQ-016",
@@ -262,12 +232,6 @@
       "completed_at": "2026-06-09T20:44:00",
       "priority": "medium",
       "details": "run_pm_agent.py: _KNOWN_FAIL_CHECKS=['QG-1','ANTHROPIC_API_KEY'] 상수 추가. _load_baseline() 헬퍼 신규 생성(v1→v2 자동 마이그레이션). _save_baseline()에 schema_version:2 + known_fail_checks 추가. SD-14 known-fail 제외 비교 로직으로 전환. 마이그레이션 전/후 출력: v1(schema_version없음)→v2(schema_version:2,known_fail_checks:[QG-1,ANTHROPIC_API_KEY]) PASS. SD-14 케이스 3개 assertion PASS."
-    },
-    {
-      "id": "REQ-FUTURE-001",
-      "request": "코스피100 → 코스피200 유니버스 확장",
-      "status": "backlog",
-      "details": "Stock Agent 분석 유니버스를 코스피100에서 코스피200으로 확장. pykrx get_market_cap_of_date() 기준 상위 200종목 동적 수집. Done Criteria U2 기준 충족 여부 재검증 필요"
     },
     {
       "id": "REQ-023",
@@ -500,9 +464,67 @@
       "archived_reason": "Phase 13-C batch review로 이관 — 의도 메타데이터는 request/details 필드에 보존"
     },
     {
+      "id": "REQ-XSESSION-CDEAED2-NOTIFY",
+      "request": "[세션 간 알림] Phase 14 세션이 cdeaed2 로 이미 커밋·푸시함 — 중복 커밋/충돌 방지",
+      "status": "done",
+      "details": "cdeaed2 (2026-07-04 19:16 KST, HwangatWork) 가 이미 push 한 파일들: output/consensus_snapshot/{000660,005930}*, output/consensus_snapshot/history/write-once, output/consensus_snapshot/news_raw, output/consensus_snapshot/robots_decision, output/consensus_audit/source_access_audit.json, agents/archive/run_{analysis,evaluator,stock}_agent.py, data/agent_activity.jsonl. 다른 세션 (특히 Phase 14) 이 위 파일들을 재커밋 시도 시 중복/충돌. 각 세션 시작 시 반드시: (1) git fetch origin master, (2) git status 재확인, (3) 파일이 원격 tracked 인지 `git cat-file -e origin/master:<file>` 로 확인 후 add. 로컬 untracked 로 보여도 원격에는 이미 있을 수 있음.",
+      "registered_at": "2026-07-04T19:24:47",
+      "source": "user_directive_xsession",
+      "target_sessions": "all (특히 Phase 14 세션)",
+      "reference_commit": "cdeaed2"
+    },
+    {
+      "id": "REQ-P-tx-cost-bug-fixed",
+      "kind": "regression_fix_completed",
+      "priority": "resolved",
+      "source": "Round-2 peer review 2026-07-05 (audit-agent) — real bug found by convergent process",
+      "created_at": "2026-07-05T02:07:42",
+      "problem": "scripts/phase_p_backtest.py _simulate() 의 tx cost 계산이 초기 진입(flat→long)을 놓쳤음. exposure.diff().fillna(0.0) 가 첫 행 NaN 을 0 으로 채워 initial entry 시 10 bps 를 부과하지 않음. 실제 P-4 실행에서는 0 trades 이므로 수치 영향 없지만 다음 사이클 (BUY 시그널 발생 시) 첫 진입 비용이 누락될 예정이었음.",
+      "resolution": "prev_exposure = exposure.shift(1).fillna(0.0); changes = (exposure - prev_exposure).abs() 로 수정. test_tx_cost_10bps_single_transition 회귀 테스트 추가 (synthetic 0→1 transition). 23/23 tests PASS.",
+      "evidence": "commit 신규 예정 (Round-2 peer review 반영), test_phase_p_backtest.py::test_tx_cost_10bps_single_transition",
+      "status": "done"
+    }
+  ],
+  "pending": [
+    {
+      "id": "REQ-003",
+      "request": "Google Sheets 완전 자동화",
+      "status": "waiting_credentials",
+      "created_at": "2026-06-08T13:00:00",
+      "details": "GOOGLE_SA_JSON 서비스 계정 경로 .env에 추가 필요"
+    },
+    {
+      "id": "REQ-004",
+      "request": "Notion 연동 활성화",
+      "status": "waiting_credentials",
+      "created_at": "2026-06-08T13:00:00",
+      "details": "NOTION_TOKEN .env에 추가 필요. Page ID: 3781a4c7-30d8-81f9-bf7d-db6541a23fcf"
+    },
+    {
+      "id": "REQ-015",
+      "request": "PM Agent 자기 감사 레이어 (sd_meta_check) — E단계 완료",
+      "status": "backlog",
+      "priority": "high",
+      "details": "A단계: SD-10(API 주장 vs 실제 코드), SD-11(하드코딩 위장 패턴). B단계: SD-12~14. C단계: SD-15(vacuous PASS 탐지), SD-16(신선도 25h), SD-17(파일 크기). D단계: SD-18(하드코딩 날짜 탐지+수정), SD-19(fix_request 동적화), SD-20(CLAUDE.md 패턴 추가). E단계: 5개 에이전트 exit(1) 확인 완료 (mock exit_code=1 PASS). F단계(SD-12 탐지 zero 확인) 대기",
+      "stages": {
+        "A": "done",
+        "B": "done",
+        "C": "done",
+        "D": "done",
+        "E": "done",
+        "F": "backlog"
+      }
+    },
+    {
+      "id": "REQ-FUTURE-001",
+      "request": "코스피100 → 코스피200 유니버스 확장",
+      "status": "backlog",
+      "details": "Stock Agent 분석 유니버스를 코스피100에서 코스피200으로 확장. pykrx get_market_cap_of_date() 기준 상위 200종목 동적 수집. Done Criteria U2 기준 충족 여부 재검증 필요"
+    },
+    {
       "id": "QR-1-warn",
       "request": "QR-1 의사결정 추론 일관성 점수 < 3 — 의사결정 로직 점검",
-      "status": "pending",
+      "status": "backlog",
       "details": ""
     },
     {
@@ -543,7 +565,7 @@
     {
       "id": "REQ-USER-REPORT",
       "request": "[텔레그램 /report] 다음 파이프라인 실행 시 narrative-agent 재spawn 필요",
-      "status": "pending",
+      "status": "backlog",
       "details": "텔레그램 명령어: /report (update_id=848436941). 원문: /report",
       "registered_at": "2026-07-03T08:47:26",
       "source": "telegram_command"
@@ -557,17 +579,8 @@
       "live_close": 2425000.0,
       "snapshot_close": 2628000.0,
       "snapshot_date": "2026-07-03",
-      "note": "000660 snapshot close differs from live by +8.37%. Consider regenerating snapshot or displaying live overlay in dashboard."
-    },
-    {
-      "id": "REQ-XSESSION-CDEAED2-NOTIFY",
-      "request": "[세션 간 알림] Phase 14 세션이 cdeaed2 로 이미 커밋·푸시함 — 중복 커밋/충돌 방지",
-      "status": "pending",
-      "details": "cdeaed2 (2026-07-04 19:16 KST, HwangatWork) 가 이미 push 한 파일들: output/consensus_snapshot/{000660,005930}*, output/consensus_snapshot/history/write-once, output/consensus_snapshot/news_raw, output/consensus_snapshot/robots_decision, output/consensus_audit/source_access_audit.json, agents/archive/run_{analysis,evaluator,stock}_agent.py, data/agent_activity.jsonl. 다른 세션 (특히 Phase 14) 이 위 파일들을 재커밋 시도 시 중복/충돌. 각 세션 시작 시 반드시: (1) git fetch origin master, (2) git status 재확인, (3) 파일이 원격 tracked 인지 `git cat-file -e origin/master:<file>` 로 확인 후 add. 로컬 untracked 로 보여도 원격에는 이미 있을 수 있음.",
-      "registered_at": "2026-07-04T19:24:47",
-      "source": "user_directive_xsession",
-      "target_sessions": "all (특히 Phase 14 세션)",
-      "reference_commit": "cdeaed2"
+      "note": "000660 snapshot close differs from live by +8.37%. Consider regenerating snapshot or displaying live overlay in dashboard.",
+      "status": "backlog"
     },
     {
       "id": "REQ-P1-fix",
@@ -578,7 +591,8 @@
       "problem": "6 스냅샷 5d SP500 forward hit rate: Top5=36.7% (11/30) < Bottom5=60.0% (18/30). 특히 3 DOWN 일에 Bot5=4~5/5 로 저가중 지표가 하락을 정확히 예고. 가중치 산식이 forward 예측력이 아닌 과거 상관관계 강도만 반영한다는 시사.",
       "proposed_fix": "가중치 산식에 forward-window validation 항목 추가 + 국면(리스크-온/오프) 분류 후 국면별 가중치 계산 + Q4 2026 (~90 daily snapshots) 도달 시 walk-forward embargo(-20d) 재실행",
       "evidence": "output/phase_p_p1_results.json, output/backtest_report.md#P-1",
-      "roadmap_registration": "REQ-Phase-P-rerun 과 함께 진행"
+      "roadmap_registration": "REQ-Phase-P-rerun 과 함께 진행",
+      "status": "backlog"
     },
     {
       "id": "REQ-P2-universe",
@@ -588,7 +602,8 @@
       "created_at": "2026-07-05T00:37:31",
       "problem": "12 스냅샷 contribution_top5 union universe = 8 unique tickers 로 chance baseline 이 62.5% 로 부풀림. precision@5=0.533 < baseline. 좁은 universe 로 통계 판정 불가.",
       "proposed_fix": "universe 를 S&P500 500 종목 전체로 확장한 별도 스크립트로 precision@5 재계산. 시가총액 가중 forward 기여 랭킹 계산. baseline 은 5/500=1% 로 하강 → 유의미 판정 가능.",
-      "evidence": "output/phase_p_p2_results.json"
+      "evidence": "output/phase_p_p2_results.json",
+      "status": "backlog"
     },
     {
       "id": "REQ-P3-filter",
@@ -598,7 +613,8 @@
       "created_at": "2026-07-05T00:37:31",
       "problem": "12 스냅샷 SP500 beneficiary_top5 의 100% 가 warn_reason 존재 (SNDK 스핀오프, MU +694%, WDC 스핀오프 등). 사전등록된 exclusion filter 적용 시 SP500 은 0개 남음 → 산출물 사용 불가.",
       "proposed_fix": "run_stock_agent 의 beneficiary_score 계산 전에 warn_reason 후보 자동 제외 옵션 + winsorization (past 1yr return 99th percentile clip) + 180일 continuous price history 최소 요건을 파이프라인 필터에 이관.",
-      "evidence": "output/phase_p_p3_results.json"
+      "evidence": "output/phase_p_p3_results.json",
+      "status": "backlog"
     },
     {
       "id": "REQ-P4-buy-conditions",
@@ -608,7 +624,8 @@
       "created_at": "2026-07-05T00:37:31",
       "problem": "12 스냅샷 전체에서 BUY 시그널 미발생 (SP500 8× SELL/AVOID + 4× HOLD, KOSPI 4× SELL/AVOID + 8× HOLD). 관측 창 2026-06-22~07-02 에 SP500 은 실제 상승 (+0.14%, 3 UP 일 포함) 인데 시그널은 매수 진입 못함 → decision agent 의 BUY 조건 임계값 재보정 필요.",
       "proposed_fix": "run_decision_agent 의 composite_score BUY 임계값 및 SP500/KOSPI 독립 시그널 조합 재검토. 이번 6/23~6/25 SP500 상승 국면에 어떤 지표 조합이 왜 BUY 를 트리거하지 못했는지 backward 분석.",
-      "evidence": "output/phase_p_p4_results.json"
+      "evidence": "output/phase_p_p4_results.json",
+      "status": "backlog"
     },
     {
       "id": "REQ-Phase-P-rerun",
@@ -619,7 +636,8 @@
       "problem": "P-1/P-2/P-3 를 descriptive-only 로 실행. 20d forward horizon 은 오늘 0 스냅샷 지원. 10d 도 0. Analysis-agent 권장 minimum viable pooled N ≈ 60.",
       "proposed_fix": "Q4 2026 (~90 daily snapshots) 도달 시 phase_p_backtest 를 20d horizon + walk-forward embargo(-20d) + Holm-Bonferroni α=0.05/6 으로 재실행. Pre-registration 신규 freeze 필요.",
       "next_check_date": "2026-10-01",
-      "evidence": "output/phase_p_preregistration.json"
+      "evidence": "output/phase_p_preregistration.json",
+      "status": "backlog"
     },
     {
       "id": "REQ-P-prereg-v2",
@@ -629,17 +647,8 @@
       "created_at": "2026-07-05T02:07:42",
       "problem": "phase_p_preregistration.json v1 이 initial_state 미명시 (기본 flat 사용됨), SHORT-side gate variant 부재 (BUY-side 만 있음), freeze integrity 는 HEAD-ancestor + disk-match 만 확인하며 canonical JSON hash 나 immutable freeze_sha 필드 없음.",
       "proposed_fix": "다음 backtest 사이클 시작 시 pre-registration v2 프리즈: (a) initial_state ∈ {flat, long} 명시 + 두 변형 병행 실행, (b) SHORT-side gate variant 추가 (실제 발화 못하면 pre-reg 결함 재발견), (c) frozen_at 시점의 canonical JSON hash (sorted keys, no whitespace) 를 pre-reg 안에 자체 참조로 embed, (d) freeze commit SHA 를 pre-reg 필드로 직접 pin (git-ancestor 헐거움 방지)",
-      "evidence": "reports/phase_p/peer_review_2026_07_05.md, evaluator-agent round-2 SendMessage transcript"
-    },
-    {
-      "id": "REQ-P-tx-cost-bug-fixed",
-      "kind": "regression_fix_completed",
-      "priority": "resolved",
-      "source": "Round-2 peer review 2026-07-05 (audit-agent) — real bug found by convergent process",
-      "created_at": "2026-07-05T02:07:42",
-      "problem": "scripts/phase_p_backtest.py _simulate() 의 tx cost 계산이 초기 진입(flat→long)을 놓쳤음. exposure.diff().fillna(0.0) 가 첫 행 NaN 을 0 으로 채워 initial entry 시 10 bps 를 부과하지 않음. 실제 P-4 실행에서는 0 trades 이므로 수치 영향 없지만 다음 사이클 (BUY 시그널 발생 시) 첫 진입 비용이 누락될 예정이었음.",
-      "resolution": "prev_exposure = exposure.shift(1).fillna(0.0); changes = (exposure - prev_exposure).abs() 로 수정. test_tx_cost_10bps_single_transition 회귀 테스트 추가 (synthetic 0→1 transition). 23/23 tests PASS.",
-      "evidence": "commit 신규 예정 (Round-2 peer review 반영), test_phase_p_backtest.py::test_tx_cost_10bps_single_transition"
+      "evidence": "reports/phase_p/peer_review_2026_07_05.md, evaluator-agent round-2 SendMessage transcript",
+      "status": "backlog"
     },
     {
       "id": "FRQ-PR-1",
@@ -648,7 +657,8 @@
       "day": "2026-07-05",
       "created_by": "PR-REPORT-STANDARD-1 (policy embedding phase)",
       "created_at": "2026-07-05T00:00:00+09:00",
-      "message": "final_report.md deterministic validator hardening: /pr final reports are written by the main session, so the SubagentStop hook (pr_schema_check.py) cannot validate them. Propose a future phase: a standalone check script (required 14 sections presence + evidence citation format) wired to a Stop hook or pytest, so a Markdown-only / stale / incomplete final report becomes INVALID_REVIEW or HOLD instead of silent PASS. Do NOT modify pr_round_response.schema.json or pr_schema_check.py for this (round-JSON validation stays as-is)."
+      "message": "final_report.md deterministic validator hardening: /pr final reports are written by the main session, so the SubagentStop hook (pr_schema_check.py) cannot validate them. Propose a future phase: a standalone check script (required 14 sections presence + evidence citation format) wired to a Stop hook or pytest, so a Markdown-only / stale / incomplete final report becomes INVALID_REVIEW or HOLD instead of silent PASS. Do NOT modify pr_round_response.schema.json or pr_schema_check.py for this (round-JSON validation stays as-is).",
+      "status": "backlog"
     },
     {
       "id": "FRQ-PR-2",
@@ -657,7 +667,8 @@
       "day": "2026-07-05",
       "created_by": "/pr dogfood 20260705_083048 (3 agents converged)",
       "created_at": "2026-07-05T00:00:00+09:00",
-      "message": "verify_push_deployment.py PASS-disguise gaps x3 (independently converged by audit/meta-audit/validation agents, 15/15 file:line claims PM-verified): (1) L328 conclusion blacklist lets startup_failure/skipped/stale land in others-bucket with failure_count=0 -> exit 0 on a broken deployment; fix = whitelist (fail on anything != success). (2) L46 static sentinels [AI Analyzer/dashboard/market] are not SHA-bound -> stale cached Pages content passes. (3) L269-270 local-mode mtime fallback marks stale JSON fresh after pull/checkout. Implementation requires user approval - registered as candidate only, not auto-implemented."
+      "message": "verify_push_deployment.py PASS-disguise gaps x3 (independently converged by audit/meta-audit/validation agents, 15/15 file:line claims PM-verified): (1) L328 conclusion blacklist lets startup_failure/skipped/stale land in others-bucket with failure_count=0 -> exit 0 on a broken deployment; fix = whitelist (fail on anything != success). (2) L46 static sentinels [AI Analyzer/dashboard/market] are not SHA-bound -> stale cached Pages content passes. (3) L269-270 local-mode mtime fallback marks stale JSON fresh after pull/checkout. Implementation requires user approval - registered as candidate only, not auto-implemented.",
+      "status": "backlog"
     }
   ]
 }
