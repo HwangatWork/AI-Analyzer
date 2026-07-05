@@ -183,11 +183,10 @@ def generate_signal_section(signal: dict) -> str:
         </div>"""
 
     # ── [개선 2] 강세/약세 카드에 Top 시그널명 표시 ──────────────────────────
+    # M-16 fix: truthy 판정 사용 (np.bool_(False) is False == False 인 identity 함정 회피).
+    #   강세 = bullish truthy, 약세 = bullish falsy (키 부재 시 강세로 간주하여 약세에서 제외).
     bullish_names_list = [s.get("indicator", "") for s in sorted_sigs if s.get("bullish", False)][:3]
     bearish_names_list = [s.get("indicator", "") for s in sorted_sigs if not s.get("bullish", True)][:3]
-
-    # bullish=False인 것만 약세로 추출 (bullish 키가 없으면 제외)
-    bearish_names_list = [s.get("indicator", "") for s in sorted_sigs if s.get("bullish") is False][:3]
 
     bullish_names_html = ""
     if bullish_names_list:
@@ -197,94 +196,11 @@ def generate_signal_section(signal: dict) -> str:
     if bearish_names_list:
         bearish_names_html = f"""<div style="font-size:0.65rem;color:#94a3b8;margin-top:4px;line-height:1.6">{' · '.join(bearish_names_list)}</div>"""
 
-    # ── [개선 4] 반도체 수출 섹션 데이터 로딩 ────────────────────────────────
-    import json
-    from pathlib import Path
-
-    BASE_DIR = Path(__file__).parent.parent
-    semi_path = BASE_DIR / "output" / "semiconductor_export.json"
-    semi_data = {}
-    if semi_path.exists():
-        try:
-            semi_data = json.loads(semi_path.read_text(encoding="utf-8"))
-        except Exception:
-            semi_data = {}
-
-    # 반도체 수출 섹션 HTML 구성
-    if not semi_data:
-        # 스켈레톤 UI
-        semiconductor_section = """
-<section id="semiconductor-export" style="margin-top:24px">
-  <h2 class="section-title">반도체 수출 동향</h2>
-  <div style="background:#1e293b;border-radius:12px;padding:24px;animation:pulse 2s infinite">
-    <div style="height:12px;background:#334155;border-radius:4px;margin-bottom:12px;width:60%"></div>
-    <div style="height:200px;background:#0f172a;border-radius:8px;margin-bottom:12px"></div>
-    <div style="height:12px;background:#334155;border-radius:4px;width:80%"></div>
-    <div style="font-size:0.75rem;color:#475569;text-align:center;margin-top:12px">
-      반도체 수출 데이터 준비 중... (ECOS API 또는 config.yaml 설정 필요)
-    </div>
-  </div>
-</section>"""
-    else:
-        # 실제 데이터로 섹션 구성
-        data_points = semi_data.get("data", [])
-        is_mock = semi_data.get("is_mock", False)
-        unit = semi_data.get("unit", "지수(2020=100)")
-
-        # 최신 데이터 포인트
-        latest = data_points[-1] if data_points else {}
-        prev   = data_points[-2] if len(data_points) >= 2 else {}
-        year_ago = data_points[-13] if len(data_points) >= 13 else {}
-
-        latest_value = latest.get("value", 0)
-        latest_month = latest.get("label", latest.get("period", "N/A"))
-
-        # summary에서 직접 읽기 (재계산보다 정확)
-        summary = semi_data.get("summary", {})
-        mom_change = summary.get("mom_change_pct") or (
-            (latest_value - prev["value"]) / prev["value"] * 100
-            if prev and prev.get("value", 0) else 0.0
-        )
-        yoy_change = summary.get("yoy_change_pct") or (
-            (latest_value - year_ago["value"]) / year_ago["value"] * 100
-            if year_ago and year_ago.get("value", 0) else 0.0
-        )
-        mom_color = "#22c55e" if mom_change >= 0 else "#ef4444"
-        yoy_color = "#22c55e" if yoy_change >= 0 else "#ef4444"
-
-        # 전체 수출 비중
-        export_share = summary.get("export_share_pct", 0.0)
-
-        chart_html = _build_semi_chart(data_points)
-
-        semiconductor_section = f"""
-<section id="semiconductor-export" style="margin-top:24px">
-  <div class="card" style="padding:20px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <h2 class="section-title" style="margin:0">반도체 수출 동향</h2>
-      <span style="font-size:0.72rem;color:#475569">최신: {latest_month} · {'모의 데이터' if is_mock else '실시간'}</span>
-    </div>
-    {chart_html}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
-      <div class="card" style="padding:12px;text-align:center">
-        <div style="font-size:1.4rem;font-weight:800;color:#3b82f6">{latest_value:.1f}</div>
-        <div style="font-size:0.7rem;color:#64748b">수출금액지수 ({unit})</div>
-      </div>
-      <div class="card" style="padding:12px;text-align:center">
-        <div style="font-size:1.4rem;font-weight:800;color:{mom_color}">{mom_change:+.1f}%</div>
-        <div style="font-size:0.7rem;color:#64748b">전월 대비</div>
-      </div>
-      <div class="card" style="padding:12px;text-align:center">
-        <div style="font-size:1.4rem;font-weight:800;color:{yoy_color}">{yoy_change:+.1f}%</div>
-        <div style="font-size:0.7rem;color:#64748b">전년 대비</div>
-      </div>
-      <div class="card" style="padding:12px;text-align:center">
-        <div style="font-size:1.4rem;font-weight:800;color:#94a3b8">{export_share:.1f}%</div>
-        <div style="font-size:0.7rem;color:#64748b">전체 수출 비중</div>
-      </div>
-    </div>
-  </div>
-</section>"""
+    # ── [M-14 fix] 반도체 수출 섹션은 run_ui_agent._html_semiconductor_section() 이
+    #   정본(관세청 실적, actual USD FOB, SEMICONDUCTOR_EXPORT.parquet)으로 단독 렌더한다.
+    #   여기(ux_signal)의 ECOS 수출금액지수(2020=100) 섹션은 semiconductor_monitor 가
+    #   QI-1 모니터링 전용으로 전환된 뒤 대시보드 이중 렌더 + 상충 수치(전월 +16.7% vs +2.5%,
+    #   전년 +151.0% vs +54.0%)의 원인이 되어 제거. id="semiconductor-export" 중복도 해소.
 
     return f"""
 <!-- ═══ SIGNAL SECTION ═══ -->
@@ -328,8 +244,7 @@ def generate_signal_section(signal: dict) -> str:
       <div style="font-size:0.68rem;color:#334155;line-height:1.4;margin-top:4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical">{method if method else "방법론 미기재"}</div>
     </div>
   </div>
-</section>
-{semiconductor_section}"""
+</section>"""
 
 
 if __name__ == "__main__":

@@ -123,7 +123,7 @@ def compute_composite_signal(final_ranking: list) -> dict:
                 "last_value": round(last_val, 4),
                 "z_score":    round(z, 3),
                 "signal":     round(signal, 3),
-                "bullish":    signal > 0,
+                "bullish":    bool(signal > 0),  # M-16: np.bool_ → python bool 정규화 (identity 함정 방지)
                 "sp500_r":    item.get("sp500_signed_r"),
             })
         except Exception:

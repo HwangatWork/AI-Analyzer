@@ -23,8 +23,10 @@ from datetime import datetime, timedelta
 # 섹터 시드: 동적 조회 실패 시 폴백용 + 테마/리스크 메타데이터
 SECTORS = {
     "반도체/AI": {
-        "us_sector_kw":  ["Semiconductor", "Technology"],
-        "us_industry_kw": ["Semiconductor", "Electronic Equipment"],
+        # M-05 fix: 광의 "Technology" 섹터 kw 제거 (IT 섹터 전체 매칭 → Accenture/Adobe/
+        #   Apple 오분류 원인). 반도체 특화 industry_kw 로만 좁힌다.
+        "us_sector_kw":  ["Semiconductor"],
+        "us_industry_kw": ["Semiconductor", "Electronic Equipment", "Electronic Components"],
         "kr_sector_kw":   ["반도체", "전자", "IT"],
         "us_fallback": [("NVDA", "NVIDIA"), ("TSM", "TSMC"), ("AVGO", "Broadcom"),
                         ("AMAT", "Applied Materials"), ("INTC", "Intel")],
@@ -60,8 +62,33 @@ SECTORS = {
 
 # ── 동적 유니버스 조회 ────────────────────────────────────────
 
+def _dedup_share_classes(rows: list) -> list:
+    """M-14 B fix: 동일 회사 복수 상장 클래스(GOOGL/GOOG 등) 정규화.
+
+    rows: [(sym, name), ...] (df 순서 보존). 회사 base-name 이 같으면 첫 항목만 유지.
+    base-name = name 에서 클래스 표기("(Class A)", "Class C", "Cl A" 등)를 제거해 산출.
+    """
+    import re
+    _CLASS_RE = re.compile(
+        r"\s*\(?\bcl(?:ass)?\.?\s*[a-c]\b\)?", re.IGNORECASE
+    )
+    seen = set()
+    out = []
+    for sym, name in rows:
+        base = _CLASS_RE.sub("", str(name)).strip().rstrip("(").strip().lower()
+        if base in seen:
+            continue
+        seen.add(base)
+        out.append((sym, name))
+    return out
+
+
 def _dynamic_us_tickers(sector_kw: list, industry_kw: list, n: int = 7) -> list:
-    """FDR S&P500 구성종목에서 섹터/산업 키워드로 동적 필터링."""
+    """FDR S&P500 구성종목에서 섹터/산업 키워드로 동적 필터링.
+
+    시총 컬럼(MarketCap 등)이 존재하면 내림차순 정렬 후 상위 n.
+    부재 시 FDR 원본 순서 유지(대략 알파벳) — 그 사실을 로그로 남긴다. (M-05)
+    """
     try:
         import FinanceDataReader as fdr
         df = fdr.StockListing("S&P500")
@@ -72,6 +99,10 @@ def _dynamic_us_tickers(sector_kw: list, industry_kw: list, n: int = 7) -> list:
         industry_col = next((c for c in df.columns if "Industry" in c or "industry" in c), None)
         name_col     = next((c for c in df.columns if c in ("Name", "Company", "LongName")), None)
         sym_col      = next((c for c in df.columns if c in ("Symbol", "Ticker", "Code")), None)
+        # 시총 컬럼 탐지 (MarketCap / Marcap / Market Cap 등)
+        mcap_col     = next((c for c in df.columns
+                             if c.replace(" ", "").replace("_", "").lower()
+                             in ("marketcap", "marcap", "mktcap")), None)
 
         if not sym_col:
             return []
@@ -84,14 +115,22 @@ def _dynamic_us_tickers(sector_kw: list, industry_kw: list, n: int = 7) -> list:
             for kw in industry_kw:
                 mask |= df[industry_col].fillna("").str.contains(kw, case=False, regex=False)
 
-        subset = df[mask].head(n)
+        matched = df[mask]
+        if mcap_col:
+            matched = matched.sort_values(mcap_col, ascending=False)
+        else:
+            print("    [동적US] 시총 컬럼 부재 — FDR 원본 순서 유지(시총 정렬 미적용)", end=" ")
+
         result = []
-        for _, row in subset.iterrows():
+        for _, row in matched.iterrows():
             sym  = str(row[sym_col]).strip()
             name = str(row[name_col]).strip() if name_col else sym
             if sym:
                 result.append((sym, name))
-        return result
+
+        # M-14 B: share-class dedup 후 상위 n
+        result = _dedup_share_classes(result)
+        return result[:n]
     except Exception as e:
         print(f"    [동적US] 조회 실패: {e}")
         return []
@@ -306,6 +345,7 @@ def run_sector_analysis(output_dir: Path) -> dict:
     print("  섹터 데이터 수집 중...")
     sector_results = {}
     dynamic_used_count = 0
+    seen_tickers: set = set()  # M-05: 섹터 간 전역 dedup (이미 배정된 티커는 후순위 섹터에서 제외)
 
     for sector_name, config in SECTORS.items():
         print(f"    [{sector_name}]", end=" ")
@@ -315,6 +355,12 @@ def run_sector_analysis(output_dir: Path) -> dict:
             print(f"(동적조회) ", end="")
         else:
             print(f"(폴백) ", end="")
+
+        # M-05: 처리 순서상 앞선 섹터에 이미 배정된 티커는 제외 (섹터 간 중복 방지)
+        us_tickers = [(s, nm) for (s, nm) in us_tickers if s not in seen_tickers]
+        kr_tickers = [(s, nm) for (s, nm) in kr_tickers if s not in seen_tickers]
+        seen_tickers.update(s for (s, _) in us_tickers)
+        seen_tickers.update(s for (s, _) in kr_tickers)
 
         tickers = fetch_sector_data(kr_tickers, us_tickers)
         sector_results[sector_name] = {
