@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-/pr Peer Review Skill regression tests (T-PR-1 ~ T-PR-8)
+/pr Peer Review Skill regression tests (T-PR-1 ~ T-PR-9)
 
 T-PR-1: SKILL.md exists + frontmatter has name/description/argument-hint
 T-PR-2: critic-agent.md frontmatter valid (name == critic-agent, tools present)
@@ -171,3 +171,27 @@ def test_T_PR_8_skill_md_spec_keywords():
         "history.jsonl",              # permanent history
     ):
         assert keyword in text, f"SKILL.md missing spec keyword: {keyword!r}"
+
+
+def test_T_PR_9_final_report_standard_keywords():
+    """PR-REPORT-STANDARD-1: SKILL.md holds the final-report standard; CLAUDE.md points to it."""
+    skill = _SKILL_MD.read_text(encoding="utf-8")
+    for keyword in (
+        "Final Report Standard & Self-Improving Review Loop",
+        "executive_summary",
+        "fix_request_candidates",
+        "self_improvement_findings",
+        "pass_disguise_detection",
+        "deterministic",
+        "HOLD",
+        "N/A —",                      # no-omission rule for inapplicable sections
+        "Never auto-implement",       # self-improvement loop safety
+        "pending_requests.json",      # candidate registration target
+    ):
+        assert keyword in skill, f"SKILL.md missing report-standard keyword: {keyword!r}"
+
+    claude_md = (_REPO_ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+    assert "Final Report Standard" in claude_md, \
+        "CLAUDE.md must point to the /pr Final Report Standard"
+    assert "Final Report Standard & Self-Improving Review Loop" in claude_md, \
+        "CLAUDE.md pointer must name the SKILL.md section"

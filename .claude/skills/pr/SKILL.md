@@ -183,6 +183,73 @@ print('PR session closed: ' + sid)
 "
 ```
 
+## Final Report Standard & Self-Improving Review Loop
+
+This section is the project's **single source of truth for final-report format** — for
+/pr runs AND for all task-completion reports (CLAUDE.md points here; do not duplicate
+this template elsewhere).
+
+### A. Required report sections (14 — omission forbidden)
+
+Every final report MUST contain all 14 sections. A section that does not apply is NOT
+omitted — write `N/A — <reason>` instead.
+
+1. `executive_summary` — 2-4 sentence outcome summary
+2. `numbered_explanation` — what was done, as a numbered list
+3. `commits_and_files` — commit hashes (or "No commit created") + changed-file list
+4. `implementation_breakdown` — per-file purpose of each change
+5. `verification_breakdown` — each verification command + its exit code
+6. `peer_review_result` — participating agents, rounds, feedback counts, consensus
+7. `deterministic_gate_result` — hook/schema/test gate outcomes (exit codes, counts)
+8. `pass_disguise_detection` — checks performed against self-report/PASS-disguise patterns
+9. `unresolved_items` — open questions, unmet conditions
+10. `dogfood_result` — self-use validation outcome (dogfood = the tool reviews its own
+    output with its own review process)
+11. `user_actions_required` — what the user must do next
+12. `self_improvement_findings` — out-of-scope findings surfaced during review
+13. `fix_request_candidates` — findings registered for approval (see C below)
+14. `final_judgment` — PASS | PASS with HOLD | HOLD | FAIL + evidence
+
+**Mapping from the Phase 4 /pr template (5 sections → 14-section standard)**:
+
+| Phase 4 section | maps to standard section |
+|---|---|
+| 1. 참여 agents (선별 근거 + 호출 증빙) | 6. peer_review_result (+ 8. pass_disguise_detection: activity-log cross-check) |
+| 2. 비판적 사고 검증 | 6. peer_review_result |
+| 3. 상호 피드백 정량 | 6. peer_review_result |
+| 4. 합의 여부 | 6. peer_review_result / 9. unresolved_items |
+| 5. PM 점수 이력 + 최종 판단 | 7. deterministic_gate_result / 14. final_judgment |
+
+Phase 4 reports keep their 5-section template and add the remaining standard sections
+(with `N/A — <reason>` where inapplicable). Phases 0-5 semantics are unchanged.
+
+### B. Strict reporting rules
+
+- Never write "completed" without evidence. Never declare PASS based only on Markdown
+  prose or agent self-evaluation.
+- Every PASS claim MUST cite deterministic evidence — at least one of:
+  command + exit code / test count / schema result / hook result / artifact path /
+  JSON field / file existence / file:line / git diff / commit hash.
+- Unverified items are **HOLD or RISK — never PASS**.
+- critic-agent execution failure MUST be reported as HOLD or FAIL (no success disguise).
+- general-purpose / Explore fallback is forbidden unless the user explicitly approves;
+  even when approved, the final verdict cannot be a full PASS.
+- Agent self-evaluation is NOT a deterministic gate — only hooks, schemas, tests, and
+  exit codes gate.
+
+### C. Self-improvement loop policy
+
+- Peer-review findings outside the current task scope MUST become
+  `fix_request_candidates` entries in the final report AND be registered in
+  `pending_requests.json` `pending[]` using the existing item schema
+  `{id, kind, priority, day, created_by, created_at, message}` (append-only,
+  `kind: "fix_request_candidate"`).
+- Repeated findings should propose improvements to: hooks / schemas / stale detection /
+  pass-disguise detection / agent role separation / final report template /
+  approval policy.
+- **Never auto-implement fix_request candidates.** Register only; implementation waits
+  for explicit user approval or a dedicated next phase.
+
 ---
 
 Task to review: $ARGUMENTS

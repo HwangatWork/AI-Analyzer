@@ -261,6 +261,11 @@ exit non-zero 면 즉시 실패 workflow / endpoint / freshness 원인과
 - general-purpose/Explore 페르소나 사용 절대 금지 — `.claude/agents/` named agent 만.
 - 산출물: `output/peer_review_pr/<sid>/` (최근 10 세션 회전), 영구 이력 `history.jsonl`.
 - 스펙: `.claude/skills/pr/SKILL.md`, 스키마 `schemas/pr_round_response.schema.json`.
+- **모든 작업 완료 최종 보고는 /pr Final Report Standard 를 따른다** — SKILL.md 의
+  "Final Report Standard & Self-Improving Review Loop" 섹션이 single source of truth (템플릿 중복 금지).
+- /pr 미실행 시에도 동일 형식으로 보고하고 "/pr 실행 불가"를 명시. 관련 agents/hooks 가
+  실제 실행되지 않았으면 peer review 완료 주장 금지 — 필수 구성요소 부재 시 HOLD.
+- 미검증 항목 PASS 표기 금지 — 결정론적 evidence 없으면 HOLD/RISK 로 표기.
 
 ## AgentMemory 운영 원칙
 - TF 관련 신규 lesson 태그: `tf-design-process`

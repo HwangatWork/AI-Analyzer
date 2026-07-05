@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-05T02:07:42",
+  "updated": "2026-07-05T16:45:44",
   "completed": [
     {
       "id": "REQ-001",
@@ -640,6 +640,24 @@
       "problem": "scripts/phase_p_backtest.py _simulate() 의 tx cost 계산이 초기 진입(flat→long)을 놓쳤음. exposure.diff().fillna(0.0) 가 첫 행 NaN 을 0 으로 채워 initial entry 시 10 bps 를 부과하지 않음. 실제 P-4 실행에서는 0 trades 이므로 수치 영향 없지만 다음 사이클 (BUY 시그널 발생 시) 첫 진입 비용이 누락될 예정이었음.",
       "resolution": "prev_exposure = exposure.shift(1).fillna(0.0); changes = (exposure - prev_exposure).abs() 로 수정. test_tx_cost_10bps_single_transition 회귀 테스트 추가 (synthetic 0→1 transition). 23/23 tests PASS.",
       "evidence": "commit 신규 예정 (Round-2 peer review 반영), test_phase_p_backtest.py::test_tx_cost_10bps_single_transition"
+    },
+    {
+      "id": "FRQ-PR-1",
+      "kind": "fix_request_candidate",
+      "priority": "MEDIUM",
+      "day": "2026-07-05",
+      "created_by": "PR-REPORT-STANDARD-1 (policy embedding phase)",
+      "created_at": "2026-07-05T00:00:00+09:00",
+      "message": "final_report.md deterministic validator hardening: /pr final reports are written by the main session, so the SubagentStop hook (pr_schema_check.py) cannot validate them. Propose a future phase: a standalone check script (required 14 sections presence + evidence citation format) wired to a Stop hook or pytest, so a Markdown-only / stale / incomplete final report becomes INVALID_REVIEW or HOLD instead of silent PASS. Do NOT modify pr_round_response.schema.json or pr_schema_check.py for this (round-JSON validation stays as-is)."
+    },
+    {
+      "id": "FRQ-PR-2",
+      "kind": "fix_request_candidate",
+      "priority": "HIGH",
+      "day": "2026-07-05",
+      "created_by": "/pr dogfood 20260705_083048 (3 agents converged)",
+      "created_at": "2026-07-05T00:00:00+09:00",
+      "message": "verify_push_deployment.py PASS-disguise gaps x3 (independently converged by audit/meta-audit/validation agents, 15/15 file:line claims PM-verified): (1) L328 conclusion blacklist lets startup_failure/skipped/stale land in others-bucket with failure_count=0 -> exit 0 on a broken deployment; fix = whitelist (fail on anything != success). (2) L46 static sentinels [AI Analyzer/dashboard/market] are not SHA-bound -> stale cached Pages content passes. (3) L269-270 local-mode mtime fallback marks stale JSON fresh after pull/checkout. Implementation requires user approval - registered as candidate only, not auto-implemented."
     }
   ]
 }
