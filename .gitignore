@@ -52,3 +52,17 @@ stage_engine/cache/
 !output/indicator_ranking.csv
 !output/market_signals.csv
 !output/stock_analysis.csv
+
+# Local runtime locks and hook debug output
+.claude/scheduled_tasks.lock
+.claude/hooks/stdin_debug.txt
+
+# Local rollback backups
+backups/
+
+# Generated analysis/tool cache
+.understand-anything/
+
+# Local scratch ranking files
+_rank.txt
+_tmp_rank.txt
