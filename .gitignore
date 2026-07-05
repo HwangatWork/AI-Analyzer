@@ -7,6 +7,9 @@ secrets/
 data/raw/
 data/processed/
 
+# Local runtime append log (audit sink; writers recreate on demand)
+data/agent_activity.jsonl
+
 # Phase P backtest price cache (regenerated on demand from yfinance/FDR)
 output/backtest_cache/
 
