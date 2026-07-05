@@ -56,13 +56,11 @@ Claude Code에서 이 파일을 읽고 Agent Teams를 생성한다.
 | PIPELINE_STAGES | 14단계 (narrative 포함) |
 
 ### 미결 항목 (backlog / waiting)
-| ID | 내용 | 상태 |
-|----|------|------|
-| REQ-SA4 | refresh_data.py Done Criteria 구현 완료 (DC-1~DC-5) | **완료** (2026-06-13) |
-| REQ-SA2 | run_ui_agent.py:generate_html_dashboard() 226L | backlog |
-| REQ-003 | Google Sheets 자동화 | waiting_credentials |
-| REQ-004 | Notion 연동 | waiting_credentials |
-| REQ-FUTURE-001 | 코스피100→코스피200 유니버스 확장 | backlog |
+
+상세 실행 백로그는 이 표에서 중복 관리하지 않는다. 단일 출처(canonical)는
+루트 `pending_requests.json` 이며, 레지스트리 의미·변경 게이트·아카이브 경계는
+`docs/policies/pending_requests_policy.md` 를 따른다. ROADMAP 은 전략/현재 phase 만
+소유한다.
 
 
 ---
