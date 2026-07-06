@@ -249,6 +249,7 @@ def _css_nav_layout() -> str:
     padding: 18px; border: 1px solid #263248;
   }
   .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid-2 > * { min-width: 0; }
   .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
   .signal-grid { display:grid; grid-template-columns:1fr 1.4fr 1fr; gap:16px; margin-bottom:20px; }
   .table-scroll {
