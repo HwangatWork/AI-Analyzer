@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-/pr Peer Review Skill regression tests (T-PR-1 ~ T-PR-9)
+/pr Peer Review Skill regression tests (T-PR-1 ~ T-PR-12)
 
 T-PR-1: SKILL.md exists + frontmatter has name/description/argument-hint
 T-PR-2: critic-agent.md frontmatter valid (name == critic-agent, tools present)
@@ -10,6 +10,9 @@ T-PR-5: pr_schema_check.py — valid round-1 JSON → exit 0 (subprocess)
 T-PR-6: pr_schema_check.py — missing required field → exit 2 (subprocess)
 T-PR-7: pr_schema_check.py — no .active flag → exit 0 (gate off)
 T-PR-8: SKILL.md body keeps spec keywords (anti-regression)
+T-PR-10: rubber-stamp critic (key_points + risks < 2) → exit 2 (objection floor)
+T-PR-11: non-critic worker with risks=[] → exit 0 (gate scoped to critic only)
+T-PR-12: spoofed payload.agent but hook agent_type=critic-agent → exit 2
 """
 import json
 import re
@@ -195,3 +198,41 @@ def test_T_PR_9_final_report_standard_keywords():
         "CLAUDE.md must point to the /pr Final Report Standard"
     assert "Final Report Standard & Self-Improving Review Loop" in claude_md, \
         "CLAUDE.md pointer must name the SKILL.md section"
+
+
+_RUBBER_STAMP = {
+    "agent": "critic-agent",
+    "round": 1,
+    "stance": "support",
+    "key_points": ["this looks fine to me overall, no issues found"],
+    "risks": [],
+    "consensus_ready": True,
+}
+
+
+def test_T_PR_10_rubber_stamp_critic_exit2(pr_flag_on):
+    msg = "```json\n" + json.dumps(_RUBBER_STAMP) + "\n```"
+    proc = _run_hook({"agent_type": "critic-agent", "last_assistant_message": msg})
+    assert proc.returncode == 2, \
+        f"exit {proc.returncode} (expected 2); stdout={proc.stdout[:200]}"
+    assert "objection floor" in proc.stderr, \
+        f"objection-floor feedback missing: {proc.stderr[:300]}"
+
+
+def test_T_PR_11_worker_minimal_exit0(pr_flag_on):
+    worker = dict(_RUBBER_STAMP, agent="data-agent")
+    msg = "```json\n" + json.dumps(worker) + "\n```"
+    proc = _run_hook({"agent_type": "data-agent", "last_assistant_message": msg})
+    assert proc.returncode == 0, \
+        f"exit {proc.returncode} (expected 0); stderr={proc.stderr[:300]}"
+    assert "PR schema PASS" in proc.stdout, f"success context missing: {proc.stdout[:200]}"
+
+
+def test_T_PR_12_spoofed_agent_field_exit2(pr_flag_on):
+    spoofed = dict(_RUBBER_STAMP, agent="data-agent")
+    msg = "```json\n" + json.dumps(spoofed) + "\n```"
+    proc = _run_hook({"agent_type": "critic-agent", "last_assistant_message": msg})
+    assert proc.returncode == 2, \
+        f"exit {proc.returncode} (expected 2); stdout={proc.stdout[:200]}"
+    assert "objection floor" in proc.stderr, \
+        f"objection-floor feedback missing: {proc.stderr[:300]}"

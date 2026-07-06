@@ -130,6 +130,25 @@ def _validate(payload: dict, schema: dict) -> tuple[bool, str]:
         return False, str(e).split("\n")[0][:400]
 
 
+def _critic_objection_gate(payload: dict, hook_agent_type: str = "") -> tuple[bool, str]:
+    payload_agent = payload.get("agent", "")
+    is_critic = payload_agent == "critic-agent" or hook_agent_type == "critic-agent"
+
+    if not is_critic:
+        return True, ""
+
+    total = len(payload.get("key_points", [])) + len(payload.get("risks", []))
+    if total >= 2:
+        return True, ""
+
+    return False, (
+        f"critic-agent objection floor violated: key_points + risks = {total} (< 2). "
+        "Per critic-agent.md rule 1 / DC-1, raise >= 2 objections or risks; "
+        "if no defects found, list 'areas verified but clean' and "
+        "'areas impossible to verify' as risks instead."
+    )
+
+
 def _emit_success(agent_type: str) -> None:
     out = {
         "hookSpecificOutput": {
@@ -198,6 +217,40 @@ def _run_selftest() -> int:
         print("SELFTEST FAIL: fenced JSON extraction mismatch", file=sys.stderr)
         return 1
 
+    rubber_stamp = {
+        "agent": "critic-agent",
+        "round": 1,
+        "stance": "support",
+        "key_points": ["this looks fine to me overall, no issues found"],
+        "risks": [],
+        "consensus_ready": True,
+    }
+    ok, err = _validate(rubber_stamp, schema)
+    if not ok:
+        print(f"SELFTEST FAIL: rubber-stamp fixture rejected by generic schema: {err}", file=sys.stderr)
+        return 1
+    ok, err = _critic_objection_gate(rubber_stamp)
+    if ok:
+        print("SELFTEST FAIL: rubber-stamp critic accepted by objection gate", file=sys.stderr)
+        return 1
+
+    spoofed = dict(rubber_stamp, agent="data-agent")
+    ok, err = _critic_objection_gate(spoofed, hook_agent_type="critic-agent")
+    if ok:
+        print("SELFTEST FAIL: spoofed-agent critic accepted by objection gate", file=sys.stderr)
+        return 1
+
+    ok, err = _critic_objection_gate(valid_r1)
+    if not ok:
+        print(f"SELFTEST FAIL: valid critic (1 key_point + 2 risks) rejected: {err}", file=sys.stderr)
+        return 1
+
+    worker_minimal = dict(rubber_stamp, agent="data-agent")
+    ok, err = _critic_objection_gate(worker_minimal, hook_agent_type="data-agent")
+    if not ok:
+        print(f"SELFTEST FAIL: non-critic worker rejected by objection gate: {err}", file=sys.stderr)
+        return 1
+
     print("pr_schema_check selftest: PASS")
     return 0
 
@@ -228,6 +281,8 @@ def main() -> None:
         sys.exit(0)
 
     ok, err = _validate(payload, schema)
+    if ok:
+        ok, err = _critic_objection_gate(payload, hook_input.get("agent_type", ""))
     if ok:
         _emit_success(hook_input.get("agent_type", ""))
     else:
