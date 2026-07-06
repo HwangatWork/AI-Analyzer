@@ -249,6 +249,11 @@ def _css_nav_layout() -> str:
   }
   .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
   .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+  .signal-grid { display:grid; grid-template-columns:1fr 1.4fr 1fr; gap:16px; margin-bottom:20px; }
+  .table-scroll {
+    width:100%; max-width:100%; min-width:0; box-sizing:border-box;
+    overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+  }
   .section-title {
     font-size:1rem; font-weight:700; color:#94a3b8;
     margin: 0 0 14px; padding-bottom:8px; border-bottom: 1px solid #1e293b;
@@ -281,7 +286,7 @@ def _css_components() -> str:
   }
   .tab.active { background: #1e3a5f; color: var(--blue); border-color: var(--blue); }
   @media (max-width: 768px) {
-    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .grid-2, .grid-3, .signal-grid { grid-template-columns: 1fr; }
     .main { padding: 12px 14px; }
     .header { padding: 10px 14px; }
     .nav-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0 12px; }

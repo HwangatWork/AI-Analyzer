@@ -117,6 +117,7 @@ def generate_indicators_section(ranking: list, data_quality: dict, meta: dict) -
   <h2 class="section-title">지표 가중치 랭킹</h2>
 
   <div class="card" style="margin-bottom:16px;padding:16px">
+    <div class="table-scroll"><div class="table-scroll-inner" style="min-width:440px">
     <div style="display:grid;grid-template-columns:28px 110px 1fr 70px 70px 48px;
                 gap:6px;padding-bottom:6px;border-bottom:2px solid #334155;margin-bottom:4px">
       <div style="font-size:0.7rem;color:#475569">순위</div>
@@ -127,6 +128,7 @@ def generate_indicators_section(ranking: list, data_quality: dict, meta: dict) -
       <div style="font-size:0.7rem;color:#475569;text-align:right">가중치</div>
     </div>
     {rank_rows}
+    </div></div>
     <div style="font-size:0.68rem;color:#334155;margin-top:8px">
       * = p&lt;0.05 통계적 유의 &nbsp;|&nbsp; 가중치 = |r|×0.5 + R²×0.5 &nbsp;|&nbsp;
       유형: return(수익률) / diff(변화량) / level(원값) / discrete(신호)
@@ -167,6 +169,7 @@ def generate_indicators_section(ranking: list, data_quality: dict, meta: dict) -
       <div style="font-size:0.82rem;font-weight:600;color:#94a3b8;margin-bottom:10px">
         데이터 신선도 <span style="font-weight:400;font-size:0.7rem;color:#475569">(기준: {ref_date})</span>
       </div>
+      <div class="table-scroll"><div class="table-scroll-inner" style="min-width:360px">
       <div style="display:grid;grid-template-columns:120px 100px 60px 40px;gap:4px;
                   padding-bottom:5px;border-bottom:1px solid #334155;margin-bottom:4px">
         <div style="font-size:0.68rem;color:#475569">지표</div>
@@ -175,6 +178,7 @@ def generate_indicators_section(ranking: list, data_quality: dict, meta: dict) -
         <div style="font-size:0.68rem;color:#475569;text-align:center">경과일</div>
       </div>
       {fresh_rows}
+      </div></div>
       <div style="font-size:0.68rem;color:#334155;margin-top:6px">
         🟢 ≤2일 &nbsp; 🟡 ≤7일 &nbsp; 🔴 &gt;7일
       </div>

@@ -105,7 +105,7 @@ def generate_signal_section(signal: dict) -> str:
     composite_z = sum(s.get("z_score", 0) * s.get("weight", 0) for s in ind_sigs)
 
     gauge_svg = f"""
-    <svg viewBox="0 0 200 112" style="width:100%;max-width:260px;display:block;margin:0 auto">
+    <svg viewBox="0 0 200 140" style="width:100%;max-width:260px;display:block;margin:0 auto">
       <defs>
         <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="blur"/>
           <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
@@ -206,7 +206,7 @@ def generate_signal_section(signal: dict) -> str:
 <!-- ═══ SIGNAL SECTION ═══ -->
 <section id="signal">
   <h2 class="section-title">종합 시장 시그널</h2>
-  <div class="grid-3" style="grid-template-columns:1fr 1.4fr 1fr;gap:16px;margin-bottom:20px">
+  <div class="signal-grid">
 
     <!-- 게이지 -->
     <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 12px">

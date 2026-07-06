@@ -316,6 +316,7 @@ def generate_sector_section(sector_data: dict) -> str:
             <div style="font-size:0.9rem;font-weight:700;color:#e2e8f0">{sector_name}</div>
             <div style="text-align:right;font-size:0.7rem;color:#475569;max-width:200px">{theme}</div>
           </div>
+          <div class="table-scroll"><div class="table-scroll-inner" style="min-width:420px">
           <div style="display:grid;grid-template-columns:120px 1fr 70px 60px 50px;gap:6px;
                       padding-bottom:5px;border-bottom:1px solid #334155;margin-bottom:4px">
             <div style="font-size:0.68rem;color:#475569">종목</div>
@@ -325,6 +326,7 @@ def generate_sector_section(sector_data: dict) -> str:
             <div style="font-size:0.68rem;color:#475569;text-align:right">현재가</div>
           </div>
           {rows_html}
+          </div></div>
           <div style="font-size:0.68rem;color:#ef4444;margin-top:8px;opacity:0.8">
             ⚠ 리스크: {risk}
           </div>
