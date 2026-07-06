@@ -214,6 +214,7 @@ def _css_theme(dir_color: str) -> str:
   body {{
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
     background: var(--bg); color: var(--text); min-height:100vh;
+    word-break: keep-all; overflow-wrap: break-word;
   }}
   .header {{
     background: #0f172a; border-bottom: 1px solid #1e293b;
@@ -290,7 +291,12 @@ def _css_components() -> str:
     .main { padding: 12px 14px; }
     .header { padding: 10px 14px; }
     .nav-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0 12px; }
-    .nav-tab { white-space: nowrap; flex-shrink: 0; padding: 10px 12px; font-size:0.78rem; }
+    .nav-tab { white-space: nowrap; flex-shrink: 0; padding: 10px 12px; font-size:0.78rem;
+               min-height: 44px; display: flex; align-items: center; }
+    .tab { min-height: 44px; display: inline-flex; align-items: center;
+           padding: 10px 14px; box-sizing: border-box; }
+    .csv-link { min-height: 44px; display: inline-flex; align-items: center;
+                padding: 10px 12px; box-sizing: border-box; }
     .header-meta { display: none; }
   }"""
 
@@ -425,7 +431,7 @@ def _html_header_bar(score, dir_ko, dir_color, period, coll_rate, generated_at) 
   </div>
   <div style="display:flex;align-items:center;gap:12px">
     <span class="signal-pill">{score} · {dir_ko}</span>
-    <a href="indicator_ranking.csv" style="font-size:0.72rem;color:var(--blue);text-decoration:none">↓ CSV</a>
+    <a href="indicator_ranking.csv" class="csv-link" style="font-size:0.72rem;color:var(--blue);text-decoration:none">↓ CSV</a>
   </div>
 </header>"""
 

@@ -4,6 +4,7 @@ UX Signal Agent — 시장 시그널 시각화 섹션 생성
 담당: SVG 게이지, Z-score 바 차트, 시그널 요약 카드
 """
 import utf8_setup  # noqa: F401
+import html
 
 
 def _build_semi_chart(data_points: list) -> str:
@@ -135,7 +136,7 @@ def generate_signal_section(signal: dict) -> str:
 
     # ── [개선 3] 게이지 하단 범위 레이블 + 복합 Z-Score 뱃지 ────────────────
     gauge_footer = f"""
-      <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:#475569;margin-top:4px;padding:0 8px">
+      <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:#475569;margin-top:4px;padding:0 8px;white-space:nowrap">
         <span>위험회피</span><span>중립</span><span>위험선호</span>
       </div>
       <div style="font-size:0.75rem;color:#94a3b8;margin-top:4px;text-align:center">복합 Z <span style="color:{dir_color};font-weight:700">{composite_z:+.2f}</span></div>"""
@@ -167,14 +168,14 @@ def generate_signal_section(signal: dict) -> str:
         # top3 행 강조 스타일
         if is_top3:
             row_style = f"display:grid;grid-template-columns:100px 1fr 60px;gap:6px;align-items:center;padding:3px 0;border-bottom:1px solid #1e293b;border-left:3px solid {cl};padding-left:5px;background:rgba(255,255,255,0.03)"
-            ind_style = f"font-size:0.78rem;color:#e2e8f0;font-weight:700;text-align:right;padding-right:8px"
+            ind_style = f"font-size:0.78rem;color:#e2e8f0;font-weight:700;text-align:right;padding-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0"
         else:
             row_style = "display:grid;grid-template-columns:100px 1fr 60px;gap:6px;align-items:center;padding:3px 0;border-bottom:1px solid #1e293b"
-            ind_style = "font-size:0.78rem;color:#cbd5e1;text-align:right;padding-right:8px"
+            ind_style = "font-size:0.78rem;color:#cbd5e1;text-align:right;padding-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0"
 
         bar_rows += f"""
         <div style="{row_style}">
-          <div style="{ind_style}">{star}{ind}</div>
+          <div style="{ind_style}" title="{html.escape(str(ind), quote=True)}">{star}{ind}</div>
           <div style="position:relative;height:12px;background:#0f172a;border-radius:6px;overflow:hidden">
             <div style="position:absolute;top:50%;transform:translateY(-50%);left:49.5%;width:1px;height:100%;background:#334155"></div>
             <div style="position:absolute;top:2px;height:8px;border-radius:4px;{bar_style};opacity:0.9"></div>
