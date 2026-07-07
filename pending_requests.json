@@ -890,6 +890,15 @@
           "test_single_day_guard: 단일 종목 -5% 하락 + corroborating count < 2 → sector downgrade 차단 확인"
         ]
       }
+    },
+    {
+      "id": "CRITIC-SPAWN-VERIFY-1",
+      "request": "[META-AUDIT 3라운드 0순위] 새 세션에서 critic-agent spawn 재현 실험 — 세션 레지스트리 캐시 가설(N-03) 해소",
+      "status": "backlog",
+      "priority": "high",
+      "created_at": "2026-07-07T00:00:00",
+      "source": "META-AUDIT-CLAUDE-REVIEW-1/2/3 (2026-07-07), Fact Ledger F-09/N-03",
+      "details": "실험: 새 Claude Code 세션 시작 직후 Agent tool로 critic-agent spawn 1회 시도. 성공 → C10=P2 확정(세션 캐시 가설 채택, 대응=세션 재시작). 실패 → P0 재격상 + 파일/레지스트리 RCA. 근거: history.jsonl L1 (07-05 HOLD critic unregistered → 새 세션 score 9 APPROVE), 07-07 세션 spawn 2/2 실패. 이 실험이 selftest 확장·스키마 정규화 등 전 우선순위의 전제. Fact Ledger 초안: %TEMP%\\l10_feedback\\fact_ledger_draft.md"
     }
   ]
 }
