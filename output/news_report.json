@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-07-06T22:23:19.105050",
-  "date": "2026-07-06",
+  "generated_at": "2026-07-07T04:34:30.812882",
+  "date": "2026-07-07",
   "movements": [
     "S&P500 7,537.43 (▲0.72%)",
     "나스닥 26,121.16 (▲1.12%)",
     "다우 53,055.91 (▲0.29%)",
-    "코스피 8,088.34 (▲5.76%)"
+    "코스피 7,475.70 (▼7.15%)"
   ],
   "causes": [
     "AI칩 섹터 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▲1.12%",
@@ -37,7 +37,7 @@
   "sources": [
     {
       "source": "Yahoo Finance",
-      "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxQTktvaWU4WlZaV3VGWTBZSGVkMUhpNG5aQ0FZUDN4TXdYTzBrc2gwWTJXS1VIaVFKYTZSVHNTc0Z6dnFvLU5sUE00a3lpS1ZoNzBkVXpRRjc1cDZuUEtZemhOV05nVXNQZlFtMEo4Vy1BeGdFdkFzaUQ2VWNJNGhRcXJJY0dvUWxTMWFXQUFrZFBSTGdEZ2tIOTlhRzhEUHNWN0RmYVNodXZEN0VR?oc=5"
+      "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxONzJCbXRrTUhNMEN6Qjd5bmF1bU1BYzRJVGNielp3dWpwSERiNDhYbUhaeTNLSmN2bTJqb3poUnRlWUNyZVhXaHJ3U0dsdjBjWk5heDhRYkZFMTdOdk5OZzBLeVRYd1VrbENLdE1tdWtSZnA5RHV6VzNkVVp6NDRPUG95Q0hGekhiaWRCSmhqNkdYY3Q3a2JNVS16SGFnbkNGY3JwNlFqd3pBeFBQd0JMazQ2ay0wLTNSejAyY1NKa1hxQ1p5?oc=5"
     },
     {
       "source": "CNBC",
@@ -73,9 +73,9 @@
       "date": "2026-07-06"
     },
     "KOSPI": {
-      "close": 8088.34,
-      "change": 5.76,
-      "date": "2026-07-03"
+      "close": 7475.7,
+      "change": -7.15,
+      "date": "2026-07-07"
     }
   },
   "done_criteria": {
