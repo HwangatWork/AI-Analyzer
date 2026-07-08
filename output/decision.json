@@ -1,12 +1,12 @@
 {
-  "computed_at": "2026-07-07T04:34:31.677159",
-  "composite_score": 46.9,
-  "kospi_composite_score": 47.1,
+  "computed_at": "2026-07-08T03:52:45.035790",
+  "composite_score": 48.8,
+  "kospi_composite_score": 49.0,
   "direction": "neutral",
   "sp500": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 9.6,
+    "confidence_pct": 14.6,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
@@ -17,24 +17,24 @@
     "exit_triggers": [
       "US10Y 약세 (Z=+1.56) — 하방 압력"
     ],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+104%) / Apple Inc. (+48%)"
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+108%) / Apple Inc. (+50%)"
   },
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 8.1,
+    "confidence_pct": 9.6,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
-    "top_stocks_hint": "SK하이닉스 (+765%) / 삼성전자 (+415%)"
+    "top_stocks_hint": "HD현대일렉트릭 (+101%) / DB하이텍 (+142%)"
   },
   "risk_factors": [
     "미국 10년물 금리 상승 (Z=+1.56) → 할인율 부담"
   ],
   "signal_summary": {
-    "bullish": 7,
-    "bearish": 6,
+    "bullish": 8,
+    "bearish": 5,
     "total": 13,
-    "consensus_ratio": 0.538
+    "consensus_ratio": 0.615
   }
 }
