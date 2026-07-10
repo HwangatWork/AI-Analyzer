@@ -1,38 +1,40 @@
 {
-  "computed_at": "2026-07-09T04:29:35.571919",
-  "composite_score": 42.7,
-  "kospi_composite_score": 42.6,
+  "computed_at": "2026-07-10T04:25:03.091324",
+  "composite_score": 47.6,
+  "kospi_composite_score": 47.5,
   "direction": "neutral",
   "sp500": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 15.9,
+    "confidence_pct": 9.1,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
     "entry_triggers": [
-      "T10Y2Y 강세 (Z=-1.98) — 252일 평균 대비 2.0σ 이상",
+      "T10Y2Y 강세 (Z=-2.00) — 252일 평균 대비 2.0σ 이상",
       "HY_SPREAD 축소 → 신용 리스크 감소, 위험자산 선호"
     ],
-    "exit_triggers": [],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+111%) / Apple Inc. (+49%)"
+    "exit_triggers": [
+      "US10Y 약세 (Z=+1.92) — 하방 압력"
+    ],
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+106%) / Apple Inc. (+49%)"
   },
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 15.5,
+    "confidence_pct": 7.5,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
-    "top_stocks_hint": "HD현대일렉트릭 (+82%) / DB하이텍 (+151%)"
+    "top_stocks_hint": "삼성전자 (+353%) / SK하이닉스 (+662%)"
   },
   "risk_factors": [
-    "미국 10년물 금리 상승 (Z=+1.49) → 할인율 부담"
+    "미국 10년물 금리 상승 (Z=+1.92) → 할인율 부담"
   ],
   "signal_summary": {
-    "bullish": 5,
-    "bearish": 8,
+    "bullish": 7,
+    "bearish": 6,
     "total": 13,
-    "consensus_ratio": 0.385
+    "consensus_ratio": 0.538
   }
 }
