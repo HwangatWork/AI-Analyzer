@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-07-12T04:01:05.481471",
+  "generated_at": "2026-07-13T04:11:26.500405",
   "analysis_period": {
-    "start": "2025-07-12",
-    "end": "2026-07-12"
+    "start": "2025-07-13",
+    "end": "2026-07-13"
   },
   "signal": {
-    "score": 48.7,
+    "score": 49.1,
     "direction": "neutral",
     "bullish_count": 10,
     "bearish_count": 3,
@@ -60,15 +60,15 @@
         "bullish": false
       },
       {
-        "indicator": "MARKET_MOMENTUM",
-        "z_score": 0.503,
-        "weight": 0.0367,
+        "indicator": "CNN_FG",
+        "z_score": 0.619,
+        "weight": 0.1986,
         "bullish": true
       },
       {
-        "indicator": "CNN_FG",
-        "z_score": 0.421,
-        "weight": 0.1988,
+        "indicator": "MARKET_MOMENTUM",
+        "z_score": 0.503,
+        "weight": 0.0367,
         "bullish": true
       },
       {
@@ -198,27 +198,27 @@
     "contribution_top5": [
       {
         "name": "SK하이닉스",
-        "stock_return_pct": 626.7,
-        "contribution_score": 0.919
+        "stock_return_pct": 532.7,
+        "contribution_score": 0.886
       },
       {
         "name": "삼성전자",
-        "stock_return_pct": 356.0,
-        "contribution_score": 0.885
+        "stock_return_pct": 316.0,
+        "contribution_score": 0.878
       },
       {
         "name": "SK스퀘어",
-        "stock_return_pct": 690.2,
-        "contribution_score": 0.146
-      },
-      {
-        "name": "대덕전자",
-        "stock_return_pct": 574.7,
-        "contribution_score": 0.034
+        "stock_return_pct": 564.0,
+        "contribution_score": 0.139
       },
       {
         "name": "삼성전기",
-        "stock_return_pct": 1052.0,
+        "stock_return_pct": 838.2,
+        "contribution_score": 0.099
+      },
+      {
+        "name": "대덕전자",
+        "stock_return_pct": 535.6,
         "contribution_score": 0.032
       }
     ],
@@ -228,11 +228,11 @@
         "excess_return": 0
       },
       {
-        "name": "SK스퀘어",
+        "name": "SK하이닉스",
         "excess_return": 0
       },
       {
-        "name": "SK하이닉스",
+        "name": "SK스퀘어",
         "excess_return": 0
       },
       {

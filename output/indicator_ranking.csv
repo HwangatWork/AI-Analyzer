@@ -6,7 +6,7 @@
 5,MARKET_STRENGTH,level,0.2185,True,False,0.348887,0.1196,True,True,0.001415,0.2336,bullish
 8,FOREIGN_NET,weekly_flow,0.0588,False,False,0.58583,0.2596,True,True,0.020178,0.2219,bullish
 9,VIX,level,-0.2164,True,False,0.068664,-0.0837,False,True,1e-06,0.2217,bearish
-11,CNN_FG,level,0.0378,False,False,0.543956,0.0511,False,True,0.005729,0.1988,bullish
+11,CNN_FG,level,0.0378,False,False,0.543956,0.0523,False,True,0.006629,0.1986,bullish
 14,INSTITUTION_NET,weekly_flow,0.0838,False,False,0.085212,0.3898,True,False,0.659813,0.0588,bullish
 16,BBAND,level,0.3669,True,True,0.02841,0.1485,True,True,1e-06,0.0516,bullish
 18,STOCH_RSI,level,0.3117,True,False,0.528676,0.117,True,True,0.000237,0.0428,bullish
