@@ -1,12 +1,12 @@
 {
-  "computed_at": "2026-07-13T04:11:25.692741",
-  "composite_score": 48.7,
-  "kospi_composite_score": 48.4,
+  "computed_at": "2026-07-14T03:43:25.179595",
+  "composite_score": 49.1,
+  "kospi_composite_score": 48.8,
   "direction": "neutral",
   "sp500": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 26.9,
+    "confidence_pct": 26.7,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
@@ -22,11 +22,11 @@
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 17.4,
+    "confidence_pct": 17.0,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
-    "top_stocks_hint": "SK하이닉스 (+627%) / 삼성전자 (+356%)"
+    "top_stocks_hint": "SK하이닉스 (+533%) / 삼성전자 (+316%)"
   },
   "risk_factors": [
     "미국 10년물 금리 상승 (Z=+1.82) → 할인율 부담"
