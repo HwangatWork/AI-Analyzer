@@ -1,92 +1,92 @@
 {
-  "generated_at": "2026-07-14T03:43:25.723468",
+  "generated_at": "2026-07-15T03:42:11.211089",
   "analysis_period": {
-    "start": "2025-07-14",
-    "end": "2026-07-14"
+    "start": "2025-07-15",
+    "end": "2026-07-15"
   },
   "signal": {
-    "score": 41.5,
+    "score": 55.4,
     "direction": "neutral",
-    "bullish_count": 8,
-    "bearish_count": 5,
+    "bullish_count": 11,
+    "bearish_count": 2,
     "total_signals": 13,
     "indicator_details": [
       {
-        "indicator": "INSTITUTION_NET",
-        "z_score": -2.0,
-        "weight": 0.0602,
+        "indicator": "US10Y",
+        "z_score": 2.0,
+        "weight": 0.4409,
         "bullish": false
       },
       {
-        "indicator": "US10Y",
-        "z_score": 1.936,
-        "weight": 0.4416,
-        "bullish": false
+        "indicator": "INSTITUTION_NET",
+        "z_score": 2.0,
+        "weight": 0.251,
+        "bullish": true
+      },
+      {
+        "indicator": "STOCH_RSI",
+        "z_score": 1.612,
+        "weight": 0.0417,
+        "bullish": true
       },
       {
         "indicator": "T10Y2Y",
-        "z_score": -1.907,
-        "weight": 0.0135,
+        "z_score": -1.479,
+        "weight": 0.0134,
         "bullish": true
       },
       {
         "indicator": "HY_SPREAD",
-        "z_score": -1.262,
-        "weight": 0.2761,
+        "z_score": -1.254,
+        "weight": 0.2754,
         "bullish": true
       },
       {
         "indicator": "FOREIGN_NET",
-        "z_score": -0.588,
-        "weight": 0.2173,
-        "bullish": false
-      },
-      {
-        "indicator": "DXY",
-        "z_score": 0.586,
-        "weight": 0.2554,
-        "bullish": false
-      },
-      {
-        "indicator": "STOCH_RSI",
-        "z_score": 0.495,
-        "weight": 0.0416,
-        "bullish": true
-      },
-      {
-        "indicator": "VIX",
-        "z_score": -0.282,
-        "weight": 0.2214,
+        "z_score": 0.873,
+        "weight": 0.2172,
         "bullish": true
       },
       {
         "indicator": "MARKET_STRENGTH",
-        "z_score": -0.256,
+        "z_score": 0.813,
         "weight": 0.2335,
+        "bullish": true
+      },
+      {
+        "indicator": "DXY",
+        "z_score": 0.586,
+        "weight": 0.2556,
         "bullish": false
       },
       {
-        "indicator": "WTI",
-        "z_score": -0.226,
-        "weight": 0.242,
+        "indicator": "VIX",
+        "z_score": -0.481,
+        "weight": 0.2214,
         "bullish": true
       },
       {
         "indicator": "BBAND",
-        "z_score": 0.149,
+        "z_score": 0.412,
         "weight": 0.0507,
         "bullish": true
       },
       {
         "indicator": "CNN_FG",
-        "z_score": 0.049,
-        "weight": 0.1979,
+        "z_score": 0.333,
+        "weight": 0.1974,
         "bullish": true
       },
       {
         "indicator": "MARKET_MOMENTUM",
-        "z_score": 0.029,
+        "z_score": 0.255,
         "weight": 0.0362,
+        "bullish": true
+      },
+      {
+        "indicator": "WTI",
+        "z_score": -0.226,
+        "weight": 0.2419,
         "bullish": true
       }
     ]
@@ -110,65 +110,65 @@
     {
       "rank": 1,
       "indicator": "US10Y",
-      "combined_weight": 0.4416,
-      "sp500_signed_r": -0.2188,
-      "kospi_signed_r": -0.0242
+      "combined_weight": 0.4409,
+      "sp500_signed_r": -0.2224,
+      "kospi_signed_r": -0.0413
     },
     {
       "rank": 2,
       "indicator": "HY_SPREAD",
-      "combined_weight": 0.2761,
-      "sp500_signed_r": -0.6231,
-      "kospi_signed_r": -0.1593
+      "combined_weight": 0.2754,
+      "sp500_signed_r": -0.6223,
+      "kospi_signed_r": -0.1562
     },
     {
       "rank": 3,
       "indicator": "DXY",
-      "combined_weight": 0.2554,
-      "sp500_signed_r": -0.3695,
-      "kospi_signed_r": -0.185
+      "combined_weight": 0.2556,
+      "sp500_signed_r": -0.3709,
+      "kospi_signed_r": -0.1852
     },
     {
       "rank": 4,
-      "indicator": "WTI",
-      "combined_weight": 0.242,
-      "sp500_signed_r": -0.3299,
-      "kospi_signed_r": -0.1109
+      "indicator": "INSTITUTION_NET",
+      "combined_weight": 0.251,
+      "sp500_signed_r": 0.0883,
+      "kospi_signed_r": 0.3911
     },
     {
       "rank": 5,
-      "indicator": "MARKET_STRENGTH",
-      "combined_weight": 0.2335,
-      "sp500_signed_r": 0.2189,
-      "kospi_signed_r": 0.1199
+      "indicator": "WTI",
+      "combined_weight": 0.2419,
+      "sp500_signed_r": -0.3298,
+      "kospi_signed_r": -0.1108
     }
   ],
   "sp500": {
     "contribution_top5": [
       {
         "name": "Alphabet Inc. (Class A)",
-        "stock_return_pct": 94.7,
-        "contribution_score": 1.172
+        "stock_return_pct": 98.1,
+        "contribution_score": 1.218
       },
       {
         "name": "Apple Inc.",
-        "stock_return_pct": 52.7,
-        "contribution_score": 0.738
+        "stock_return_pct": 51.2,
+        "contribution_score": 0.716
       },
       {
         "name": "Nvidia",
         "stock_return_pct": 24.2,
-        "contribution_score": 0.629
+        "contribution_score": 0.662
       },
       {
         "name": "Micron Technology",
-        "stock_return_pct": 691.2,
-        "contribution_score": 0.529
+        "stock_return_pct": 719.8,
+        "contribution_score": 0.559
       },
       {
         "name": "Advanced Micro Devices",
-        "stock_return_pct": 265.4,
-        "contribution_score": 0.366
+        "stock_return_pct": 252.2,
+        "contribution_score": 0.374
       }
     ],
     "beneficiary_top5": [
@@ -177,11 +177,11 @@
         "excess_return": 0
       },
       {
-        "name": "Western Digital",
+        "name": "Micron Technology",
         "excess_return": 0
       },
       {
-        "name": "Micron Technology",
+        "name": "Western Digital",
         "excess_return": 0
       },
       {
@@ -198,27 +198,27 @@
     "contribution_top5": [
       {
         "name": "HD현대일렉트릭",
-        "stock_return_pct": 72.2,
+        "stock_return_pct": 74.5,
         "contribution_score": 0.011
       },
       {
-        "name": "KB금융",
-        "stock_return_pct": 54.8,
+        "name": "DB하이텍",
+        "stock_return_pct": 151.0,
         "contribution_score": 0.01
       },
       {
-        "name": "DB하이텍",
-        "stock_return_pct": 134.8,
-        "contribution_score": 0.009
+        "name": "KB금융",
+        "stock_return_pct": 53.6,
+        "contribution_score": 0.01
       },
       {
         "name": "HD현대에너지솔루션",
-        "stock_return_pct": 138.5,
-        "contribution_score": 0.004
+        "stock_return_pct": 159.9,
+        "contribution_score": 0.005
       },
       {
         "name": "HJ중공업",
-        "stock_return_pct": 91.2,
+        "stock_return_pct": 100.4,
         "contribution_score": 0.004
       }
     ],

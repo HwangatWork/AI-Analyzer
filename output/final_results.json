@@ -1,10 +1,10 @@
 {
   "meta": {
-    "generated_at": "2026-07-14T03:43:25.532612",
+    "generated_at": "2026-07-15T03:42:11.014004",
     "version": "4.0",
     "period": {
-      "start": "2025-07-14",
-      "end": "2026-07-14"
+      "start": "2025-07-15",
+      "end": "2026-07-15"
     },
     "total_indicators_collected": 29,
     "total_indicators_possible": 30,
@@ -12,137 +12,137 @@
     "total_indicators_analyzed": 13,
     "total_indicators_in_final": 13,
     "excluded_low_confidence": [
-      "FED_ASSETS",
+      "MA200",
       "PUT_CALL",
-      "MA200"
+      "FED_ASSETS"
     ],
-    "data_reference_date": "2026-07-14"
+    "data_reference_date": "2026-07-15"
   },
   "market_signal": {
-    "score": 41.5,
+    "score": 55.4,
     "direction": "neutral",
-    "bullish_count": 8,
-    "bearish_count": 5,
+    "bullish_count": 11,
+    "bearish_count": 2,
     "total_signals": 13,
-    "computed_at": "2026-07-14T03:43:25.532570",
+    "computed_at": "2026-07-15T03:42:11.013969",
     "methodology": "Z-score based composite: each indicator's latest value vs 252-day rolling mean/std, sign-adjusted by its SP500 Pearson correlation, weighted by combined_weight. Score = 50 + weighted_sum * 50. Risk-on>65, risk-off<35.",
     "indicator_signals": [
       {
-        "indicator": "INSTITUTION_NET",
-        "weight": 0.0602,
-        "last_value": -22338.2313,
-        "z_score": -2.0,
+        "indicator": "US10Y",
+        "weight": 0.4409,
+        "last_value": 4.62,
+        "z_score": 2.0,
         "signal": -1.0,
         "bullish": false,
-        "sp500_r": 0.0866
+        "sp500_r": -0.2224
       },
       {
-        "indicator": "US10Y",
-        "weight": 0.4416,
-        "last_value": 4.56,
-        "z_score": 1.936,
-        "signal": -0.968,
-        "bullish": false,
-        "sp500_r": -0.2188
-      },
-      {
-        "indicator": "T10Y2Y",
-        "weight": 0.0135,
-        "last_value": 0.36,
-        "z_score": -1.907,
-        "signal": 0.954,
+        "indicator": "INSTITUTION_NET",
+        "weight": 0.251,
+        "last_value": 32116.7489,
+        "z_score": 2.0,
+        "signal": 1.0,
         "bullish": true,
-        "sp500_r": -0.0606
-      },
-      {
-        "indicator": "HY_SPREAD",
-        "weight": 0.2761,
-        "last_value": 2.69,
-        "z_score": -1.262,
-        "signal": 0.631,
-        "bullish": true,
-        "sp500_r": -0.6231
-      },
-      {
-        "indicator": "FOREIGN_NET",
-        "weight": 0.2173,
-        "last_value": -16705.482,
-        "z_score": -0.588,
-        "signal": -0.294,
-        "bullish": false,
-        "sp500_r": 0.0612
-      },
-      {
-        "indicator": "DXY",
-        "weight": 0.2554,
-        "last_value": 120.5046,
-        "z_score": 0.586,
-        "signal": -0.293,
-        "bullish": false,
-        "sp500_r": -0.3695
+        "sp500_r": 0.0883
       },
       {
         "indicator": "STOCH_RSI",
-        "weight": 0.0416,
-        "last_value": 0.6173,
-        "z_score": 0.495,
-        "signal": 0.247,
+        "weight": 0.0417,
+        "last_value": 1.0,
+        "z_score": 1.612,
+        "signal": 0.806,
         "bullish": true,
-        "sp500_r": 0.3078
+        "sp500_r": 0.3095
       },
       {
-        "indicator": "VIX",
-        "weight": 0.2214,
-        "last_value": 17.16,
-        "z_score": -0.282,
-        "signal": 0.141,
+        "indicator": "T10Y2Y",
+        "weight": 0.0134,
+        "last_value": 0.4,
+        "z_score": -1.479,
+        "signal": 0.739,
         "bullish": true,
-        "sp500_r": -0.2142
+        "sp500_r": -0.0566
+      },
+      {
+        "indicator": "HY_SPREAD",
+        "weight": 0.2754,
+        "last_value": 2.69,
+        "z_score": -1.254,
+        "signal": 0.627,
+        "bullish": true,
+        "sp500_r": -0.6223
+      },
+      {
+        "indicator": "FOREIGN_NET",
+        "weight": 0.2172,
+        "last_value": 9565.0834,
+        "z_score": 0.873,
+        "signal": 0.436,
+        "bullish": true,
+        "sp500_r": 0.0613
       },
       {
         "indicator": "MARKET_STRENGTH",
         "weight": 0.2335,
-        "last_value": 53.9261,
-        "z_score": -0.256,
-        "signal": -0.128,
-        "bullish": false,
-        "sp500_r": 0.2189
+        "last_value": 69.2444,
+        "z_score": 0.813,
+        "signal": 0.406,
+        "bullish": true,
+        "sp500_r": 0.2184
       },
       {
-        "indicator": "WTI",
-        "weight": 0.242,
-        "last_value": 69.6,
-        "z_score": -0.226,
-        "signal": 0.113,
+        "indicator": "DXY",
+        "weight": 0.2556,
+        "last_value": 120.5046,
+        "z_score": 0.586,
+        "signal": -0.293,
+        "bullish": false,
+        "sp500_r": -0.3709
+      },
+      {
+        "indicator": "VIX",
+        "weight": 0.2214,
+        "last_value": 16.5,
+        "z_score": -0.481,
+        "signal": 0.241,
         "bullish": true,
-        "sp500_r": -0.3299
+        "sp500_r": -0.2142
       },
       {
         "indicator": "BBAND",
         "weight": 0.0507,
-        "last_value": 0.6666,
-        "z_score": 0.149,
-        "signal": 0.075,
+        "last_value": 0.7444,
+        "z_score": 0.412,
+        "signal": 0.206,
         "bullish": true,
-        "sp500_r": 0.3641
+        "sp500_r": 0.3651
       },
       {
         "indicator": "CNN_FG",
-        "weight": 0.1979,
-        "last_value": 22.0,
-        "z_score": 0.049,
-        "signal": 0.025,
+        "weight": 0.1974,
+        "last_value": 25.0,
+        "z_score": 0.333,
+        "signal": 0.166,
         "bullish": true,
-        "sp500_r": 0.0389
+        "sp500_r": 0.0348
       },
       {
         "indicator": "MARKET_MOMENTUM",
         "weight": 0.0362,
-        "last_value": 0.9876,
-        "z_score": 0.029,
-        "signal": 0.015,
+        "last_value": 0.9913,
+        "z_score": 0.255,
+        "signal": 0.128,
         "bullish": true,
-        "sp500_r": 0.2284
+        "sp500_r": 0.2289
+      },
+      {
+        "indicator": "WTI",
+        "weight": 0.2419,
+        "last_value": 69.6,
+        "z_score": -0.226,
+        "signal": 0.113,
+        "bullish": true,
+        "sp500_r": -0.3298
       }
     ]
   },
@@ -151,70 +151,84 @@
       "rank": 1,
       "indicator": "US10Y",
       "ind_type": "diff",
-      "sp500_signed_r": -0.2188,
+      "sp500_signed_r": -0.2224,
       "sp500_significant": true,
       "sp500_granger_sig": true,
-      "sp500_granger_p": 0.043803,
-      "kospi_signed_r": -0.0242,
+      "sp500_granger_p": 0.044895,
+      "kospi_signed_r": -0.0413,
       "kospi_significant": false,
       "kospi_granger_sig": true,
-      "kospi_granger_p": 0.001852,
-      "combined_weight": 0.4416
+      "kospi_granger_p": 0.002456,
+      "combined_weight": 0.4409
     },
     {
       "rank": 2,
       "indicator": "HY_SPREAD",
       "ind_type": "diff",
-      "sp500_signed_r": -0.6231,
+      "sp500_signed_r": -0.6223,
       "sp500_significant": true,
       "sp500_granger_sig": false,
-      "sp500_granger_p": 0.40987,
-      "kospi_signed_r": -0.1593,
+      "sp500_granger_p": 0.444233,
+      "kospi_signed_r": -0.1562,
       "kospi_significant": true,
       "kospi_granger_sig": true,
-      "kospi_granger_p": 0.01065,
-      "combined_weight": 0.2761
+      "kospi_granger_p": 0.012172,
+      "combined_weight": 0.2754
     },
     {
       "rank": 3,
       "indicator": "DXY",
       "ind_type": "diff",
-      "sp500_signed_r": -0.3695,
+      "sp500_signed_r": -0.3709,
       "sp500_significant": true,
       "sp500_granger_sig": false,
-      "sp500_granger_p": 0.239263,
-      "kospi_signed_r": -0.185,
+      "sp500_granger_p": 0.239341,
+      "kospi_signed_r": -0.1852,
       "kospi_significant": true,
       "kospi_granger_sig": true,
-      "kospi_granger_p": 0.000226,
-      "combined_weight": 0.2554
+      "kospi_granger_p": 0.000216,
+      "combined_weight": 0.2556
     },
     {
       "rank": 4,
-      "indicator": "WTI",
-      "ind_type": "diff",
-      "sp500_signed_r": -0.3299,
-      "sp500_significant": true,
-      "sp500_granger_sig": false,
-      "sp500_granger_p": 0.486046,
-      "kospi_signed_r": -0.1109,
+      "indicator": "INSTITUTION_NET",
+      "ind_type": "weekly_flow",
+      "sp500_signed_r": 0.0883,
+      "sp500_significant": false,
+      "sp500_granger_sig": true,
+      "sp500_granger_p": 0.048906,
+      "kospi_signed_r": 0.3911,
       "kospi_significant": true,
-      "kospi_granger_sig": true,
-      "kospi_granger_p": 0.0105,
-      "combined_weight": 0.242
+      "kospi_granger_sig": false,
+      "kospi_granger_p": 0.815732,
+      "combined_weight": 0.251
     },
     {
       "rank": 5,
-      "indicator": "MARKET_STRENGTH",
-      "ind_type": "level",
-      "sp500_signed_r": 0.2189,
+      "indicator": "WTI",
+      "ind_type": "diff",
+      "sp500_signed_r": -0.3298,
       "sp500_significant": true,
       "sp500_granger_sig": false,
-      "sp500_granger_p": 0.34881,
-      "kospi_signed_r": 0.1199,
+      "sp500_granger_p": 0.465194,
+      "kospi_signed_r": -0.1108,
       "kospi_significant": true,
       "kospi_granger_sig": true,
-      "kospi_granger_p": 0.00185,
+      "kospi_granger_p": 0.010672,
+      "combined_weight": 0.2419
+    },
+    {
+      "rank": 6,
+      "indicator": "MARKET_STRENGTH",
+      "ind_type": "level",
+      "sp500_signed_r": 0.2184,
+      "sp500_significant": true,
+      "sp500_granger_sig": false,
+      "sp500_granger_p": 0.353294,
+      "kospi_signed_r": 0.1201,
+      "kospi_significant": true,
+      "kospi_granger_sig": true,
+      "kospi_granger_p": 0.001864,
       "combined_weight": 0.2335
     },
     {
@@ -224,64 +238,50 @@
       "sp500_signed_r": -0.2142,
       "sp500_significant": true,
       "sp500_granger_sig": false,
-      "sp500_granger_p": 0.058938,
-      "kospi_signed_r": -0.0785,
+      "sp500_granger_p": 0.051101,
+      "kospi_signed_r": -0.0786,
       "kospi_significant": false,
       "kospi_granger_sig": true,
       "kospi_granger_p": 3e-06,
       "combined_weight": 0.2214
     },
     {
-      "rank": 8,
+      "rank": 9,
       "indicator": "FOREIGN_NET",
       "ind_type": "weekly_flow",
-      "sp500_signed_r": 0.0612,
+      "sp500_signed_r": 0.0613,
       "sp500_significant": false,
       "sp500_granger_sig": false,
-      "sp500_granger_p": 0.587754,
+      "sp500_granger_p": 0.573162,
       "kospi_signed_r": 0.2623,
       "kospi_significant": true,
       "kospi_granger_sig": true,
-      "kospi_granger_p": 0.044766,
-      "combined_weight": 0.2173
+      "kospi_granger_p": 0.044918,
+      "combined_weight": 0.2172
     },
     {
       "rank": 10,
       "indicator": "CNN_FG",
       "ind_type": "level",
-      "sp500_signed_r": 0.0389,
+      "sp500_signed_r": 0.0348,
       "sp500_significant": false,
       "sp500_granger_sig": false,
-      "sp500_granger_p": 0.56802,
-      "kospi_signed_r": 0.0525,
+      "sp500_granger_p": 0.572139,
+      "kospi_signed_r": 0.0496,
       "kospi_significant": false,
       "kospi_granger_sig": true,
-      "kospi_granger_p": 0.010481,
-      "combined_weight": 0.1979
-    },
-    {
-      "rank": 13,
-      "indicator": "INSTITUTION_NET",
-      "ind_type": "weekly_flow",
-      "sp500_signed_r": 0.0866,
-      "sp500_significant": false,
-      "sp500_granger_sig": false,
-      "sp500_granger_p": 0.054486,
-      "kospi_signed_r": 0.3911,
-      "kospi_significant": true,
-      "kospi_granger_sig": false,
-      "kospi_granger_p": 0.791878,
-      "combined_weight": 0.0602
+      "kospi_granger_p": 0.012841,
+      "combined_weight": 0.1974
     },
     {
       "rank": 15,
       "indicator": "BBAND",
       "ind_type": "level",
-      "sp500_signed_r": 0.3641,
+      "sp500_signed_r": 0.3651,
       "sp500_significant": true,
       "sp500_granger_sig": true,
-      "sp500_granger_p": 0.024777,
-      "kospi_signed_r": 0.1426,
+      "sp500_granger_p": 0.024815,
+      "kospi_signed_r": 0.1418,
       "kospi_significant": true,
       "kospi_granger_sig": true,
       "kospi_granger_p": 4e-06,
@@ -291,25 +291,25 @@
       "rank": 17,
       "indicator": "STOCH_RSI",
       "ind_type": "level",
-      "sp500_signed_r": 0.3078,
+      "sp500_signed_r": 0.3095,
       "sp500_significant": true,
       "sp500_granger_sig": false,
-      "sp500_granger_p": 0.524917,
-      "kospi_signed_r": 0.108,
+      "sp500_granger_p": 0.528959,
+      "kospi_signed_r": 0.1079,
       "kospi_significant": true,
       "kospi_granger_sig": true,
-      "kospi_granger_p": 0.000419,
-      "combined_weight": 0.0416
+      "kospi_granger_p": 0.000463,
+      "combined_weight": 0.0417
     },
     {
       "rank": 19,
       "indicator": "MARKET_MOMENTUM",
       "ind_type": "level",
-      "sp500_signed_r": 0.2284,
+      "sp500_signed_r": 0.2289,
       "sp500_significant": true,
       "sp500_granger_sig": true,
-      "sp500_granger_p": 0.031273,
-      "kospi_signed_r": 0.1332,
+      "sp500_granger_p": 0.030713,
+      "kospi_signed_r": 0.1329,
       "kospi_significant": true,
       "kospi_granger_sig": true,
       "kospi_granger_p": 0.0,
@@ -319,30 +319,30 @@
       "rank": 23,
       "indicator": "T10Y2Y",
       "ind_type": "diff",
-      "sp500_signed_r": -0.0606,
+      "sp500_signed_r": -0.0566,
       "sp500_significant": false,
       "sp500_granger_sig": false,
-      "sp500_granger_p": 0.229426,
-      "kospi_signed_r": -0.1349,
+      "sp500_granger_p": 0.247671,
+      "kospi_signed_r": -0.1333,
       "kospi_significant": true,
       "kospi_granger_sig": false,
-      "kospi_granger_p": 0.781453,
-      "combined_weight": 0.0135
+      "kospi_granger_p": 0.796348,
+      "combined_weight": 0.0134
     }
   ],
   "sp500_analysis": {
     "contribution_top5": [
       {
-        "beta": 1.3254,
-        "correlation": 0.5577,
+        "beta": 1.3297,
+        "correlation": 0.5584,
         "p_value": 0.0,
-        "stock_return_pct": 94.71,
-        "index_return_pct": 19.89,
+        "stock_return_pct": 98.1,
+        "index_return_pct": 20.82,
         "period_days": 250,
         "period_label": "1년 (365일)",
-        "market_cap_b": 4301.5,
-        "market_cap_start_b": 2209.2,
-        "contribution_score": 1.1722,
+        "market_cap_b": 4386.9,
+        "market_cap_start_b": 2214.6,
+        "contribution_score": 1.2185,
         "n_days": 250,
         "data_quality": "검증불필요",
         "data_source": "yfinance",
@@ -350,16 +350,16 @@
         "name": "Alphabet Inc. (Class A)"
       },
       {
-        "beta": 0.8748,
-        "correlation": 0.457,
+        "beta": 0.874,
+        "correlation": 0.456,
         "p_value": 0.0,
-        "stock_return_pct": 52.7,
-        "index_return_pct": 19.89,
+        "stock_return_pct": 51.17,
+        "index_return_pct": 20.82,
         "period_days": 250,
         "period_label": "1년 (365일)",
-        "market_cap_b": 4660.4,
-        "market_cap_start_b": 3052.0,
-        "contribution_score": 0.7375,
+        "market_cap_b": 4624.5,
+        "market_cap_start_b": 3059.1,
+        "contribution_score": 0.7161,
         "n_days": 250,
         "data_quality": "검증불필요",
         "data_source": "yfinance",
@@ -367,16 +367,16 @@
         "name": "Apple Inc."
       },
       {
-        "beta": 1.8562,
-        "correlation": 0.6531,
+        "beta": 1.8772,
+        "correlation": 0.6601,
         "p_value": 0.0,
-        "stock_return_pct": 24.22,
-        "index_return_pct": 19.89,
+        "stock_return_pct": 24.24,
+        "index_return_pct": 20.82,
         "period_days": 250,
         "period_label": "1년 (365일)",
-        "market_cap_b": 4929.7,
-        "market_cap_start_b": 3968.7,
-        "contribution_score": 0.6292,
+        "market_cap_b": 5130.0,
+        "market_cap_start_b": 4129.0,
+        "contribution_score": 0.6624,
         "n_days": 250,
         "data_quality": "검증불필요",
         "data_source": "yfinance",
@@ -384,34 +384,34 @@
         "name": "Nvidia"
       },
       {
-        "beta": 3.2132,
-        "correlation": 0.5329,
+        "beta": 3.2245,
+        "correlation": 0.5338,
         "p_value": 0.0,
-        "stock_return_pct": 691.25,
-        "index_return_pct": 19.89,
+        "stock_return_pct": 719.83,
+        "index_return_pct": 20.82,
         "period_days": 250,
         "period_label": "1년 (365일)",
-        "market_cap_b": 1058.2,
-        "market_cap_start_b": 133.7,
-        "contribution_score": 0.5295,
+        "market_cap_b": 1110.3,
+        "market_cap_start_b": 135.4,
+        "contribution_score": 0.5588,
         "n_days": 250,
         "data_quality": "검증불필요",
         "data_source": "yfinance",
         "ticker": "MU",
         "name": "Micron Technology",
-        "warn_reason": "극단 수익률 +691.2% — 기업 이벤트(분사/합병/테마) 가능성, 수동 확인 권장"
+        "warn_reason": "극단 수익률 +719.8% — 기업 이벤트(분사/합병/테마) 가능성, 수동 확인 권장"
       },
       {
-        "beta": 3.045,
-        "correlation": 0.5558,
+        "beta": 3.0688,
+        "correlation": 0.5617,
         "p_value": 0.0,
-        "stock_return_pct": 265.42,
-        "index_return_pct": 19.89,
+        "stock_return_pct": 252.25,
+        "index_return_pct": 20.82,
         "period_days": 250,
         "period_label": "1년 (365일)",
-        "market_cap_b": 871.4,
-        "market_cap_start_b": 238.5,
-        "contribution_score": 0.3665,
+        "market_cap_b": 893.8,
+        "market_cap_start_b": 253.7,
+        "contribution_score": 0.3737,
         "n_days": 250,
         "data_quality": "검증불필요",
         "data_source": "yfinance",
@@ -421,14 +421,14 @@
     ],
     "beneficiary_top5": [
       {
-        "correlation": 0.4751,
+        "correlation": 0.4754,
         "p_value": 0.0,
-        "stock_return_pct": 3840.61,
-        "index_return_pct": 19.89,
-        "excess_return_pct": 3820.72,
+        "stock_return_pct": 4014.75,
+        "index_return_pct": 20.82,
+        "excess_return_pct": 3993.93,
         "period_days": 250,
         "period_label": "1년 (365일)",
-        "beneficiary_score": 18.1523,
+        "beneficiary_score": 18.9886,
         "n_days": 250,
         "data_quality": "검증불필요",
         "data_source": "yfinance",
@@ -437,14 +437,30 @@
         "warn_reason": "WD(Western Digital) 스핀오프 2024.02.21 상장 — 분리 직후 주가 기준 초과수익률 왜곡"
       },
       {
-        "correlation": 0.5029,
+        "correlation": 0.5338,
         "p_value": 0.0,
-        "stock_return_pct": 732.3,
-        "index_return_pct": 19.89,
-        "excess_return_pct": 712.41,
+        "stock_return_pct": 719.83,
+        "index_return_pct": 20.82,
+        "excess_return_pct": 699.01,
         "period_days": 250,
         "period_label": "1년 (365일)",
-        "beneficiary_score": 3.5826,
+        "beneficiary_score": 3.7314,
+        "n_days": 250,
+        "data_quality": "검증불필요",
+        "data_source": "yfinance",
+        "ticker": "MU",
+        "name": "Micron Technology",
+        "warn_reason": "극단 수익률 +699.0% — 기업 이벤트(분사/합병/테마) 가능성, 수동 확인 권장"
+      },
+      {
+        "correlation": 0.5032,
+        "p_value": 0.0,
+        "stock_return_pct": 736.44,
+        "index_return_pct": 20.82,
+        "excess_return_pct": 715.62,
+        "period_days": 250,
+        "period_label": "1년 (365일)",
+        "beneficiary_score": 3.6011,
         "n_days": 250,
         "data_quality": "검증불필요",
         "data_source": "yfinance",
@@ -453,30 +469,14 @@
         "warn_reason": "SanDisk 스핀오프 2024.02.21 — 분사 후 잔여 법인 기준 수익률"
       },
       {
-        "correlation": 0.5329,
+        "correlation": 0.3926,
         "p_value": 0.0,
-        "stock_return_pct": 691.25,
-        "index_return_pct": 19.89,
-        "excess_return_pct": 671.36,
+        "stock_return_pct": 730.24,
+        "index_return_pct": 20.82,
+        "excess_return_pct": 709.42,
         "period_days": 250,
         "period_label": "1년 (365일)",
-        "beneficiary_score": 3.5777,
-        "n_days": 250,
-        "data_quality": "검증불필요",
-        "data_source": "yfinance",
-        "ticker": "MU",
-        "name": "Micron Technology",
-        "warn_reason": "극단 수익률 +671.4% — 기업 이벤트(분사/합병/테마) 가능성, 수동 확인 권장"
-      },
-      {
-        "correlation": 0.3887,
-        "p_value": 0.0,
-        "stock_return_pct": 732.77,
-        "index_return_pct": 19.89,
-        "excess_return_pct": 712.88,
-        "period_days": 250,
-        "period_label": "1년 (365일)",
-        "beneficiary_score": 2.771,
+        "beneficiary_score": 2.7852,
         "n_days": 250,
         "data_quality": "검증불필요",
         "data_source": "yfinance",
@@ -485,14 +485,14 @@
         "warn_reason": "R4 데이터 이상 의심 — 기업이벤트 없음 확인됨. 실제 Jun24-Jun25 수익률 약 +45%; +900%+ 수치는 시작가 날짜 불일치(start_price misalignment) 가능성. 수동 검증 필수"
       },
       {
-        "correlation": 0.4442,
+        "correlation": 0.4443,
         "p_value": 0.0,
-        "stock_return_pct": 482.08,
-        "index_return_pct": 19.89,
-        "excess_return_pct": 462.19,
+        "stock_return_pct": 494.14,
+        "index_return_pct": 20.82,
+        "excess_return_pct": 473.32,
         "period_days": 250,
         "period_label": "1년 (365일)",
-        "beneficiary_score": 2.0531,
+        "beneficiary_score": 2.1032,
         "n_days": 250,
         "data_quality": "검증불필요",
         "data_source": "yfinance",
@@ -504,16 +504,16 @@
   "kospi_analysis": {
     "contribution_top5": [
       {
-        "beta": 0.9211,
-        "correlation": 0.67,
+        "beta": 0.9192,
+        "correlation": 0.6741,
         "p_value": 0.0,
-        "stock_return_pct": 72.25,
-        "index_return_pct": 115.37,
+        "stock_return_pct": 74.47,
+        "index_return_pct": 124.93,
         "period_days": 244,
         "period_label": "1년 (365일)",
-        "market_cap_b": 21.1,
-        "market_cap_start_b": 12.2,
-        "contribution_score": 0.0108,
+        "market_cap_b": 21.6,
+        "market_cap_start_b": 12.4,
+        "contribution_score": 0.0112,
         "n_days": 244,
         "data_quality": "검증완료",
         "data_source": "FDR",
@@ -521,33 +521,16 @@
         "name": "HD현대일렉트릭"
       },
       {
-        "beta": 0.4117,
-        "correlation": 0.4658,
+        "beta": 1.036,
+        "correlation": 0.5861,
         "p_value": 0.0,
-        "stock_return_pct": 54.77,
-        "index_return_pct": 115.37,
+        "stock_return_pct": 151.04,
+        "index_return_pct": 124.93,
         "period_days": 244,
         "period_label": "1년 (365일)",
-        "market_cap_b": 47.5,
-        "market_cap_start_b": 30.7,
-        "contribution_score": 0.0104,
-        "n_days": 244,
-        "data_quality": "검증완료",
-        "data_source": "FDR",
-        "ticker": "105560.KS",
-        "name": "KB금융"
-      },
-      {
-        "beta": 1.0337,
-        "correlation": 0.5826,
-        "p_value": 0.0,
-        "stock_return_pct": 134.83,
-        "index_return_pct": 115.37,
-        "period_days": 244,
-        "period_label": "1년 (365일)",
-        "market_cap_b": 3.6,
+        "market_cap_b": 3.8,
         "market_cap_start_b": 1.5,
-        "contribution_score": 0.0091,
+        "contribution_score": 0.0102,
         "n_days": 244,
         "data_quality": "검증완료",
         "data_source": "FDR",
@@ -555,16 +538,33 @@
         "name": "DB하이텍"
       },
       {
-        "beta": 0.6637,
-        "correlation": 0.2772,
-        "p_value": 1.1e-05,
-        "stock_return_pct": 138.52,
-        "index_return_pct": 115.37,
+        "beta": 0.4113,
+        "correlation": 0.4664,
+        "p_value": 0.0,
+        "stock_return_pct": 53.6,
+        "index_return_pct": 124.93,
         "period_days": 244,
         "period_label": "1년 (365일)",
-        "market_cap_b": 0.9,
+        "market_cap_b": 47.6,
+        "market_cap_start_b": 31.0,
+        "contribution_score": 0.0102,
+        "n_days": 244,
+        "data_quality": "검증완료",
+        "data_source": "FDR",
+        "ticker": "105560.KS",
+        "name": "KB금융"
+      },
+      {
+        "beta": 0.6841,
+        "correlation": 0.2878,
+        "p_value": 5e-06,
+        "stock_return_pct": 159.94,
+        "index_return_pct": 124.93,
+        "period_days": 244,
+        "period_label": "1년 (365일)",
+        "market_cap_b": 1.0,
         "market_cap_start_b": 0.4,
-        "contribution_score": 0.004,
+        "contribution_score": 0.0048,
         "n_days": 244,
         "data_quality": "검증완료",
         "data_source": "FDR",
@@ -572,16 +572,16 @@
         "name": "HD현대에너지솔루션"
       },
       {
-        "beta": 0.8013,
-        "correlation": 0.4106,
+        "beta": 0.7959,
+        "correlation": 0.4112,
         "p_value": 0.0,
-        "stock_return_pct": 91.18,
-        "index_return_pct": 115.37,
+        "stock_return_pct": 100.39,
+        "index_return_pct": 124.93,
         "period_days": 244,
         "period_label": "1년 (365일)",
         "market_cap_b": 1.0,
         "market_cap_start_b": 0.5,
-        "contribution_score": 0.0039,
+        "contribution_score": 0.0043,
         "n_days": 244,
         "data_quality": "검증완료",
         "data_source": "FDR",
@@ -591,14 +591,14 @@
     ],
     "beneficiary_top5": [
       {
-        "correlation": 0.5826,
+        "correlation": 0.5861,
         "p_value": 0.0,
-        "stock_return_pct": 134.83,
-        "index_return_pct": 115.37,
-        "excess_return_pct": 19.46,
+        "stock_return_pct": 151.04,
+        "index_return_pct": 124.93,
+        "excess_return_pct": 26.11,
         "period_days": 244,
         "period_label": "1년 (365일)",
-        "beneficiary_score": 0.1134,
+        "beneficiary_score": 0.153,
         "n_days": 244,
         "data_quality": "검증완료",
         "data_source": "FDR",
@@ -606,14 +606,14 @@
         "name": "DB하이텍"
       },
       {
-        "correlation": 0.2772,
-        "p_value": 1.1e-05,
-        "stock_return_pct": 138.52,
-        "index_return_pct": 115.37,
-        "excess_return_pct": 23.15,
+        "correlation": 0.2878,
+        "p_value": 5e-06,
+        "stock_return_pct": 159.94,
+        "index_return_pct": 124.93,
+        "excess_return_pct": 35.0,
         "period_days": 244,
         "period_label": "1년 (365일)",
-        "beneficiary_score": 0.0642,
+        "beneficiary_score": 0.1007,
         "n_days": 244,
         "data_quality": "검증완료",
         "data_source": "FDR",
@@ -637,108 +637,108 @@
     ],
     "freshness": {
       "BBAND": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 255
       },
       "BETA": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 201
       },
       "CNN_FG": {
-        "end_date": "2026-07-14",
+        "end_date": "2026-07-15",
         "rows": 400
       },
       "DOW": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 274
       },
       "DXY": {
         "end_date": "2026-07-10",
-        "rows": 272
+        "rows": 271
       },
       "FED_ASSETS": {
         "end_date": "2026-07-08",
         "rows": 57
       },
       "FOREIGN_NET": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 269
       },
       "HY_SPREAD": {
-        "end_date": "2026-07-10",
+        "end_date": "2026-07-13",
         "rows": 288
       },
       "INDIVIDUAL_NET": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 269
       },
       "INSTITUTION_NET": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 269
       },
       "KOSDAQ": {
-        "end_date": "2026-07-14",
+        "end_date": "2026-07-15",
         "rows": 270
       },
       "MA200": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 75
       },
       "MA50": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 225
       },
       "MARKET_MOMENTUM": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 255
       },
       "MARKET_STRENGTH": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 260
       },
       "MA_SIGNAL": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 274
       },
       "NASDAQ100": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 274
       },
       "NIKKEI225": {
-        "end_date": "2026-07-14",
-        "rows": 269
+        "end_date": "2026-07-15",
+        "rows": 268
       },
       "RSI14": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 260
       },
       "RSI_SIGNAL": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 274
       },
       "SKEW": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 274
       },
       "STOCH_RSI": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 247
       },
       "T10Y2Y": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 273
       },
       "US10Y": {
-        "end_date": "2026-07-10",
+        "end_date": "2026-07-13",
         "rows": 272
       },
       "VIX": {
-        "end_date": "2026-07-13",
+        "end_date": "2026-07-14",
         "rows": 275
       },
       "WTI": {
         "end_date": "2026-07-06",
-        "rows": 267
+        "rows": 266
       }
     }
   },
