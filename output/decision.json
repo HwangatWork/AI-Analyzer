@@ -1,42 +1,41 @@
 {
-  "computed_at": "2026-07-17T03:47:21.021199",
-  "composite_score": 52.5,
-  "kospi_composite_score": 52.6,
+  "computed_at": "2026-07-19T04:00:01.069863",
+  "composite_score": 45.1,
+  "kospi_composite_score": 46.7,
   "direction": "neutral",
   "sp500": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 23.8,
+    "confidence_pct": 16.8,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
     "entry_triggers": [
-      "FOREIGN_NET 강세 (Z=+1.61) — 252일 평균 대비 1.6σ 이상",
-      "STOCH_RSI 강세 (Z=+1.60) — 252일 평균 대비 1.6σ 이상",
       "HY_SPREAD 축소 → 신용 리스크 감소, 위험자산 선호"
     ],
     "exit_triggers": [
-      "US10Y 약세 (Z=+2.00) — 하방 압력"
+      "INSTITUTION_NET 약세 (Z=-2.00) — 하방 압력",
+      "US10Y 약세 (Z=+1.82) — 하방 압력"
     ],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+103%) / Apple Inc. (+56%)"
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+94%) / Apple Inc. (+59%)"
   },
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 16.4,
+    "confidence_pct": 12.7,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
-    "top_stocks_hint": "삼성전자 (+295%) / SK하이닉스 (+522%)"
+    "top_stocks_hint": "SK하이닉스 (+583%) / 삼성전자 (+282%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
-    "미국 10년물 금리 상승 (Z=+2.00) → 할인율 부담"
+    "미국 10년물 금리 상승 (Z=+1.82) → 할인율 부담"
   ],
   "signal_summary": {
-    "bullish": 9,
-    "bearish": 4,
+    "bullish": 8,
+    "bearish": 5,
     "total": 13,
-    "consensus_ratio": 0.692
+    "consensus_ratio": 0.615
   }
 }
