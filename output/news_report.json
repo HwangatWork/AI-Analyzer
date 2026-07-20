@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-07-19T04:00:00.458313",
-  "date": "2026-07-19",
+  "generated_at": "2026-07-20T04:18:24.375235",
+  "date": "2026-07-20",
   "movements": [
     "S&P500 7,457.69 (▼1.01%)",
     "나스닥 25,520.24 (▼1.40%)",
     "다우 52,146.42 (▼0.77%)",
-    "코스피 6,820.60 (▼6.37%)"
+    "코스피 6,532.06 (▼4.23%)"
   ],
   "causes": [
     "AI칩 섹터 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▼1.40%",
-    "Nasdaq, S&P 500 drop 1% after China’s latest AI br → 글로벌 리스크오프 → 코스피 ▼6.37% / 나스닥 ▼1.40%",
-    "인플레이션 예상 상회 → 금리 인하 경로 후퇴 → 리스크 자산 매도"
+    "인플레이션 예상 상회 → 금리 인하 경로 후퇴 → 리스크 자산 매도",
+    "Fed 매파적 신호 → 금리 인하 기대 후퇴 → 성장주·기술주 조정"
   ],
   "watchpoints": [
     {
@@ -36,20 +36,20 @@
   ],
   "sources": [
     {
+      "source": "CNBC",
+      "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE9OcFRYM3dPUXBUbzdHcG0tOHVLN1pXM1dVQzRnRlZWZ1NtWVBUaFlvU0Jmd2VJdlRaekxORUJrYUZvYkt6RlZXUVoxSkFMMHc3emctMjhHQ2RCTHpsUmVKc2ZrX2d3cU40cHZ0UFNtNEVaNW1DbWs40gF8QVVfeXFMTVhCWnMzaVFEWWlYOVpPNTZUZWctUEY2Q0taN0ZMQ0ZFQTEwX2tNbE5faXlrb2pidkVQWTdsLWZ5eUhVVUlhN3kzSUR3ZUZZOFM0c3RrdUo0eDFuLTNTdC1xZkFvdFlkc2VQVjRSWTdBTDRPZlozS2NYYU9NWg?oc=5"
+    },
+    {
       "source": "Yahoo Finance",
       "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPVHlaX3ROeTUxeFRlTUYzTmVkYlRLRnEzU2VRSmJOWHQ1NnF0eTBzb3dCMnFFUzBHenRVekVuUzRwbTlnN1lCUDhXdXdwWmgzZWpPVnRYS2tRUHFjVUdCUjhLSFc0UUN6OVBWM0I1RkNkTkgxRXJkRG5SNEJWamdYQ3ZwMWJESFJsSXh2LVVJR3RYeFltX2lGdkhKSU9QRzNTWVBHMU1LcU4?oc=5"
     },
     {
-      "source": "thestreet.com",
-      "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPZFpURWN1Y3pydkxiWWFIRktDWHU0ejFkZm9mdDdROER0YUJ3UDBTV0pJQXRTN2cydDJ2LWgzUnJNWTBtSVJLcjJib01LVm8tQXdINnQxS2t4VmlPcFptY0hILW1hb0Z3SGhVUUJGMHcxUEZKc1JRZUdScDBLaGRtc2R4SHh6M01xYnExLUNoeTJiN1lrQ3o3M0RDcnUtdEpPbGlWamg3SmdSZGdK?oc=5"
+      "source": "Investopedia",
+      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOZmpQeV9uR05hVDF6eUVXVDVpWlJudlViYkdQUE85bzZoTTNWSEFFMEtON0VkT2poRm9EU3R1eDBZdmc0QWs3ZFpoU0xaQ2hsZ21OaTFka0NBSGphZmk2VVJFMUQ4SmZMQWRHNmpmQWlDRlItdVZid2JsNlVOVkFncXg1QjRWNExYWlBNRGNvRXU?oc=5"
     },
     {
-      "source": "Reuters",
-      "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPWGU5QUxvUmRMUXgzYmxBbXIxRnM5aTE2Q014TV9HeVlIdVQ0RGV4aWx3a0RMQ2djdUdvSEwtX2diaDZ2QkhfaWE4WmFpb1pWTzlsajhWaTdqYWp4N0hnSjRRWGVIQU93VnA1czVqOGZYekhOMDNWMmZFSnVxTmxybHhxR2NLTVJDR3NxWVE5ZDFEUC11N2NvU0NXSTJrbTJXbXNsQjZsZklUb19vVy1wMi1mU1YxSGc?oc=5"
-    },
-    {
-      "source": "CNN",
-      "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE5nb1lYUUpVRVRtTkNqYzk2aGgxS1pQMWlqMFdGUUtieEstM1EyaE1uYjhObFU1Wm4yWWhuTDRkcUI5TnVfWVRsTklqX1BPbGJiTmlFVWY4bXpUQWNralJqbFBpOXZYQQ?oc=5"
+      "source": "MarketWatch",
+      "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNTUJxV24wV1lia2ttajh1RU84QnI5dW01VWJxTFVpVXhlUE1ucTZET0tpUXhGcldQTkJfdnc3QzJCMl9SVGx3cy14Xzh5bFVzdVkyUnFSdEp0SG1XNnhaQVRWVHE4cGVELWlWZTdPWk1YeUk2N19JTnV1SG5xT3VzMjZBZU1oMG12bmU5X1RxWlFsVWF6SHNJOFFBOWVyXzFWQnUtRUdKRjFsWWJmTzdDZWwxZWRINjVh?oc=5"
     },
     {
       "source": "Morningstar",
@@ -73,9 +73,9 @@
       "date": "2026-07-17"
     },
     "KOSPI": {
-      "close": 6820.6,
-      "change": -6.37,
-      "date": "2026-07-16"
+      "close": 6532.06,
+      "change": -4.23,
+      "date": "2026-07-20"
     }
   },
   "done_criteria": {

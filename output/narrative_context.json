@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-07-19T04:00:01.810399",
+  "generated_at": "2026-07-20T04:18:25.827015",
   "analysis_period": {
-    "start": "2025-07-19",
-    "end": "2026-07-19"
+    "start": "2025-07-20",
+    "end": "2026-07-20"
   },
   "signal": {
-    "score": 40.2,
+    "score": 40.4,
     "direction": "neutral",
     "bullish_count": 5,
     "bearish_count": 8,
@@ -36,16 +36,16 @@
         "bullish": true
       },
       {
+        "indicator": "CNN_FG",
+        "z_score": 0.707,
+        "weight": 0.1971,
+        "bullish": true
+      },
+      {
         "indicator": "BBAND",
         "z_score": -0.663,
         "weight": 0.0508,
         "bullish": false
-      },
-      {
-        "indicator": "CNN_FG",
-        "z_score": 0.612,
-        "weight": 0.1977,
-        "bullish": true
       },
       {
         "indicator": "DXY",
@@ -112,7 +112,7 @@
       "indicator": "VIX",
       "combined_weight": 0.4136,
       "sp500_signed_r": -0.2132,
-      "kospi_signed_r": -0.078
+      "kospi_signed_r": -0.0781
     },
     {
       "rank": 2,
@@ -197,50 +197,38 @@
   "kospi": {
     "contribution_top5": [
       {
-        "name": "SK하이닉스",
-        "stock_return_pct": 576.0,
-        "contribution_score": 0.784
+        "name": "KB금융",
+        "stock_return_pct": 44.8,
+        "contribution_score": 0.009
       },
       {
-        "name": "삼성전자",
-        "stock_return_pct": 276.1,
-        "contribution_score": 0.766
+        "name": "DB하이텍",
+        "stock_return_pct": 117.6,
+        "contribution_score": 0.008
       },
       {
-        "name": "SK스퀘어",
-        "stock_return_pct": 650.9,
-        "contribution_score": 0.138
+        "name": "HD현대일렉트릭",
+        "stock_return_pct": 50.7,
+        "contribution_score": 0.008
       },
       {
-        "name": "삼성전기",
-        "stock_return_pct": 830.1,
-        "contribution_score": 0.094
+        "name": "HD현대에너지솔루션",
+        "stock_return_pct": 148.7,
+        "contribution_score": 0.004
       },
       {
-        "name": "대덕전자",
-        "stock_return_pct": 573.2,
-        "contribution_score": 0.035
+        "name": "HJ중공업",
+        "stock_return_pct": 90.0,
+        "contribution_score": 0.004
       }
     ],
     "beneficiary_top5": [
       {
-        "name": "삼성전기",
+        "name": "HD현대에너지솔루션",
         "excess_return": 0
       },
       {
-        "name": "SK스퀘어",
-        "excess_return": 0
-      },
-      {
-        "name": "SK하이닉스",
-        "excess_return": 0
-      },
-      {
-        "name": "대덕전자",
-        "excess_return": 0
-      },
-      {
-        "name": "삼성전자",
+        "name": "DB하이텍",
         "excess_return": 0
       }
     ]
