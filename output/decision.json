@@ -1,12 +1,12 @@
 {
-  "computed_at": "2026-07-20T04:18:25.064271",
-  "composite_score": 40.2,
-  "kospi_composite_score": 41.6,
+  "computed_at": "2026-07-21T04:02:27.071685",
+  "composite_score": 40.4,
+  "kospi_composite_score": 41.9,
   "direction": "neutral",
   "sp500": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 22.0,
+    "confidence_pct": 21.9,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
@@ -24,11 +24,11 @@
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 19.9,
+    "confidence_pct": 19.6,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
-    "top_stocks_hint": "SK하이닉스 (+576%) / 삼성전자 (+276%)"
+    "top_stocks_hint": "KB금융 (+45%) / DB하이텍 (+118%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
