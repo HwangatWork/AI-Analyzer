@@ -7,8 +7,8 @@
 7,WTI,diff,-0.3233,True,False,0.356549,-0.1454,True,True,0.016733,0.2435,bearish
 8,MARKET_STRENGTH,level,0.2247,True,False,0.308061,0.1245,True,True,0.001102,0.2347,bullish
 11,FOREIGN_NET,weekly_flow,0.0613,False,False,0.525181,0.2806,True,True,0.039898,0.2201,bullish
-12,CNN_FG,level,0.0451,False,False,0.625449,0.0499,False,True,0.005983,0.1988,bullish
-16,BBAND,level,0.3695,True,True,0.021341,0.1461,True,True,1e-06,0.0515,bullish
+12,CNN_FG,level,0.0451,False,False,0.625449,0.0502,False,True,0.005659,0.1988,bullish
+15,BBAND,level,0.3695,True,True,0.021341,0.1461,True,True,1e-06,0.0515,bullish
 17,STOCH_RSI,level,0.3136,True,False,0.454837,0.1113,True,True,0.000123,0.0425,bullish
 18,MARKET_MOMENTUM,level,0.2323,True,True,0.0276,0.1349,True,True,0.0,0.0367,bullish
 22,T10Y2Y,diff,-0.0611,False,False,0.434383,-0.1429,True,False,0.752426,0.0143,bearish
