@@ -1,34 +1,34 @@
 {
-  "computed_at": "2026-07-29T03:48:30.475927",
-  "composite_score": 38.6,
-  "kospi_composite_score": 37.6,
+  "computed_at": "2026-07-31T04:10:07.126210",
+  "composite_score": 36.5,
+  "kospi_composite_score": 35.8,
   "direction": "neutral",
   "sp500": {
     "action": "SELL/AVOID",
     "strength": "중",
-    "confidence_pct": 26.1,
+    "confidence_pct": 24.3,
     "confidence_tier": "hold",
     "position_size_pct": 15,
     "position_note": "신뢰도 낮음 — 소량 또는 관망",
     "entry_triggers": [
-      "T10Y2Y 강세 (Z=-1.94) — 252일 평균 대비 1.9σ 이상",
+      "T10Y2Y 강세 (Z=-1.82) — 252일 평균 대비 1.8σ 이상",
       "HY_SPREAD 축소 → 신용 리스크 감소, 위험자산 선호"
     ],
     "exit_triggers": [
       "US10Y 약세 (Z=+2.00) — 하방 압력",
-      "BBAND 약세 (Z=-1.67) — 하방 압력",
+      "FOREIGN_NET 약세 (Z=-2.00) — 하방 압력",
       "VIX 상승 → 시장 공포 증가, 포지션 축소 고려"
     ],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+70%) / Apple Inc. (+58%)"
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+71%) / Apple Inc. (+62%)"
   },
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 25.6,
+    "confidence_pct": 25.9,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "신뢰도 낮음 — 소량 또는 관망",
-    "top_stocks_hint": "KB금융 (+52%) / HD현대일렉트릭 (+47%)"
+    "top_stocks_hint": "KB금융 (+44%) / DB하이텍 (+59%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
@@ -36,9 +36,9 @@
     "볼린저밴드 하단 근접 → 변동성 확대 국면"
   ],
   "signal_summary": {
-    "bullish": 4,
-    "bearish": 9,
+    "bullish": 3,
+    "bearish": 10,
     "total": 13,
-    "consensus_ratio": 0.308
+    "consensus_ratio": 0.231
   }
 }
