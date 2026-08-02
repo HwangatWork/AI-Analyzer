@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-01T03:59:08.175385",
-  "date": "2026-08-01",
+  "generated_at": "2026-08-02T04:00:41.759126",
+  "date": "2026-08-02",
   "movements": [
     "S&P500 7,489.72 (▲0.70%)",
     "나스닥 25,373.85 (▲1.00%)",
@@ -36,10 +36,6 @@
   ],
   "sources": [
     {
-      "source": "MarketWatch",
-      "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxNLUtUak1CSmR4OHRRMzdvSXdQckN0Ri1ReXFYVEZKWEZXVkZlYWl6ZGdQbjJ3NlFmTmxETi1Ld2hDUl9QS3pKWWZmSV84LVRGdlJMSGk4VG43bU9jQVR5dkhjTGVtTVlDV1RyRFZaOG5vN1Y4c2RFc3lQRUlFSHl0Y1F4UVhvM1FHYjNlT2l3NERXMVJCZ0k3aERZVEJDRF9pVkdiMDJpc0hZb0ZtTDhHSHBjeFRIc0FBVVRETFdtaGw?oc=5"
-    },
-    {
       "source": "Yahoo Finance",
       "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPRUNJOEJab054ZTc0M0J6WXlJcTlEVS1XNDJJSG5HX0lFUVNneVZ2ZWlPZ2FGa3Z4R3VDY29nZ1Y1U1B4WWpJekV5OW1uM00wcnR1R01pUUd5MHQzcG02dF9FSzBnVVpYZFVFaFpublBLVnVfRm4wQ2VXLXNQOWFxeTZ6Q210cmJjQmk5VVlXaF9ZcXd5dmZLdFBHdGZ6Q3YxR0R4ajZWbHg?oc=5"
     },
@@ -48,8 +44,12 @@
       "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNX3pteHotdWlId0lTQVlZdFluN1dBMkVHUGJkZUZsR0xHS1ZjLV90X1NjSnUzT0lsekt0WEZsbDJHRXVQRmh0R21KWkdQU3ZDRWNvWDJpdjcwUW5lVXV0akNsMm5OdFBLa056bmZsd2lOTGxDeHBkRXZFOWEyWnV6WFo1RGl0QU9XZVFtUXlPNGY?oc=5"
     },
     {
-      "source": "Benzinga",
-      "link": "https://news.google.com/rss/articles/CBMihwJBVV95cUxPakk1TmYzX0hGdldnNkViLWt3LWJuVHF0d2FneWdFd1gzQzNtcDQxUWw1THVfa0pXWW9jd0puYjhTUWwxNFBNSkpyNG5fSmRuSzktWkxzSGtkLTRGTnhHQnFsdi1xRjU4NmwwNmFJZUdiYkZvcGFNR1praEFBcFBnbGVoM1B0MWZ5cmw1RHA3OXJsLXhLem9ZaUxTNk9ZemRBUVFyeHZQSG4wempuelhxV2lSOV95TzVPekxSRlNfaFpQOE5RaWNVQ0xZUmY3X1NoOU1BdFMydkM5N01JOVpPQW9aNEdZanVQZW9NblY4WVVJancwSmdQUUtFX3NoS1d1WGpHWUppTQ?oc=5"
+      "source": "MarketWatch",
+      "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxNLUtUak1CSmR4OHRRMzdvSXdQckN0Ri1ReXFYVEZKWEZXVkZlYWl6ZGdQbjJ3NlFmTmxETi1Ld2hDUl9QS3pKWWZmSV84LVRGdlJMSGk4VG43bU9jQVR5dkhjTGVtTVlDV1RyRFZaOG5vN1Y4c2RFc3lQRUlFSHl0Y1F4UVhvM1FHYjNlT2l3NERXMVJCZ0k3aERZVEJDRF9pVkdiMDJpc0hZb0ZtTDhHSHBjeFRIc0FBVVRETFdtaGw?oc=5"
+    },
+    {
+      "source": "CNBC",
+      "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE8tYmcyY1dKZDZXZm10Ni1sS185eklFbWhkUU1hOFhpbG9EY0VmWjZvN21IaUVKbUpWYXpZVm81czBfOFM1dGcwT1h0eUZiMHhua1hCTTRwRjBySkY0VmRWdmlTRWE4T0xjTjVya08zNjZKUVpnYk5F0gF8QVVfeXFMT3EzdGU3SjJheXZwV25YRXRpSnR3MTcxRHJEZ2wxRzVGVmFBWTE0M3licnBPcHV1TC1KN1NpTFlfMkxtdUNWQnNfY3ktbG5oNFhtS2M4akdZcGRDSnlrVWNYNGhKZk02cWlUTlNkeVNPUzR6MmVxMzVUOXg0TQ?oc=5"
     },
     {
       "source": "NPR",

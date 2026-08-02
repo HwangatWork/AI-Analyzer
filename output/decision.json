@@ -1,31 +1,32 @@
 {
-  "computed_at": "2026-08-01T03:59:09.142354",
-  "composite_score": 42.4,
-  "kospi_composite_score": 42.2,
+  "computed_at": "2026-08-02T04:00:42.788021",
+  "composite_score": 51.3,
+  "kospi_composite_score": 50.7,
   "direction": "neutral",
   "sp500": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 16.1,
+    "confidence_pct": 8.5,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
     "entry_triggers": [
+      "FOREIGN_NET 강세 (Z=+2.00) — 252일 평균 대비 2.0σ 이상",
       "HY_SPREAD 축소 → 신용 리스크 감소, 위험자산 선호"
     ],
     "exit_triggers": [
       "US10Y 약세 (Z=+2.00) — 하방 압력"
     ],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+74%) / Apple Inc. (+61%)"
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+89%) / Apple Inc. (+53%)"
   },
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 15.9,
+    "confidence_pct": 5.7,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
-    "top_stocks_hint": "SK하이닉스 (+505%) / 삼성전자 (+249%)"
+    "top_stocks_hint": "삼성전자 (+281%) / SK하이닉스 (+566%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
@@ -33,9 +34,9 @@
     "볼린저밴드 하단 근접 → 변동성 확대 국면"
   ],
   "signal_summary": {
-    "bullish": 5,
-    "bearish": 8,
+    "bullish": 6,
+    "bearish": 7,
     "total": 13,
-    "consensus_ratio": 0.385
+    "consensus_ratio": 0.462
   }
 }
