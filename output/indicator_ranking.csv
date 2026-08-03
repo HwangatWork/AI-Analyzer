@@ -7,8 +7,8 @@
 7,US10Y,diff,-0.2313,True,False,0.075136,-0.0377,False,True,0.025761,0.2392,bearish
 8,MARKET_STRENGTH,level,0.2214,True,False,0.248741,0.1246,True,True,0.00067,0.2345,bullish
 9,FOREIGN_NET,weekly_flow,0.0753,False,False,0.820238,0.3396,True,True,0.000823,0.2338,bullish
-12,CNN_FG,level,0.0265,False,False,0.681684,0.0433,False,True,0.02985,0.1941,bullish
-15,BBAND,level,0.3647,True,True,0.031512,0.1595,True,True,0.0,0.0524,bullish
+12,CNN_FG,level,0.0265,False,False,0.681684,0.0443,False,True,0.038111,0.1924,bullish
+16,BBAND,level,0.3647,True,True,0.031512,0.1595,True,True,0.0,0.0524,bullish
 17,STOCH_RSI,level,0.3067,True,False,0.492658,0.1123,True,True,0.000327,0.0419,bullish
 18,MARKET_MOMENTUM,level,0.2308,True,True,0.019544,0.1377,True,True,0.0,0.0369,bullish
 22,T10Y2Y,diff,-0.0905,False,False,0.216914,-0.1492,True,False,0.498881,0.0149,bearish

@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-08-02T04:00:41.759126",
-  "date": "2026-08-02",
+  "generated_at": "2026-08-03T03:55:55.400338",
+  "date": "2026-08-03",
   "movements": [
     "S&P500 7,489.72 (▲0.70%)",
     "나스닥 25,373.85 (▲1.00%)",
     "다우 52,485.03 (▲0.53%)",
-    "코스피 6,595.45 (▲17.91%)"
+    "코스피 6,276.51 (▼4.84%)"
   ],
   "causes": [
-    "인플레이션 예상 상회 → 금리 인하 경로 후퇴 → 리스크 자산 매도",
     "Fed 매파적 신호 → 금리 인하 기대 후퇴 → 성장주·기술주 조정",
+    "인플레이션 예상 상회 → 금리 인하 경로 후퇴 → 리스크 자산 매도",
     "AMD 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▲1.00%"
   ],
   "watchpoints": [
@@ -36,20 +36,20 @@
   ],
   "sources": [
     {
-      "source": "Yahoo Finance",
-      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPRUNJOEJab054ZTc0M0J6WXlJcTlEVS1XNDJJSG5HX0lFUVNneVZ2ZWlPZ2FGa3Z4R3VDY29nZ1Y1U1B4WWpJekV5OW1uM00wcnR1R01pUUd5MHQzcG02dF9FSzBnVVpYZFVFaFpublBLVnVfRm4wQ2VXLXNQOWFxeTZ6Q210cmJjQmk5VVlXaF9ZcXd5dmZLdFBHdGZ6Q3YxR0R4ajZWbHg?oc=5"
-    },
-    {
       "source": "Investopedia",
       "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNX3pteHotdWlId0lTQVlZdFluN1dBMkVHUGJkZUZsR0xHS1ZjLV90X1NjSnUzT0lsekt0WEZsbDJHRXVQRmh0R21KWkdQU3ZDRWNvWDJpdjcwUW5lVXV0akNsMm5OdFBLa056bmZsd2lOTGxDeHBkRXZFOWEyWnV6WFo1RGl0QU9XZVFtUXlPNGY?oc=5"
+    },
+    {
+      "source": "finance.yahoo.com",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPRUNJOEJab054ZTc0M0J6WXlJcTlEVS1XNDJJSG5HX0lFUVNneVZ2ZWlPZ2FGa3Z4R3VDY29nZ1Y1U1B4WWpJekV5OW1uM00wcnR1R01pUUd5MHQzcG02dF9FSzBnVVpYZFVFaFpublBLVnVfRm4wQ2VXLXNQOWFxeTZ6Q210cmJjQmk5VVlXaF9ZcXd5dmZLdFBHdGZ6Q3YxR0R4ajZWbHg?oc=5"
     },
     {
       "source": "MarketWatch",
       "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxNLUtUak1CSmR4OHRRMzdvSXdQckN0Ri1ReXFYVEZKWEZXVkZlYWl6ZGdQbjJ3NlFmTmxETi1Ld2hDUl9QS3pKWWZmSV84LVRGdlJMSGk4VG43bU9jQVR5dkhjTGVtTVlDV1RyRFZaOG5vN1Y4c2RFc3lQRUlFSHl0Y1F4UVhvM1FHYjNlT2l3NERXMVJCZ0k3aERZVEJDRF9pVkdiMDJpc0hZb0ZtTDhHSHBjeFRIc0FBVVRETFdtaGw?oc=5"
     },
     {
-      "source": "CNBC",
-      "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE8tYmcyY1dKZDZXZm10Ni1sS185eklFbWhkUU1hOFhpbG9EY0VmWjZvN21IaUVKbUpWYXpZVm81czBfOFM1dGcwT1h0eUZiMHhua1hCTTRwRjBySkY0VmRWdmlTRWE4T0xjTjVya08zNjZKUVpnYk5F0gF8QVVfeXFMT3EzdGU3SjJheXZwV25YRXRpSnR3MTcxRHJEZ2wxRzVGVmFBWTE0M3licnBPcHV1TC1KN1NpTFlfMkxtdUNWQnNfY3ktbG5oNFhtS2M4akdZcGRDSnlrVWNYNGhKZk02cWlUTlNkeVNPUzR6MmVxMzVUOXg0TQ?oc=5"
+      "source": "PBS",
+      "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxNR1BZa2dPa1lOcjNBSmF2MHFHcTNBTV9mQzZOZ3BzR1ZrekhVWUhzLWszajBVWExhYWxJUWJDejh4SjBTdFdobFk1Y1NlMEpad0I4cUtrY0o1VzhMYmNOX2tuWjF3dXhGbkFVOWJncnZDdEt2dUEydkhhX2pwQXZlaF96QTZ3Z2l3OURfN2lLaVRRcEFLejhVTGZVSEl4XzJLWmE0RmxKRy16Mkh2ZGJvbm0wMUExTU83dHVJUlRn0gHDAUFVX3lxTE9kWHZBeUc3cjFTeGNrQk5QeGl2cHpycW5zR19kQl9vbEY3MzdUX0ZCa2pmV0RNT1VSUElKTEhhNmRmaVVnc1k5R0V2RkhTYkJROUZ3YXZmVjlPSWZ5MWVTWkxYS1B3ai1BZnRVeTE5bmR6Mm01eHlDYlpJblAta3hYSnN5Tnhzc19ZRjJwUWVTZzNRQXd0MUJGU29NRko2aVVuTTByMndYeWU3bTRXNWpEeFBlVDF5RTBUU1VaQUdlT1RlRQ?oc=5"
     },
     {
       "source": "NPR",
@@ -73,9 +73,9 @@
       "date": "2026-07-31"
     },
     "KOSPI": {
-      "close": 6595.45,
-      "change": 17.91,
-      "date": "2026-07-31"
+      "close": 6276.51,
+      "change": -4.84,
+      "date": "2026-08-03"
     }
   },
   "done_criteria": {

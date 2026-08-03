@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-08-02T04:00:42.788021",
+  "computed_at": "2026-08-03T03:55:56.006382",
   "composite_score": 51.3,
   "kospi_composite_score": 50.7,
   "direction": "neutral",
@@ -17,7 +17,7 @@
     "exit_triggers": [
       "US10Y 약세 (Z=+2.00) — 하방 압력"
     ],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+89%) / Apple Inc. (+53%)"
+    "top_stocks_hint": "Alphabet Inc. (Class C) (+83%) / Apple Inc. (+53%)"
   },
   "kospi": {
     "action": "HOLD",
@@ -26,7 +26,7 @@
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
-    "top_stocks_hint": "삼성전자 (+281%) / SK하이닉스 (+566%)"
+    "top_stocks_hint": "삼성전자 (+277%) / SK하이닉스 (+566%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
