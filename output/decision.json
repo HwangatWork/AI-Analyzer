@@ -1,32 +1,32 @@
 {
-  "computed_at": "2026-08-05T03:32:48.668658",
-  "composite_score": 42.3,
-  "kospi_composite_score": 43.6,
+  "computed_at": "2026-08-06T03:39:12.405064",
+  "composite_score": 54.8,
+  "kospi_composite_score": 56.4,
   "direction": "neutral",
   "sp500": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 18.5,
+    "confidence_pct": 29.0,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
     "entry_triggers": [
+      "BBAND 강세 (Z=+1.86) — 252일 평균 대비 1.9σ 이상",
       "HY_SPREAD 축소 → 신용 리스크 감소, 위험자산 선호"
     ],
     "exit_triggers": [
-      "US10Y 약세 (Z=+2.00) — 하방 압력",
-      "INSTITUTION_NET 약세 (Z=-1.75) — 하방 압력"
+      "US10Y 약세 (Z=+2.00) — 하방 압력"
     ],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+92%) / Apple Inc. (+50%)"
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+95%) / Apple Inc. (+53%)"
   },
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 16.2,
+    "confidence_pct": 22.5,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
-    "top_stocks_hint": "KB금융 (+55%) / HD현대에너지솔루션 (+200%)"
+    "top_stocks_hint": "KB금융 (+52%) / HD현대일렉트릭 (+51%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
@@ -34,9 +34,9 @@
     "달러 강세 → 신흥국 자금 유출 위험 (KOSPI 주의)"
   ],
   "signal_summary": {
-    "bullish": 8,
-    "bearish": 5,
+    "bullish": 10,
+    "bearish": 3,
     "total": 13,
-    "consensus_ratio": 0.615
+    "consensus_ratio": 0.769
   }
 }
