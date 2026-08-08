@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-08-07T03:20:36.750656",
-  "date": "2026-08-07",
+  "generated_at": "2026-08-08T02:23:22.449086",
+  "date": "2026-08-08",
   "movements": [
-    "S&P500 7,709.96 (▼0.18%)",
-    "나스닥 26,348.35 (▼0.06%)",
-    "다우 53,885.10 (▼0.85%)",
-    "코스피 6,245.44 (▼0.81%)"
+    "S&P500 7,757.64 (▲0.62%)",
+    "나스닥 26,690.62 (▲1.30%)",
+    "다우 54,036.93 (▲0.28%)",
+    "코스피 6,258.77 (▼0.60%)"
   ],
   "causes": [
-    "Fed 매파적 신호 → 금리 인하 기대 후퇴 → 성장주·기술주 조정",
     "인플레이션 예상 상회 → 금리 인하 경로 후퇴 → 리스크 자산 매도",
-    "AMD 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▼0.06%"
+    "Fed 매파적 신호 → 금리 인하 기대 후퇴 → 성장주·기술주 조정",
+    "AVGO 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▲1.30%"
   ],
   "watchpoints": [
     {
@@ -37,44 +37,44 @@
   "sources": [
     {
       "source": "MarketWatch",
-      "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQQVF2MFB5Y0NPc3F2VF9tN2d3Rjdhdzk1YWZsMVlMYUZic21SRlQ2cHN1UXF6TWZ6SUVzdjU4Tm15WXppYU5xblgzV0RKSy1UR3hqbWZNYm4tc1VNU1FuZG54VW44NEtJdGIwWjZseTVOVWhaZ3BEeExyMXZjclduNW9ubGdDV1Z5OGJ2Q1YyaEFLX0FPOGppeXZGdFk3MGxxa1NIR0Q4cFk4b1hSekdjN1R3TzNOYlV4UlpKeV9oUm1ocWlRWFE?oc=5"
+      "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxPNzFnNVdYQlpTSUJSSXJHZ0swcWVIWnFmQ2lyQUd6Y3M2XzdjdTl6SWY0ZEIyWFluUFIwckhBc042VjVnUmFuc3N4Z1VIVkVpUFV1c3hSZGpFUXBzQ0U5eHJTM2o1a2V4RWlRSUtTRE9RUW44cll2QXByd09sa1lScTUtWUNybnRmRldWM1BGeHRZOG5FanVibm12bnBFZzNFX3JadHVCYnhKaDA3eW9IaV9GaGQyMUJrRXlhbktRNzhOWUQ5WVE?oc=5"
     },
     {
       "source": "Yahoo Finance",
-      "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxOZzY2WEl1VDdwbll2TU1ZbWpueTdvY1BYVEhHZ0hUNTBWUUh2bWE4X3lQbjladHhzRnNBZzdoTkk1Q0lIYUk3OEtfR294ZlBZcUNsRHhVWlg0cXJnWlI2Y2c0SV83M2l1UDUybVJrN3ZpRFZLSEpnZkN4T2QyNTEtWnpVYTJ1V1l6NnNCLVUwSkpmVUpJV202T3ZfWkNUeHVyN1h2WXhJZw?oc=5"
-    },
-    {
-      "source": "Investopedia",
-      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPdEZ6c1ZCa0JZYXNGSjd4UThnWEJNa2l6U0FpYVNRX3BwTWc3cVpPWHh4TXJhTG1sRkNqaXFXMF9LMm9scnZLM0tidjRGbWhzdFZJakVNb2NXSUNpU0Z2REZQSVN4U2pYSGU2OVctRHk1MC01eERxaWI1MlpiYjZBb1BZNkZOQlVkUzlWd0g5dkU?oc=5"
+      "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxQWUtSUk9IQ0xYMmZFNzN1ZWRyeVZwNWR1aXdpc3AzTGRYUERaTXdETDNCOVZZQV9OZEtsWU1qa3FQamFUVGNuejFVMUh3ZUhMT0E2aDJqemZjdmFISTB0Q2ZkYVNDYU5ScFFjckZlcnAyYnByaFRQckgtU1l6bVJzTDRYc2VWRUs2WGtEMlE0aks3c1ZOS0lZOEtVOFNzR1kxOXZNN05ZV1dVeE1URVBBbXRlRlhfUjdFYndwME5TVnUyUGxnTVkyQVlwM3FPZw?oc=5"
     },
     {
       "source": "The Economic Times",
-      "link": "https://news.google.com/rss/articles/CBMi5AJBVV95cUxPaWx3alFacXRIRk82V1Z2cmIzM0JIcmwtX3FsZ3pCS3A0UWNvR3c1VDczcF9nd1dlMjk1UzR5QWc3NlVqQTNSSU5COHFBX1M3aVR6cGJnVWxFWkpWak5RZDEwSm05b3AzYWxLSE9KNjdhakZ4ZFRCbjhoSExvNThRQ05GUmZ2YlpLM1VYRGNBZFZrWm0zTDVBZmpNVjhTRHMzYUl0QkhsQ18wcFdyVVlDeE5LZFFrb1BXbTVlWlV6LTVtRHk5QXF5blp6SG41TFdQV1NzbDhIQlhsUVRGbUJnMFAwOVFtenl3ekowdG9IamV6SWtmVlJUajRRX3N3cGY2VUVHTUFJWUxVZVNtdnUzQlBtekNPaU9lZWRZQjRCVjRJTFMzOVhPR0hGSUdYdk5HSEJibDJMSXNVSElza0t3Rks1QXh1Tl9zUmVtdEFhcXloRFJqQ3J0OHZDVFo4U3pXZXIyMNIB6gJBVV95cUxNQnpQXzNGZEdpYXQyc1NMZ0ROQnhva2ZaSldxVFMtOGZqTExBRHdBU2tXLUllRU1kYWN5TTBIb3lEWUt1d2RzTnlwc240Zko1b0FONzQ2bVZ6SUI4MTd2SkpnUVc2S1FEd0Q0VFR6ZXlHNzZCdUU0YjNObW5tRXlzdEpYMEpRNFhrYm0xOEJKLXVfTmVoVGtiaVhlTW5MdW1vRERVdTF6Y1lYYW5GWHNMTWd4ekhTQmM2MFdxdFVNbUIwWFp3YndISXV4QzNieVNGTThyTXBQWlFxbXZiQldfdENiS2ZWMGh4S25CN2tIbWswdFpZeTR1YnowZE54dlBmcm5DR3BNc0dLTHUyRVV5aWNnekk5QVZVMlRabFpFZ1RBNkxXZ1M5VkJUY2VkSC1FUGtiU0taZ0ctUkdtUXZ3b3pBQTVoX1ZxTmhOT3E3ZEd3OUdTVGFHcVBaWXZReXlLSWRva3ZSdmJZdw?oc=5"
+      "link": "https://news.google.com/rss/articles/CBMi6AJBVV95cUxQTmxpNUstdFNQQmZBdm13dTJWRHZlVTFlRVlkWXZsSW1DOHE4UHNZRnk3bl82UVR5TlRwQmUycUliZ04yQ2duN29LNkoxNElJNmdzdHlGTFhWcEpaRkZqa3J0d0FLcDVqYjZ2ZVF5RlBNOFRqX2lDS0NmRTRmb0JLZENQMVFHQXVNZFpyZzAtc0laZkRMRkdOUGg2bXlLbFBrTGZoRHhGMmIzX1JjVmFiTDJVR3NfQkJHY1oyS0NKekZrVVFuQzdfRkFVY1NCTjNkNWdCNERLMXFGYnNOamRMSTROZjMtTDNvb3g3TzM3dGc0dGphYnVzWVdtbkI5WkxWbHdwMl9kWDJQdE5wU2NFWHVsVVgwLXZWNVJOX1JORkVlOWVUTjFqeVhKSTdyTUJlZjhUUi1wZXJMSHdDU2VFTktXc2w2R2d6Ny1wekZMNnk0SkUxWC0wRzJZMlN4SHdZNjdTSEl6WUzSAe4CQVVfeXFMTkF0ZG5jTXFTQXlCNUNUbWNMTjFpSlh5aGJLaXlfbmVfTVBwZHBPQ3N4U0tmblRoN2NlNHEtQUVpVlpyODZQRFlKdFlQa0NYaUpwWEplTHJmb1RUZG5pTXN2YXhNUTExaVRkc3pPUWNaNHROMWNEbW8tX3pweXZ3N2I5anZyX3FWcXZ6eEp4RkxlckE3T2E3RU5ZRlFOSDRrWlFKbXJDVDRrYTJDZExfYTNtSm14Y3l4YWJ5X0szM0RaUVlnSXlyZEdDV21UWndJTGRiQmVuT3VzN1g3a3ZqOGpLcEgteGhDTVN1ZGNCTkRETjBUT0ViUE1XMUxUeVNiR2taYzJrNWx3dEVVMy03eDhpQm5vUEdFUWxXNUdMaEQzX1I5MUl5MHVzYUVOQUpUSG9lc056ekVMcTAtc0ktbmpUanE0Wk96b05vLUZ5LWFyQ1MwLUlaTEVxSGN4U21DWEtsb1V5cHN5SlBxenl3?oc=5"
     },
     {
-      "source": "PBS",
-      "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxNR1BZa2dPa1lOcjNBSmF2MHFHcTNBTV9mQzZOZ3BzR1ZrekhVWUhzLWszajBVWExhYWxJUWJDejh4SjBTdFdobFk1Y1NlMEpad0I4cUtrY0o1VzhMYmNOX2tuWjF3dXhGbkFVOWJncnZDdEt2dUEydkhhX2pwQXZlaF96QTZ3Z2l3OURfN2lLaVRRcEFLejhVTGZVSEl4XzJLWmE0RmxKRy16Mkh2ZGJvbm0wMUExTU83dHVJUlRn0gHDAUFVX3lxTE9kWHZBeUc3cjFTeGNrQk5QeGl2cHpycW5zR19kQl9vbEY3MzdUX0ZCa2pmV0RNT1VSUElKTEhhNmRmaVVnc1k5R0V2RkhTYkJROUZ3YXZmVjlPSWZ5MWVTWkxYS1B3ai1BZnRVeTE5bmR6Mm01eHlDYlpJblAta3hYSnN5Tnhzc19ZRjJwUWVTZzNRQXd0MUJGU29NRko2aVVuTTByMndYeWU3bTRXNWpEeFBlVDF5RTBUU1VaQUdlT1RlRQ?oc=5"
+      "source": "Yahoo Finance UK",
+      "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOUFo1dkJ6QU9zYXZrV0cxM3hJNE52YzlNWVkxM2ZscVhVd0JkV0o4RlFsMjVodkt5aFBPOTc2UFA2bHNIWEhmVzgxM1lXUEh5blB1QXNlXzlwVmlwaTJZdUMwX3F1WVFraGVlMU5ITFh2WURtaVE2czdkUFJsRThncnAwdlhFejQ2OXFLX0Zaakk2RXpCcGNhZVk3eWtSOEtwWTlyaDBQeVNVY0Y3OXFiUGgwNA?oc=5"
+    },
+    {
+      "source": "NPR",
+      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQbXhqTkhuVFhZUVVRaFdXYXp2OTJ2TXJtVEFFNEp6YVFLbUZKS25KT2JDaGdCbjdGWnVqRVN6NVBfMjI5SEwwU2F1VDF0VndmYWE0U1JzQnRwMjJhZjFNWU1vbjJ2WjduQ1F3cFQ1TVBSQllFUVotX2R4MEw2UXBtTWF1eEdUYjRjc1pBSU9n?oc=5"
     }
   ],
   "market_raw": {
     "SP500": {
-      "close": 7709.96,
-      "change": -0.18,
-      "date": "2026-08-06"
+      "close": 7757.64,
+      "change": 0.62,
+      "date": "2026-08-07"
     },
     "NASDAQ": {
-      "close": 26348.35,
-      "change": -0.06,
-      "date": "2026-08-06"
+      "close": 26690.62,
+      "change": 1.3,
+      "date": "2026-08-07"
     },
     "DOW": {
-      "close": 53885.1,
-      "change": -0.85,
-      "date": "2026-08-06"
+      "close": 54036.93,
+      "change": 0.28,
+      "date": "2026-08-07"
     },
     "KOSPI": {
-      "close": 6245.44,
-      "change": -0.81,
+      "close": 6258.77,
+      "change": -0.6,
       "date": "2026-08-07"
     }
   },
