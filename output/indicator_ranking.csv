@@ -1,12 +1,12 @@
 ﻿rank,indicator,ind_type,sp500_signed_r,sp500_significant,sp500_granger_sig,sp500_granger_p,kospi_signed_r,kospi_significant,kospi_granger_sig,kospi_granger_p,combined_weight,direction_label
-1,HY_SPREAD,diff,-0.617,True,False,0.338705,-0.1136,True,True,0.004082,0.2974,bearish
+1,HY_SPREAD,diff,-0.617,True,False,0.338705,-0.1137,True,True,0.00363,0.2979,bearish
 2,DXY,diff,-0.3791,True,False,0.254359,-0.145,True,True,1e-06,0.2963,bearish
-4,INSTITUTION_NET,weekly_flow,0.0664,False,True,0.014894,0.3644,True,False,0.086368,0.2603,bullish
+4,INSTITUTION_NET,weekly_flow,0.0662,False,True,0.015331,0.3644,True,False,0.086994,0.2602,bullish
 5,US10Y,diff,-0.246,True,False,0.129263,-0.0045,False,True,0.040349,0.2371,bearish
 7,MARKET_STRENGTH,level,0.2171,True,False,0.186182,0.1225,True,True,0.000754,0.2338,bullish
-8,FOREIGN_NET,weekly_flow,0.0562,False,False,0.343438,0.3194,True,True,0.004261,0.2311,bullish
+8,FOREIGN_NET,weekly_flow,0.0567,False,False,0.34661,0.3196,True,True,0.004238,0.2311,bullish
 10,VIX,level,-0.2176,True,False,0.057285,-0.0829,False,True,0.0,0.2218,bearish
-11,CNN_FG,level,0.0239,False,False,0.670856,0.048,False,True,0.038004,0.1924,bullish
+11,CNN_FG,level,0.0239,False,False,0.670856,0.0495,False,True,0.038287,0.1923,bullish
 14,BBAND,level,0.3776,True,True,0.026368,0.1511,True,True,0.0,0.0529,bullish
 16,STOCH_RSI,level,0.3108,True,False,0.459189,0.1056,True,True,0.000419,0.0416,bullish
 17,MARKET_MOMENTUM,level,0.2398,True,True,0.030934,0.1312,True,True,0.0,0.0371,bullish
