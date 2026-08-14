@@ -1,31 +1,33 @@
 {
-  "computed_at": "2026-08-13T02:48:37.814792",
-  "composite_score": 57.4,
-  "kospi_composite_score": 58.0,
+  "computed_at": "2026-08-14T02:45:14.102380",
+  "composite_score": 64.2,
+  "kospi_composite_score": 64.8,
   "direction": "neutral",
   "sp500": {
     "action": "BUY (소량)",
     "strength": "약",
-    "confidence_pct": 37.5,
+    "confidence_pct": 49.4,
     "confidence_tier": "hold",
     "position_size_pct": 15,
     "position_note": "신뢰도 낮음 — 소량 또는 관망",
     "entry_triggers": [
+      "FOREIGN_NET 강세 (Z=+1.79) — 252일 평균 대비 1.8σ 이상",
+      "STOCH_RSI 강세 (Z=+1.53) — 252일 평균 대비 1.5σ 이상",
       "HY_SPREAD 축소 → 신용 리스크 감소, 위험자산 선호"
     ],
     "exit_triggers": [
       "US10Y 약세 (Z=+2.00) — 하방 압력"
     ],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+70%) / Nvidia (+19%)"
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+71%) / Nvidia (+24%)"
   },
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 28.9,
+    "confidence_pct": 41.5,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "신뢰도 낮음 — 소량 또는 관망",
-    "top_stocks_hint": "HD현대일렉트릭 (+62%) / KB금융 (+46%)"
+    "top_stocks_hint": "삼성전자 (+274%) / SK하이닉스 (+479%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
@@ -34,8 +36,8 @@
   ],
   "signal_summary": {
     "bullish": 10,
-    "bearish": 3,
-    "total": 13,
-    "consensus_ratio": 0.769
+    "bearish": 2,
+    "total": 12,
+    "consensus_ratio": 0.833
   }
 }
