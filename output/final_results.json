@@ -1,10 +1,10 @@
 {
   "meta": {
-    "generated_at": "2026-08-16T01:56:30.418008",
+    "generated_at": "2026-08-17T01:53:44.020493",
     "version": "4.0",
     "period": {
-      "start": "2025-08-16",
-      "end": "2026-08-16"
+      "start": "2025-08-17",
+      "end": "2026-08-17"
     },
     "total_indicators_collected": 28,
     "total_indicators_possible": 30,
@@ -17,7 +17,7 @@
       "MA200",
       "FED_ASSETS"
     ],
-    "data_reference_date": "2026-08-16"
+    "data_reference_date": "2026-08-17"
   },
   "market_signal": {
     "score": 62.0,
@@ -25,7 +25,7 @@
     "bullish_count": 9,
     "bearish_count": 3,
     "total_signals": 12,
-    "computed_at": "2026-08-16T01:56:30.417963",
+    "computed_at": "2026-08-17T01:53:44.020449",
     "methodology": "Z-score based composite: each indicator's latest value vs 252-day rolling mean/std, sign-adjusted by its SP500 Pearson correlation, weighted by combined_weight. Score = 50 + weighted_sum * 50. Risk-on>65, risk-off<35.",
     "indicator_signals": [
       {
@@ -489,9 +489,9 @@
         "index_return_pct": 119.62,
         "period_days": 242,
         "period_label": "1년 (365일)",
-        "market_cap_b": 1160.6,
-        "market_cap_start_b": 296.0,
-        "contribution_score": 0.835,
+        "market_cap_b": 1188.7,
+        "market_cap_start_b": 303.1,
+        "contribution_score": 0.8546,
         "n_days": 242,
         "data_quality": "검증완료",
         "data_source": "FDR",
@@ -506,9 +506,9 @@
         "index_return_pct": 119.62,
         "period_days": 242,
         "period_label": "1년 (365일)",
-        "market_cap_b": 862.0,
-        "market_cap_start_b": 140.2,
-        "contribution_score": 0.702,
+        "market_cap_b": 890.1,
+        "market_cap_start_b": 144.7,
+        "contribution_score": 0.7234,
         "n_days": 242,
         "data_quality": "검증완료",
         "data_source": "FDR",
@@ -524,9 +524,9 @@
         "index_return_pct": 119.62,
         "period_days": 242,
         "period_label": "1년 (365일)",
-        "market_cap_b": 109.2,
-        "market_cap_start_b": 13.0,
-        "contribution_score": 0.1442,
+        "market_cap_b": 112.8,
+        "market_cap_start_b": 13.4,
+        "contribution_score": 0.147,
         "n_days": 242,
         "data_quality": "검증완료",
         "data_source": "FDR",
@@ -542,9 +542,9 @@
         "index_return_pct": 119.62,
         "period_days": 242,
         "period_label": "1년 (365일)",
-        "market_cap_b": 83.2,
-        "market_cap_start_b": 8.4,
-        "contribution_score": 0.1145,
+        "market_cap_b": 86.2,
+        "market_cap_start_b": 8.8,
+        "contribution_score": 0.1164,
         "n_days": 242,
         "data_quality": "검증완료",
         "data_source": "FDR",
@@ -560,9 +560,9 @@
         "index_return_pct": 119.62,
         "period_days": 242,
         "period_label": "1년 (365일)",
-        "market_cap_b": 29.7,
-        "market_cap_start_b": 9.3,
-        "contribution_score": 0.0334,
+        "market_cap_b": 31.4,
+        "market_cap_start_b": 9.9,
+        "contribution_score": 0.0343,
         "n_days": 242,
         "data_quality": "검증완료",
         "data_source": "FDR",
@@ -676,12 +676,12 @@
         "rows": 201
       },
       "CNN_FG": {
-        "end_date": "2026-08-16",
+        "end_date": "2026-08-17",
         "rows": 400
       },
       "DOW": {
         "end_date": "2026-08-14",
-        "rows": 275
+        "rows": 272
       },
       "DXY": {
         "end_date": "2026-08-07",
@@ -736,8 +736,8 @@
         "rows": 275
       },
       "NIKKEI225": {
-        "end_date": "2026-08-14",
-        "rows": 265
+        "end_date": "2026-08-17",
+        "rows": 266
       },
       "RSI14": {
         "end_date": "2026-08-14",
@@ -749,7 +749,7 @@
       },
       "SKEW": {
         "end_date": "2026-08-14",
-        "rows": 275
+        "rows": 272
       },
       "STOCH_RSI": {
         "end_date": "2026-08-14",

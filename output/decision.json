@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-08-16T01:56:29.935140",
+  "computed_at": "2026-08-17T01:53:43.564363",
   "composite_score": 62.0,
   "kospi_composite_score": 63.9,
   "direction": "neutral",
@@ -17,7 +17,7 @@
     "exit_triggers": [
       "US10Y 약세 (Z=+1.79) — 하방 압력"
     ],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+70%) / Nvidia (+25%)"
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+70%) / Nvidia (+24%)"
   },
   "kospi": {
     "action": "HOLD",

@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-16T01:56:30.682975",
+  "generated_at": "2026-08-17T01:53:44.257221",
   "analysis_period": {
-    "start": "2025-08-16",
-    "end": "2026-08-16"
+    "start": "2025-08-17",
+    "end": "2026-08-17"
   },
   "signal": {
     "score": 62.0,
@@ -193,27 +193,27 @@
       {
         "name": "삼성전자",
         "stock_return_pct": 292.1,
-        "contribution_score": 0.835
+        "contribution_score": 0.855
       },
       {
         "name": "SK하이닉스",
         "stock_return_pct": 515.0,
-        "contribution_score": 0.702
+        "contribution_score": 0.723
       },
       {
         "name": "SK스퀘어",
         "stock_return_pct": 738.7,
-        "contribution_score": 0.144
+        "contribution_score": 0.147
       },
       {
         "name": "삼성전기",
         "stock_return_pct": 884.8,
-        "contribution_score": 0.115
+        "contribution_score": 0.116
       },
       {
         "name": "SK",
         "stock_return_pct": 217.8,
-        "contribution_score": 0.033
+        "contribution_score": 0.034
       }
     ],
     "beneficiary_top5": [

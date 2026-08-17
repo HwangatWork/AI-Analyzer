@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-16T01:56:28.961679",
-  "date": "2026-08-16",
+  "generated_at": "2026-08-17T01:53:42.755263",
+  "date": "2026-08-17",
   "movements": [
     "S&P500 7,785.76 (▼0.17%)",
     "나스닥 26,729.16 (▼0.28%)",
@@ -8,9 +8,9 @@
     "코스피 6,977.94 (▲2.42%)"
   ],
   "causes": [
+    "Fed 매파적 신호 → 금리 인하 기대 후퇴 → 성장주·기술주 조정",
     "인플레이션 예상 상회 → 금리 인하 경로 후퇴 → 리스크 자산 매도",
-    "Fed 금리 인상 우려 부각 → 채권 수익률 상승 → 밸류에이션 압박",
-    "NVDA 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▼0.28%"
+    "AMD 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▼0.28%"
   ],
   "watchpoints": [
     {
@@ -36,12 +36,12 @@
   ],
   "sources": [
     {
-      "source": "investopedia.com",
-      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNTFZ4emppTjVaV1BKXzlNWm9oZEw1RlNrcUxIWXB0NlF2UFY2WXg1dU5GWVV6NUhLN09CeVJXNEhMZnZjU1B1Y2U0c1NhTWwta09UOFJvMDJuNWtNVWJaT0hCQVFtWHlOR3BtcUF6WVVFanNQaF9CVjlBeXFYVlVZQXdRYk01VnVRY1NGVzNaeDI?oc=5"
-    },
-    {
       "source": "Yahoo Finance",
       "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxQRWs4ODczd2sySy16V0d6WG1fZnpJM19oLUFDcFBEVjIzVGlxMHg3ZEozOFhLa1dnR0VVRC14ZXkxaDFYcHpwMHhEU0hFY3lFbDRNRE5EOGJKOGk5VDJIT2NNbG9pcWtXWVA4ZFFWVW9NenFRcGlxVG4zNWxCMU1UMEtiQUY0Z2pELThROFdla0FtRTVobWJ0LUlHOGtfelJMaEMzZXFXcVdUenM?oc=5"
+    },
+    {
+      "source": "Investopedia",
+      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNTFZ4emppTjVaV1BKXzlNWm9oZEw1RlNrcUxIWXB0NlF2UFY2WXg1dU5GWVV6NUhLN09CeVJXNEhMZnZjU1B1Y2U0c1NhTWwta09UOFJvMDJuNWtNVWJaT0hCQVFtWHlOR3BtcUF6WVVFanNQaF9CVjlBeXFYVlVZQXdRYk01VnVRY1NGVzNaeDI?oc=5"
     },
     {
       "source": "MarketWatch",
@@ -52,8 +52,8 @@
       "link": "https://news.google.com/rss/articles/CBMiuwJBVV95cUxNRHhNeGRocTkyNml1M2NkU251MEJWQndBVHcwejFUSFUyUFZPdFBEZFpVNDgxYUswZW5lcEJRZFljMGVIWUcwaU9laEpzRFlmNmduVEZ1dDE3eGhZMTBZSGpvaUJweE5RcFgzcjhXakU3OTVuYVB4VHFlbFZYM3BrbldpQ0RrWkVESXF0OUpDZE9GazdGdE0wa3VhTGQ0RllOWjhBU19Xd29TNkxTVURWSTJiUWtyZ0dwazZ4M3dWQWQ2NVowWGJnRTRPUnNHeEZzcllwc0lVbXhUakVYNzdQV2FoWEgtdU9DTWV2WE5KLUlwQUdLZWRQMWNzTEVFY0VralNiWlJtcVZpcWkyNWRjQUIwenZ2aTczUEdoRjNpcHhBeW9mYVA4a213V2xGZnBJLXZ4azloeG5oemM?oc=5"
     },
     {
-      "source": "NPR",
-      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQbXhqTkhuVFhZUVVRaFdXYXp2OTJ2TXJtVEFFNEp6YVFLbUZKS25KT2JDaGdCbjdGWnVqRVN6NVBfMjI5SEwwU2F1VDF0VndmYWE0U1JzQnRwMjJhZjFNWU1vbjJ2WjduQ1F3cFQ1TVBSQllFUVotX2R4MEw2UXBtTWF1eEdUYjRjc1pBSU9n?oc=5"
+      "source": "PBS",
+      "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxNR1BZa2dPa1lOcjNBSmF2MHFHcTNBTV9mQzZOZ3BzR1ZrekhVWUhzLWszajBVWExhYWxJUWJDejh4SjBTdFdobFk1Y1NlMEpad0I4cUtrY0o1VzhMYmNOX2tuWjF3dXhGbkFVOWJncnZDdEt2dUEydkhhX2pwQXZlaF96QTZ3Z2l3OURfN2lLaVRRcEFLejhVTGZVSEl4XzJLWmE0RmxKRy16Mkh2ZGJvbm0wMUExTU83dHVJUlRn0gHDAUFVX3lxTE9kWHZBeUc3cjFTeGNrQk5QeGl2cHpycW5zR19kQl9vbEY3MzdUX0ZCa2pmV0RNT1VSUElKTEhhNmRmaVVnc1k5R0V2RkhTYkJROUZ3YXZmVjlPSWZ5MWVTWkxYS1B3ai1BZnRVeTE5bmR6Mm01eHlDYlpJblAta3hYSnN5Tnhzc19ZRjJwUWVTZzNRQXd0MUJGU29NRko2aVVuTTByMndYeWU3bTRXNWpEeFBlVDF5RTBUU1VaQUdlT1RlRQ?oc=5"
     }
   ],
   "market_raw": {
