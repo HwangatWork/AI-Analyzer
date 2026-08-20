@@ -1,32 +1,31 @@
 {
-  "computed_at": "2026-08-19T01:51:28.199030",
-  "composite_score": 60.4,
-  "kospi_composite_score": 62.2,
+  "computed_at": "2026-08-20T01:57:35.916789",
+  "composite_score": 53.7,
+  "kospi_composite_score": 54.9,
   "direction": "neutral",
   "sp500": {
-    "action": "BUY (소량)",
-    "strength": "약",
-    "confidence_pct": 41.2,
+    "action": "HOLD",
+    "strength": "중립",
+    "confidence_pct": 18.1,
     "confidence_tier": "hold",
-    "position_size_pct": 15,
-    "position_note": "신뢰도 낮음 — 소량 또는 관망",
+    "position_size_pct": 0,
+    "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
     "entry_triggers": [
-      "FOREIGN_NET 강세 (Z=+1.87) — 252일 평균 대비 1.9σ 이상",
       "HY_SPREAD 축소 → 신용 리스크 감소, 위험자산 선호"
     ],
     "exit_triggers": [
       "US10Y 약세 (Z=+2.00) — 하방 압력"
     ],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+70%) / Nvidia (+24%)"
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+71%) / Nvidia (+25%)"
   },
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 34.5,
+    "confidence_pct": 14.8,
     "confidence_tier": "hold",
     "position_size_pct": 0,
-    "position_note": "신뢰도 낮음 — 소량 또는 관망",
-    "top_stocks_hint": "HD현대일렉트릭 (+74%) / KB금융 (+56%)"
+    "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
+    "top_stocks_hint": "HD현대일렉트릭 (+63%) / KB금융 (+51%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
@@ -34,9 +33,9 @@
     "달러 강세 → 신흥국 자금 유출 위험 (KOSPI 주의)"
   ],
   "signal_summary": {
-    "bullish": 9,
-    "bearish": 3,
+    "bullish": 8,
+    "bearish": 4,
     "total": 12,
-    "consensus_ratio": 0.75
+    "consensus_ratio": 0.667
   }
 }
