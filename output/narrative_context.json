@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-23T01:59:02.284107",
+  "generated_at": "2026-08-24T01:56:19.927740",
   "analysis_period": {
-    "start": "2025-08-23",
-    "end": "2026-08-23"
+    "start": "2025-08-24",
+    "end": "2026-08-24"
   },
   "signal": {
     "score": 54.1,
@@ -192,27 +192,27 @@
     "contribution_top5": [
       {
         "name": "삼성전자",
-        "stock_return_pct": 293.7,
-        "contribution_score": 0.847
+        "stock_return_pct": 265.7,
+        "contribution_score": 0.852
       },
       {
         "name": "SK하이닉스",
-        "stock_return_pct": 566.7,
-        "contribution_score": 0.76
+        "stock_return_pct": 567.4,
+        "contribution_score": 0.776
       },
       {
         "name": "SK스퀘어",
-        "stock_return_pct": 675.5,
-        "contribution_score": 0.139
+        "stock_return_pct": 652.1,
+        "contribution_score": 0.137
       },
       {
         "name": "삼성전기",
-        "stock_return_pct": 735.0,
-        "contribution_score": 0.098
+        "stock_return_pct": 737.6,
+        "contribution_score": 0.096
       },
       {
         "name": "SK",
-        "stock_return_pct": 210.1,
+        "stock_return_pct": 199.5,
         "contribution_score": 0.033
       }
     ],
@@ -230,11 +230,11 @@
         "excess_return": 0
       },
       {
-        "name": "삼성전자",
+        "name": "대덕전자",
         "excess_return": 0
       },
       {
-        "name": "대덕전자",
+        "name": "삼성전자",
         "excess_return": 0
       }
     ]

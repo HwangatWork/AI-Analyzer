@@ -1,12 +1,12 @@
 {
-  "computed_at": "2026-08-23T01:59:01.630825",
-  "composite_score": 54.3,
-  "kospi_composite_score": 66.3,
+  "computed_at": "2026-08-24T01:56:19.234664",
+  "composite_score": 54.1,
+  "kospi_composite_score": 66.1,
   "direction": "neutral",
   "sp500": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 5.1,
+    "confidence_pct": 5.0,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
@@ -16,16 +16,16 @@
     "exit_triggers": [
       "US10Y 약세 (Z=+1.98) — 하방 압력"
     ],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+68%) / Nvidia (+21%)"
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+66%) / Nvidia (+20%)"
   },
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 16.1,
+    "confidence_pct": 15.9,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
-    "top_stocks_hint": "삼성전자 (+294%) / SK하이닉스 (+589%)"
+    "top_stocks_hint": "삼성전자 (+294%) / SK하이닉스 (+567%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
