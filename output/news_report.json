@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-08-24T01:56:18.468352",
-  "date": "2026-08-24",
+  "generated_at": "2026-08-25T01:55:04.418461",
+  "date": "2026-08-25",
   "movements": [
-    "S&P500 7,674.37 (▲0.43%)",
-    "나스닥 26,180.46 (▲0.43%)",
-    "다우 53,277.01 (▲0.98%)",
-    "코스피 6,791.79 (▼1.75%)"
+    "S&P500 7,652.86 (▼0.28%)",
+    "나스닥 25,980.19 (▼0.76%)",
+    "다우 53,417.16 (▲0.26%)",
+    "코스피 6,529.67 (▼2.50%)"
   ],
   "causes": [
-    "미국 10년물 금리 상승 → 할인율 압박 → 성장주 밸류에이션 하락",
-    "NVDA 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▲0.43%",
-    "The S&P 500 is back at a record high and the Dow j → 투자심리 위축 → S&P500 ▲0.43%"
+    "S&P 500, Nasdaq end down on tech stocks, investors → 투자심리 위축 → 나스닥 ▼0.76%",
+    "Update: Nasdaq, S&P 500 Fall as New Sanctions Plan → 투자심리 위축 → 나스닥 ▼0.76%",
+    "Fed 매파적 신호 → 금리 인하 기대 후퇴 → 성장주·기술주 조정"
   ],
   "watchpoints": [
     {
@@ -37,45 +37,45 @@
   "sources": [
     {
       "source": "Benzinga",
-      "link": "https://news.google.com/rss/articles/CBMipwJBVV95cUxOMURjR2ZDVFc0WkNHUkFhTlFjbGNlS19ydnpoSnFlU3NWWV9nZ25zckxVSmpNSTluSldwS1pWekxJUHd1LVZ3cmZRR1NXZm1RNHNjQmJyNEJTTlV3VnEybHN5ckFGaEV6eTNmcHB2NmQ4UC0zTDlUbzMzcFVRWWhjQXhRRGJWTkFNR0pQc0dqNTZ5ZkRfRU1FMGczVTIxS2VPNXlYak1DWURvTGpBekNrYVFnWjBEaFVmTkdrcFM0bjlzcHZObkJVbHpPYXhWTVNsNWZ6NWZSSnp5N2FYcVI4WGI5SU1RVmtvQnZGOTJUTWd5b1ZtVDYzdUJMQWpOenViTVV0SVdIaEp2b3R4X2JzZnJrci1NN1c1d2Q1NnZ1ZjVJSVZGcE5j?oc=5"
+      "link": "https://news.google.com/rss/articles/CBMilgJBVV95cUxPMWE0MGh4M243Uzd6NFZhZVB2bnQwRTZ2ZXdMc3NrWUl0aTBseXVrWGRtR2RPamwxcUF6XzN2YTJXcnd3Y052Wjh2WHJGWWRXUDNrczZtRlN5YWJiZU1MTjVWeHJ0SEFqZVh5OGFGQXdJR1JxS3hwdW9ndzRObjNYUXo4RHp3bW5iUm1WTjBMaDRfQUZ2WFlGa2k5YVVLZnRTcGxEUndVdHViSUZDOEhwaUJ6RlIwcm8zQzNBVFI2V0RVbXlkU0dQYU5SV2NpSzVCdDhnaGhOLUhseFpZQXNLN0RiNzFnWUVtbmFhTUdrOFlqNGE1MUI2LVp4LXBEUF9QM2ZYdlM5RGNNUXJtRkFFa2NUQ3FTQQ?oc=5"
     },
     {
       "source": "Reuters",
-      "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQX2E3YkdBQXBjbW43VmpoeklMN0VYV0ZtV0xZeUNHQUx0aXAxLW16MjU5bWdkLVRxUzlpNGhWWEpCeUJDd3JYbTJkZE5KTll3R3JkZGJoamdUSnRPMmp1d21Tc2lUb3FVcldGcXBXamZZU0lqcEV1SDdwN09pOUl4cTM4WHBnWDVhNExtbzdkMXBYVTRmVjVXSjQyYjMyUXJt?oc=5"
+      "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQZmVCQWYzaWpzTVpmVFJPV0xRdEtUcXg0N2JKZHB5Z2JFZWpWRHFwS0Q3R2NtVHp1c29rem5scXhwa0FZMFZJNGtqM3ZCRlVOa1doNGNtWEcxVVZCYXFDSXlEbmJwODhKbG5Kdk15RDJpbDFleUFpWkdmbWEtMkhGWnF0U1FWWVpmSnp4aXp4UzlPc2hzaFNTWllwSm5UVWlpNWtWQlkzX1dqOHJNbkg5ag?oc=5"
     },
     {
-      "source": "Investor's Business Daily",
-      "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxOWGVyOGkzVnFXZ2JtUV83amUyVmlNTVJGaVJxanQzLWhRY3lNYU5vdkFkQVRwWk9vdGo4TklfZVdULXZBNFIydkpVb296MjYyRHF0Um0tQV9GcHJiODRWYTJzTUNMV2tFSzZJWTFjVFo1dGQ5eFhmQzhVMThlaXJDM1JwSGdLRDdxdHBzclJ4b0FBeWtWMDBUZ0JrczR1ZXFhZTdqY3NjV3lMUHpqTHVEM1daLTlNMTFF?oc=5"
+      "source": "Investing.com",
+      "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxNZjEwQ0tDMzc1bW8yR24xcW5JTnE0bmxqRFE0LXI1b2V4UC1faWJqaXBSdTdzRDc5a1pDZzh4Y1JHaHQybnU1d2pzMjZhX3BMejI2emZmeHp3N1Nub3ZSQmw2LUJaMnhTN28xSWV5ZUZNbHJ3NkRwWl9hZ0FFRFpCVmhONVdweGN0U1hMYzdlZEdCendkUTJQUUYxYVNEcGtXVkF3M2tHeEpmSERxZGZXeF83TEJwbDg3MXJqUm93?oc=5"
+    },
+    {
+      "source": "Moomoo",
+      "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxOX3NUMkd2MVJoVGJnSTd6LUhpQkFFMTg3UE1BNGczYU5sOHJJQmZSYjhfeEJUcDdKaUVpaWVRdFF6NkUxa3h1cTQySXFmUC1MOTN4QkdPV2JPdzRZU3A4UlF6QnZHc2xVTFBhLXdMV2FaUGk4N1ZRTmtxVjloZ2pycHJHRnl2aWtWNWZkcXlTTE1PeGxzT2ZOb3lXTlp5N1Ro?oc=5"
     },
     {
       "source": "Yahoo Finance",
-      "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxNTGhtdTFoWHFwd1JJclB1dXVIcFQ2ZV9leUI0R1JSZGtndmN2cmY0NGM3VUZteE9CZ2hmRHluTXBGcTlyS05GNUNKcEh0NkdNUzA2eHBMalRrbFNVOXd4WHpTLUtibVk5THpRQ0c1aS16b1lnQVU5VXVYYmZNa2N6ZUdxbGNUVFgtU01EYndjWG5SaGs?oc=5"
-    },
-    {
-      "source": "CNN",
-      "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9sNTR6eTFUS1JYX1lnaWVIZGxJeVhmbENJMHN3SUc4TTlSaHpweUdwNUNLejJtSmIwb0x0SEQxalc2OVN1X2s1WFhPSWt2X2VrcFFVeXhVVVpxYVVnaUFjRDR3SUFxbzA?oc=5"
+      "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxNbmxkTUhDR0JXT1YtbDNjbmZvejZiSXhPdFRrMURINDdxS09hcTMyakRtZXNDXzZtYmdLdk9nQXlFdXI3a1FRZVRkS0lBVGEtNFZVQlBoYTVHZmxhRjhBcERvdnptZ1RMLS1BSllYYTdreDRXQWFPOXRuS2tlRTA5dUdoYi1KUFhwVTlXSDV3OThzam1Vc2ln?oc=5"
     }
   ],
   "market_raw": {
     "SP500": {
-      "close": 7674.37,
-      "change": 0.43,
-      "date": "2026-08-21"
+      "close": 7652.86,
+      "change": -0.28,
+      "date": "2026-08-24"
     },
     "NASDAQ": {
-      "close": 26180.46,
-      "change": 0.43,
-      "date": "2026-08-21"
+      "close": 25980.19,
+      "change": -0.76,
+      "date": "2026-08-24"
     },
     "DOW": {
-      "close": 53277.01,
-      "change": 0.98,
-      "date": "2026-08-21"
+      "close": 53417.16,
+      "change": 0.26,
+      "date": "2026-08-24"
     },
     "KOSPI": {
-      "close": 6791.79,
-      "change": -1.75,
-      "date": "2026-08-24"
+      "close": 6529.67,
+      "change": -2.5,
+      "date": "2026-08-25"
     }
   },
   "done_criteria": {
