@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-08-25T01:55:04.418461",
-  "date": "2026-08-25",
+  "generated_at": "2026-08-26T01:57:02.870045",
+  "date": "2026-08-26",
   "movements": [
-    "S&P500 7,652.86 (▼0.28%)",
-    "나스닥 25,980.19 (▼0.76%)",
-    "다우 53,417.16 (▲0.26%)",
-    "코스피 6,529.67 (▼2.50%)"
+    "S&P500 7,677.28 (▲0.32%)",
+    "나스닥 26,151.30 (▲0.66%)",
+    "다우 53,577.40 (▲0.30%)",
+    "코스피 6,750.83 (▲0.12%)"
   ],
   "causes": [
-    "S&P 500, Nasdaq end down on tech stocks, investors → 투자심리 위축 → 나스닥 ▼0.76%",
-    "Update: Nasdaq, S&P 500 Fall as New Sanctions Plan → 투자심리 위축 → 나스닥 ▼0.76%",
-    "Fed 매파적 신호 → 금리 인하 기대 후퇴 → 성장주·기술주 조정"
+    "S&P 500, Nasdaq end down on tech stocks, investors → 투자심리 위축 → 나스닥 ▲0.66%",
+    "Fed 매파적 신호 → 금리 인하 기대 후퇴 → 성장주·기술주 조정",
+    "인플레이션 예상 상회 → 금리 인하 경로 후퇴 → 리스크 자산 매도"
   ],
   "watchpoints": [
     {
@@ -44,38 +44,38 @@
       "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQZmVCQWYzaWpzTVpmVFJPV0xRdEtUcXg0N2JKZHB5Z2JFZWpWRHFwS0Q3R2NtVHp1c29rem5scXhwa0FZMFZJNGtqM3ZCRlVOa1doNGNtWEcxVVZCYXFDSXlEbmJwODhKbG5Kdk15RDJpbDFleUFpWkdmbWEtMkhGWnF0U1FWWVpmSnp4aXp4UzlPc2hzaFNTWllwSm5UVWlpNWtWQlkzX1dqOHJNbkg5ag?oc=5"
     },
     {
-      "source": "Investing.com",
-      "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxNZjEwQ0tDMzc1bW8yR24xcW5JTnE0bmxqRFE0LXI1b2V4UC1faWJqaXBSdTdzRDc5a1pDZzh4Y1JHaHQybnU1d2pzMjZhX3BMejI2emZmeHp3N1Nub3ZSQmw2LUJaMnhTN28xSWV5ZUZNbHJ3NkRwWl9hZ0FFRFpCVmhONVdweGN0U1hMYzdlZEdCendkUTJQUUYxYVNEcGtXVkF3M2tHeEpmSERxZGZXeF83TEJwbDg3MXJqUm93?oc=5"
+      "source": "NDTV Profit",
+      "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxOQTBDNEswb0ZuMUFiRTA0R3FmWm44bG9EZVpveHZwY2VORndSYzdPZnVlRU52M3dRUEMyeFVBdEhRam0yY0lvUC1VaVpmU1VwdHFlZHEteTdNOTdGMzVqdkxZRzNnVm9Md1VmZkE3Q096WUt4Zmd3NTl1RU03MjlkeUt1OEw5S2NyZEFzLXdJUlJqZnhneHZpaG5qTnkwS3ZtaHkyeTdSQ2RhWHY3dXRicnI2X0R3NUNyaUpSUmhqX3NLbkZ0UkJ5SkhlRdIB0wFBVV95cUxOTF90Z3ZLdzE0Nk1wb3pxcjU5eXptUUdZdmhpVzl5aTJ2SVJmNzFWSTVnNzVzWWFtb3Rld3JZZGZmaHFrWEd3RUhvX3JxV2VvbE9nck5LTjAwd2hTam5DMEd2OHBxUm0yM3ozNmdmWGR5cG5rdmVzUFpFM3pWUThuV290a3h6VDN5OXh2bmVzU2VldVpnX1BDekFQQUhwX1A5Q2NuVllsdmNyVGRmQVFIeXk5LVdqSU1fX1dJUFFEUWtFTHJXVWJURGNsTmthQmoxSHdN?oc=5"
     },
     {
-      "source": "Moomoo",
-      "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxOX3NUMkd2MVJoVGJnSTd6LUhpQkFFMTg3UE1BNGczYU5sOHJJQmZSYjhfeEJUcDdKaUVpaWVRdFF6NkUxa3h1cTQySXFmUC1MOTN4QkdPV2JPdzRZU3A4UlF6QnZHc2xVTFBhLXdMV2FaUGk4N1ZRTmtxVjloZ2pycHJHRnl2aWtWNWZkcXlTTE1PeGxzT2ZOb3lXTlp5N1Ro?oc=5"
+      "source": "AOL.com",
+      "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTFBGX3JvUzd5amFfZm84NWlTSi1kOTVqdG13YXdTUWFFNzN3UVBEZGVOR2lZNmRqRlZHaTFWTUJubHZZZXA2WHgwRW5NNTI5SWJCOVpVdnBWbERxWmZtdEpERzYwdnlxdXBpQy1za3lvbzhmMzZTbXNv?oc=5"
     },
     {
-      "source": "Yahoo Finance",
-      "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxNbmxkTUhDR0JXT1YtbDNjbmZvejZiSXhPdFRrMURINDdxS09hcTMyakRtZXNDXzZtYmdLdk9nQXlFdXI3a1FRZVRkS0lBVGEtNFZVQlBoYTVHZmxhRjhBcERvdnptZ1RMLS1BSllYYTdreDRXQWFPOXRuS2tlRTA5dUdoYi1KUFhwVTlXSDV3OThzam1Vc2ln?oc=5"
+      "source": "Federal Reserve Bank of San Francisco",
+      "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxOT3RjT1EyVWRJUFdQcG9fTDRPcGdfR1ZhUHJIZmZULXB2NndIVGlJa2h0ZWp4RlhEa0E0a1dURFV1Ti0tdnlWaFZHWXJ5akxTazZNZk1Rdkl3c25zZUpQVks0SkRSb1NHU3h3VExzdmpBZmxHUnVEWHo5TTJxb2xxZTM2X0M3VjJucVhwNWQyM25oZUN4SVNmWlVaX0JOY0hOSUtGS0pLX3RuREZiVmpVVTE0Smh5UmdsNXJaZE15RDhjb3AtLWc?oc=5"
     }
   ],
   "market_raw": {
     "SP500": {
-      "close": 7652.86,
-      "change": -0.28,
-      "date": "2026-08-24"
+      "close": 7677.28,
+      "change": 0.32,
+      "date": "2026-08-25"
     },
     "NASDAQ": {
-      "close": 25980.19,
-      "change": -0.76,
-      "date": "2026-08-24"
+      "close": 26151.3,
+      "change": 0.66,
+      "date": "2026-08-25"
     },
     "DOW": {
-      "close": 53417.16,
-      "change": 0.26,
-      "date": "2026-08-24"
+      "close": 53577.4,
+      "change": 0.3,
+      "date": "2026-08-25"
     },
     "KOSPI": {
-      "close": 6529.67,
-      "change": -2.5,
-      "date": "2026-08-25"
+      "close": 6750.83,
+      "change": 0.12,
+      "date": "2026-08-26"
     }
   },
   "done_criteria": {
