@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-08-26T01:57:02.870045",
-  "date": "2026-08-26",
+  "generated_at": "2026-08-27T09:33:33.626042",
+  "date": "2026-08-27",
   "movements": [
-    "S&P500 7,677.28 (▲0.32%)",
-    "나스닥 26,151.30 (▲0.66%)",
-    "다우 53,577.40 (▲0.30%)",
-    "코스피 6,750.83 (▲0.12%)"
+    "S&P500 7,675.70 (▼0.02%)",
+    "나스닥 26,130.20 (▼0.08%)",
+    "다우 53,463.88 (▼0.21%)",
+    "코스피 6,912.37 (▲1.53%)"
   ],
   "causes": [
-    "S&P 500, Nasdaq end down on tech stocks, investors → 투자심리 위축 → 나스닥 ▲0.66%",
-    "Fed 매파적 신호 → 금리 인하 기대 후퇴 → 성장주·기술주 조정",
-    "인플레이션 예상 상회 → 금리 인하 경로 후퇴 → 리스크 자산 매도"
+    "S&P 500, Nasdaq end down on tech stocks, investors → 투자심리 위축 → 나스닥 ▼0.08%",
+    "Dow Dips 114, Nasdaq Falls 21, S&P 500 Slips 2 - T → 투자심리 위축 → 나스닥 ▼0.08%",
+    "NVDA 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▼0.08%"
   ],
   "watchpoints": [
     {
@@ -36,6 +36,10 @@
   ],
   "sources": [
     {
+      "source": "NDTV Profit",
+      "link": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxPaTd6SER4aXg4dVdfNE1PYldUZ2J3c01vVTVFa1hSYmxJZjhQTEk1OUNZellaeXpkUnhCOXJydmlLYWVLY2xFRVctM0RuN0hPUzdUVUJ1M0t4Yy13N0RhRmFUNUtCd1U3UzhLNm1IQTNRTUJWWG8tNGpGY2lwTXlfcmwzb2Zia2ZBbkhrSl9UTW41Q0dQMjZZaTZhdElwcmM4ejNYTXlLNWMxbTA0VGdzSV9zWlhGV0Z6UXBERVZ0bkhnR29SS3JPWkhsZnlSZzZYWGdJNkln0gHeAUFVX3lxTE5BUFczTk5HV3ZGRzhNYUllaTJyVnJ5VEZpZTNFVW5yX2FKN3hYYkU3OVpSZ2FPaHhKM293SGlPLVdSS2l0YmkxSFlpS0h2ZFJNY1dqQXV2bGE1QUFCUnc5TlY1czNUYU5mVTNHWXR2YWdnT0JaQTdTWUhaRnh3WjFOUlVqWWpmeGpZZTF1a2VPQ25ORDZyTVdINUg0Qlp2UXBRSnhBQjRMaG5XSmRXTUtmaWdLWnEwUHNHSWRsZHlwTXZvWnJxYTZPZndyYkppeHppc0ltNmlWcU5nTC1QUQ?oc=5"
+    },
+    {
       "source": "Benzinga",
       "link": "https://news.google.com/rss/articles/CBMilgJBVV95cUxPMWE0MGh4M243Uzd6NFZhZVB2bnQwRTZ2ZXdMc3NrWUl0aTBseXVrWGRtR2RPamwxcUF6XzN2YTJXcnd3Y052Wjh2WHJGWWRXUDNrczZtRlN5YWJiZU1MTjVWeHJ0SEFqZVh5OGFGQXdJR1JxS3hwdW9ndzRObjNYUXo4RHp3bW5iUm1WTjBMaDRfQUZ2WFlGa2k5YVVLZnRTcGxEUndVdHViSUZDOEhwaUJ6RlIwcm8zQzNBVFI2V0RVbXlkU0dQYU5SV2NpSzVCdDhnaGhOLUhseFpZQXNLN0RiNzFnWUVtbmFhTUdrOFlqNGE1MUI2LVp4LXBEUF9QM2ZYdlM5RGNNUXJtRkFFa2NUQ3FTQQ?oc=5"
     },
@@ -44,12 +48,8 @@
       "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQZmVCQWYzaWpzTVpmVFJPV0xRdEtUcXg0N2JKZHB5Z2JFZWpWRHFwS0Q3R2NtVHp1c29rem5scXhwa0FZMFZJNGtqM3ZCRlVOa1doNGNtWEcxVVZCYXFDSXlEbmJwODhKbG5Kdk15RDJpbDFleUFpWkdmbWEtMkhGWnF0U1FWWVpmSnp4aXp4UzlPc2hzaFNTWllwSm5UVWlpNWtWQlkzX1dqOHJNbkg5ag?oc=5"
     },
     {
-      "source": "NDTV Profit",
-      "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxOQTBDNEswb0ZuMUFiRTA0R3FmWm44bG9EZVpveHZwY2VORndSYzdPZnVlRU52M3dRUEMyeFVBdEhRam0yY0lvUC1VaVpmU1VwdHFlZHEteTdNOTdGMzVqdkxZRzNnVm9Md1VmZkE3Q096WUt4Zmd3NTl1RU03MjlkeUt1OEw5S2NyZEFzLXdJUlJqZnhneHZpaG5qTnkwS3ZtaHkyeTdSQ2RhWHY3dXRicnI2X0R3NUNyaUpSUmhqX3NLbkZ0UkJ5SkhlRdIB0wFBVV95cUxOTF90Z3ZLdzE0Nk1wb3pxcjU5eXptUUdZdmhpVzl5aTJ2SVJmNzFWSTVnNzVzWWFtb3Rld3JZZGZmaHFrWEd3RUhvX3JxV2VvbE9nck5LTjAwd2hTam5DMEd2OHBxUm0yM3ozNmdmWGR5cG5rdmVzUFpFM3pWUThuV290a3h6VDN5OXh2bmVzU2VldVpnX1BDekFQQUhwX1A5Q2NuVllsdmNyVGRmQVFIeXk5LVdqSU1fX1dJUFFEUWtFTHJXVWJURGNsTmthQmoxSHdN?oc=5"
-    },
-    {
-      "source": "AOL.com",
-      "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTFBGX3JvUzd5amFfZm84NWlTSi1kOTVqdG13YXdTUWFFNzN3UVBEZGVOR2lZNmRqRlZHaTFWTUJubHZZZXA2WHgwRW5NNTI5SWJCOVpVdnBWbERxWmZtdEpERzYwdnlxdXBpQy1za3lvbzhmMzZTbXNv?oc=5"
+      "source": "TV News Check",
+      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxORjhsdU1sMGxBLXFYNFdiY19DU0UwUktvS3lENURpaENwUmExZ0xmelV0ZjBDNG9MRUh3Z3JsdHZfbWRDVE9BVzU5aUtnVUhLVlVnZEExeVdUU1k3UjJ1aThpSVQydWxwT3M2VUFaWWl0dENrN2N5ODg5TU5uZmlsN09LOGZiR0E5cDV5Wk1n?oc=5"
     },
     {
       "source": "Federal Reserve Bank of San Francisco",
@@ -58,24 +58,24 @@
   ],
   "market_raw": {
     "SP500": {
-      "close": 7677.28,
-      "change": 0.32,
-      "date": "2026-08-25"
+      "close": 7675.7,
+      "change": -0.02,
+      "date": "2026-08-26"
     },
     "NASDAQ": {
-      "close": 26151.3,
-      "change": 0.66,
-      "date": "2026-08-25"
+      "close": 26130.2,
+      "change": -0.08,
+      "date": "2026-08-26"
     },
     "DOW": {
-      "close": 53577.4,
-      "change": 0.3,
-      "date": "2026-08-25"
+      "close": 53463.88,
+      "change": -0.21,
+      "date": "2026-08-26"
     },
     "KOSPI": {
-      "close": 6750.83,
-      "change": 0.12,
-      "date": "2026-08-26"
+      "close": 6912.37,
+      "change": 1.53,
+      "date": "2026-08-27"
     }
   },
   "done_criteria": {
