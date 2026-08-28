@@ -1,23 +1,18 @@
 {
-  "generated_at": "2026-08-27T09:33:33.626042",
-  "date": "2026-08-27",
+  "generated_at": "2026-08-28T11:22:22.714346",
+  "date": "2026-08-28",
   "movements": [
-    "S&P500 7,675.70 (▼0.02%)",
-    "나스닥 26,130.20 (▼0.08%)",
-    "다우 53,463.88 (▼0.21%)",
-    "코스피 6,912.37 (▲1.53%)"
+    "S&P500 7,730.99 (▲0.72%)",
+    "나스닥 26,541.35 (▲1.57%)",
+    "다우 53,569.44 (▲0.20%)",
+    "코스피 6,788.88 (▼1.79%)"
   ],
   "causes": [
-    "S&P 500, Nasdaq end down on tech stocks, investors → 투자심리 위축 → 나스닥 ▼0.08%",
-    "Dow Dips 114, Nasdaq Falls 21, S&P 500 Slips 2 - T → 투자심리 위축 → 나스닥 ▼0.08%",
-    "NVDA 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▼0.08%"
+    "NVDA 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▲1.57%",
+    "S&P 500, Nasdaq end down on tech stocks, investors → 투자심리 위축 → 나스닥 ▲1.57%",
+    "Fed 매파적 신호 → 금리 인하 기대 후퇴 → 성장주·기술주 조정"
   ],
   "watchpoints": [
-    {
-      "date": "2026-08-28",
-      "event": "PCE 물가 (2026년 7월 데이터) 발표",
-      "significance": "Fed 선호 물가 지표, 인플레 방향성 가늠"
-    },
     {
       "date": "2026-09-04",
       "event": "비농업 고용(NFP) (2026년 8월 데이터) 발표",
@@ -32,24 +27,29 @@
       "date": "2026-09-16",
       "event": "FOMC 금리 결정 발표",
       "significance": "경제전망요약(SEP) + 점도표 공개"
+    },
+    {
+      "date": "2026-09-25",
+      "event": "PCE 물가 (2026년 8월 데이터) 발표",
+      "significance": "Fed 선호 물가 지표, 인플레 방향성 가늠"
     }
   ],
   "sources": [
     {
-      "source": "NDTV Profit",
-      "link": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxPaTd6SER4aXg4dVdfNE1PYldUZ2J3c01vVTVFa1hSYmxJZjhQTEk1OUNZellaeXpkUnhCOXJydmlLYWVLY2xFRVctM0RuN0hPUzdUVUJ1M0t4Yy13N0RhRmFUNUtCd1U3UzhLNm1IQTNRTUJWWG8tNGpGY2lwTXlfcmwzb2Zia2ZBbkhrSl9UTW41Q0dQMjZZaTZhdElwcmM4ejNYTXlLNWMxbTA0VGdzSV9zWlhGV0Z6UXBERVZ0bkhnR29SS3JPWkhsZnlSZzZYWGdJNkln0gHeAUFVX3lxTE5BUFczTk5HV3ZGRzhNYUllaTJyVnJ5VEZpZTNFVW5yX2FKN3hYYkU3OVpSZ2FPaHhKM293SGlPLVdSS2l0YmkxSFlpS0h2ZFJNY1dqQXV2bGE1QUFCUnc5TlY1czNUYU5mVTNHWXR2YWdnT0JaQTdTWUhaRnh3WjFOUlVqWWpmeGpZZTF1a2VPQ25ORDZyTVdINUg0Qlp2UXBRSnhBQjRMaG5XSmRXTUtmaWdLWnEwUHNHSWRsZHlwTXZvWnJxYTZPZndyYkppeHppc0ltNmlWcU5nTC1QUQ?oc=5"
+      "source": "Reuters",
+      "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPQjFsZE5oMDdHNmpjOTd5V0dmUHItLXFIbzQyblhZQ3Bfa0tGcmFDM3ZHS2ZJRlJEZzhDMXk2b2syeVRZNndVNzZvSnNVSnRFalZXUXJhUm5aZGVUVHVSZVQ0VzllN09IcWtOZENfRmV5eW9fOGU3Mi1JN1VNWGJ4RE1aY0gycWJfRjRrLXpzTmdoSXlSMW9vVHVtdTNJVmdhS0tXT2FwS2dGbGM2?oc=5"
+    },
+    {
+      "source": "Bloomberg.com",
+      "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQMzE0Yk81bWNFcFJkdjlUcHZlQTlBd3NSdjNBa1lKVXIwYm11TFZUNXhMbGsyQ2ZpUWFacG04dnMxeml3c2dObXU0bmFGRVZuUHd6YnR2RTNRd3V6c2ZYSkZ0WnZRdkxkZ0VsbkRiREJoLTFJMHhVVm9XRDFMQzBiT2trenBjMmtrRlpyeGlWd1E4a1Mwcmt4cGRiU1lLX2xuMUdMaGE2OUNXZXd5Y1d3TQ?oc=5"
+    },
+    {
+      "source": "The Business Times",
+      "link": "https://news.google.com/rss/articles/CBMi8gFBVV95cUxOWWsxanNaam5fNmxYYXhueUg0Q20wUjFaWGQ5MWNCZXBVQ3NxVWFicURTZkxwNzV1Q0NPb1J5ZnRzQWsyYUJ2bHBFdUp1VmlNSWROM01GZHY3UHNrNVBoTEdXTDV1THNPamc2NHlxTE5fU3h4aGNnOEVoeHVYSjBOWnZnTHJwZlZEcml5THQ5YTRJWmRJVkhFbTBVSmUxTVR3UnJsZENPV2VsUHJIS3VjNTRMY3lCQXREaW1fUVdIaDRqaGlEbVRKc2RnakFiOVFMMmJuX0Z2MTl0NVdEODV0MVMzTjRuTld4ZHRuVUpLOGFPdw?oc=5"
     },
     {
       "source": "Benzinga",
-      "link": "https://news.google.com/rss/articles/CBMilgJBVV95cUxPMWE0MGh4M243Uzd6NFZhZVB2bnQwRTZ2ZXdMc3NrWUl0aTBseXVrWGRtR2RPamwxcUF6XzN2YTJXcnd3Y052Wjh2WHJGWWRXUDNrczZtRlN5YWJiZU1MTjVWeHJ0SEFqZVh5OGFGQXdJR1JxS3hwdW9ndzRObjNYUXo4RHp3bW5iUm1WTjBMaDRfQUZ2WFlGa2k5YVVLZnRTcGxEUndVdHViSUZDOEhwaUJ6RlIwcm8zQzNBVFI2V0RVbXlkU0dQYU5SV2NpSzVCdDhnaGhOLUhseFpZQXNLN0RiNzFnWUVtbmFhTUdrOFlqNGE1MUI2LVp4LXBEUF9QM2ZYdlM5RGNNUXJtRkFFa2NUQ3FTQQ?oc=5"
-    },
-    {
-      "source": "Reuters",
-      "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQZmVCQWYzaWpzTVpmVFJPV0xRdEtUcXg0N2JKZHB5Z2JFZWpWRHFwS0Q3R2NtVHp1c29rem5scXhwa0FZMFZJNGtqM3ZCRlVOa1doNGNtWEcxVVZCYXFDSXlEbmJwODhKbG5Kdk15RDJpbDFleUFpWkdmbWEtMkhGWnF0U1FWWVpmSnp4aXp4UzlPc2hzaFNTWllwSm5UVWlpNWtWQlkzX1dqOHJNbkg5ag?oc=5"
-    },
-    {
-      "source": "TV News Check",
-      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxORjhsdU1sMGxBLXFYNFdiY19DU0UwUktvS3lENURpaENwUmExZ0xmelV0ZjBDNG9MRUh3Z3JsdHZfbWRDVE9BVzU5aUtnVUhLVlVnZEExeVdUU1k3UjJ1aThpSVQydWxwT3M2VUFaWWl0dENrN2N5ODg5TU5uZmlsN09LOGZiR0E5cDV5Wk1n?oc=5"
+      "link": "https://news.google.com/rss/articles/CBMivAJBVV95cUxQVFpqZXFhNEoyNzljUVNoV2FCV25pZm1zUXk2cWdOTlE4RE90UExnMTRtUzhiOF9LMkFEZE5iMVVRRk93bE84Z3FlZGJmWmNvaFZabzRtbV9wUjBDdVFFNkswUVByWnR1TDZOQzFtVmFDeEhJWkF6Q2pMUDlFcWFmbk9nU0dJR3Q0YTljVy1EYW5NRGxrV3dCa19MV0Q2S0t4bm1YM1RYWWZvdi04N09ZQl81WHdHUVJNOUk2cjZOdFlJaTN2aUZYdmpxUDhlRm1mb05sWllTNGVxMkxDaHdmRFlLMU4wRUdCZk84YlNncjI3aHVwbnd6NGFSVUxsb3EtRHVuNUF5UDh1QXVTb3RXcjdYa1JiVUpjdUZKRlZ2NUR4d3IxYjluLWM3bXZEQjhmSURFRFhfdERqd1ZX?oc=5"
     },
     {
       "source": "Federal Reserve Bank of San Francisco",
@@ -58,24 +58,24 @@
   ],
   "market_raw": {
     "SP500": {
-      "close": 7675.7,
-      "change": -0.02,
-      "date": "2026-08-26"
+      "close": 7730.99,
+      "change": 0.72,
+      "date": "2026-08-27"
     },
     "NASDAQ": {
-      "close": 26130.2,
-      "change": -0.08,
-      "date": "2026-08-26"
+      "close": 26541.35,
+      "change": 1.57,
+      "date": "2026-08-27"
     },
     "DOW": {
-      "close": 53463.88,
-      "change": -0.21,
-      "date": "2026-08-26"
+      "close": 53569.44,
+      "change": 0.2,
+      "date": "2026-08-27"
     },
     "KOSPI": {
-      "close": 6912.37,
-      "change": 1.53,
-      "date": "2026-08-27"
+      "close": 6788.88,
+      "change": -1.79,
+      "date": "2026-08-28"
     }
   },
   "done_criteria": {

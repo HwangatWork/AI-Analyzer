@@ -1,7 +1,7 @@
 {
-  "computed_at": "2026-08-27T09:33:34.441117",
-  "composite_score": 52.7,
-  "kospi_composite_score": 63.8,
+  "computed_at": "2026-08-28T11:22:23.698116",
+  "composite_score": 56.9,
+  "kospi_composite_score": 67.2,
   "direction": "neutral",
   "sp500": {
     "action": "HOLD",
@@ -15,23 +15,22 @@
       "HY_SPREAD 축소 → 신용 리스크 감소, 위험자산 선호"
     ],
     "exit_triggers": [
-      "US10Y 약세 (Z=+1.98) — 하방 압력",
-      "FOREIGN_NET 약세 (Z=-1.59) — 하방 압력"
+      "US10Y 약세 (Z=+1.67) — 하방 압력"
     ],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+68%) / Micron Technology (+702%)"
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+65%) / Micron Technology (+698%)"
   },
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 20.5,
+    "confidence_pct": 23.2,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
-    "top_stocks_hint": "KB금융 (+54%) / GS (+176%)"
+    "top_stocks_hint": "삼성전자 (+277%) / SK하이닉스 (+565%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
-    "미국 10년물 금리 상승 (Z=+1.98) → 할인율 부담",
+    "미국 10년물 금리 상승 (Z=+1.67) → 할인율 부담",
     "달러 강세 → 신흥국 자금 유출 위험 (KOSPI 주의)",
     "볼린저밴드 하단 근접 → 변동성 확대 국면"
   ],
