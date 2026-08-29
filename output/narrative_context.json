@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-08-28T11:22:24.401405",
+  "generated_at": "2026-08-29T07:01:30.409533",
   "analysis_period": {
-    "start": "2025-08-28",
-    "end": "2026-08-28"
+    "start": "2025-08-29",
+    "end": "2026-08-29"
   },
   "signal": {
-    "score": 52.6,
+    "score": 53.1,
     "direction": "neutral",
-    "bullish_count": 7,
+    "bullish_count": 6,
     "bearish_count": 7,
-    "total_signals": 14,
+    "total_signals": 13,
     "indicator_details": [
       {
         "indicator": "CNN_FG",
@@ -19,26 +19,26 @@
       },
       {
         "indicator": "US10Y",
-        "z_score": 1.749,
-        "weight": 0.4391,
+        "z_score": 1.778,
+        "weight": 0.4393,
         "bullish": false
       },
       {
         "indicator": "DXY",
         "z_score": -1.613,
-        "weight": 0.2965,
+        "weight": 0.297,
         "bullish": true
       },
       {
         "indicator": "HY_SPREAD",
-        "z_score": -1.205,
-        "weight": 0.3003,
+        "z_score": -1.438,
+        "weight": 0.3007,
         "bullish": true
       },
       {
         "indicator": "INSTITUTION_NET",
         "z_score": -1.114,
-        "weight": 0.2542,
+        "weight": 0.2539,
         "bullish": false
       },
       {
@@ -49,26 +49,20 @@
       },
       {
         "indicator": "STOCH_RSI",
-        "z_score": -0.782,
-        "weight": 0.0396,
+        "z_score": -0.789,
+        "weight": 0.0393,
         "bullish": false
       },
       {
         "indicator": "MARKET_STRENGTH",
         "z_score": -0.67,
-        "weight": 0.231,
+        "weight": 0.2309,
         "bullish": false
-      },
-      {
-        "indicator": "T10Y2Y",
-        "z_score": -0.588,
-        "weight": 0.01,
-        "bullish": true
       },
       {
         "indicator": "WTI",
         "z_score": 0.497,
-        "weight": 0.2319,
+        "weight": 0.2318,
         "bullish": false
       },
       {
@@ -116,36 +110,36 @@
     {
       "rank": 1,
       "indicator": "US10Y",
-      "combined_weight": 0.4391,
-      "sp500_signed_r": -0.2491,
-      "kospi_signed_r": 0.0123
+      "combined_weight": 0.4393,
+      "sp500_signed_r": -0.2472,
+      "kospi_signed_r": 0.0126
     },
     {
       "rank": 2,
       "indicator": "VIX",
       "combined_weight": 0.4163,
-      "sp500_signed_r": -0.2079,
-      "kospi_signed_r": -0.0853
+      "sp500_signed_r": -0.207,
+      "kospi_signed_r": -0.0854
     },
     {
       "rank": 3,
       "indicator": "HY_SPREAD",
-      "combined_weight": 0.3003,
-      "sp500_signed_r": -0.6188,
-      "kospi_signed_r": -0.1108
+      "combined_weight": 0.3007,
+      "sp500_signed_r": -0.6206,
+      "kospi_signed_r": -0.1118
     },
     {
       "rank": 4,
       "indicator": "DXY",
-      "combined_weight": 0.2965,
-      "sp500_signed_r": -0.3751,
-      "kospi_signed_r": -0.139
+      "combined_weight": 0.297,
+      "sp500_signed_r": -0.3786,
+      "kospi_signed_r": -0.1393
     },
     {
       "rank": 6,
       "indicator": "INSTITUTION_NET",
-      "combined_weight": 0.2542,
-      "sp500_signed_r": 0.0701,
+      "combined_weight": 0.2539,
+      "sp500_signed_r": 0.07,
       "kospi_signed_r": 0.3566
     }
   ],
@@ -153,28 +147,28 @@
     "contribution_top5": [
       {
         "name": "Alphabet Inc. (Class A)",
-        "stock_return_pct": 61.4,
-        "contribution_score": 0.849
+        "stock_return_pct": 60.5,
+        "contribution_score": 0.858
       },
       {
         "name": "Nvidia",
-        "stock_return_pct": 26.7,
-        "contribution_score": 0.76
+        "stock_return_pct": 31.1,
+        "contribution_score": 0.814
       },
       {
         "name": "Micron Technology",
-        "stock_return_pct": 667.9,
-        "contribution_score": 0.523
+        "stock_return_pct": 687.2,
+        "contribution_score": 0.524
       },
       {
         "name": "Apple Inc.",
-        "stock_return_pct": 35.8,
-        "contribution_score": 0.453
+        "stock_return_pct": 36.0,
+        "contribution_score": 0.463
       },
       {
         "name": "Advanced Micro Devices",
-        "stock_return_pct": 182.8,
-        "contribution_score": 0.296
+        "stock_return_pct": 193.1,
+        "contribution_score": 0.295
       }
     ],
     "beneficiary_top5": [
@@ -204,28 +198,28 @@
     "contribution_top5": [
       {
         "name": "삼성전자",
-        "stock_return_pct": 269.2,
-        "contribution_score": 0.784
+        "stock_return_pct": 268.7,
+        "contribution_score": 0.797
       },
       {
         "name": "SK하이닉스",
-        "stock_return_pct": 515.6,
-        "contribution_score": 0.74
+        "stock_return_pct": 514.5,
+        "contribution_score": 0.744
       },
       {
         "name": "SK스퀘어",
-        "stock_return_pct": 587.2,
+        "stock_return_pct": 589.9,
         "contribution_score": 0.126
       },
       {
         "name": "삼성전기",
-        "stock_return_pct": 777.7,
+        "stock_return_pct": 785.4,
         "contribution_score": 0.1
       },
       {
         "name": "삼성물산",
-        "stock_return_pct": 121.8,
-        "contribution_score": 0.03
+        "stock_return_pct": 123.5,
+        "contribution_score": 0.031
       }
     ],
     "beneficiary_top5": [
