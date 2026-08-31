@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-08-30T05:24:16.706492",
-  "date": "2026-08-30",
+  "generated_at": "2026-08-31T05:25:53.808171",
+  "date": "2026-08-31",
   "movements": [
     "S&P500 7,711.76 (▼0.25%)",
     "나스닥 26,402.42 (▼0.52%)",
     "다우 53,559.99 (▼0.02%)",
-    "코스피 6,788.88 (▼1.79%)"
+    "코스피 6,772.73 (▼0.24%)"
   ],
   "causes": [
-    "Market Braces For Warsh Speech; Marvell, Affirm, P → 투자심리 위축 → 나스닥 ▼0.52%",
     "NVDA 실적/가이던스 시장 예상치 하회 → 반도체 섹터 매도 확산 → 나스닥 ▼0.52%",
+    "Market Braces For Warsh Speech; Marvell, Affirm, P → 투자심리 위축 → 나스닥 ▼0.52%",
     "인플레이션 예상 상회 → 금리 인하 경로 후퇴 → 리스크 자산 매도"
   ],
   "watchpoints": [
@@ -36,20 +36,20 @@
   ],
   "sources": [
     {
-      "source": "Investor's Business Daily",
-      "link": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxQU2lieXNKSnZwWXpLVTFYM1ZhSjJMM25uUW1Tc2QyUTNseFUxQzNIWnlPXzBVWmJrNF9majBEUUFIbDZYSDhQN0JxRFNXY1JnOW53MzQ3RUI3TWpHejlJZXJHVGtZOG5zTHgyZlZGTnYtTnBWaGw5NUpwMkZ0UzkxcGl0amUyUlNsb2NsZm9CZ1VzSm9IWnFYaERKRVpEcGM2eVdTNXloVER3clRWZFRVZEczWmFLbzgtR09Na2lqeUtmTW11WkZ3Q0lSU3FxT3RuVFdHM1V4UFZTXzFPdVpkYU1n?oc=5"
-    },
-    {
       "source": "Reuters",
       "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPQjFsZE5oMDdHNmpjOTd5V0dmUHItLXFIbzQyblhZQ3Bfa0tGcmFDM3ZHS2ZJRlJEZzhDMXk2b2syeVRZNndVNzZvSnNVSnRFalZXUXJhUm5aZGVUVHVSZVQ0VzllN09IcWtOZENfRmV5eW9fOGU3Mi1JN1VNWGJ4RE1aY0gycWJfRjRrLXpzTmdoSXlSMW9vVHVtdTNJVmdhS0tXT2FwS2dGbGM2?oc=5"
+    },
+    {
+      "source": "Investor's Business Daily",
+      "link": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxQU2lieXNKSnZwWXpLVTFYM1ZhSjJMM25uUW1Tc2QyUTNseFUxQzNIWnlPXzBVWmJrNF9majBEUUFIbDZYSDhQN0JxRFNXY1JnOW53MzQ3RUI3TWpHejlJZXJHVGtZOG5zTHgyZlZGTnYtTnBWaGw5NUpwMkZ0UzkxcGl0amUyUlNsb2NsZm9CZ1VzSm9IWnFYaERKRVpEcGM2eVdTNXloVER3clRWZFRVZEczWmFLbzgtR09Na2lqeUtmTW11WkZ3Q0lSU3FxT3RuVFdHM1V4UFZTXzFPdVpkYU1n?oc=5"
     },
     {
       "source": "Yahoo Finance Singapore",
       "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE82WnVYRlFFcGJqOG1Jai1Fa1Q5ZWg0MGhpRVBBV0tBdnR1a2xMZHhyZVhZMVVuaXZEX1FOLUlKN0ZPQTAtajdJUmRDTFNINzA5MVR1Vzd1dEl0RUpJenBFV1l3ZWozdlczRUxWdzVZVmFCWVcwbmM1Z1FkRDAyOFU?oc=5"
     },
     {
-      "source": "Bloomberg.com",
-      "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQMzE0Yk81bWNFcFJkdjlUcHZlQTlBd3NSdjNBa1lKVXIwYm11TFZUNXhMbGsyQ2ZpUWFacG04dnMxeml3c2dObXU0bmFGRVZuUHd6YnR2RTNRd3V6c2ZYSkZ0WnZRdkxkZ0VsbkRiREJoLTFJMHhVVm9XRDFMQzBiT2trenBjMmtrRlpyeGlWd1E4a1Mwcmt4cGRiU1lLX2xuMUdMaGE2OUNXZXd5Y1d3TQ?oc=5"
+      "source": "NPR",
+      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNZ29adFdRZFdqaTlNc3d2bGY0N29nNUtfd3ByZkIxc0dWRmJ0OHNuS0pJME42enEzd01od1ZhZ1lOQ3BDUGFEODhzcFpxanU4T0hLLWItenZMNHduOGhOTXNreFJjYWMtZ0VlMklzTmhpbjVBc1pHdFhXdVg5S1RObGM5MUlHbGRrMEE0eWp6cWliOUxQUzFwNHQ2WlEza3c?oc=5"
     },
     {
       "source": "marketplace.org",
@@ -73,9 +73,9 @@
       "date": "2026-08-28"
     },
     "KOSPI": {
-      "close": 6788.88,
-      "change": -1.79,
-      "date": "2026-08-28"
+      "close": 6772.73,
+      "change": -0.24,
+      "date": "2026-08-31"
     }
   },
   "done_criteria": {

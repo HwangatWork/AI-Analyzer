@@ -1,12 +1,12 @@
 {
-  "computed_at": "2026-08-30T05:24:17.489470",
-  "composite_score": 53.1,
-  "kospi_composite_score": 67.0,
+  "computed_at": "2026-08-31T05:25:54.629083",
+  "composite_score": 54.4,
+  "kospi_composite_score": 64.9,
   "direction": "neutral",
   "sp500": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 11.9,
+    "confidence_pct": 12.6,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
@@ -18,21 +18,22 @@
     "exit_triggers": [
       "US10Y 약세 (Z=+1.78) — 하방 압력"
     ],
-    "top_stocks_hint": "Alphabet Inc. (Class A) (+60%) / Nvidia (+31%)"
+    "top_stocks_hint": "Alphabet Inc. (Class A) (+64%) / Nvidia (+28%)"
   },
   "kospi": {
     "action": "HOLD",
     "strength": "중립",
-    "confidence_pct": 20.7,
+    "confidence_pct": 19.5,
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
-    "top_stocks_hint": "삼성전자 (+269%) / SK하이닉스 (+514%)"
+    "top_stocks_hint": "삼성전자 (+280%) / SK하이닉스 (+546%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
     "미국 10년물 금리 상승 (Z=+1.78) → 할인율 부담",
-    "달러 강세 → 신흥국 자금 유출 위험 (KOSPI 주의)"
+    "달러 강세 → 신흥국 자금 유출 위험 (KOSPI 주의)",
+    "볼린저밴드 하단 근접 → 변동성 확대 국면"
   ],
   "signal_summary": {
     "bullish": 6,
