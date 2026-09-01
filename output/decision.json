@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-08-31T05:25:54.629083",
+  "computed_at": "2026-09-01T05:06:11.370287",
   "composite_score": 54.4,
   "kospi_composite_score": 64.9,
   "direction": "neutral",
@@ -27,7 +27,7 @@
     "confidence_tier": "hold",
     "position_size_pct": 0,
     "position_note": "명확한 방향성 미확인 — 현금 비중 유지",
-    "top_stocks_hint": "삼성전자 (+280%) / SK하이닉스 (+546%)"
+    "top_stocks_hint": "삼성전자 (+281%) / SK하이닉스 (+546%)"
   },
   "risk_factors": [
     "WTI 상승 → 인플레이션 재점화 위험",
